@@ -1522,18 +1522,6 @@ kbd {
 .select-shell {
   position: relative;
   color: var(--pb-text-muted);
-  &::after {
-    content: "";
-    position: absolute;
-    inset-inline-end: 14px;
-    top: 50%;
-    inline-size: 7px;
-    block-size: 7px;
-    border-inline-end: 1.5px solid currentColor;
-    border-block-end: 1.5px solid currentColor;
-    transform: translateY(-75%) rotate(45deg);
-    pointer-events: none;
-  }
 }
 .gm .select-shell > .gm-select {
   appearance: none;
@@ -1809,6 +1797,11 @@ kbd {
 .gm .search-shell {
   max-width: 400px;
 }
+.gm .search-shell > [data-icon] {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
 .gm .search-input {
   border: 0;
   background: var(--gm-background);
@@ -1874,6 +1867,7 @@ kbd {
 .gm .note-list {
   gap: 6px;
   padding: 0 0 6px;
+  grid-auto-rows: max-content;
 }
 .gm .note-card {
   padding: 10px;
@@ -1911,6 +1905,10 @@ kbd {
 }
 .gm .date-calendar-footer {
   flex-wrap: nowrap;
+  margin-block-start: 14px;
+}
+.gm .date-popover {
+  padding-block-end: 14px;
 }
 .gm .date-calendar-footer .gm-btn {
   flex: 1 1 auto;
@@ -2082,6 +2080,7 @@ kbd {
   background: transparent;
   box-shadow: none;
   padding-inline: 7px;
+  text-overflow: ellipsis;
 }
 .gm .column-title:focus {
   border-color: var(--gm-focus);
@@ -2154,8 +2153,8 @@ html:not([data-ui-theme]) {
   --ui-surface: #fff;
   --ui-inset: #f8f8fa;
   --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #6e6e73;
   --ui-border: #e0e0e5;
   --ui-input-border: #c7c7cc;
@@ -2172,8 +2171,8 @@ html[data-ui-theme=dark] {
   --ui-surface: #2b2b2e;
   --ui-inset: #252528;
   --ui-text: #e1e1e6;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #b2b2b9;
   --ui-border: #444449;
   --ui-input-border: #74747c;
@@ -2768,6 +2767,12 @@ html[data-ui-theme=dark] {
 .art-app .confirm-panel {
   overflow: auto;
 }
+.art-app #toast.toast:popover-open {
+  top: auto;
+  right: auto;
+  margin: 0;
+  overflow: visible;
+}
 .art-app :is(.drawer-panel) {
   --ui-dialog-width: 620px;
 }
@@ -3001,7 +3006,7 @@ body.art-app[data-tool=kanban] :is(.board-tools, .settings-actions, .drawer-foot
   gap: var(--ui-action-group-gap);
   flex-wrap: wrap;
 }
-body.art-app[data-tool=kanban] :is(#search-edit-clear-btn, #empty-clear-search-btn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.art-app[data-tool=kanban] :is(#search-edit-clear-btn, #empty-clear-search-btn, #clear-search-btn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -3009,8 +3014,8 @@ body.art-app[data-tool=kanban] :is(#search-edit-clear-btn, #empty-clear-search-b
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=kanban] :is(#storage-export-btn, #storage-original-btn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -3078,7 +3083,7 @@ body.art-app[data-tool=kanban] :is(#checklist-undo-btn, #deletion-undo-btn):not(
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M2%200H4V1H3V2H6V3H7V4H8V7H7V8H5V7H6V4H5V3H2V4H3V5H2V4H1V3H0V2H1V1H2Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M2%200H4V1H3V2H6V3H7V4H8V7H7V8H5V7H6V4H5V3H2V4H3V5H2V4H1V3H0V2H1V1H2Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=kanban] :is(#date-direct-apply-btn, #date-today-btn, #confirm-ok-btn, #drawer-done-btn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.art-app[data-tool=kanban] :is(#date-direct-apply-btn, #date-today-btn, #confirm-ok-btn:not(.gm-btn-danger), #drawer-done-btn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -3089,7 +3094,7 @@ body.art-app[data-tool=kanban] :is(#date-direct-apply-btn, #date-today-btn, #con
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M6%201H8V3H7V4H6V5H5V6H4V7H2V6H1V5H0V3H2V4H3V5H4V4H5V3H6Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M6%201H8V3H7V4H6V5H5V6H4V7H2V6H1V5H0V3H2V4H3V5H4V4H5V3H6Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=kanban] :is(#reset-board-btn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.art-app[data-tool=kanban] :is(#reset-board-btn, #confirm-ok-btn.gm-btn-danger):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -3108,8 +3113,8 @@ body.art-app[data-tool=kanban] :is(#date-clear-btn, #date-close-btn, #confirm-ca
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 html[data-ui-theme=light] body.art-app[data-tool=kanban] {
   --px-r8-border:url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%23c7c7cc%22%20d%3D%22M4%200h16v2h-16zM2%202h4v2h-4zM18%202h4v2h-4zM0%204h4v2h-4zM20%204h4v2h-4zM0%206h2v2h-2zM22%206h2v2h-2zM0%208h2v2h-2zM22%208h2v2h-2zM0%2010h2v2h-2zM22%2010h2v2h-2zM0%2012h2v2h-2zM22%2012h2v2h-2zM0%2014h2v2h-2zM22%2014h2v2h-2zM0%2016h2v2h-2zM22%2016h2v2h-2zM0%2018h4v2h-4zM20%2018h4v2h-4zM2%2020h4v2h-4zM18%2020h4v2h-4zM4%2022h16v2h-16z%22%2F%3E%3C%2Fsvg%3E);
@@ -3680,25 +3685,34 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
   border: 1px solid var(--ui-input-border);
   border-radius: 10px;
 }
-.art-app[data-tool=kanban] .search-clear {
+.art-app[data-tool=kanban] .search-clear#clear-search-btn {
   position: absolute;
   right: 4px;
   top: 0;
   bottom: 0;
   margin-block: auto;
   transform: none;
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
-  min-height: 28px;
-  padding: 5px;
-  border-radius: 8px;
-  background: transparent;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 0 !important;
+  border-image: none !important;
+  border-radius: 999px;
+  background: transparent !important;
+  clip-path: none !important;
+  color: var(--ui-secondary-text);
+  box-shadow: none;
 }
-.art-app[data-tool=kanban] .search-clear [data-icon] {
-  width: 16px;
-  height: 16px;
-  flex: none;
+.art-app[data-tool=kanban] .search-clear#clear-search-btn::after {
+  content: none;
+}
+.art-app[data-tool=kanban] .search-clear#clear-search-btn:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: -2px;
 }
 .art-app[data-tool=kanban] .note-body {
   font-size: var(--ui-editor-size);
@@ -3744,14 +3758,26 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     font-size: 16px;
   }
 }
+@media (max-width: 400px) {
+  .art-app[data-tool=kanban] #quick-export-btn {
+    padding-inline: 12px;
+  }
+  .art-app[data-tool=kanban] #quick-export-btn > span:not([data-icon]) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
 @media (any-pointer: coarse) {
-  .art-app[data-tool=kanban] .search-clear {
+  .art-app[data-tool=kanban] .search-clear#clear-search-btn {
     right: 0;
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
-    padding: 13px;
   }
   .art-app[data-tool=kanban] #search-input {
     padding-right: 48px;
@@ -3866,6 +3892,15 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
 .art-app[data-tool=kanban] .confirm-message {
   font: 400 var(--ui-body-size)/1.55 var(--ui-font);
 }
+@media (any-pointer: fine) {
+  body.art-app[data-tool=kanban] .drawer-header > button {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 6px;
+  }
+}
 </style>
 </head>
 <body class="gm art-app" data-mode="light" data-tool="kanban">
@@ -3888,9 +3923,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     <div class="search-shell">
       <span data-icon="search"></span>
       <input class="search-input gm-input" id="search-input" type="search" autocomplete="off" placeholder="付箋・タグを検索" aria-label="付箋を検索" aria-keyshortcuts="/">
-      <button class="icon-btn search-clear gm-btn gm-icon-btn" id="clear-search-btn" type="button" aria-label="検索を解除" data-tooltip="検索を解除" hidden>
-        <span data-icon="x"></span>
-      </button>
+      <button class="icon-btn search-clear gm-btn gm-icon-btn" id="clear-search-btn" type="button" aria-label="検索を解除" data-tooltip="検索を解除" hidden></button>
     </div>
     <div class="board-tools">
       <button class="text-btn gm-btn" id="quick-export-btn" type="button"><span data-icon="download"></span><span>バックアップ</span></button>
@@ -4072,7 +4105,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
 
 
     <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body">
         <div class="art-settings-group">
           <div class="art-settings-row art-theme-row">
@@ -4138,7 +4171,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
       </div>
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>付箋を追加する</strong><p>列の「付箋を追加」から内容を入力します。</p></li><li><strong>進捗を整理する</strong><p>付箋を開いて編集し、ドラッグまたは移動操作で列を変更します。</p></li><li><strong>データを保存する</strong><p>ボードはこのブラウザーに保存されます。設定から名前の変更やバックアップができます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p><details class="art-help-details"><summary>付箋の移動・期限・検索の詳細</summary><div>
       <p class="help-intro">付箋に書き、列で整理します。変更は自動保存されます。</p>
       <div class="help-steps">
@@ -4310,6 +4343,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
   let storageRevision = 0;
   let storageRevisionDatabase = null;
   let storageRevisionReady = false;
+  let storageRevisionDisabled = false;
   let storageBaselineMatched = true;
   let storageSyncDeferred = false;
   let uidSequence = 0n;
@@ -4406,7 +4440,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
   }
   function normalizeTags(value) {
     const rawTags = Array.isArray(value) ? value : plain(value).split(",");
-    return rawTags.map(tag => truncateText(plain(tag).trim(), LIMITS.tag)).filter(Boolean).slice(0, LIMITS.tags);
+    return rawTags.map(tag => truncateText(plain(tag).trim(), LIMITS.tag)).filter(Boolean).filter((tag, index, list) => list.findIndex(other => other.toLowerCase() === tag.toLowerCase()) === index).slice(0, LIMITS.tags);
   }
   function normalizeDueDate(value) {
     const date = parseDateValue(truncateText(value, LIMITS.dueDate));
@@ -4799,7 +4833,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     }
   }
   async function syncStoredState() {
-    if (!storageReady || !navigator.locks) return;
+    if (!storageReady || !navigator.locks || storageRevisionDisabled) return;
     try {
       await navigator.locks.request(STORAGE_KEY, async () => {
         const head = await storageRevisionTransaction();
@@ -5373,6 +5407,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     titleInput.type = "text";
     titleInput.maxLength = LIMITS.columnTitle;
     titleInput.value = column.title;
+    titleInput.title = column.title;
     titleInput.setAttribute("aria-label", "列名");
     bindTextInput(titleInput, LIMITS.columnTitle, () => {
       const currentColumn = findColumn(column.id);
@@ -5380,6 +5415,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
       const title = trimText(titleInput.value, LIMITS.columnTitle) || "新しい列";
       if (currentColumn.title === title) return;
       currentColumn.title = title;
+      titleInput.title = title;
       article.setAttribute("aria-label", title);
       touch();
       if (searchTerms().length) {
@@ -5826,7 +5862,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     const ok = await showConfirmDialog({
       title: "列を削除",
       returnFocus: trigger,
-      message: `「${column.title}」を削除しますか？\nこの列にある付箋も削除されます。`,
+      message: column.notes.length ? `「${column.title}」を削除しますか？\nこの列にある付箋${column.notes.length}件も削除されます。` : `「${column.title}」を削除しますか？`,
       confirmText: "削除",
       danger: true
     });
@@ -5842,6 +5878,9 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     });
     touch();
     renderBoard();
+    restoreFocusTarget(null, {
+      columnId: state.board.columns[Math.min(index, state.board.columns.length - 1)]?.id
+    });
   }
   function moveColumn(columnId, direction, trigger) {
     const returnFocus = focusOrigin(trigger);
@@ -5906,16 +5945,25 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     const found = activeNoteId ? findNote(activeNoteId) : null;
     els.notePosition.closest(".note-order-controls").hidden = !found || found.column.notes.length < 2;
     els.notePosition.textContent = found ? `${found.index + 1} / ${found.column.notes.length}番目` : "";
-    els.noteUp.disabled = !found || found.index === 0;
-    els.noteDown.disabled = !found || found.index === found.column.notes.length - 1;
+    const order = found && searchTerms().length ? found.column.notes.filter(note => note.id === found.note.id || noteMatches(note, found.column)) : found?.column.notes ?? [];
+    const position = found ? order.findIndex(note => note.id === found.note.id) : -1;
+    els.noteUp.disabled = !found || position <= 0;
+    els.noteDown.disabled = !found || position === order.length - 1;
   }
   function moveNoteInColumn(noteId, direction, trigger) {
     const found = findNote(noteId);
     if (!found) return;
-    const nextIndex = found.index + direction;
+    let nextIndex = found.index + direction;
+    if (searchTerms().length) {
+      const visible = found.column.notes.filter(note => note.id === noteId || noteMatches(note, found.column));
+      const target = visible[visible.findIndex(note => note.id === noteId) + direction];
+      if (!target) return;
+      nextIndex = found.column.notes.indexOf(target);
+    }
     if (nextIndex < 0 || nextIndex >= found.column.notes.length) return;
     const before = found.column.notes[direction < 0 ? nextIndex : nextIndex + 1];
     moveNote(noteId, found.column.id, before?.id ?? null);
+    nextIndex = findNote(noteId)?.index ?? nextIndex;
     renderNoteOrderControls();
     if (activeNoteId === noteId) {
       if (trigger?.disabled) {
@@ -6044,6 +6092,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     if (top < margin) top = Math.min(anchor.bottom + gap, window.innerHeight - popover.height - margin);
     let left = anchor.right - popover.width;
     left = Math.max(margin, Math.min(left, window.innerWidth - popover.width - margin));
+    top = Math.min(top, window.innerHeight - popover.height - margin);
     els.datePopover.style.top = `${Math.max(margin, top)}px`;
     els.datePopover.style.left = `${left}px`;
   }
@@ -6284,9 +6333,10 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
       renderMeta();
       return;
     }
-    const tags = els.noteTags.value.split(/[,、，]/).map(tag => tag.trim()).filter(Boolean);
+    const tags = els.noteTags.value.split(/[,、，]/).map(tag => tag.trim()).filter(Boolean).filter((tag, index, list) => list.findIndex(other => other.toLowerCase() === tag.toLowerCase()) === index);
     const tagsHelp = els.noteTagsHelp;
     if (tags.length > LIMITS.tags || tags.some(tag => tag.length > LIMITS.tag)) {
+      els.noteTags.setAttribute("aria-invalid", "true");
       els.noteTags.value = lastValidTagsInput;
       tagsHelp.textContent = `タグは${LIMITS.tags}個まで、1個${LIMITS.tag}文字以内です。上限を超えた入力は反映していません。`;
       tagsHelp.hidden = false;
@@ -6295,6 +6345,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     }
     tagsHelp.textContent = `カンマ・読点区切り（${LIMITS.tags}個まで、各${LIMITS.tag}文字）`;
     tagsHelp.hidden = false;
+    els.noteTags.removeAttribute("aria-invalid");
     lastValidTagsInput = els.noteTags.value;
     const found = activeNoteId ? findNote(activeNoteId) : null;
     if (found && JSON.stringify(found.note.tags) !== JSON.stringify(tags)) {
@@ -6650,6 +6701,11 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     touch();
     closeDrawer();
     renderBoard();
+    const neighbor = current.column.notes[current.index] || current.column.notes[current.index - 1];
+    restoreFocusTarget(null, {
+      noteId: neighbor?.id,
+      columnId: current.column.id
+    });
   }
   function renderSettingsControls(syncBoardTitle = false, preservedInput = null) {
     const boardNameInput = els.boardName;
@@ -6810,7 +6866,14 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
       confirmText: "初期化",
       danger: true
     });
-    if (!ok || generation !== importGeneration) return;
+    if (!ok) {
+      if (generation === importGeneration && !document.getElementById("art-settings")?.open) {
+        document.getElementById("art-settings-button")?.click();
+        document.getElementById("reset-board-btn")?.focus();
+      }
+      return;
+    }
+    if (generation !== importGeneration) return;
     clearDeletionUndos();
     state = createDefaultState();
     stateDirty = true;
@@ -6931,7 +6994,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     const controlLabel = target?.getAttribute?.("aria-label");
     const matchingControl = column && controlLabel ? [ ...column.querySelectorAll("[aria-label]") ].find(element => element.getAttribute("aria-label") === controlLabel) : null;
     const active = activeModal();
-    const candidates = [ target, noteId ? els.board.querySelector(`.note-card[data-note-id="${noteId}"] .note-edit-btn`) : null, matchingControl, column?.querySelector(".column-title"), active ? focusableElements(active)[0] : els.searchInput ];
+    const candidates = [ target, noteId ? els.board.querySelector(`.note-card[data-note-id="${noteId}"] .note-edit-btn`) : null, matchingControl, column?.querySelector(".add-note-btn"), column?.querySelector(".column-title"), active ? focusableElements(active)[0] : els.searchInput ];
     const next = candidates.find(element => element instanceof HTMLElement && element.tabIndex >= 0 && element !== document.body && element.isConnected && !element.matches(":disabled") && !element.closest("[hidden], [inert]") && (!active || active.contains(element)));
     next?.focus();
   }
@@ -7039,6 +7102,21 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     document.getElementById("duplicate-note-btn").addEventListener("click", duplicateActiveNote);
     document.getElementById("delete-note-btn").addEventListener("click", deleteActiveNote);
     els.confirmBackdrop.addEventListener("click", () => closeConfirmDialog(false));
+    const drawerBackdropEl = document.getElementById("drawer-backdrop");
+    let drawerBackdropPress = false;
+    drawerBackdropEl.addEventListener("mousedown", event => {
+      drawerBackdropPress = event.target === drawerBackdropEl && event.detail < 2;
+    });
+    drawerBackdropEl.addEventListener("touchstart", event => {
+      drawerBackdropPress = event.target === drawerBackdropEl;
+    }, {
+      passive: true
+    });
+    drawerBackdropEl.addEventListener("click", event => {
+      const pressed = drawerBackdropPress;
+      drawerBackdropPress = false;
+      if (!pressed && event.detail !== 0) event.stopImmediatePropagation();
+    }, true);
     els.confirmCancel.addEventListener("click", () => closeConfirmDialog(false));
     els.confirmOk.addEventListener("click", () => closeConfirmDialog(true));
     els.checklistUndoButton.addEventListener("click", () => restoreDeletion(els.checklistUndoButton.dataset.undoId));
@@ -7381,6 +7459,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
         storageRevisionReady = true;
       } catch {
         revisionUnavailable = true;
+        storageRevisionDisabled = true;
       }
     }
     state = loadState(allowSave);
@@ -7409,7 +7488,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
       showStorageIssue(storageIssueMessage || storageLoadStatus.message, false);
     }
     if (!allowSave) showStorageIssue("この環境では安全な自動保存を利用できません。HTTPSまたはローカルHTMLで開いてください。現在のボードは書き出せます。", false);
-    if (revisionUnavailable) showStorageIssue("保存データを安全に開けませんでした。ページを開き直してください。", false);
+    if (revisionUnavailable) showStorageIssue("このブラウザーでは保存の安全確認に使う保存領域（IndexedDB）を利用できないため、自動保存を停止しています。プライベートブラウズやサイトデータの設定を確認し、必要な内容は「バックアップ」で書き出してください。", false);
   }
   if (navigator.locks) {
     navigator.locks.request(STORAGE_KEY, () => initializeStorage(true)).catch(async () => {
@@ -7432,7 +7511,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     try {
       const value = JSON.parse(raw);
       if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(value.editorSize);
+      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -7487,13 +7566,28 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (!dialog.open) {
+      if (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
+      dialog.showModal(), dialog === settingsDialog) {
+        for (const layer of document.querySelectorAll("#toast")) if (typeof layer.showPopover == "function") try {
+          layer.setAttribute("popover", "manual"), layer.showPopover();
+        } catch {}
+      }
+      dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true");
+    }
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
     button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
     dialog.addEventListener("close", () => {
+      if (dialog === settingsDialog) {
+        for (const layer of document.querySelectorAll("#toast")) if (layer.hasAttribute("popover")) {
+          try {
+            layer.hidePopover();
+          } catch {}
+          layer.removeAttribute("popover");
+        }
+      }
       button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
         preventScroll: !0
       });
@@ -7530,7 +7624,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=kanban] {
     first.focus());
   }), document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, applyTheme(preferences.theme), save();
+      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
     });
   }), document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {

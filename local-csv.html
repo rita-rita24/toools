@@ -2472,6 +2472,29 @@
   border-color: var(--table-rule);
   height: 36px;
 }
+.gm .col-filter-footer {
+  padding-block: 12px;
+}
+.gm .wizard-preview-scroll {
+  --table-rule:color-mix(in srgb,var(--gm-muted) 20%,var(--gm-border));
+}
+.gm .wizard-preview-table {
+  inline-size: max-content;
+  min-inline-size: 100%;
+}
+.gm .wizard-preview-table :is(th, td) {
+  max-inline-size: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+.gm .wizard-preview-table th {
+  color: var(--gm-text);
+  text-align: start;
+}
+.gm .wizard-preview-table th.auto-header {
+  color: var(--gm-muted);
+}
 .gm #dataTable td[contenteditable] {
   outline: none;
   outline-offset: 0;
@@ -2512,6 +2535,7 @@
 .gm .export-preview-section {
   border-radius: 13px;
   overflow: hidden;
+  padding: 12px;
 }
 .gm .modal-actions {
   gap: 10px;
@@ -2622,14 +2646,7 @@
     min-width: 0;
   }
   .gm .search-input-wrapper .gm-input {
-    padding-inline-end: 68px;
-  }
-  .gm #searchClearBtn {
-    position: absolute;
-    inset-inline-end: 2px;
-    top: 2px;
-    min-height: 40px;
-    padding: 8px 10px;
+    padding-inline-end: 40px;
   }
   .gm .search-nav {
     grid-column: 1 / -1;
@@ -2722,8 +2739,8 @@ html:not([data-ui-theme]) {
   --ui-surface: #fff;
   --ui-inset: #f8f8fa;
   --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #6e6e73;
   --ui-border: #e0e0e5;
   --ui-input-border: #c7c7cc;
@@ -2744,8 +2761,8 @@ html[data-ui-theme=dark] {
   --ui-surface: #2b2b2e;
   --ui-inset: #252528;
   --ui-text: #e1e1e6;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #b2b2b9;
   --ui-border: #444449;
   --ui-input-border: #74747c;
@@ -3336,6 +3353,22 @@ html[data-ui-theme=dark] {
   inline-size: min(var(--ui-dialog-width, 480px), calc(100vw - 32px));
   padding: var(--ui-dialog-padding);
 }
+.art-app :is(#toastContainer):popover-open {
+  top: auto;
+  right: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+.art-app #toast.toast:popover-open {
+  top: auto;
+  right: auto;
+  margin: 0;
+  overflow: visible;
+}
 .art-app :is(.cell-edit-modal, .paste-import-modal, .virtual-header-modal) {
   --ui-dialog-width: 620px;
 }
@@ -3571,17 +3604,6 @@ body.art-app[data-tool=csv] :is(.toolbar-group, .art-file-toolbar, .search-main-
   gap: var(--ui-action-group-gap);
   flex-wrap: wrap;
 }
-body.art-app[data-tool=csv] :is(#createTableBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
-  content: "";
-  display: block;
-  flex: none;
-  width: 16px;
-  height: 16px;
-  order: -1;
-  background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V3H8V5H5V8H3V5H0V3H3Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V3H8V5H5V8H3V5H0V3H3Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-}
 body.art-app[data-tool=csv] :is(#cellEditBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
   display: block;
@@ -3593,7 +3615,7 @@ body.art-app[data-tool=csv] :is(#cellEditBtn):not(:has(svg, .material-symbols-ou
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5%200H6V1H7V2H8V3H7V4H6V5H5V6H4V7H3V8H0V5H1V4H2V3H3V2H4V1H5ZM1%206V7H2V6ZM5%202V3H6V2Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5%200H6V1H7V2H8V3H7V4H6V5H5V6H4V7H3V8H0V5H1V4H2V3H3V2H4V1H5ZM1%206V7H2V6ZM5%202V3H6V2Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=csv] :is(#searchClearBtn, #virtualHeaderClearBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.art-app[data-tool=csv] :is(#virtualHeaderClearBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -3601,8 +3623,19 @@ body.art-app[data-tool=csv] :is(#searchClearBtn, #virtualHeaderClearBtn):not(:ha
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4%201h12v2h-12zM2%203h2v2h-2zM14%203h2v2h-2zM0%205h2v2h-2zM6%205h2v2h-2zM10%205h2v2h-2zM14%205h2v2h-2zM0%207h2v2h-2zM8%207h2v2h-2zM14%207h2v2h-2zM0%209h2v2h-2zM6%209h2v2h-2zM10%209h2v2h-2zM14%209h2v2h-2zM2%2011h2v2h-2zM14%2011h2v2h-2zM4%2013h12v2h-12z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4%201h12v2h-12zM2%203h2v2h-2zM14%203h2v2h-2zM0%205h2v2h-2zM6%205h2v2h-2zM10%205h2v2h-2zM14%205h2v2h-2zM0%207h2v2h-2zM8%207h2v2h-2zM14%207h2v2h-2zM0%209h2v2h-2zM6%209h2v2h-2zM10%209h2v2h-2zM14%209h2v2h-2zM2%2011h2v2h-2zM14%2011h2v2h-2zM4%2013h12v2h-12z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+}
+body.art-app[data-tool=csv] :is(#searchClearBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+  content: "";
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  order: -1;
+  background: currentColor;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=csv] :is(#searchAdvancedToggle):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -3634,8 +3667,8 @@ body.art-app[data-tool=csv] :is(#emptyResultsClearBtn, #clearAllFiltersBtn, #col
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=csv] :is(#cellEditCancelBtn, #virtualHeaderCancelBtn, #pasteImportCancelBtn, #modalCancelBtn, #expCancelBtn, #wizCancelBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -3645,8 +3678,8 @@ body.art-app[data-tool=csv] :is(#cellEditCancelBtn, #virtualHeaderCancelBtn, #pa
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=csv] :is(#cellEditApplyBtn, #virtualHeaderApplyPresetBtn, #virtualHeaderApplyBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -3659,7 +3692,7 @@ body.art-app[data-tool=csv] :is(#cellEditApplyBtn, #virtualHeaderApplyPresetBtn,
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M6%201H8V3H7V4H6V5H5V6H4V7H2V6H1V5H0V3H2V4H3V5H4V4H5V3H6Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M6%201H8V3H7V4H6V5H5V6H4V7H2V6H1V5H0V3H2V4H3V5H4V4H5V3H6Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=csv] :is(#virtualHeaderDeletePresetBtn, #modalConfirmBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.art-app[data-tool=csv] :is(#virtualHeaderDeletePresetBtn, #modalConfirmBtn.gm-btn-danger):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -3669,6 +3702,17 @@ body.art-app[data-tool=csv] :is(#virtualHeaderDeletePresetBtn, #modalConfirmBtn)
   background: currentColor;
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+}
+body.art-app[data-tool=csv] :is(#modalConfirmBtn:not(.gm-btn-danger)):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+  content: "";
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  order: -1;
+  background: currentColor;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M6%201H8V3H7V4H6V5H5V6H4V7H2V6H1V5H0V3H2V4H3V5H4V4H5V3H6Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M6%201H8V3H7V4H6V5H5V6H4V7H2V6H1V5H0V3H2V4H3V5H4V4H5V3H6Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=csv] :is(#virtualHeaderSavePresetBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -4235,9 +4279,11 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
 }
 .art-app[data-tool=csv] :is(#toolbarMore, #replaceControls) > summary::after {
   content: "";
-  width: 8px;
-  height: 14px;
-  background: var(--ui-select-arrow) center/contain no-repeat;
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: var(--ui-select-arrow) center/16px 16px no-repeat;
+  mask: var(--ui-select-arrow) center/16px 16px no-repeat;
   flex: none;
 }
 .art-app[data-tool=csv] :is(#toolbarMore, #replaceControls)[open] > summary {
@@ -4245,7 +4291,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
   color: var(--ui-secondary-text);
 }
 .art-app[data-tool=csv] :is(#toolbarMore, #replaceControls)[open] > summary::after {
-  content: "\2303";
+  transform: scaleY(-1);
 }
 .art-app[data-tool=csv] .search-bar {
   display: flex;
@@ -4491,11 +4537,6 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
   .art-app[data-tool=csv] .search-input-wrapper {
     flex: 1 1 100%;
   }
-  .art-app[data-tool=csv] #searchClearBtn {
-    position: static;
-    min-height: var(--ui-control-height);
-    padding: 8px 12px;
-  }
   .art-app[data-tool=csv] .search-input-wrapper .gm-input {
     padding-inline-end: 12px;
   }
@@ -4612,6 +4653,51 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
   font-size: var(--ui-body-size);
   font-weight: 500;
 }
+.art-app[data-tool=csv] .search-input-wrapper > .gm-input {
+  padding-inline-end: 40px;
+}
+.art-app[data-tool=csv] .search-input-wrapper > #searchClearBtn {
+  position: absolute;
+  inset-inline-end: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 0 !important;
+  border-image: none !important;
+  border-radius: 999px;
+  background: transparent !important;
+  clip-path: none !important;
+  color: var(--ui-secondary-text);
+  box-shadow: none;
+}
+.art-app[data-tool=csv] .search-input-wrapper > #searchClearBtn::after {
+  content: none;
+}
+.art-app[data-tool=csv] .search-input-wrapper > #searchClearBtn:disabled {
+  display: none;
+}
+.art-app[data-tool=csv] .search-input-wrapper > #searchClearBtn:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: -2px;
+}
+@media (any-pointer: coarse) {
+  .art-app[data-tool=csv] .search-input-wrapper > #searchClearBtn {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    inset-inline-end: 0;
+  }
+  .art-app[data-tool=csv] .search-input-wrapper > .gm-input {
+    padding-inline-end: 48px;
+  }
+}
 </style>
 </head>
 
@@ -4687,7 +4773,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
         <button class="gm-btn" id="pasteBtn" title="テキストから表全体を読み込む。選択セルへの貼り付けは Ctrl+V / Cmd+V"><span class="material-symbols-outlined" aria-hidden="true">content_paste</span> 貼り付けて読み込む</button>
       </div>
       <div class="toolbar-group"><button class="gm-btn gm-btn-primary" id="exportWizardBtn"><span class="material-symbols-outlined" aria-hidden="true">tune</span> エクスポート</button></div>
-      <button class="gm-btn" id="createTableBtn">空の表を作成</button>
+      <button class="gm-btn" id="createTableBtn"><span class="material-symbols-outlined" aria-hidden="true">add</span> 空の表を作成</button>
       <details class="secondary-controls toolbar-more" id="toolbarMore">
         <summary>その他の操作</summary>
         <div class="secondary-controls-content">
@@ -4717,8 +4803,8 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
         <div class="search-input-wrapper">
           <input type="text" id="searchInput" placeholder="検索..." aria-label="検索する文字列" aria-describedby="searchInfo" autocomplete="off" list="searchHistoryList" class="gm-input">
           <datalist id="searchHistoryList"></datalist>
+          <button type="button" class="gm-btn gm-icon-btn" id="searchClearBtn" disabled="disabled" title="検索をクリア (Esc)" aria-label="検索をクリア"></button>
         </div>
-        <button class="gm-btn" id="searchClearBtn" disabled="disabled" title="検索をクリア (Esc)">クリア</button>
         <div class="search-nav">
           <button id="searchPrevBtn" disabled="disabled" title="前の検索結果 (Shift+Enter)" aria-label="前の検索結果" class="gm-btn gm-icon-btn"><span class="material-symbols-outlined" aria-hidden="true">expand_less</span></button>
           <button id="searchNextBtn" disabled="disabled" title="次の検索結果 (Enter)" aria-label="次の検索結果" class="gm-btn gm-icon-btn"><span class="material-symbols-outlined" aria-hidden="true">expand_more</span></button>
@@ -4865,7 +4951,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
     <div class="menu-item" data-action="add-col-right" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">keyboard_double_arrow_right</span> 右に列を追加</div>
     <div class="menu-divider" aria-hidden="true"></div>
     <div class="menu-item" data-action="copy-col" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span> 列をコピー</div>
-    <div class="menu-item" data-action="dup-col" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span> 列を複製</div>
+    <div class="menu-item" data-action="dup-col" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">add_box</span> 列を複製</div>
     <div class="menu-divider" aria-hidden="true"></div>
     <div class="menu-item danger" data-action="del-col" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">delete</span> 列を削除</div>
   </div>
@@ -4963,7 +5049,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
     <div class="menu-item" data-action="add-row-down" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">keyboard_double_arrow_down</span> 下に行を追加</div>
     <div class="menu-divider" aria-hidden="true"></div>
     <div class="menu-item" data-action="copy-row" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span> 行をコピー</div>
-    <div class="menu-item" data-action="dup-row" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span> 行を複製</div>
+    <div class="menu-item" data-action="dup-row" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">add_box</span> 行を複製</div>
     <div class="menu-divider" aria-hidden="true"></div>
     <div class="menu-item danger" data-action="del-row" role="menuitem" tabindex="-1"><span class="material-symbols-outlined" aria-hidden="true">delete</span> 行を削除</div>
   </div>
@@ -5237,7 +5323,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
 
 
     <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body">
         <div class="art-settings-group">
           <div class="art-settings-row art-theme-row">
@@ -5310,7 +5396,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
       </div>
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>データを開く</strong><p>CSVファイルを開くか、表データを貼り付けます。</p></li><li><strong>表を編集する</strong><p>セルの編集、検索、置換、行や列の操作ができます。</p></li><li><strong>書き出す</strong><p>エクスポートで形式や文字コードを選び、ファイルに保存します。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p><details class="art-help-details"><summary>ショートカット・保存仕様・アプリ情報</summary><div><div class="info-section">
         <div class="info-offline-banner">
           <span class="material-symbols-outlined">shield</span>
@@ -5322,8 +5408,8 @@ html[data-ui-theme=dark] body.art-app[data-tool=csv] {
         <h4>基本の操作</h4>
         <p class="info-legal">「開く」で文字コードと内容を確認して読み込みます。「貼り付けて読み込む」では、テキストを確認してから表にできます。</p>
         <p class="info-legal">セルをクリックして文字を編集し、Tab / Enter で次のセルへ移動します。F2 または「セル編集」で全文を開けます。変更は「元に戻す」で取り消せます。行・列の ⋮ ボタンから並べ替えや追加・削除を行えます。</p>
-        <p class="info-legal">「保存」はファイルへの書き出し、「ダウンロード」はコピーの取得です。「ブラウザ内保存済み」は復元用の保存状態で、元ファイルの更新ではありません。</p>
-        <p class="info-legal">ツールバーのコピーとダウンロードは表全体が対象です。選択範囲のコピーは Ctrl+C / Cmd+C、絞り込んだ行の出力は「エクスポート」で対象を選んでください。</p>
+        <p class="info-legal">「名前を付けて保存」はファイルへの書き出し、「その他の操作」の「全件ダウンロード」はファイルのコピーの取得です。「ブラウザ内保存済み」は復元用の保存状態で、元ファイルの更新ではありません。</p>
+        <p class="info-legal">「その他の操作」の「全件コピー」「全件ダウンロード」は表全体が対象です。選択範囲のコピーは Ctrl+C / Cmd+C、絞り込んだ行の出力は「エクスポート」で対象を選んでください。</p>
       </div><div class="info-section">
         <h4><span class="material-symbols-outlined">keyboard</span> ショートカット一覧</h4>
         <table class="shortcut-table">
@@ -21874,6 +21960,20 @@ const Editor = (() => {
     });
     return decoded === text;
   };
+  const _confirmWithSharedModal = (title, message, confirmLabel) => new Promise(resolve => {
+    let _settled = false;
+    const _finish = value => {
+      if (!_settled) {
+        _settled = true;
+        setTimeout(() => resolve(value), 0);
+      }
+    };
+    openModal(title, message, () => _finish(true), {
+      confirmLabel,
+      confirmVariant: "gm-btn-primary",
+      onCancel: () => _finish(false)
+    });
+  });
   const confirmLegacyEncodingRoundTrip = ({text, encoding, actionLabel}) => {
     const normalized = normalizeEncoding(encoding);
     if (!(normalized in ENCODING_TO_LIBRARY)) return true;
@@ -21887,8 +21987,16 @@ const Editor = (() => {
     if (safe) return true;
     const label = getEncodingDisplayName(normalized);
     const header = isEnglish() ? `${label} cannot represent some characters.` : `${label} で表現できない文字があります。`;
-    const detail = isEnglish() ? `${actionLabel} may replace those characters. Continue anyway?` : `${actionLabel}すると該当文字が置き換わる可能性があります。このまま続行しますか？`;
-    return window.confirm(`${header}\n${detail}`);
+    const _lost = [];
+    for (const _char of new Set(Array.from(text))) {
+      if (_lost.length >= 10) break;
+      try {
+        if (!isLegacyEncodingRoundTripSafe(_char, normalized)) _lost.push(_char);
+      } catch {}
+    }
+    const _lostLine = _lost.length ? isEnglish() ? `\nAffected: ${_lost.join(" ")}` : `\n対象の文字: ${_lost.join(" ")}` : "";
+    const detail = isEnglish() ? `${actionLabel} replaces those characters with "?". Continue anyway?` : `${actionLabel}すると該当文字は「?」に置き換わります。このまま続行しますか？`;
+    return _confirmWithSharedModal(isEnglish() ? "Character encoding" : "文字コードの確認", `${header}${_lostLine}\n${detail}`, isEnglish() ? "Continue" : "続行する");
   };
   const buildEncodedBlob = (text, enc, withBom = false, mimeType = "text/plain") => {
     const normalized = normalizeExportEncoding(enc);
@@ -22493,6 +22601,21 @@ const Editor = (() => {
     return snapshot;
   };
   const applyStateSnapshot = snapshot => {
+    const _currentSearchFilter = _captureSearchFilterSnapshot();
+    const _columnFingerprint = (rows = []) => {
+      const width = rows[0]?.length ?? 0;
+      const sums = new Array(width).fill(0);
+      for (const row of rows) {
+        for (let c = 0; c < width; c++) {
+          const text = String(row?.[c] ?? "");
+          let hash = 2166136261;
+          for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 16777619);
+          sums[c] = (sums[c] + (hash >>> 0)) % 4294967296;
+        }
+      }
+      return `${width}|${sums.join(",")}`;
+    };
+    const _sameColumns = state.data.length > 0 && snapshot.hasHeader === state.hasHeader && (state.data[0]?.length ?? 0) === (snapshot.data?.[0]?.length ?? 0) && (state.hasHeader ? JSON.stringify(state.data[0]) === JSON.stringify(snapshot.data?.[0] ?? []) : _columnFingerprint(state.data) === _columnFingerprint(snapshot.data ?? []));
     state = {
       ...state,
       ...snapshot,
@@ -22505,7 +22628,9 @@ const Editor = (() => {
     if (Object.hasOwn(snapshot, "fileContext")) {
       _applyFileContextSnapshot(snapshot.fileContext);
     }
-    if (Object.hasOwn(snapshot, "searchFilter")) {
+    if (_sameColumns) {
+      _applySearchFilterSnapshot(_currentSearchFilter);
+    } else if (Object.hasOwn(snapshot, "searchFilter")) {
       _applySearchFilterSnapshot(snapshot.searchFilter);
     } else {
       _resetSearchFilterResults();
@@ -24022,8 +24147,10 @@ const Editor = (() => {
     }) + HEADER_FIT_COLNUM_HORIZONTAL_PADDING;
     return Math.max(MIN_COLUMN_WIDTH, Math.ceil(headerTextWidth + colNumWidth + HEADER_FIT_HORIZONTAL_PADDING + HEADER_FIT_GAP_WIDTH * 3 + HEADER_FIT_FILTER_ICON_WIDTH + HEADER_FIT_MENU_ICON_WIDTH + HEADER_FIT_SAFETY_PADDING));
   };
+  let _headerFitPending = false;
   const fitHeaderColumnWidths = () => {
     if (state.data.length === 0 || !state.hasHeader && !hasAnyVirtualHeader()) return false;
+    _headerFitPending = true;
     const colCount = state.data[0]?.length ?? 0;
     let changed = false;
     for (let i = 0; i < colCount; i++) {
@@ -24448,6 +24575,19 @@ const Editor = (() => {
       _$colFilterFocusTarget?.setAttribute("aria-expanded", "true");
     }
     syncRenderedTableWidth();
+    if (_headerFitPending) {
+      _headerFitPending = false;
+      let widened = false;
+      qsa("th[data-col]", $tableHead).forEach($th => {
+        const colIndex = Number($th.dataset.col);
+        const deficit = Math.max(0, ...[ ...$th.querySelectorAll(".th-text:not(.th-column-number), .th-virtual-text, .th-virtual-fallback") ].map($label => $label.scrollWidth - $label.clientWidth));
+        if (!Number.isInteger(colIndex) || deficit <= 0) return;
+        state.columnWidths[colIndex] = Math.ceil(getColumnWidth(colIndex) + deficit + 2);
+        $th.style.setProperty("--column-width", `${state.columnWidths[colIndex]}px`);
+        widened = true;
+      });
+      if (widened) syncRenderedTableWidth();
+    }
     rebuildVisibleRows();
     virtualState.enabled = shouldUseVirtualRows();
     $dataTable.classList.toggle("virtual-rows", virtualState.enabled);
@@ -26909,7 +27049,7 @@ const Editor = (() => {
     }).join("\n");
     const header = isEnglish() ? `[No quotes] ${actionLabel} may drop empty rows/cells or shift columns when reopened.` : `「クオートしない」で${actionLabel}すると、再読み込み時に空行・空セルの欠落や列ずれが起きる可能性があります。`;
     const detail = isEnglish() ? `Risky cells: ${risk.count}\n${samples}\n\nContinue anyway?` : `危険セル数: ${risk.count}\n${samples}\n\nこのまま続行しますか？`;
-    return window.confirm(`${header}\n${detail}`);
+    return _confirmWithSharedModal(isEnglish() ? "No quotes" : "クオートの確認", `${header}\n${detail}`, isEnglish() ? "Continue" : "続行する");
   };
   const generateOutputAsync = async (dlm, {spreadsheetSafeMode = false, quoteStyle = state.quoteStyle, newline = state.newline} = {}) => {
     const _rows = state.data.slice();
@@ -27428,7 +27568,7 @@ const Editor = (() => {
         showToast("保存するデータがありません", "error");
         return;
       }
-      if (!confirmNoQuoteRisk({
+      if (!await confirmNoQuoteRisk({
         quoteStyle: state.quoteStyle,
         rows: state.data,
         delimiter: state.delimiter,
@@ -27448,7 +27588,7 @@ const Editor = (() => {
         showToast("出力の生成に失敗しました", "error");
         return;
       }
-      if (!confirmLegacyEncodingRoundTrip({
+      if (!await confirmLegacyEncodingRoundTrip({
         text,
         encoding: _outputMeta.encoding,
         actionLabel: isEnglish() ? "Saving" : "保存"
@@ -27531,7 +27671,7 @@ const Editor = (() => {
       showToast("コピーするデータがありません", "error");
       return;
     }
-    if (!confirmNoQuoteRisk({
+    if (!await confirmNoQuoteRisk({
       quoteStyle: state.quoteStyle,
       rows: state.data,
       delimiter: state.delimiter,
@@ -27553,7 +27693,7 @@ const Editor = (() => {
       showToast("ダウンロードするデータがありません", "error");
       return;
     }
-    if (!confirmNoQuoteRisk({
+    if (!await confirmNoQuoteRisk({
       quoteStyle: state.quoteStyle,
       rows: state.data,
       delimiter: state.delimiter,
@@ -27569,7 +27709,7 @@ const Editor = (() => {
       showToast("出力の生成に失敗しました", "error");
       return;
     }
-    if (!confirmLegacyEncodingRoundTrip({
+    if (!await confirmLegacyEncodingRoundTrip({
       text,
       encoding: _outputMeta.encoding,
       actionLabel: isEnglish() ? "Downloading" : "ダウンロード"
@@ -27877,7 +28017,7 @@ const Editor = (() => {
     const exportFormat = getExportFormatConfig($expFormat.value);
     const quoteStyle = $expQuote.value;
     const rowsForRisk = exportData.headers.length > 0 ? [ exportData.headers, ...exportData.rows ] : exportData.rows;
-    if (exportFormat.isDsv && !confirmNoQuoteRisk({
+    if (exportFormat.isDsv && !await confirmNoQuoteRisk({
       quoteStyle,
       rows: rowsForRisk,
       delimiter: exportFormat.delimiter ?? state.delimiter,
@@ -27896,12 +28036,12 @@ const Editor = (() => {
       showToast("コピーに失敗しました", "error");
     }
   };
-  const exportDownload = () => {
+  const exportDownload = async () => {
     const exportData = getExportData();
     const formatConfig = getExportFormatConfig($expFormat.value);
     const quoteStyle = $expQuote.value;
     const rowsForRisk = exportData.headers.length > 0 ? [ exportData.headers, ...exportData.rows ] : exportData.rows;
-    if (formatConfig.isDsv && !confirmNoQuoteRisk({
+    if (formatConfig.isDsv && !await confirmNoQuoteRisk({
       quoteStyle,
       rows: rowsForRisk,
       delimiter: formatConfig.delimiter ?? state.delimiter,
@@ -27916,7 +28056,7 @@ const Editor = (() => {
     const enc = normalizeExportEncoding($expEncoding.value);
     let blob;
     if (isDSV) {
-      if (!confirmLegacyEncodingRoundTrip({
+      if (!await confirmLegacyEncodingRoundTrip({
         text,
         encoding: enc,
         actionLabel: isEnglish() ? "Exporting" : "エクスポート"
@@ -29388,7 +29528,7 @@ const Editor = (() => {
     try {
       const value = JSON.parse(raw);
       if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(value.editorSize);
+      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -29443,13 +29583,28 @@ const Editor = (() => {
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (!dialog.open) {
+      if (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
+      dialog.showModal(), dialog === settingsDialog) {
+        for (const layer of document.querySelectorAll("#toastContainer")) if (typeof layer.showPopover == "function") try {
+          layer.setAttribute("popover", "manual"), layer.showPopover();
+        } catch {}
+      }
+      dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true");
+    }
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
     button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
     dialog.addEventListener("close", () => {
+      if (dialog === settingsDialog) {
+        for (const layer of document.querySelectorAll("#toastContainer")) if (layer.hasAttribute("popover")) {
+          try {
+            layer.hidePopover();
+          } catch {}
+          layer.removeAttribute("popover");
+        }
+      }
       button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
         preventScroll: !0
       });
@@ -29486,7 +29641,7 @@ const Editor = (() => {
     first.focus());
   }), document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, applyTheme(preferences.theme), save();
+      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
     });
   }), document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {

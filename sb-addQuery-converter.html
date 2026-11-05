@@ -29,19 +29,169 @@
     return value.replace(/[\\"]/gu, "\\$&");
   }
   function unescapeJavaString(value) {
-    return value.replace(/\\(.)/gsu, "$1");
+    const JAVA_ESCAPES = {
+      b: "\b",
+      t: "\t",
+      n: "\n",
+      f: "\f",
+      r: "\r",
+      s: " "
+    };
+    return value.replace(/\\(?:u+([0-9a-fA-F]{4})|([0-3][0-7]{0,2}|[4-7][0-7]?)|(.))/gsu, (match, unicode, octal, char) => {
+      if (unicode) return String.fromCharCode(parseInt(unicode, 16));
+      if (octal) return String.fromCharCode(parseInt(octal, 8));
+      return Object.hasOwn(JAVA_ESCAPES, char) ? JAVA_ESCAPES[char] : char;
+    });
   }
   function plainToQuery(text) {
     if (text === "") return "";
-    return normalizeNewlines(text).split("\n").map(line => `sb.addQuery(" ${escapeJavaString(line)} ");`).join("\n");
+    const state = {
+      quote: "",
+      block: false
+    };
+    return normalizeNewlines(text).split("\n").map(line => {
+      if (!state.quote && !state.block && /^\s*sb\.addQuery\s*\(/.test(line)) return line;
+      const args = [];
+      for (let i = 0; i < line.length; i += 1) {
+        const ch = line[i];
+        if (state.block) {
+          if (ch === "*" && line[i + 1] === "/") {
+            state.block = false;
+            i += 1;
+          }
+          continue;
+        }
+        if (state.quote) {
+          if (ch === state.quote) state.quote = "";
+          continue;
+        }
+        if (ch === "?") {
+          const param = PARAM_COMMENT.exec(line.slice(i + 1));
+          if (param) {
+            args.push(param[1]);
+            line = line.slice(0, i + 1) + line.slice(i + 1 + param[0].length);
+          }
+          continue;
+        }
+        if (ch === "/" && line[i + 1] === "*") {
+          state.block = true;
+          i += 1;
+          continue;
+        }
+        if (ch === "'" || ch === '"') {
+          state.quote = ch;
+          continue;
+        }
+        if (ch === "-" && line[i + 1] === "-") {
+          const comment = line.slice(i + 2).replace(/\*\//g, "* /").trim();
+          line = `${line.slice(0, i)}/* ${comment} */`;
+          break;
+        }
+      }
+      const tail = args.length ? `, ${args.join(", ")}` : "";
+      return `sb.addQuery(" ${escapeJavaString(line)} "${tail});`;
+    }).join("\n");
+  }
+  const PARAM_COMMENT = /^\s*\/\*\s*((?:(?!\*\/).)+?)\s*\*\//u;
+  function parseJavaArgs(rest) {
+    const args = [];
+    let depth = 0;
+    let quote = "";
+    let current = null;
+    for (let i = 0; i < rest.length; i += 1) {
+      const ch = rest[i];
+      if (quote) {
+        current += ch;
+        if (ch === "\\") {
+          current += rest[i + 1] ?? "";
+          i += 1;
+        } else if (ch === quote) quote = "";
+        continue;
+      }
+      if (current === null) {
+        if (/\s/u.test(ch)) continue;
+        if (ch === ",") {
+          current = "";
+          continue;
+        }
+        if (ch === ")") return /^\)\s*;\s*$/u.test(rest.slice(i)) ? args : null;
+        return null;
+      }
+      if (ch === '"' || ch === "'") {
+        quote = ch;
+        current += ch;
+        continue;
+      }
+      if (ch === "(" || ch === "[" || ch === "{") depth += 1;
+      if (ch === ")" || ch === "]" || ch === "}") {
+        if (depth === 0) {
+          if (ch !== ")" || !current.trim()) return null;
+          args.push(current.trim());
+          return /^\)\s*;\s*$/u.test(rest.slice(i)) ? args : null;
+        }
+        depth -= 1;
+      }
+      if (ch === "," && depth === 0) {
+        if (!current.trim()) return null;
+        args.push(current.trim());
+        current = "";
+        continue;
+      }
+      current += ch;
+    }
+    return null;
+  }
+  function embedParams(sql, args) {
+    if (args.some(arg => arg.includes("*/"))) return null;
+    let out = "";
+    let index = 0;
+    let quote = "";
+    let block = false;
+    for (let i = 0; i < sql.length; i += 1) {
+      const ch = sql[i];
+      out += ch;
+      if (block) {
+        if (ch === "*" && sql[i + 1] === "/") {
+          block = false;
+          out += "/";
+          i += 1;
+        }
+        continue;
+      }
+      if (quote) {
+        if (ch === quote) quote = "";
+        continue;
+      }
+      if (ch === "/" && sql[i + 1] === "*") {
+        block = true;
+        out += "*";
+        i += 1;
+        continue;
+      }
+      if (ch === "-" && sql[i + 1] === "-") {
+        out += sql.slice(i + 1);
+        break;
+      }
+      if (ch === "'" || ch === '"') {
+        quote = ch;
+        continue;
+      }
+      if (ch === "?") {
+        if (index >= args.length) return null;
+        out += ` /* ${args[index]} */`;
+        index += 1;
+      }
+    }
+    return index === args.length ? out : null;
   }
   function queryLineToPlain(line) {
-    const trimmed = line.trim();
-    const prefix = 'sb.addQuery("';
-    const suffix = '");';
-    if (!trimmed.startsWith(prefix) || !trimmed.endsWith(suffix)) return line;
-    const inner = unescapeJavaString(trimmed.slice(prefix.length, -suffix.length));
-    return inner.replace(/^ | $/gu, "");
+    const match = /^\s*sb\.addQuery\(\s*"((?:[^"\\]|\\.)*)"/su.exec(line);
+    if (!match) return line;
+    const args = parseJavaArgs(line.slice(match[0].length));
+    if (!args) return line;
+    const inner = unescapeJavaString(match[1]).replace(/^ | $/gu, "");
+    if (!args.length) return inner;
+    return embedParams(inner, args) ?? line;
   }
   function queryToPlain(text) {
     return normalizeNewlines(text).split("\n").map(queryLineToPlain).join("\n");
@@ -117,7 +267,9 @@
     bindEditor(queryText, plainText, queryToPlain);
     clearButton.addEventListener("click", () => {
       if (!isActive()) return;
-      plainText.value = "";
+      plainText.focus();
+      plainText.select();
+      if (plainText.value && !document.execCommand("insertText", false, "")) plainText.value = "";
       queryText.value = "";
       invalidateFeedback();
       updateCopyAvailability();
@@ -503,8 +655,8 @@ html:not([data-ui-theme]) {
   --ui-surface: #fff;
   --ui-inset: #f8f8fa;
   --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #6e6e73;
   --ui-border: #e0e0e5;
   --ui-input-border: #c7c7cc;
@@ -523,8 +675,8 @@ html[data-ui-theme=dark] {
   --ui-surface: #2b2b2e;
   --ui-inset: #252528;
   --ui-text: #e1e1e6;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #b2b2b9;
   --ui-border: #444449;
   --ui-input-border: #74747c;
@@ -1279,8 +1431,8 @@ body.art-app[data-tool=sbquery] :is(#gm-clear-button):not(:has(svg, .material-sy
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4%201h12v2h-12zM2%203h2v2h-2zM14%203h2v2h-2zM0%205h2v2h-2zM6%205h2v2h-2zM10%205h2v2h-2zM14%205h2v2h-2zM0%207h2v2h-2zM8%207h2v2h-2zM14%207h2v2h-2zM0%209h2v2h-2zM6%209h2v2h-2zM10%209h2v2h-2zM14%209h2v2h-2zM2%2011h2v2h-2zM14%2011h2v2h-2zM4%2013h12v2h-12z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4%201h12v2h-12zM2%203h2v2h-2zM14%203h2v2h-2zM0%205h2v2h-2zM6%205h2v2h-2zM10%205h2v2h-2zM14%205h2v2h-2zM0%207h2v2h-2zM8%207h2v2h-2zM14%207h2v2h-2zM0%209h2v2h-2zM6%209h2v2h-2zM10%209h2v2h-2zM14%209h2v2h-2zM2%2011h2v2h-2zM14%2011h2v2h-2zM4%2013h12v2h-12z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=sbquery] :is(#gm-copy-button):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -1722,7 +1874,6 @@ html[data-ui-theme=dark] body.art-app[data-tool=sbquery] {
         <div class="gm-editor-head">
           <h2 id="gm-plain-heading"><label for="gm-plain-text">通常テキスト</label></h2>
           <button id="gm-clear-button" class="gm-btn" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="gm-icon" data-icon="backspace" viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M5 4h8v1h-8zM4 5h2v1h-2zM11 5h2v1h-2zM3 6h2v1h-2zM7 6h1v1h-1zM9 6h4v1h-4zM3 7h1v1h-1zM7 7h3v1h-3zM11 7h2v1h-2zM3 8h1v1h-1zM7 8h3v1h-3zM11 8h2v1h-2zM3 9h2v1h-2zM7 9h1v1h-1zM9 9h4v1h-4zM4 10h2v1h-2zM11 10h2v1h-2zM5 11h8v1h-8z"/></g></svg>
             <span>クリア</span>
           </button>
         </div>
@@ -1749,7 +1900,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=sbquery] {
   </main>
 
     <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body">
         <div class="art-settings-group">
           <div class="art-settings-row art-theme-row">
@@ -1769,8 +1920,8 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
       </div>
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>どちらかの欄へ入力する</strong><p>左に通常テキスト、右にsb.addQuery形式を入力します。編集した側から、もう一方へ自動変換します。</p></li><li><strong>変換内容を確認する</strong><p>改行、空行、ダブルクォートやバックスラッシュを含む内容を確認します。両方の欄を編集できます。</p></li><li><strong>結果をコピーする</strong><p>右上の「コピー」でsb.addQuery形式をコピーします。「クリア」は両方の欄を空にします。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
+      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>どちらかの欄へ入力する</strong><p>左に通常テキスト、右にsb.addQuery形式を入力します。編集した側から、もう一方へ自動変換します。</p></li><li><strong>変換内容を確認する</strong><p>改行、空行、ダブルクォートやバックスラッシュを含む内容を確認します。各行は改行なしで連結されるため、SQLの行コメント（--）は /* */ に置き換えます。sb.addQuery(" A = ? ", today); のような引数付きの行は A = ? /* today */ と表示し、左から戻すと引数へ戻します。連結を含むJava行や、? と引数の数が合わない行は変換せず原文のまま残します。両方の欄を編集できます。</p></li><li><strong>結果をコピーする</strong><p>右上の「コピー」でsb.addQuery形式をコピーします。「クリア」は両方の欄を空にします。クリアの直後は Ctrl+Z / ⌘Z で元に戻せます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
   <script id="arttools-common-ui-script">(() => {
@@ -1782,7 +1933,7 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
     try {
       const value = JSON.parse(raw);
       if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(value.editorSize);
+      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -1880,7 +2031,7 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
     first.focus());
   }), document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, applyTheme(preferences.theme), save();
+      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
     });
   }), document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {

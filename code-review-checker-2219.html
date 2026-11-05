@@ -168,23 +168,12 @@ button[aria-disabled=true] {
   &:focus-visible {
     outline-offset: -2px;
   }
-  > .gm-icon {
-    inline-size: 1rem;
-    block-size: 1rem;
-  }
   @media (forced-colors: active) {
     border-color: ButtonText;
   }
   @media print {
     display: none;
   }
-}
-.gm-icon {
-  display: block;
-  flex: none;
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
-  fill: currentColor;
 }
 .gm-badge {
   font-size: var(--gm-label-size);
@@ -197,7 +186,7 @@ button[aria-disabled=true] {
     color: var(--gm-warning);
   }
   &.info {
-    color: var(--gm-brand);
+    color: var(--ui-secondary-text, var(--gm-brand));
   }
 }
 .workspace {
@@ -643,8 +632,8 @@ html:not([data-ui-theme]) {
   --ui-surface: #fff;
   --ui-inset: #f8f8fa;
   --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #6e6e73;
   --ui-border: #e0e0e5;
   --ui-input-border: #c7c7cc;
@@ -664,8 +653,8 @@ html[data-ui-theme=dark] {
   --ui-surface: #2b2b2e;
   --ui-inset: #252528;
   --ui-text: #e1e1e6;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #b2b2b9;
   --ui-border: #444449;
   --ui-input-border: #74747c;
@@ -790,18 +779,6 @@ html[data-ui-theme=dark] {
   background-image: none;
   border-color: transparent;
   box-shadow: none;
-}
-.art-app :is(.gm-icon) {
-  width: 18px;
-  height: 18px;
-  inline-size: 18px;
-  block-size: 18px;
-}
-.art-app :is(.gm-btn, .button) > :is(.gm-icon) {
-  width: 16px;
-  height: 16px;
-  inline-size: 16px;
-  block-size: 16px;
 }
 .art-app :is(input:not([type=checkbox]), select) {
   border: 1px solid var(--ui-input-border);
@@ -1170,6 +1147,7 @@ html[data-ui-theme=dark] {
   font-family: var(--ui-mono);
   font-size: var(--ui-editor-size);
   line-height: 1.7;
+  tab-size: 2;
 }
 .art-app[data-tool=review] .empty-state {
   border: 0;
@@ -1480,8 +1458,8 @@ body.art-app[data-tool=review] :is(#clearBtn):not(:has(svg, .material-symbols-ou
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%200H5V1H7V2H1V1H3ZM1%203H2V7H3V3H5V7H6V3H7V8H1Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4%201h12v2h-12zM2%203h2v2h-2zM14%203h2v2h-2zM0%205h2v2h-2zM6%205h2v2h-2zM10%205h2v2h-2zM14%205h2v2h-2zM0%207h2v2h-2zM8%207h2v2h-2zM14%207h2v2h-2zM0%209h2v2h-2zM6%209h2v2h-2zM10%209h2v2h-2zM14%209h2v2h-2zM2%2011h2v2h-2zM14%2011h2v2h-2zM4%2013h12v2h-12z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M4%201h12v2h-12zM2%203h2v2h-2zM14%203h2v2h-2zM0%205h2v2h-2zM6%205h2v2h-2zM10%205h2v2h-2zM14%205h2v2h-2zM0%207h2v2h-2zM8%207h2v2h-2zM14%207h2v2h-2zM0%209h2v2h-2zM6%209h2v2h-2zM10%209h2v2h-2zM14%209h2v2h-2zM2%2011h2v2h-2zM14%2011h2v2h-2zM4%2013h12v2h-12z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=review] :is(#restoreBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -1767,7 +1745,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=review] {
 :root body.art-app[data-tool=review] :where(button):disabled {
   --px-active:var(--px-border);
 }
-:root body.art-app[data-tool=review] :is(.editor-panel):has(textarea:focus) {
+:root body.art-app[data-tool=review] :is(.editor-panel):has(textarea:focus, [tabindex]:focus-visible) {
   --px-active:var(--px-focus);
 }
 :root body.art-app[data-tool=review] :is(#codeInput):focus {
@@ -1956,8 +1934,6 @@ html[data-ui-theme=dark] body.art-app[data-tool=review] {
             <button type="button" class="lang-btn gm-btn" data-language="javascript" aria-pressed="false">JavaScript</button>
           </div>
           <button type="button" id="clearBtn" class="gm-btn">
-            
-            <svg class="gm-icon" viewBox="0 0 16 16" aria-hidden="true"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M5 3h9v1h-9zM5 4h1v1h-1zM13 4h1v1h-1zM4 5h1v1h-1zM13 5h1v1h-1zM3 6h1v1h-1zM7 6h1v1h-1zM10 6h1v1h-1zM13 6h1v1h-1zM2 7h1v1h-1zM8 7h2v1h-2zM13 7h1v1h-1zM2 8h1v1h-1zM8 8h2v1h-2zM13 8h1v1h-1zM3 9h1v1h-1zM7 9h1v1h-1zM10 9h1v1h-1zM13 9h1v1h-1zM4 10h1v1h-1zM13 10h1v1h-1zM5 11h1v1h-1zM13 11h1v1h-1zM5 12h9v1h-9z"/></g></svg>
             クリア
           </button>
         </div>
@@ -16994,8 +16970,8 @@ const acorn = reviewParsers.acorn;</script>
     return level === "fix" ? "要修正" : level === "warn" ? "警告" : "情報";
   }
   function lineSnippet(lines, line) {
-    const raw = lines[line - 1] ?? "";
-    return raw.trim().slice(0, 160);
+    const raw = (lines[line - 1] ?? "").trim();
+    return raw.length > 160 ? `${raw.slice(0, 159)}…` : raw;
   }
   function prepareReview(source, lang) {
     const result = reviewSource(source, lang);
@@ -17446,11 +17422,16 @@ const acorn = reviewParsers.acorn;</script>
     let start = 0;
     for (let i = 0; i < clamped - 1; i++) start += lines[i].length + 1;
     const end = start + lines[clamped - 1].length;
-    els.code.focus();
+    els.code.focus({
+      preventScroll: true
+    });
     els.code.setSelectionRange(start, end);
-    const lineHeight = Number.parseFloat(getComputedStyle(els.code).lineHeight);
+    const codeStyle = getComputedStyle(els.code);
+    const lineHeight = Number.parseFloat(codeStyle.lineHeight);
     els.code.scrollTop = Math.max(0, (clamped - 4) * lineHeight);
     syncGutterScroll();
+    const y = els.code.getBoundingClientRect().top + Number.parseFloat(codeStyle.paddingTop || "0") + (clamped - 1) * lineHeight - els.code.scrollTop;
+    if (y < 0 || y > window.innerHeight - lineHeight) window.scrollBy(0, y - window.innerHeight / 3);
   }
   function switchLanguage(next) {
     if (![ "java", "javascript" ].includes(next) || next === language) return;
@@ -17602,7 +17583,7 @@ const acorn = reviewParsers.acorn;</script>
 })();</script>
   
     <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body">
         <div class="art-settings-group">
           <div class="art-settings-row art-theme-row">
@@ -17626,7 +17607,7 @@ boolean active = true;</pre>
       </div>
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>言語を選ぶ</strong><p>入力欄の上でJavaまたはJavaScriptを選択します。</p></li><li><strong>コードを貼り付ける</strong><p>入力すると自動で解析し、右側にレビュー結果を表示します。行番号から該当箇所を確認できます。</p></li><li><strong>指摘を確認する</strong><p>各指摘を開いて説明を確認します。「クリア」で入力を消した場合は「元に戻す」で復元できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
@@ -17639,7 +17620,7 @@ boolean active = true;</pre>
     try {
       const value = JSON.parse(raw);
       if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(value.editorSize);
+      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -17745,7 +17726,7 @@ boolean active = true;</pre>
     first.focus());
   }), document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, applyTheme(preferences.theme), save();
+      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
     });
   }), document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {

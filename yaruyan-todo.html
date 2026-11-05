@@ -2323,6 +2323,15 @@
     flex: 0 0 auto;
   }
 }
+.gm #storageWarning {
+  inset-block-start: 60px;
+  inset-block-end: auto;
+  background: var(--ui-warning-bg);
+  color: var(--ui-warning);
+  border-color: var(--ui-warning);
+  box-shadow: none;
+  font-weight: 500;
+}
 </style>
 <style id="arttools-common-ui">:root {
   --ui-font:
@@ -2376,8 +2385,8 @@ html:not([data-ui-theme]) {
   --ui-surface: #fff;
   --ui-inset: #f8f8fa;
   --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%231d1d1f%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236e6e73%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #6e6e73;
   --ui-border: #e0e0e5;
   --ui-input-border: #c7c7cc;
@@ -2398,8 +2407,8 @@ html[data-ui-theme=dark] {
   --ui-surface: #2b2b2e;
   --ui-inset: #252528;
   --ui-text: #e1e1e6;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M2%205h2v2h2v2h4V7h2V5h2v2h-2v2h-2v2H6V9H4V7H2z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23e1e1e6%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23b2b2b9%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20d%3D%22M4%207h2v2H4zM14%207h2v2h-2zM5%208h2v2H5zM13%208h2v2h-2zM6%209h2v2H6zM12%209h2v2h-2zM7%2010h2v2H7zM11%2010h2v2h-2zM8%2011h4v2H8zM9%2012h2v1H9z%22%2F%3E%3C%2Fsvg%3E);
   --ui-muted: #b2b2b9;
   --ui-border: #444449;
   --ui-input-border: #74747c;
@@ -3021,6 +3030,22 @@ html[data-ui-theme=dark] {
   inline-size: min(var(--ui-dialog-width, 480px), calc(100vw - 32px));
   padding: var(--ui-dialog-padding);
 }
+.art-app :is(#toastLayer, #deleteUndoToastLayer):popover-open {
+  top: auto;
+  right: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+.art-app #toast.toast:popover-open {
+  top: auto;
+  right: auto;
+  margin: 0;
+  overflow: visible;
+}
 .art-app :is(.modal[role=dialog]:has(> .modal-header)) {
   padding: 0;
 }
@@ -3231,8 +3256,8 @@ body.art-app[data-tool=todo] :is(#clearTaskSearchBtn):not(:has(svg, .material-sy
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=todo] :is([data-reorder-offset="-1"]):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -3264,8 +3289,8 @@ body.art-app[data-tool=todo] :is(#cancelConfirmBtn):not(:has(svg, .material-symb
   height: 16px;
   order: -1;
   background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
+  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20shape-rendering%3D%22crispEdges%22%20aria-hidden%3D%22true%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M3%203h2v1h-2zM11%203h2v1h-2zM4%204h2v1h-2zM10%204h2v1h-2zM5%205h2v1h-2zM9%205h2v1h-2zM6%206h4v1h-4zM7%207h2v1h-2zM6%208h4v1h-4zM9%209h2v1h-2zM5%209h2v1h-2zM10%2010h2v1h-2zM4%2010h2v1h-2zM11%2011h2v1h-2zM3%2011h2v1h-2zM12%2012h2v1h-2zM2%2012h2v1h-2z%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -4112,19 +4137,30 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
 }
 .art-app[data-tool=todo] #celebrationText {
   display: block;
-  top: auto;
-  bottom: 24px;
+  top: 50%;
+  bottom: auto;
   left: 50%;
   max-width: calc(100vw - 32px);
-  padding: 12px 18px;
-  border-radius: 12px;
-  background: var(--ui-success-bg);
-  color: var(--ui-success);
-  font: 500 var(--ui-body-size)/1.55 var(--ui-font);
-  white-space: normal;
-  transform: translateX(-50%);
+  padding: 0;
+  border: 0;
+  border-image: none;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  color: var(--ui-accent);
+  font-family: var(--ui-font);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+  transform: translate(-50%, -50%) rotate(-8deg);
   opacity: 0;
   pointer-events: none;
+  text-shadow:
+    0 2px 0 var(--ui-bg),
+    0 -2px 0 var(--ui-bg),
+    2px 0 0 var(--ui-bg),
+    -2px 0 0 var(--ui-bg);
 }
 .art-app[data-tool=todo] #celebrationText.show {
   opacity: 1;
@@ -4188,6 +4224,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
 </style>
 </head>
 <body class="art-app" data-tool="todo">
+<a class="skip-link gm-btn" href="#mainContent" id="skipToContent">本文へ移動</a>
 
     <header class="art-header">
       <div class="art-identity">
@@ -4216,6 +4253,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
       <symbol id="icon-close" viewBox="0 0 16 16"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M4 4h1v1h-1zM11 4h1v1h-1zM5 5h1v1h-1zM10 5h1v1h-1zM6 6h1v1h-1zM9 6h1v1h-1zM7 7h2v1h-2zM7 8h2v1h-2zM6 9h1v1h-1zM9 9h1v1h-1zM5 10h1v1h-1zM10 10h1v1h-1zM4 11h1v1h-1zM11 11h1v1h-1z"/></g></symbol>
       <symbol id="icon-subdirectory_arrow_right" viewBox="0 0 16 16"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M3 3h1v1h-1zM3 4h1v1h-1zM3 5h1v1h-1zM3 6h1v1h-1zM9 6h1v1h-1zM3 7h1v1h-1zM9 7h2v1h-2zM3 8h1v1h-1zM10 8h2v1h-2zM3 9h10v1h-10zM3 10h10v1h-10zM10 11h2v1h-2zM9 12h2v1h-2zM9 13h1v1h-1z"/></g></symbol>
       <symbol id="icon-playlist_add" viewBox="0 0 16 16"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M2 4h8v1h-8zM2 7h8v1h-8zM11 7h1v1h-1zM11 8h1v1h-1zM2 9h5v1h-5zM8 9h6v1h-6zM2 10h5v1h-5zM8 10h6v1h-6zM11 11h1v1h-1zM11 12h1v1h-1z"/></g></symbol>
+      <symbol id="icon-upload" viewBox="0 0 16 16"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M7 2h2v1h-2zM6 3h4v1h-4zM5 4h6v1h-6zM4 5h3v1h-3zM9 5h3v1h-3zM7 5h2v6h-2zM2 10h1v3h-1zM13 10h1v3h-1zM2 13h12v1h-12z"/></g></symbol>
       <symbol id="icon-save" viewBox="0 0 16 16"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M2 2h10v1h-10zM2 3h1v1h-1zM11 3h2v1h-2zM2 4h1v1h-1zM4 4h6v1h-6zM12 4h2v1h-2zM2 5h1v1h-1zM4 5h6v1h-6zM13 5h1v1h-1zM2 6h1v1h-1zM13 6h1v1h-1zM2 7h1v1h-1zM13 7h1v1h-1zM2 8h1v1h-1zM7 8h2v1h-2zM13 8h1v1h-1zM2 9h1v1h-1zM6 9h4v1h-4zM13 9h1v1h-1zM2 10h1v1h-1zM6 10h4v1h-4zM13 10h1v1h-1zM2 11h1v1h-1zM7 11h2v1h-2zM13 11h1v1h-1zM2 12h1v1h-1zM13 12h1v1h-1zM2 13h12v1h-12z"/></g></symbol>
       <symbol id="icon-edit" viewBox="0 0 16 16"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M11 2h2v1h-2zM10 3h4v1h-4zM9 4h5v1h-5zM8 5h2v1h-2zM11 5h2v1h-2zM7 6h2v1h-2zM10 6h2v1h-2zM6 7h2v1h-2zM9 7h2v1h-2zM5 8h2v1h-2zM8 8h2v1h-2zM4 9h2v1h-2zM7 9h2v1h-2zM3 10h2v1h-2zM6 10h2v1h-2zM2 11h2v1h-2zM5 11h2v1h-2zM2 12h1v1h-1zM4 12h2v1h-2zM2 13h3v1h-3z"/></g></symbol>
       <symbol id="icon-title" viewBox="0 0 16 16"><g fill="currentColor" stroke="none" shape-rendering="crispEdges"><path d="M2 3h12v2H2zM4 7h8v2H4zM6 11h4v2H6zM1 15h14v1H1z"/></g></symbol>
@@ -4238,7 +4276,6 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
   </svg>
 
   <div class="shell">
-    <a class="skip-link gm-btn" href="#mainContent" id="skipToContent">本文へ移動</a>
     <aside class="sidebar">
       <nav class="nav" aria-label="ナビゲーション">
         <button type="button" class="nav-btn gm-btn" data-route="tasks" aria-label="タスクリスト">
@@ -4340,7 +4377,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="parentModalTitle">
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <span aria-hidden="true" class="material-symbols-outlined">edit_note</span>
+          <span aria-hidden="true" class="material-symbols-outlined">edit</span>
           <div class="modal-title" id="parentModalTitle">タスクを編集</div>
         </div>
         <button type="button" class="icon-btn modal-close-btn gm-btn" id="closeParentModalBtn" aria-label="閉じる">
@@ -4516,7 +4553,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
 
 
     <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
       <div class="art-dialog-body">
         <div class="art-settings-group">
           <div class="art-settings-row art-theme-row">
@@ -4545,7 +4582,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
                   <span>書き出し</span>
                 </button>
                 <button id="importBackupBtn" class="icon-btn action-btn show-label gm-btn" type="button" aria-label="バックアップを読み込み">
-                  <span aria-hidden="true" class="material-symbols-outlined">playlist_add</span>
+                  <span aria-hidden="true" class="material-symbols-outlined">upload</span>
                   <span>読み込み</span>
                 </button>
                 <input id="backupFileInput" type="file" accept="application/json,.json" hidden>
@@ -4611,8 +4648,8 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
       </div>
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 8 8" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M0 0H2V2H3V3H5V2H6V0H8V2H6V3H5V5H6V6H8V8H6V6H5V5H3V6H2V8H0V6H2V5H3V3H2V2H0Z"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>タスクを追加する</strong><p>タスク名を入力し、「追加」を押します。</p></li><li><strong>進み具合を記録する</strong><p>子タスクや集中タイマーを使い、完了した項目にチェックします。</p></li><li><strong>メモとバックアップ</strong><p>整理メモで考えをまとめられます。バックアップや集中時間は設定から変更できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 16 16" fill="currentColor" stroke="none" shape-rendering="crispEdges" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h2v1h-2zM11 3h2v1h-2zM4 4h2v1h-2zM10 4h2v1h-2zM5 5h2v1h-2zM9 5h2v1h-2zM6 6h4v1h-4zM7 7h2v1h-2zM6 8h4v1h-4zM9 9h2v1h-2zM5 9h2v1h-2zM10 10h2v1h-2zM4 10h2v1h-2zM11 11h2v1h-2zM3 11h2v1h-2zM12 12h2v1h-2zM2 12h2v1h-2z"/></svg></button></div>
+      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>タスクを追加する</strong><p>タスク名を入力し、「追加」を押します。</p></li><li><strong>進み具合を記録する</strong><p>子タスクを追加し、「開始」で集中タイマーを動かします。終わったら集中画面の「完了」を押します。</p></li><li><strong>メモとバックアップ</strong><p>整理メモで考えをまとめられます。バックアップや集中時間は設定から変更できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
 <script>(async () => {
@@ -4631,6 +4668,16 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
   const BACKUP_APP_ID = "yaruyan-todo";
   const BACKUP_SCHEMA_VERSION = 1;
   const STORAGE_WARNING_MESSAGE = "ブラウザ保存に失敗したため、この端末では変更内容が保持されない場合があります。";
+  try {
+    void globalThis.indexedDB;
+  } catch {
+    try {
+      Object.defineProperty(globalThis, "indexedDB", {
+        value: undefined,
+        configurable: true
+      });
+    } catch {}
+  }
   const BASE_PAGE_TITLE = document.title || "やるやん！Todo";
   const MAX_TASK_TEXT_LENGTH = 120;
   const MAX_SUBTASK_TEXT_LENGTH = 120;
@@ -4872,6 +4919,12 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     });
     _indexedDbPromise.catch(() => {
       _indexedDbPromise = null;
+      try {
+        Object.defineProperty(globalThis, "indexedDB", {
+          value: undefined,
+          configurable: true
+        });
+      } catch {}
     });
     return _indexedDbPromise;
   }
@@ -4980,11 +5033,14 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
       return;
     }
     const suffix = _storageWarningReason ? ` (${_storageWarningReason})` : "";
-    warningEl.textContent = `${STORAGE_WARNING_MESSAGE}${suffix}`;
+    warningEl.textContent = _storageWarningText || STORAGE_WARNING_MESSAGE;
+    warningEl.dataset.reason = suffix.trim();
     warningEl.hidden = false;
   }
+  let _storageWarningText = "";
   function _handlePersistentStorageError(mode, key, error) {
     _reportStorageError(mode, key, error);
+    _storageWarningText = mode === "storage-conflict" ? String(error?.message || "") : "";
     _setStorageWarning(true);
   }
   function _readStoredJson(key, fallback, validate = null) {
@@ -6878,6 +6934,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     try {
       indexedValues = await _readManyFromIndexedDb(PERSISTED_STATE_KEYS);
     } catch (error) {
+      if (!globalThis.indexedDB) return;
       _handlePersistentStorageError("indexeddb-read", "all", error);
       return;
     }
@@ -7125,7 +7182,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     const undoAppStateVersion = _importUndoState.appStateVersion;
     showToast("バックアップを読み込みました", {
       type: "success",
-      icon: "playlist_add",
+      icon: "upload",
       durationMs: DELETE_UNDO_WINDOW_MS,
       actionLabel: "元に戻す",
       onAction: async () => {
@@ -7199,7 +7256,12 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
       }
       const text = await file.text();
       if (requestId !== backupImportRequestId || isStateSaveOperationPending()) return false;
-      const parsed = JSON.parse(text);
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        throw new Error("JSONとして読み込めません。このアプリで書き出したバックアップファイルを選択してください。");
+      }
       const normalized = normalizeBackupPayload(parsed);
       return openConfirmModal(buildImportBackupConfirmMessage(normalized), "import-backup", {
         normalized
@@ -7498,7 +7560,11 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     return total > 0 && total === completed;
   }
   function applyColorMode() {
-    const nextColorMode = settings.colorMode === "dark" ? "dark" : "light";
+    let sharedTheme = null;
+    try {
+      sharedTheme = JSON.parse(localStorage.getItem("arttools.shared-ui.v1") || "null")?.theme;
+    } catch {}
+    const nextColorMode = sharedTheme === "dark" || sharedTheme === "light" ? sharedTheme : settings.colorMode === "dark" ? "dark" : "light";
     settings.colorMode = nextColorMode;
     document.documentElement.dataset.mode = nextColorMode;
   }
@@ -8015,7 +8081,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
         label: "すべて削除"
       },
       "import-backup": {
-        icon: "playlist_add",
+        icon: "upload",
         label: "読み込む"
       },
       "discard-parent-edit": {
@@ -8042,7 +8108,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     confirmDeleteBtn.setAttribute("aria-label", ui.label);
     confirmDeleteBtn.setAttribute("aria-keyshortcuts", "Enter");
     setMaterialIcon(confirmActionIcon, ui.icon);
-    _openModalOverlay(confirmModalOverlay, action.startsWith("discard-") ? qs("#cancelConfirmBtn") : confirmDeleteBtn);
+    _openModalOverlay(confirmModalOverlay, action.startsWith("undo-") ? confirmDeleteBtn : qs("#cancelConfirmBtn"));
     return true;
   }
   function closeConfirmModal() {
@@ -8145,7 +8211,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
           $input.maxLength = MAX_MESSAGE_TEXT_LENGTH;
         }
       } else {
-        item.innerHTML = `\n              <div class="message-text">${escapeHtml(msg)}</div>\n              <div class="message-actions">\n                <button type="button" class="message-chip-btn action-btn edit-message-btn gm-btn" data-index="${index}" aria-label="メッセージ編集"${disabledAttrs}>\n                  <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                  <span>編集</span>\n                </button>\n                <button type="button" class="message-chip-btn danger action-btn delete-message-btn gm-btn" data-index="${index}" aria-label="${deleteTitle}"${deleteDisabledAttrs}>\n                  <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                  <span>削除</span>\n                </button>\n              </div>\n            `;
+        item.innerHTML = `\n              <div class="message-text">${escapeHtml(msg)}</div>\n              <div class="message-actions">\n                <button type="button" class="message-chip-btn action-btn edit-message-btn gm-btn" data-index="${index}" aria-label="メッセージ編集：${escapeHtml(msg)}"${disabledAttrs}>\n                  <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                  <span>編集</span>\n                </button>\n                <button type="button" class="message-chip-btn danger action-btn delete-message-btn gm-btn" data-index="${index}" aria-label="${deleteTitle}：${escapeHtml(msg)}"${deleteDisabledAttrs}>\n                  <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                  <span>削除</span>\n                </button>\n              </div>\n            `;
       }
       rows.push(item);
     });
@@ -8808,11 +8874,16 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     if (isStateSaveOperationPending() || isFocusOperationPending()) return;
     const target = getActiveFocusTarget();
     if (!target) return;
-    openConfirmModal(buildAbortFocusConfirmMessage(target), "abort-focus", {
+    const payload = {
       type: focusState.type,
       parentId: focusState.parentId,
       subtaskId: focusState.subtaskId
-    });
+    };
+    if (getElapsedMs(target?.focus) < 1e3) {
+      performAbortFocus(payload);
+      return;
+    }
+    openConfirmModal(buildAbortFocusConfirmMessage(target), "abort-focus", payload);
   }
   async function completeFocus() {
     if (isStateSaveOperationPending() || isFocusOperationPending()) return;
@@ -9290,7 +9361,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
       const parentStartControl = parentFocusDisabled ? "" : `\n              <button\n                class="focus-btn playable action-btn open-focus-parent-btn ${parentFocusDisabled ? "disabled" : ""} gm-btn"\n                data-id="${task.id}"\n                type="button"\n                aria-label="${parentFocusTitle}"\n                ${parentFocusDisabled ? 'disabled aria-disabled="true"' : ""}\n              >\n                <span aria-hidden="true" class="material-symbols-outlined">${parentFocusDisabled ? "block" : getFocusIconForMeta(task.focus, false)}</span>\n                <span>${parentFocusTitle}</span>\n              </button>\n            `;
       const leftControl = task.done && runnableParent ? `\n              <button\n                class="focus-btn done action-btn undo-parent-btn gm-btn"\n                data-id="${task.id}"\n                type="button"\n                aria-label="完了を取り消す"\n              >\n                <span aria-hidden="true" class="material-symbols-outlined">undo</span>\n                <span>取り消し</span>\n              </button>\n            ` : parentStartControl;
       const parentDragHandle = `\n            <button\n              class="mini-btn drag-handle parent-drag-handle gm-btn"\n              data-id="${task.id}"\n              draggable="true"\n              type="button"\n              aria-label="親タスクをドラッグで並び替え"\n              aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"\n            >\n              <span aria-hidden="true" class="material-symbols-outlined">drag_indicator</span>\n            </button>\n          `;
-      li.innerHTML = `\n            <div class="task-main">\n              <div class="task-leading-controls">\n                ${parentDragHandle}\n                ${leftControl ? `<div class="task-focus-wrap">\n                  ${leftControl}\n                </div>` : ""}\n              </div>\n\n              <div class="task-meta">\n                ${parentAchievement}\n                <div class="task-title">${escapeHtml(task.text)}</div>\n              </div>\n\n              <details class="task-tools row-options"><summary aria-label="親タスクの編集と削除">操作</summary><div class="row-options-menu">\n                <button class="mini-btn action-btn edit-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="編集">\n                  <span aria-hidden="true" class="material-symbols-outlined">edit_note</span>\n                  <span>編集</span>\n                </button>\n                <button class="mini-btn danger action-btn delete-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="削除">\n                  <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                  <span>削除</span>\n                </button>\n              </div></details>\n            </div>\n\n            ${visibleSubtasks.length > 0 ? `\n              <div class="subtask-wrap" id="children-${task.id}">\n                <ul class="subtask-list" data-parent-id="${task.id}">\n                  ${visibleSubtasks.map(sub => `\n                    <li class="subtask-item ${sub.done ? "done" : ""}" data-parent-id="${task.id}" data-sub-id="${sub.id}">\n                      <div class="task-leading-controls">\n                        <button\n                          class="mini-btn drag-handle subtask-drag-handle gm-btn"\n                          data-parent-id="${task.id}"\n                          data-sub-id="${sub.id}"\n                          draggable="true"\n                          type="button"\n                          aria-label="子タスクをドラッグで並び替え"\n                          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"\n                        >\n                          <span aria-hidden="true" class="material-symbols-outlined">drag_indicator</span>\n                        </button>\n\n                        ${sub.done ? `\n                          <button\n                            class="focus-btn done action-btn undo-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="完了を取り消す"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">undo</span>\n                            <span>取り消し</span>\n                          </button>\n                        ` : `\n                          <button\n                            class="focus-btn playable action-btn open-focus-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="${sub.focus?.focusState === "paused" ? "再開" : "開始"}"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">${getFocusIconForMeta(sub.focus, false)}</span>\n                            <span>${sub.focus?.focusState === "paused" ? "再開" : "開始"}</span>\n                          </button>\n                          `}\n                      </div>\n\n                      <div class="subtask-text-wrap">\n                        ${sub.done || sub.focus?.focusState === "paused" ? `\n                          <div class="achievement-time subtask-achievement">\n                            <span aria-hidden="true" class="material-symbols-outlined">timer</span>\n                            <span>${formatAchievementElapsed(sub.focus?.elapsedMs || 0)}</span>\n                          </div>\n                        ` : ""}\n                        <div class="text">${escapeHtml(sub.text)}</div>\n                      </div>\n\n                      <details class="subtask-actions row-options"><summary aria-label="子タスクの編集と削除">操作</summary><div class="row-options-menu">\n                        <button class="mini-btn action-btn edit-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="編集">\n                          <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                          <span>編集</span>\n                        </button>\n                        <button class="mini-btn danger action-btn delete-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="削除">\n                          <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                          <span>削除</span>\n                        </button>\n                      </div></details>\n                    </li>\n                  `).join("")}\n                </ul>\n              </div>\n            ` : ""}\n          `;
+      li.innerHTML = `\n            <div class="task-main">\n              <div class="task-leading-controls">\n                ${parentDragHandle}\n                ${leftControl ? `<div class="task-focus-wrap">\n                  ${leftControl}\n                </div>` : ""}\n              </div>\n\n              <div class="task-meta">\n                ${parentAchievement}\n                <div class="task-title">${escapeHtml(task.text)}</div>\n              </div>\n\n              <details class="task-tools row-options"><summary aria-label="操作：親タスクの編集と削除">操作</summary><div class="row-options-menu">\n                <button class="mini-btn action-btn edit-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="編集">\n                  <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                  <span>編集</span>\n                </button>\n                <button class="mini-btn danger action-btn delete-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="削除">\n                  <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                  <span>削除</span>\n                </button>\n              </div></details>\n            </div>\n\n            ${visibleSubtasks.length > 0 ? `\n              <div class="subtask-wrap" id="children-${task.id}">\n                <ul class="subtask-list" data-parent-id="${task.id}">\n                  ${visibleSubtasks.map(sub => `\n                    <li class="subtask-item ${sub.done ? "done" : ""}" data-parent-id="${task.id}" data-sub-id="${sub.id}">\n                      <div class="task-leading-controls">\n                        <button\n                          class="mini-btn drag-handle subtask-drag-handle gm-btn"\n                          data-parent-id="${task.id}"\n                          data-sub-id="${sub.id}"\n                          draggable="true"\n                          type="button"\n                          aria-label="子タスクをドラッグで並び替え"\n                          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"\n                        >\n                          <span aria-hidden="true" class="material-symbols-outlined">drag_indicator</span>\n                        </button>\n\n                        ${sub.done ? `\n                          <button\n                            class="focus-btn done action-btn undo-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="完了を取り消す"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">undo</span>\n                            <span>取り消し</span>\n                          </button>\n                        ` : `\n                          <button\n                            class="focus-btn playable action-btn open-focus-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="${sub.focus?.focusState === "paused" ? "再開" : "開始"}"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">${getFocusIconForMeta(sub.focus, false)}</span>\n                            <span>${sub.focus?.focusState === "paused" ? "再開" : "開始"}</span>\n                          </button>\n                          `}\n                      </div>\n\n                      <div class="subtask-text-wrap">\n                        ${sub.done || sub.focus?.focusState === "paused" ? `\n                          <div class="achievement-time subtask-achievement">\n                            <span aria-hidden="true" class="material-symbols-outlined">timer</span>\n                            <span>${formatAchievementElapsed(sub.focus?.elapsedMs || 0)}</span>\n                          </div>\n                        ` : ""}\n                        <div class="text">${escapeHtml(sub.text)}</div>\n                      </div>\n\n                      <details class="subtask-actions row-options"><summary aria-label="操作：子タスクの編集と削除">操作</summary><div class="row-options-menu">\n                        <button class="mini-btn action-btn edit-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="編集">\n                          <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                          <span>編集</span>\n                        </button>\n                        <button class="mini-btn danger action-btn delete-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="削除">\n                          <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                          <span>削除</span>\n                        </button>\n                      </div></details>\n                    </li>\n                  `).join("")}\n                </ul>\n              </div>\n            ` : ""}\n          `;
       rows.push(li);
       nextRowCache.set(task.id, {
         key,
@@ -9659,10 +9730,9 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
   }
   async function toggleColorModeWithShortcut() {
     if (isStateSaveOperationPending()) return false;
-    const previousState = _createAppStateSnapshot();
-    settings.colorMode = settings.colorMode === "dark" ? "light" : "dark";
-    if (!await _commitStateSave(previousState)) return;
-    render();
+    const nextMode = document.documentElement.dataset.mode === "dark" ? "light" : "dark";
+    document.querySelector(`[data-art-theme="${nextMode}"]`)?.click();
+    return true;
   }
   function applyAriaKeyShortcuts() {
     const navShortcutMap = {
@@ -9689,7 +9759,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
   function handleDocumentShortcuts(e) {
     if (e.defaultPrevented || e.isComposing || e.keyCode === 229) return;
     const key = e.key;
-    const lowerKey = key.toLowerCase();
+    const lowerKey = (e.altKey && /^(?:Key[A-Z]|Digit[0-9])$/.test(e.code) ? e.code.slice(-1) : key).toLowerCase();
     const isWithMeta = e.metaKey || e.ctrlKey;
     if (e.repeat && (key === "Enter" || key === " " || e.code === "Space") && e.target instanceof HTMLElement && e.target.closest('button, a[href], [role="button"]')) {
       e.preventDefault();
@@ -10405,7 +10475,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     try {
       const value = JSON.parse(raw);
       if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(value.editorSize);
+      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -10460,13 +10530,28 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (!dialog.open) {
+      if (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
+      dialog.showModal(), dialog === settingsDialog) {
+        for (const layer of document.querySelectorAll("#toastLayer,#deleteUndoToastLayer")) if (typeof layer.showPopover == "function") try {
+          layer.setAttribute("popover", "manual"), layer.showPopover();
+        } catch {}
+      }
+      dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true");
+    }
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
     button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
     dialog.addEventListener("close", () => {
+      if (dialog === settingsDialog) {
+        for (const layer of document.querySelectorAll("#toastLayer,#deleteUndoToastLayer")) if (layer.hasAttribute("popover")) {
+          try {
+            layer.hidePopover();
+          } catch {}
+          layer.removeAttribute("popover");
+        }
+      }
       button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
         preventScroll: !0
       });
@@ -10515,7 +10600,7 @@ html[data-ui-theme=dark] body.art-app[data-tool=todo] {
     first.focus());
   }), document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, applyTheme(preferences.theme), save();
+      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
     });
   }), document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
