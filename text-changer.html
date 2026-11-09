@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>TextChanger | テキスト変換ツール</title>
-    <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22text%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23f6b400%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23ea6c55%22%2F%3E%3Cpath%20d%3D%22M29%2036h27l12%2012v39a3%203%200%200%201-3%203h-36a3%203%200%200%201-3-3v-48a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M56%2036v10a2%202%200%200%200%202%202h10%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M34%2054h22M34%2065h26M34%2076h16%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M76%2060h16l-6-6M92%2078H76l6%206%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23f6b400%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23ea6c55%22%2F%3E%3Cpath%20d%3D%22M29%2036h27l12%2012v39a3%203%200%200%201-3%203h-36a3%203%200%200%201-3-3v-48a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M56%2036v10a2%202%200%200%200%202%202h10%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M34%2054h22M34%2065h26M34%2076h16%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M76%2060h16l-6-6M92%2078H76l6%206%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
+    <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22text%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-text-light-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%232563eb%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-text-light-light)%22%2F%3E%3Cpath%20d%3D%22M32%2048h60L78%2034M96%2080H36l14%2014%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-text-dark-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%233b82f6%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-text-dark-light)%22%2F%3E%3Crect%20x%3D%224.75%22%20y%3D%224.75%22%20width%3D%22118.5%22%20height%3D%22118.5%22%20rx%3D%2227.25%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.2%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M32%2048h60L78%2034M96%2080H36l14%2014%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
     <style>@layer reset, base, component, utility;
 @layer reset {
   *,
@@ -1440,7 +1440,7 @@ body.art-app[data-tool=text] :is(.copy-btn):not(:has(svg, .material-symbols-outl
     
     <header class="art-header">
       <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="text" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><circle cx="88" cy="28" r="26" fill="#f6b400"/><circle cx="58" cy="70" r="50" fill="#ea6c55"/><path d="M29 36h27l12 12v39a3 3 0 0 1-3 3h-36a3 3 0 0 1-3-3v-48a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M56 36v10a2 2 0 0 0 2 2h10" fill="none" stroke="#ea6c55" stroke-width="3" stroke-linejoin="round"/><path d="M34 54h22M34 65h26M34 76h16" fill="none" stroke="#ea6c55" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M76 60h16l-6-6M92 78H76l6 6" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><circle cx="88" cy="28" r="26" fill="#f6b400"/><circle cx="58" cy="70" r="50" fill="#ea6c55"/><path d="M29 36h27l12 12v39a3 3 0 0 1-3 3h-36a3 3 0 0 1-3-3v-48a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M56 36v10a2 2 0 0 0 2 2h10" fill="none" stroke="#ea6c55" stroke-width="3" stroke-linejoin="round"/><path d="M34 54h22M34 65h26M34 76h16" fill="none" stroke="#ea6c55" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M76 60h16l-6-6M92 78H76l6 6" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
+        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="text" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><defs><linearGradient id="art-icon-text-light-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#2563eb"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-text-light-light)"/><path d="M32 48h60L78 34M96 80H36l14 14" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><defs><linearGradient id="art-icon-text-dark-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#3b82f6"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-text-dark-light)"/><rect x="4.75" y="4.75" width="118.5" height="118.5" rx="27.25" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1.5"/><path d="M32 48h60L78 34M96 80H36l14 14" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
         <div><h1 class="art-title" title="TextChanger">TextChanger</h1></div>
       </div>
       <div class="art-header-actions">
@@ -2243,7 +2243,7 @@ banana
 cherry</pre>
           </div>
         </div>
-        <p class="art-save-note" id="art-save-note" role="status">表示設定はこのブラウザーに保存され、ほかのツールにも適用されます。</p>
+        <p class="art-save-note" id="art-save-note" role="status" hidden></p>
         
       </div>
     </dialog>
@@ -2254,7 +2254,7 @@ cherry</pre>
     
   <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
+  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.text.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
   let preferences = {}, faviconTheme = "";
   const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
@@ -2309,10 +2309,11 @@ cherry</pre>
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "表示設定はこのブラウザーに保存され、ほかのツールにも適用されます。", 
-      saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
+      saveNote.hidden = !0, saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.dataset.error = "true";
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
@@ -2368,7 +2369,11 @@ cherry</pre>
     });
   });
   try {
-    const raw = localStorage.getItem(storageKey);
+    let raw = localStorage.getItem(storageKey);
+    if (raw === null) {
+      const legacy = localStorage.getItem(legacySharedKey);
+      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+    }
     if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
       stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
@@ -2377,7 +2382,8 @@ cherry</pre>
       }));
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.dataset.error = "true";
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.dataset.error = "true";
   }
   applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
     validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();

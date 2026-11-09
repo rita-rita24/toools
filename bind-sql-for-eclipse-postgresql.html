@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval'; worker-src blob:; style-src 'unsafe-inline'; img-src data:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
     <title>BindSQL for Eclipse — PostgreSQL専用</title>
-    <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22bind%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23aace39%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23d98e04%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%2215%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%225%22%20fill%3D%22%23d98e04%22%2F%3E%3Cpath%20d%3D%22m50%2068%2026%2026m-9-9%207-7m2%2016%206-6%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2266%22%20y%3D%2242%22%20width%3D%2228%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2272%22%20y%3D%2256%22%20width%3D%2222%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23aace39%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23d98e04%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%2215%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%225%22%20fill%3D%22%23d98e04%22%2F%3E%3Cpath%20d%3D%22m50%2068%2026%2026m-9-9%207-7m2%2016%206-6%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2266%22%20y%3D%2242%22%20width%3D%2228%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2272%22%20y%3D%2256%22%20width%3D%2222%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
+    <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22bind%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-bind-light-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%23d97706%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-bind-light-light)%22%2F%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2250%22%20r%3D%2222%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2250%22%20r%3D%228%22%20fill%3D%22%23d97706%22%2F%3E%3Cpath%20d%3D%22m61%2065%2037%2037M82%2086l10-10M90%2094l8-8%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-bind-dark-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%23f59e0b%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-bind-dark-light)%22%2F%3E%3Crect%20x%3D%224.75%22%20y%3D%224.75%22%20width%3D%22118.5%22%20height%3D%22118.5%22%20rx%3D%2227.25%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.2%22%20stroke-width%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2250%22%20r%3D%2222%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2246%22%20cy%3D%2250%22%20r%3D%228%22%20fill%3D%22%23f59e0b%22%2F%3E%3Cpath%20d%3D%22m61%2065%2037%2037M82%2086l10-10M90%2094l8-8%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
     <style id="bindsql-styles">:root {
   color-scheme: light;
   --on-brand: #ffffff;
@@ -1515,7 +1515,7 @@ body.art-app[data-tool=bind] :is([data-action=recheck]):not(:has(svg, .material-
     
     <header class="art-header">
       <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="bind" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><circle cx="88" cy="28" r="26" fill="#aace39"/><circle cx="58" cy="70" r="50" fill="#d98e04"/><circle cx="40" cy="58" r="15" fill="#fff"/><circle cx="40" cy="58" r="5" fill="#d98e04"/><path d="m50 68 26 26m-9-9 7-7m2 16 6-6" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><rect x="66" y="42" width="28" height="8" rx="4" fill="#fff"/><rect x="72" y="56" width="22" height="8" rx="4" fill="#fff"/></g><g data-icon-appearance="dark" display="none"><circle cx="88" cy="28" r="26" fill="#aace39"/><circle cx="58" cy="70" r="50" fill="#d98e04"/><circle cx="40" cy="58" r="15" fill="#fff"/><circle cx="40" cy="58" r="5" fill="#d98e04"/><path d="m50 68 26 26m-9-9 7-7m2 16 6-6" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><rect x="66" y="42" width="28" height="8" rx="4" fill="#fff"/><rect x="72" y="56" width="22" height="8" rx="4" fill="#fff"/></g></svg></span>
+        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="bind" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><defs><linearGradient id="art-icon-bind-light-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#d97706"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-bind-light-light)"/><circle cx="46" cy="50" r="22" fill="#fff"/><circle cx="46" cy="50" r="8" fill="#d97706"/><path d="m61 65 37 37M82 86l10-10M90 94l8-8" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><defs><linearGradient id="art-icon-bind-dark-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#f59e0b"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-bind-dark-light)"/><rect x="4.75" y="4.75" width="118.5" height="118.5" rx="27.25" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1.5"/><circle cx="46" cy="50" r="22" fill="#fff"/><circle cx="46" cy="50" r="8" fill="#f59e0b"/><path d="m61 65 37 37M82 86l10-10M90 94l8-8" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
         <div><h1 class="art-title" title="BindSQL for Eclipse">BindSQL for Eclipse</h1></div>
       </div>
       <div class="art-header-actions">
@@ -7189,7 +7189,7 @@ WHERE id = ?;
 1 = 42</pre>
           </div>
         </div>
-        <p class="art-save-note" id="art-save-note" role="status">表示設定はこのブラウザーに保存され、ほかのツールにも適用されます。</p>
+        <p class="art-save-note" id="art-save-note" role="status" hidden></p>
         
       </div>
     </dialog>
@@ -7200,7 +7200,7 @@ WHERE id = ?;
     
   <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
+  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.bind.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
   let preferences = {}, faviconTheme = "";
   const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
@@ -7255,10 +7255,11 @@ WHERE id = ?;
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "表示設定はこのブラウザーに保存され、ほかのツールにも適用されます。", 
-      saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
+      saveNote.hidden = !0, saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.dataset.error = "true";
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
@@ -7314,7 +7315,11 @@ WHERE id = ?;
     });
   });
   try {
-    const raw = localStorage.getItem(storageKey);
+    let raw = localStorage.getItem(storageKey);
+    if (raw === null) {
+      const legacy = localStorage.getItem(legacySharedKey);
+      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+    }
     if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
       stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
@@ -7323,7 +7328,8 @@ WHERE id = ?;
       }));
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.dataset.error = "true";
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.dataset.error = "true";
   }
   applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
     validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();
