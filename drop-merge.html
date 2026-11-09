@@ -789,8 +789,10 @@ body[data-tool=merge] .file-row {
   left: 50%;
   transform: translateX(-50%);
   padding: 12px 20px;
-  background: var(--ui-text);
-  color: var(--ui-surface);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  border: 1px solid var(--ui-border);
+  box-shadow: 0 8px 24px #0000001f;
   border-radius: 12px;
   font: var(--ui-action-size)/1.7 var(--ui-font);
   z-index: 100;
@@ -1052,7 +1054,7 @@ body[data-tool=merge] .file-row {
 }
 .current-difference {
   background: var(--ui-accent-soft);
-  color: var(--ui-keyword);
+  color: var(--ui-secondary-text);
   font-size: var(--ui-meta-size);
   padding: 8px var(--ui-panel-padding);
   border-bottom: 1px solid var(--ui-border);
@@ -1068,8 +1070,9 @@ body[data-tool=merge] .file-row {
   cursor: pointer;
   color: var(--ui-secondary-text);
   background: var(--ui-accent-soft);
+  border: 1px solid var(--ui-secondary-border);
   border-radius: 8px;
-  padding: 6px;
+  padding: 5px;
   list-style: none;
   white-space: nowrap;
 }
@@ -1851,60 +1854,131 @@ body[data-tool=merge] .excel-sheet-item {
     flex-wrap: nowrap;
   }
 }
+.unified-diff {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: var(--merge-map-width);
+  z-index: 4;
+  overflow: auto;
+  background: var(--ui-editor-bg);
+  color: var(--ui-text);
+  font: var(--ui-editor-size)/1.7 var(--ui-mono);
+}
+.unified-diff:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: -2px;
+}
+#editor.unified-covered {
+  visibility: hidden;
+}
+.ud-row {
+  display: grid;
+  grid-template-columns: auto auto 18px minmax(0, 1fr);
+  align-items: start;
+}
+.ud-num {
+  min-width: 3ch;
+  padding: 0 6px;
+  text-align: right;
+  color: var(--ui-muted);
+  font-size: .85em;
+  user-select: none;
+}
+.ud-mark {
+  text-align: center;
+  font-weight: 600;
+  user-select: none;
+}
+.ud-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding-right: 8px;
+}
+.ud-row.removed {
+  background: var(--ui-diff-removed-bg);
+}
+.ud-row.removed :is(.ud-num, .ud-mark) {
+  background: var(--ui-diff-removed-gutter);
+  color: var(--ui-diff-removed-mark);
+}
+.ud-row.added {
+  background: var(--ui-diff-added-bg);
+}
+.ud-row.added :is(.ud-num, .ud-mark) {
+  background: var(--ui-diff-added-gutter);
+  color: var(--ui-diff-added-mark);
+}
+.ud-row.ud-current {
+  box-shadow: inset 0 2px 0 var(--ui-accent);
+}
+.ud-skip {
+  display: block;
+  padding: 2px 12px;
+  background: var(--ui-diff-empty-bg);
+  color: var(--ui-muted);
+  font: var(--ui-meta-size)/1.6 var(--ui-font);
+}
 </style>
-<link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22merge%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-merge-light-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e081c6%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23b13595%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2376226d%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-light-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23472343%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-light-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffffff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23edf1ee%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-light-glass%22%20x1%3D%2258%22%20y1%3D%2256%22%20x2%3D%22103%22%20y2%3D%22108%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23c454b2%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23812d80%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-light-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-merge-light-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%23472343%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-merge-light-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%23472343%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-merge-light-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-merge-light-base)%22%20filter%3D%22url(%23art-icon-merge-light-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-merge-light-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-merge-light-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-merge-light-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(-7%2038%2061)%22%20filter%3D%22url(%23art-icon-merge-light-paper-shadow)%22%3E%3Crect%20x%3D%2218%22%20y%3D%2225%22%20width%3D%2238%22%20height%3D%2270%22%20rx%3D%226%22%20fill%3D%22url(%23art-icon-merge-light-paper)%22%2F%3E%3Cpath%20d%3D%22M26%2040h21m-21%209h15m-15%2013h21m-21%209h15m-15%209h20%22%20stroke%3D%22%238a3f83%22%20stroke-opacity%3D%22.4%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22rotate(7%2091%2061)%22%20filter%3D%22url(%23art-icon-merge-light-paper-shadow)%22%3E%3Crect%20x%3D%2272%22%20y%3D%2225%22%20width%3D%2238%22%20height%3D%2270%22%20rx%3D%226%22%20fill%3D%22url(%23art-icon-merge-light-paper)%22%2F%3E%3Cpath%20d%3D%22M80%2040h21m-21%209h15m-15%2013h21m-21%209h15m-15%209h20%22%20stroke%3D%22%238a3f83%22%20stroke-opacity%3D%22.4%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url(%23art-icon-merge-light-paper-shadow)%22%3E%3Cpath%20d%3D%22M33%2032v17c0%206%204%2010%2012%2013l10%205c3%202%204%204%204%208v17H49l15%2017%2015-17H69V75c0-4%201-6%205-8l10-5c8-3%2012-7%2012-13V32H84v15c0%203-2%204-6%206l-14%207-14-7c-4-2-6-3-6-6V32Z%22%20fill%3D%22url(%23art-icon-merge-light-glass)%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.65%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22M35%2035v14c0%205%204%208%2011%2011l11%205%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.32%22%20stroke-width%3D%221.3%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-merge-dark-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23cb6db6%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23a2398e%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%236f286b%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-dark-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23472343%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-dark-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e5eae8%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23cbd5d1%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-dark-glass%22%20x1%3D%2258%22%20y1%3D%2256%22%20x2%3D%22103%22%20y2%3D%22108%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23cf72bf%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2398469b%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-merge-dark-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-merge-dark-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%23472343%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-merge-dark-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%23472343%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-merge-dark-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-merge-dark-base)%22%20filter%3D%22url(%23art-icon-merge-dark-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-merge-dark-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-merge-dark-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-merge-dark-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(-7%2038%2061)%22%20filter%3D%22url(%23art-icon-merge-dark-paper-shadow)%22%3E%3Crect%20x%3D%2218%22%20y%3D%2225%22%20width%3D%2238%22%20height%3D%2270%22%20rx%3D%226%22%20fill%3D%22url(%23art-icon-merge-dark-paper)%22%2F%3E%3Cpath%20d%3D%22M26%2040h21m-21%209h15m-15%2013h21m-21%209h15m-15%209h20%22%20stroke%3D%22%238a3f83%22%20stroke-opacity%3D%22.4%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22rotate(7%2091%2061)%22%20filter%3D%22url(%23art-icon-merge-dark-paper-shadow)%22%3E%3Crect%20x%3D%2272%22%20y%3D%2225%22%20width%3D%2238%22%20height%3D%2270%22%20rx%3D%226%22%20fill%3D%22url(%23art-icon-merge-dark-paper)%22%2F%3E%3Cpath%20d%3D%22M80%2040h21m-21%209h15m-15%2013h21m-21%209h15m-15%209h20%22%20stroke%3D%22%238a3f83%22%20stroke-opacity%3D%22.4%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url(%23art-icon-merge-dark-paper-shadow)%22%3E%3Cpath%20d%3D%22M33%2032v17c0%206%204%2010%2012%2013l10%205c3%202%204%204%204%208v17H49l15%2017%2015-17H69V75c0-4%201-6%205-8l10-5c8-3%2012-7%2012-13V32H84v15c0%203-2%204-6%206l-14%207-14-7c-4-2-6-3-6-6V32Z%22%20fill%3D%22url(%23art-icon-merge-dark-glass)%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.65%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22M35%2035v14c0%205%204%208%2011%2011l11%205%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.32%22%20stroke-width%3D%221.3%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
+<link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22merge%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23aace39%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23ea6c55%22%2F%3E%3Cpath%20d%3D%22M25%2032h16l9%209v22a3%203%200%200%201-3%203h-22a3%203%200%200%201-3-3v-28a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M41%2032v7a2%202%200%200%200%202%202h7%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M69%2032h16l9%209v22a3%203%200%200%201-3%203h-22a3%203%200%200%201-3-3v-28a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M85%2032v7a2%202%200%200%200%202%202h7%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M28%2046h12M28%2055h14M72%2046h12M72%2055h14%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M36%2072c0%208%2022%206%2022%2016v12M80%2072c0%208-22%206-22%2016m-9%204%209%209%209-9%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23aace39%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23ea6c55%22%2F%3E%3Cpath%20d%3D%22M25%2032h16l9%209v22a3%203%200%200%201-3%203h-22a3%203%200%200%201-3-3v-28a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M41%2032v7a2%202%200%200%200%202%202h7%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M69%2032h16l9%209v22a3%203%200%200%201-3%203h-22a3%203%200%200%201-3-3v-28a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M85%2032v7a2%202%200%200%200%202%202h7%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M28%2046h12M28%2055h14M72%2046h12M72%2055h14%22%20fill%3D%22none%22%20stroke%3D%22%23ea6c55%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M36%2072c0%208%2022%206%2022%2016v12M80%2072c0%208-22%206-22%2016m-9%204%209%209%209-9%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
   <style id="arttools-common-ui">:root {
   --ui-font:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
+    "Noto Sans JP",
+    "Hiragino Sans",
     "Hiragino Kaku Gothic ProN",
-    "Yu Gothic",
+    Meiryo,
     sans-serif;
   --ui-mono:
     ui-monospace,
     SFMono-Regular,
     Menlo,
-    Monaco,
     Consolas,
-    "Liberation Mono",
     monospace;
   --ui-editor-size: 14px;
-  --ui-title-size: 16px;
-  --ui-body-size: 13px;
-  --ui-action-size: 12px;
-  --ui-meta-size: 11px;
-  --ui-dialog-title-size: 18px;
-  --ui-gutter: 20px;
-  --ui-gap: 12px;
-  --ui-panel-padding: 10px;
-  --ui-panel-radius: 18px;
+  --ui-title-size: 18px;
+  --ui-body-size: 14px;
+  --ui-action-size: 14px;
+  --ui-meta-size: 12px;
+  --ui-dialog-title-size: 20px;
+  --ui-panel-title-size: 16px;
+  --ui-gutter: 24px;
+  --ui-gap: 16px;
+  --ui-panel-padding: 12px;
+  --ui-panel-radius: 8px;
+  --ui-control-radius: 4px;
+  --ui-inner-radius: 6px;
+  --ui-dialog-radius: 12px;
   --ui-panel-head-height: calc(max(var(--ui-action-min-height), var(--ui-control-height)) + var(--ui-panel-head-padding) * 2 + 1px);
-  --ui-panel-head-padding: 10px;
-  --ui-panel-head-inline: 14px;
-  --ui-action-min-height: 42px;
+  --ui-panel-head-padding: 12px;
+  --ui-panel-head-inline: 16px;
+  --ui-action-min-height: 40px;
   --ui-action-padding-block: 9px;
-  --ui-action-padding-inline: 18px;
+  --ui-action-padding-inline: 16px;
   --ui-action-icon-gap: 8px;
-  --ui-action-group-gap: 10px;
-  --ui-workspace-bottom: 12px;
-  --ui-control-height: 38px;
-  --ui-select-arrow-size: 20px;
-  --ui-select-arrow-inset: 8px;
+  --ui-action-group-gap: 8px;
+  --ui-workspace-bottom: 16px;
+  --ui-control-height: 40px;
+  --ui-select-height: 28px;
+  --ui-select-arrow-size: 16px;
+  --ui-select-arrow-inset: 10px;
   --ui-select-text-gap: 8px;
   --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
-  --ui-dialog-padding: 20px;
-  --ui-header-height: 52px;
-  --ui-app-icon-size: 24px;
-  --ui-main-top: 6px;
-  --ui-toolbar-gap: 6px;
+  --ui-dialog-padding: 24px;
+  --ui-header-height: 64px;
+  --ui-app-icon-size: 28px;
+  --ui-main-top: 16px;
+  --ui-toolbar-gap: 12px;
 }
 html[data-ui-theme=light],
 html:not([data-ui-theme]) {
-  --ui-bg: #f5f5f7;
-  --ui-surface: #fff;
-  --ui-inset: #f8f8fa;
-  --ui-text: #1d1d1f;
+  --ui-bg: #fefffa;
+  --ui-surface: #ffffff;
+  --ui-inset: #f9fafb;
+  --ui-muted-bg: #f3f4f6;
+  --ui-text: #1e2939;
+  --ui-text-secondary: #4a5565;
+  --ui-icon: #6a7282;
   --ui-diff-removed-bg: #ffebe9;
   --ui-diff-removed-gutter: #ffd7d5;
   --ui-diff-removed-word: #ffb3ae;
@@ -1913,63 +1987,88 @@ html:not([data-ui-theme]) {
   --ui-diff-added-gutter: #c2f0cd;
   --ui-diff-added-word: #a2e8b4;
   --ui-diff-added-mark: #1a7f37;
-  --ui-diff-empty-bg: #f0f0f3;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%231d1d1f%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%236e6e73%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #6e6e73;
-  --ui-border: #e0e0e5;
-  --ui-input-border: #c7c7cc;
-  --ui-accent: #006edb;
-  --ui-accent-soft: #edf5ff;
-  --ui-secondary-text: #0063b9;
-  --ui-on-accent: #fff;
-  --ui-success: #187447;
-  --ui-success-bg: #edf8f1;
-  --ui-warning: #855700;
-  --ui-warning-bg: #fff6df;
-  --ui-error: #b4232f;
-  --ui-error-bg: #fff0f1;
-  --ui-keyword: #0550ae;
-  --ui-function: #8250df;
-  --ui-string: #116329;
-  --ui-number: #bc4c00;
-  --ui-shadow: 0 2px 8px #00000003;
+  --ui-diff-empty-bg: #f3f4f6;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #676f7f;
+  --ui-border: #e5e7eb;
+  --ui-control-border: #d1d5dc;
+  --ui-input-border: #6a7282;
+  --ui-accent: #b4432f;
+  --ui-accent-soft: #fdf1ee;
+  --ui-secondary-text: #b4432f;
+  --ui-secondary-border: #f29e8c;
+  --ui-on-accent: #ffffff;
+  --ui-focus-ring: #ea6c5566;
+  --ui-focus-border: #ee846f;
+  --ui-success: #016630;
+  --ui-success-bg: #f0fdf4;
+  --ui-warning: #a65f00;
+  --ui-warning-bg: #fefce8;
+  --ui-error: #c10007;
+  --ui-error-bg: #fef2f2;
+  --ui-error-border: #ffc9c9;
+  --ui-info: #1447e6;
+  --ui-info-bg: #eff6ff;
+  --ui-info-border: #bedbff;
+  --ui-keyword: #1447e6;
+  --ui-function: #8200db;
+  --ui-string: #016630;
+  --ui-number: #973c00;
+  --ui-shadow: none;
+  --ui-shadow-sm: 0 1px 2px 0 #1018281a;
+  --ui-shadow-md: 0 4px 12px -2px #10182814;
+  --ui-shadow-lg: 0 16px 40px -8px #10182829;
   color-scheme: light;
 }
 html[data-ui-theme=dark] {
-  --ui-bg: #202022;
-  --ui-surface: #2b2b2e;
-  --ui-inset: #252528;
-  --ui-text: #e8e8ed;
-  --ui-diff-removed-bg: #3e2a2d;
-  --ui-diff-removed-gutter: #57303a;
-  --ui-diff-removed-word: #7a3a40;
-  --ui-diff-removed-mark: #ff8a93;
-  --ui-diff-added-bg: #213a2a;
-  --ui-diff-added-gutter: #2a4f36;
-  --ui-diff-added-word: #2f6b42;
-  --ui-diff-added-mark: #6fd391;
-  --ui-diff-empty-bg: #2e2e32;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23e1e1e6%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23b2b2b9%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #b2b2b9;
-  --ui-border: #48484e;
-  --ui-input-border: #7a7a83;
-  --ui-accent: #6cabf6;
-  --ui-accent-soft: #243a54;
-  --ui-secondary-text: #8cc0ff;
-  --ui-on-accent: #0f1722;
-  --ui-success: #6fd391;
-  --ui-success-bg: #1f3b2b;
-  --ui-warning: #f0c35a;
-  --ui-warning-bg: #3e3420;
-  --ui-error: #ff8a93;
-  --ui-error-bg: #4a2a2f;
-  --ui-keyword: #79b8ff;
-  --ui-function: #d2a8ff;
-  --ui-string: #7ee2a0;
-  --ui-number: #ffab70;
+  --ui-bg: #121317;
+  --ui-surface: #1a1b20;
+  --ui-inset: #212329;
+  --ui-muted-bg: #282a31;
+  --ui-text: #f3f4f6;
+  --ui-text-secondary: #d1d5dc;
+  --ui-icon: #99a1af;
+  --ui-diff-removed-bg: #3a2226;
+  --ui-diff-removed-gutter: #522a31;
+  --ui-diff-removed-word: #75343b;
+  --ui-diff-removed-mark: #ffa2a2;
+  --ui-diff-added-bg: #16301f;
+  --ui-diff-added-gutter: #1f4a2d;
+  --ui-diff-added-word: #27673d;
+  --ui-diff-added-mark: #7bf1a8;
+  --ui-diff-empty-bg: #282a31;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #99a1af;
+  --ui-border: #353840;
+  --ui-control-border: #464a53;
+  --ui-input-border: #6a7282;
+  --ui-accent: #ee846f;
+  --ui-accent-soft: #33221f;
+  --ui-secondary-text: #f29e8c;
+  --ui-secondary-border: #8a4538;
+  --ui-on-accent: #1e2939;
+  --ui-focus-ring: #ea6c5580;
+  --ui-focus-border: #ee846f;
+  --ui-success: #7bf1a8;
+  --ui-success-bg: #142a1f;
+  --ui-warning: #ffd54d;
+  --ui-warning-bg: #2c2615;
+  --ui-error: #ffa2a2;
+  --ui-error-bg: #301b1f;
+  --ui-error-border: #6a2a2f;
+  --ui-info: #8ec5ff;
+  --ui-info-bg: #18243a;
+  --ui-info-border: #26467a;
+  --ui-keyword: #8ec5ff;
+  --ui-function: #dab2ff;
+  --ui-string: #7bf1a8;
+  --ui-number: #ffd230;
   --ui-shadow: none;
+  --ui-shadow-sm: 0 1px 2px 0 #00000066;
+  --ui-shadow-md: 0 6px 16px -2px #00000080;
+  --ui-shadow-lg: 0 20px 48px -8px #000000a6;
   color-scheme: dark;
 }
 :root .art-app {
@@ -2003,26 +2102,25 @@ html[data-ui-theme=dark] {
   display: none !important;
 }
 .art-app :focus-visible {
-  outline: 2px solid var(--ui-accent);
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
 }
 .art-app :is(button, .button) {
   cursor: pointer;
   min-height: var(--ui-control-height);
-  padding: 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-button-bg, var(--ui-accent-soft));
-  color: var(--ui-button-text, var(--ui-secondary-text));
+  padding: 9px 16px;
+  border: 1px solid var(--ui-button-border, var(--ui-control-border));
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-button-bg, var(--ui-surface));
+  color: var(--ui-button-text, var(--ui-text-secondary));
   font-size: var(--ui-action-size);
   font-weight: 500;
   line-height: 20px;
   transition: none;
 }
 .art-app[data-tool] :is(button, .button):focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
-  box-shadow: none;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app :is(.btn.primary) {
   --ui-button-bg: var(--ui-accent);
@@ -2034,13 +2132,15 @@ html[data-ui-theme=dark] {
 .art-app :is([aria-label=\5217\3092\524a\9664]) {
   --ui-button-bg: var(--ui-error-bg);
   --ui-button-text: var(--ui-error);
+  --ui-button-border: var(--ui-error-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app[data-tool] :is(button, .button):is(:disabled, [aria-disabled=true]) {
   background: var(--ui-inset);
   color: var(--ui-muted);
+  border-color: var(--ui-border);
   opacity: 1;
   cursor: not-allowed;
 }
@@ -2071,16 +2171,27 @@ html[data-ui-theme=dark] {
   inline-size: 16px;
   block-size: 16px;
 }
-.art-app :is(input:not([type=checkbox]), select, .gm-textarea) {
+.art-app :is(input:not([type=checkbox]), select) {
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+}
+.art-app .gm-textarea {
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-editor-bg);
 }
-.art-app :is(input, select, textarea, [contenteditable=true]):focus {
-  outline: 2px solid var(--ui-accent);
+.art-app :is(textarea, [contenteditable=true]):focus {
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
-  border-color: var(--ui-accent);
+  border-color: var(--ui-focus-border);
   box-shadow: none;
+}
+.art-app :is(input:not([type=checkbox], [type=radio]), select):focus {
+  outline: none;
+  border-color: var(--ui-focus-border);
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app input[type=checkbox] {
   accent-color: var(--ui-accent);
@@ -2102,10 +2213,11 @@ html[data-ui-theme=dark] {
 }
 .art-app :is(.pane-title) {
   margin: 0;
-  font-size: var(--ui-body-size);
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: -.015em;
+  font-size: var(--ui-panel-title-size);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: .04em;
+  color: var(--ui-text);
 }
 .art-app :is(.main, .workspace, main.app, .app > main) {
   width: 100%;
@@ -2116,7 +2228,7 @@ html[data-ui-theme=dark] {
   gap: var(--ui-gap);
 }
 .art-app :is(.toast) {
-  border-radius: 12px;
+  border-radius: var(--ui-panel-radius);
 }
 .art-app .art-header {
   display: flex;
@@ -2126,14 +2238,14 @@ html[data-ui-theme=dark] {
   gap: 12px;
   min-width: 0;
   min-height: var(--ui-header-height);
-  padding: 3px var(--ui-gutter);
+  padding: 8px var(--ui-gutter);
   background: var(--ui-surface);
   border-bottom: 1px solid var(--ui-border);
 }
 .art-app .art-identity {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
 }
 .art-app .art-identity > div {
@@ -2155,9 +2267,9 @@ html[data-ui-theme=dark] {
   margin: 0;
   display: block;
   font-size: var(--ui-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
-  letter-spacing: -.035em;
+  letter-spacing: .02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2166,27 +2278,28 @@ html[data-ui-theme=dark] {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 .art-app .art-header-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 7px;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 8px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-icon);
   white-space: nowrap;
   letter-spacing: normal;
 }
 .art-app .art-header-button svg {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog {
   position: fixed;
@@ -2198,17 +2311,20 @@ html[data-ui-theme=dark] {
   padding: 0;
   overflow: auto;
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font-family: var(--ui-font);
   letter-spacing: normal;
 }
 .art-dialog::backdrop {
-  background: #10101655;
+  background: #1e293966;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+html[data-ui-theme=dark] .art-dialog::backdrop {
+  background: #000000a6;
 }
 .art-app .art-dialog[open] {
   animation: none;
@@ -2223,9 +2339,9 @@ html[data-ui-theme=dark] {
 .art-app .art-dialog-title {
   margin: 0;
   font-size: var(--ui-dialog-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
-  letter-spacing: -.025em;
+  letter-spacing: .04em;
 }
 .art-app .art-close {
   display: grid;
@@ -2234,11 +2350,14 @@ html[data-ui-theme=dark] {
   width: 32px;
   min-height: 32px;
   padding: 6px;
-  background: var(--ui-border);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app .art-close svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog-body {
   padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
@@ -2247,7 +2366,7 @@ html[data-ui-theme=dark] {
   overflow: hidden;
   margin: 0 0 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
+  border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
 }
 .art-app .art-settings-row {
@@ -2269,6 +2388,7 @@ html[data-ui-theme=dark] {
   margin: 0;
   font-size: var(--ui-body-size);
   font-weight: 500;
+  color: var(--ui-text-secondary);
 }
 .art-app .art-setting-hint {
   margin: 3px 0 0;
@@ -2278,10 +2398,11 @@ html[data-ui-theme=dark] {
 }
 .art-app .art-segments {
   display: flex;
-  gap: 8px;
-  padding: 6px;
-  border-radius: 11px;
-  background: var(--ui-bg);
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-inner-radius);
+  background: var(--ui-muted-bg);
 }
 .art-app .art-segments button {
   display: inline-flex;
@@ -2290,19 +2411,21 @@ html[data-ui-theme=dark] {
   gap: 8px;
   flex: 1;
   min-width: 0;
-  min-height: max(40px, var(--ui-control-height));
-  padding: 8px 12px;
+  min-height: 34px;
+  padding: 7px 12px;
   white-space: nowrap;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-text-secondary);
   font-size: var(--ui-action-size);
   line-height: 20px;
 }
 .art-app .art-segments button[aria-pressed=true] {
-  background: var(--ui-accent);
-  color: var(--ui-on-accent);
-  box-shadow: none;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-weight: 700;
+  box-shadow: var(--ui-shadow-sm);
 }
 .art-app .art-segments svg {
   width: 16px;
@@ -2312,7 +2435,7 @@ html[data-ui-theme=dark] {
   margin: 0;
   padding: 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-editor-bg);
   font: var(--ui-editor-size)/1.7 var(--ui-mono);
   overflow: auto;
@@ -2353,15 +2476,16 @@ html[data-ui-theme=dark] {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: var(--ui-accent);
+  color: var(--ui-secondary-text);
   background: var(--ui-accent-soft);
   font-size: var(--ui-meta-size);
-  font-weight: 600;
+  font-weight: 700;
 }
 .art-app .art-steps strong {
   display: block;
   font-size: var(--ui-body-size);
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--ui-text);
 }
 .art-app .art-steps p {
   margin: 4px 0 0;
@@ -2370,11 +2494,72 @@ html[data-ui-theme=dark] {
   line-height: 1.55;
 }
 .art-app[data-tool=merge] .cm-editor:has(.cm-content:focus) {
-  outline: 2px solid var(--ui-accent);
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
 }
 .art-app[data-tool=merge] .cm-content:focus {
   outline: none;
+}
+.art-app[data-tool=merge] .segmented {
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-inner-radius);
+  background: var(--ui-muted-bg);
+}
+body.art-app[data-tool=merge] .segmented button {
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-text-secondary);
+}
+body.art-app[data-tool=merge] .segmented button.active {
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-weight: 700;
+  box-shadow: var(--ui-shadow-sm);
+}
+body.art-app[data-tool=merge] .folder-filters {
+  --ui-control-height: 32px;
+}
+body.art-app[data-tool=merge] .folder-filters button {
+  padding: 5px 10px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text-secondary);
+}
+@media (any-pointer: coarse) {
+  body.art-app[data-tool=merge] .folder-filters {
+    --ui-control-height: 44px;
+  }
+}
+body.art-app[data-tool=merge] .folder-filters button.active {
+  border-color: var(--ui-accent);
+  background: var(--ui-accent-soft);
+  color: var(--ui-secondary-text);
+  font-weight: 700;
+}
+.art-app[data-tool=merge] .differences-menu summary {
+  border-color: var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text-secondary);
+}
+.art-app[data-tool=merge] .differences-menu > div {
+  border-radius: var(--ui-panel-radius);
+  box-shadow: var(--ui-shadow-md);
+}
+body.art-app[data-tool=merge] .folder-source {
+  border-radius: var(--ui-panel-radius);
+}
+.art-app[data-tool=merge] :is(.comparison, .folder-sidebar, .excel-sheets, .excel-comparison, .editor-drop) {
+  border-radius: var(--ui-panel-radius);
+}
+.art-app[data-tool=merge] :is(.sidebar-top h2, .excel-sheets-heading h2, .excel-top h2) {
+  font-size: var(--ui-panel-title-size);
+  font-weight: 700;
+  letter-spacing: .04em;
 }
 @media screen and (min-width: 1001px) and (min-height: 641px) {
   .art-app {
@@ -2404,10 +2589,8 @@ html[data-ui-theme=dark] {
     --ui-gutter: 16px;
     --ui-panel-head-inline: 12px;
     --ui-control-height: 40px;
+    --ui-select-height: 32px;
     --ui-dialog-padding: 16px;
-  }
-  .art-app {
-    --ui-panel-radius: 16px;
   }
   .art-app :is(input:not([type=checkbox]), select) {
     font-size: 16px;
@@ -2416,13 +2599,14 @@ html[data-ui-theme=dark] {
 @media (any-pointer: coarse) {
   :root {
     --ui-control-height: 44px;
+    --ui-select-height: 44px;
   }
   .art-app .art-header-button {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
-    padding: 13px;
+    padding: 12px;
   }
   .art-app .art-segments button {
     min-height: 44px;
@@ -2549,10 +2733,10 @@ html[data-ui-theme=dark] {
   max-height: calc(100dvh - 48px);
   max-block-size: calc(100dvh - 48px);
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font: 400 var(--ui-body-size)/1.55 var(--ui-font);
   letter-spacing: normal;
 }
@@ -2581,8 +2765,8 @@ html[data-ui-theme=dark] {
 .art-app :is(.art-dialog-title),
 .art-app .modal[role=dialog] > h3 {
   margin: 0;
-  font: 600 var(--ui-dialog-title-size)/1.4 var(--ui-font);
-  letter-spacing: -.025em;
+  font: 700 var(--ui-dialog-title-size)/1.4 var(--ui-font);
+  letter-spacing: .04em;
 }
 .art-app .modal[role=dialog] > h3 {
   margin-bottom: 16px;
@@ -2615,15 +2799,15 @@ html[data-ui-theme=dark] {
   height: 32px;
   min-height: 32px;
   padding: 6px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app :is(.art-dialog-head > button) :is(svg, .icon, [data-icon]) {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
   line-height: 1;
 }
 .art-app :is(.dialog-foot) > button {
@@ -2639,11 +2823,11 @@ html[data-ui-theme=dark] {
   block-size: auto;
   min-height: var(--ui-control-height);
   min-block-size: var(--ui-control-height);
-  padding: 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-button-bg, var(--ui-accent-soft));
-  color: var(--ui-button-text, var(--ui-secondary-text));
+  padding: 9px 16px;
+  border: 1px solid var(--ui-button-border, var(--ui-control-border));
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-button-bg, var(--ui-surface));
+  color: var(--ui-button-text, var(--ui-text-secondary));
   font: 500 var(--ui-action-size)/20px var(--ui-font);
   letter-spacing: normal;
 }
@@ -2652,6 +2836,7 @@ html[data-ui-theme=dark] {
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: normal;
+  color: var(--ui-text-secondary);
 }
 .art-app :is(.modal[role=dialog]) :is(input:not([type=checkbox]), select) {
   min-height: var(--ui-control-height);
@@ -2673,8 +2858,8 @@ html[data-ui-theme=dark] {
   margin-top: 20px;
   padding: 18px;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
-  background: var(--ui-surface);
+  border-radius: var(--ui-panel-radius);
+  background: var(--ui-inset);
 }
 .art-app :is(.merge-help-details) summary {
   color: var(--ui-text);
@@ -2714,14 +2899,14 @@ html[data-ui-theme=dark] {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
-  height: var(--ui-control-height);
-  min-height: var(--ui-control-height);
+  height: var(--ui-select-height);
+  min-height: var(--ui-select-height);
   min-width: 0;
   max-width: 100%;
-  padding: 8px var(--ui-select-text-inset) 8px 12px;
+  padding: 0 var(--ui-select-text-inset) 0 12px;
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
-  background-color: var(--ui-inset);
+  border-radius: var(--ui-control-radius);
+  background-color: var(--ui-surface);
   background-image: var(--ui-select-arrow);
   background-repeat: no-repeat;
   background-position: right var(--ui-select-arrow-inset) center;
@@ -2751,6 +2936,25 @@ html[data-ui-theme=dark] {
     border-color: ButtonText;
     color: ButtonText;
   }
+}
+@media (any-pointer: coarse) {
+  .art-app[data-tool=merge] :is(.differences-menu summary, .pane-title input) {
+    min-height: 44px;
+  }
+}
+.art-app[data-tool] :is(.toast, #toast) {
+  background: var(--ui-info-bg);
+  color: var(--ui-info);
+  border: 1px solid var(--ui-info-border);
+  box-shadow: var(--ui-shadow-lg);
+}
+.art-app[data-tool] :is(.toast, #toast).error {
+  background: var(--ui-error-bg);
+  color: var(--ui-error);
+  border-color: var(--ui-error-border);
+}
+.art-app[data-tool] :is(.toast, #toast) button:not(.toast-close) {
+  background: var(--ui-surface);
 }
 body.art-app[data-tool=merge] :is(.btn, .text-btn) {
   min-height: max(var(--ui-action-min-height), var(--ui-control-height));
@@ -2785,17 +2989,6 @@ body.art-app[data-tool=merge] :is(.btn, .text-btn) > [data-icon] svg {
 body.art-app[data-tool=merge] :is(.mode-actions, .pane-buttons, .merge-toolbar > div, .excel-merge-bar > div, .dialog-foot) {
   gap: var(--ui-action-group-gap);
   flex-wrap: wrap;
-}
-body.art-app[data-tool=merge] :is(#sampleBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
-  content: "";
-  display: block;
-  flex: none;
-  width: 16px;
-  height: 16px;
-  order: -1;
-  background: currentColor;
-  -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M6%203h8l4%204v14H6Z%20M14%203v5h4%20M9%2012h6%20M9%2016h6%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
-  mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M6%203h8l4%204v14H6Z%20M14%203v5h4%20M9%2012h6%20M9%2016h6%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
 body.art-app[data-tool=merge] :is(#cancelScan):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
   content: "";
@@ -2909,8 +3102,8 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
 }
 @media (max-width: 650px) {
   body.art-app[data-tool=merge] .pane-buttons .btn {
-    width: 40px;
-    min-width: 40px;
+    width: 44px;
+    min-width: 44px;
     padding: 8px;
   }
   body.art-app[data-tool=merge] .pane-buttons .btn > span {
@@ -2939,7 +3132,7 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
 
     <header class="art-header">
       <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="merge" data-icon-theme="light" aria-hidden="true"><defs><linearGradient id="art-icon-merge-light-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e081c6"/><stop offset="0.5" stop-color="#b13595"/><stop offset="1" stop-color="#76226d"/></linearGradient><linearGradient id="art-icon-merge-light-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#472343" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-merge-light-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#edf1ee"/></linearGradient><linearGradient id="art-icon-merge-light-glass" x1="58" y1="56" x2="103" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#c454b2"/><stop offset="1" stop-color="#812d80"/></linearGradient><linearGradient id="art-icon-merge-light-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-merge-light-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#472343" flood-opacity=".23"/></filter><filter id="art-icon-merge-light-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#472343" flood-opacity=".27"/></filter><clipPath id="art-icon-merge-light-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="light" display="inline"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-merge-light-base)" filter="url(#art-icon-merge-light-shadow)"/><g clip-path="url(#art-icon-merge-light-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-merge-light-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-merge-light-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(-7 38 61)" filter="url(#art-icon-merge-light-paper-shadow)"><rect x="18" y="25" width="38" height="70" rx="6" fill="url(#art-icon-merge-light-paper)"/><path d="M26 40h21m-21 9h15m-15 13h21m-21 9h15m-15 9h20" stroke="#8a3f83" stroke-opacity=".4" stroke-width="2.5" stroke-linecap="round"/></g><g transform="rotate(7 91 61)" filter="url(#art-icon-merge-light-paper-shadow)"><rect x="72" y="25" width="38" height="70" rx="6" fill="url(#art-icon-merge-light-paper)"/><path d="M80 40h21m-21 9h15m-15 13h21m-21 9h15m-15 9h20" stroke="#8a3f83" stroke-opacity=".4" stroke-width="2.5" stroke-linecap="round"/></g><g filter="url(#art-icon-merge-light-paper-shadow)"><path d="M33 32v17c0 6 4 10 12 13l10 5c3 2 4 4 4 8v17H49l15 17 15-17H69V75c0-4 1-6 5-8l10-5c8-3 12-7 12-13V32H84v15c0 3-2 4-6 6l-14 7-14-7c-4-2-6-3-6-6V32Z" fill="url(#art-icon-merge-light-glass)" stroke="#fff" stroke-opacity=".65" stroke-width="1.2"/><path d="M35 35v14c0 5 4 8 11 11l11 5" stroke="#fff" stroke-opacity=".32" stroke-width="1.3" fill="none" stroke-linecap="round"/></g></g></g><defs><linearGradient id="art-icon-merge-dark-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#cb6db6"/><stop offset="0.5" stop-color="#a2398e"/><stop offset="1" stop-color="#6f286b"/></linearGradient><linearGradient id="art-icon-merge-dark-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#472343" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-merge-dark-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e5eae8"/><stop offset="1" stop-color="#cbd5d1"/></linearGradient><linearGradient id="art-icon-merge-dark-glass" x1="58" y1="56" x2="103" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#cf72bf"/><stop offset="1" stop-color="#98469b"/></linearGradient><linearGradient id="art-icon-merge-dark-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-merge-dark-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#472343" flood-opacity=".23"/></filter><filter id="art-icon-merge-dark-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#472343" flood-opacity=".27"/></filter><clipPath id="art-icon-merge-dark-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="dark" display="none"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-merge-dark-base)" filter="url(#art-icon-merge-dark-shadow)"/><g clip-path="url(#art-icon-merge-dark-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-merge-dark-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-merge-dark-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(-7 38 61)" filter="url(#art-icon-merge-dark-paper-shadow)"><rect x="18" y="25" width="38" height="70" rx="6" fill="url(#art-icon-merge-dark-paper)"/><path d="M26 40h21m-21 9h15m-15 13h21m-21 9h15m-15 9h20" stroke="#8a3f83" stroke-opacity=".4" stroke-width="2.5" stroke-linecap="round"/></g><g transform="rotate(7 91 61)" filter="url(#art-icon-merge-dark-paper-shadow)"><rect x="72" y="25" width="38" height="70" rx="6" fill="url(#art-icon-merge-dark-paper)"/><path d="M80 40h21m-21 9h15m-15 13h21m-21 9h15m-15 9h20" stroke="#8a3f83" stroke-opacity=".4" stroke-width="2.5" stroke-linecap="round"/></g><g filter="url(#art-icon-merge-dark-paper-shadow)"><path d="M33 32v17c0 6 4 10 12 13l10 5c3 2 4 4 4 8v17H49l15 17 15-17H69V75c0-4 1-6 5-8l10-5c8-3 12-7 12-13V32H84v15c0 3-2 4-6 6l-14 7-14-7c-4-2-6-3-6-6V32Z" fill="url(#art-icon-merge-dark-glass)" stroke="#fff" stroke-opacity=".65" stroke-width="1.2"/><path d="M35 35v14c0 5 4 8 11 11l11 5" stroke="#fff" stroke-opacity=".32" stroke-width="1.3" fill="none" stroke-linecap="round"/></g></g></g></svg></span>
+        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="merge" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><circle cx="88" cy="28" r="26" fill="#aace39"/><circle cx="58" cy="70" r="50" fill="#ea6c55"/><path d="M25 32h16l9 9v22a3 3 0 0 1-3 3h-22a3 3 0 0 1-3-3v-28a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M41 32v7a2 2 0 0 0 2 2h7" fill="none" stroke="#ea6c55" stroke-width="3" stroke-linejoin="round"/><path d="M69 32h16l9 9v22a3 3 0 0 1-3 3h-22a3 3 0 0 1-3-3v-28a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M85 32v7a2 2 0 0 0 2 2h7" fill="none" stroke="#ea6c55" stroke-width="3" stroke-linejoin="round"/><path d="M28 46h12M28 55h14M72 46h12M72 55h14" fill="none" stroke="#ea6c55" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 72c0 8 22 6 22 16v12M80 72c0 8-22 6-22 16m-9 4 9 9 9-9" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><circle cx="88" cy="28" r="26" fill="#aace39"/><circle cx="58" cy="70" r="50" fill="#ea6c55"/><path d="M25 32h16l9 9v22a3 3 0 0 1-3 3h-22a3 3 0 0 1-3-3v-28a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M41 32v7a2 2 0 0 0 2 2h7" fill="none" stroke="#ea6c55" stroke-width="3" stroke-linejoin="round"/><path d="M69 32h16l9 9v22a3 3 0 0 1-3 3h-22a3 3 0 0 1-3-3v-28a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M85 32v7a2 2 0 0 0 2 2h7" fill="none" stroke="#ea6c55" stroke-width="3" stroke-linejoin="round"/><path d="M28 46h12M28 55h14M72 46h12M72 55h14" fill="none" stroke="#ea6c55" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 72c0 8 22 6 22 16v12M80 72c0 8-22 6-22 16m-9 4 9 9 9-9" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
         <div><h1 class="art-title" title="DropMerge">DropMerge</h1></div>
       </div>
       <div class="art-header-actions">
@@ -2950,7 +3143,7 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
     </header>
     
 <main class="app">
- <div class="mode-bar"><nav class="segmented" aria-label="比較の種類"><button id="textMode" class="active" aria-pressed="true"><svg class="icon"><use href="#i-file"/></svg>テキスト</button><button id="excelMode" aria-pressed="false"><svg class="icon"><use href="#i-table"/></svg>Excel</button><button id="folderMode" aria-pressed="false"><svg class="icon"><use href="#i-folder"/></svg>フォルダ</button></nav><div class="mode-actions"><button id="sampleBtn" class="text-btn">サンプルで試す</button><button id="newBtn" class="text-btn"><svg class="icon"><use href="#i-plus"/></svg>新しい比較</button></div></div>
+ <div class="mode-bar"><nav class="segmented" aria-label="比較の種類"><button id="textMode" class="active" aria-pressed="true"><svg class="icon"><use href="#i-file"/></svg>テキスト</button><button id="excelMode" aria-pressed="false"><svg class="icon"><use href="#i-table"/></svg>Excel</button><button id="folderMode" aria-pressed="false"><svg class="icon"><use href="#i-folder"/></svg>フォルダ</button></nav><div class="mode-actions"><button id="newBtn" class="text-btn"><svg class="icon"><use href="#i-plus"/></svg>新しい比較</button></div></div>
  <section id="folderSources" class="folder-sources" hidden aria-label="比較するフォルダ">
   <button class="folder-source" id="pickFolderA"><span class="source-letter">L</span><svg class="icon"><use href="#i-folder"/></svg><span><b id="folderNameA">左のフォルダを選ぶ</b><small id="folderMetaA">選択、またはここにドロップ</small></span><span class="source-change">開く</span></button>
   <button class="icon-btn swap-folder" id="swapFolders" aria-label="左右のフォルダを入れ替える" title="左右を入れ替える"><svg class="icon"><use href="#i-swap"/></svg></button>
@@ -2963,19 +3156,19 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
    <div id="folderOverview" class="folder-overview">比較待ち</div>
    <label class="file-search"><svg class="icon"><use href="#i-search"/></svg><input id="folderSearch" type="search" placeholder="ファイル名で絞り込む" aria-label="ファイル名で絞り込む"></label>
    <div class="folder-filters" role="group" aria-label="比較結果の表示"><button data-filter="all" class="active" aria-pressed="true">すべて</button><button data-filter="changed" aria-pressed="false">変更</button><button data-filter="only" aria-pressed="false">片側のみ</button><button data-filter="same" aria-pressed="false">同一</button><button data-filter="error" aria-pressed="false">読込失敗</button></div>
-   <div class="scan-progress" id="scanProgress" hidden><div id="progressBar"></div></div>
+   <div class="scan-progress" id="scanProgress" role="progressbar" aria-label="フォルダ比較の進み具合" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><div id="progressBar"></div></div>
    <div id="fileList" class="file-list" aria-label="比較ファイル一覧"><div class="sidebar-empty">左右のフォルダを選ぶと、<br>ファイルの違いを一覧できます。</div></div>
    <div class="sidebar-footer"><button id="exportFolder" class="btn" disabled="disabled"><svg class="icon"><use href="#i-down"/></svg>結果を書き出す</button><span id="folderSummary">元のフォルダは変更しません</span></div>
   </aside>
   <section class="comparison" aria-label="テキストの比較・編集">
-   <div class="compare-toolbar"><div class="compare-heading"><div id="diffStatus" class="diff-status"><span class="status-dot idle"></span><span id="diffLabel">比較するテキストを入れてください</span></div><div class="diff-overview" title="連続した差分箇所を1件として数えます。追加・削除は右側を基準にしています。"><strong>差分 <b id="totalDifferences">0</b> 件</strong><span class="diff-count modified">変更 <b id="changedCount">0</b></span><span class="diff-count added">追加 <b id="addedCount">0</b></span><span class="diff-count removed">削除 <b id="removedCount">0</b></span><span id="changedLines" class="changed-lines">左 0行 / 右 0行</span><details id="diffListDetails" class="differences-menu"><summary>差分一覧</summary><div id="differenceList"></div></details></div></div><div class="compare-actions"><div class="diff-nav"><button class="icon-btn" id="prevDiff" aria-label="前の差分" title="前の差分 (Alt+↑)" disabled="disabled"><svg class="icon"><use href="#i-up"/></svg></button><span id="diffPosition">—</span><button class="icon-btn" id="nextDiff" aria-label="次の差分" title="次の差分 (Alt+↓)" disabled="disabled"><svg class="icon"><use href="#i-chevron"/></svg></button></div><span class="toolbar-separator"></span><button class="icon-btn" id="swapText" aria-label="左右のテキストを入れ替える" title="左右を入れ替える"><svg class="icon"><use href="#i-swap"/></svg></button></div></div>
+   <div class="compare-toolbar"><div class="compare-heading"><div id="diffStatus" class="diff-status"><span class="status-dot idle"></span><span id="diffLabel">比較するテキストを入れてください</span></div><div class="diff-overview" title="連続した差分箇所を1件として数えます。追加・削除は右側を基準にしています。"><strong>差分 <b id="totalDifferences">0</b> 件</strong><span class="diff-count modified">変更 <b id="changedCount">0</b></span><span class="diff-count added">追加 <b id="addedCount">0</b></span><span class="diff-count removed">削除 <b id="removedCount">0</b></span><span id="changedLines" class="changed-lines">左 0行 / 右 0行</span><details id="diffListDetails" class="differences-menu"><summary>差分一覧</summary><div id="differenceList"></div></details></div></div><div class="compare-actions"><div class="diff-nav"><button class="icon-btn" id="prevDiff" aria-label="前の差分" title="前の差分 (Alt+↑)" disabled="disabled"><svg class="icon"><use href="#i-up"/></svg></button><span id="diffPosition">—</span><button class="icon-btn" id="nextDiff" aria-label="次の差分" title="次の差分 (Alt+↓)" disabled="disabled"><svg class="icon"><use href="#i-chevron"/></svg></button></div><span class="toolbar-separator"></span><button class="icon-btn" id="swapText" aria-label="左右のテキストを入れ替える" title="左右を入れ替える"><svg class="icon"><use href="#i-swap"/></svg></button><button class="btn unified-toggle" id="unifiedToggle" type="button" aria-pressed="true" aria-controls="unifiedDiff" hidden><svg class="icon"><use href="#i-file"/></svg><span>左右で編集</span></button></div></div>
    <div id="currentDifference" class="current-difference" hidden></div>
    <div id="selectedPath" class="selected-path" hidden></div>
    <div class="pane-headers">
     <section class="pane-header" data-side="a"><div class="pane-title"><span class="side-label">左</span><input id="nameA" aria-label="左のファイル名" value="left.txt" spellcheck="false"><span id="dirtyA" class="dirty-marker" hidden title="読み込み後に編集あり">編集あり</span></div><div class="pane-buttons"><button class="icon-btn undo" data-side="a" aria-label="左の編集を元に戻す" title="元に戻す" disabled="disabled"><svg class="icon"><use href="#i-undo"/></svg></button><button class="icon-btn redo" data-side="a" aria-label="左の編集をやり直す" title="やり直す" disabled="disabled"><svg class="icon"><use href="#i-redo"/></svg></button><button class="btn open-file" data-side="a" aria-label="左のファイルを開く"><svg class="icon"><use href="#i-open"/></svg><span>開く</span></button><button class="btn save-file" data-side="a" aria-label="左のファイルを保存"><svg class="icon"><use href="#i-down"/></svg><span>保存</span></button></div></section>
     <section class="pane-header" data-side="b"><div class="pane-title"><span class="side-label right">右</span><input id="nameB" aria-label="右のファイル名" value="right.txt" spellcheck="false"><span id="dirtyB" class="dirty-marker" hidden title="読み込み後に編集あり">編集あり</span></div><div class="pane-buttons"><button class="icon-btn undo" data-side="b" aria-label="右の編集を元に戻す" title="元に戻す" disabled="disabled"><svg class="icon"><use href="#i-undo"/></svg></button><button class="icon-btn redo" data-side="b" aria-label="右の編集をやり直す" title="やり直す" disabled="disabled"><svg class="icon"><use href="#i-redo"/></svg></button><button class="btn open-file" data-side="b" aria-label="右のファイルを開く"><svg class="icon"><use href="#i-open"/></svg><span>開く</span></button><button class="btn save-file" data-side="b" aria-label="右のファイルを保存"><svg class="icon"><use href="#i-down"/></svg><span>保存</span></button></div></section>
    </div>
-   <div class="editor-stage"><div id="editor"></div><nav id="differenceMap" class="difference-map" aria-label="差分の位置マップ"></nav><div class="editor-drop" id="dropA"><svg class="icon"><use href="#i-open"/></svg><span>左にファイルを開く</span></div><div class="editor-drop" id="dropB"><svg class="icon"><use href="#i-open"/></svg><span>右にファイルを開く</span></div><div id="fileMessage" class="file-message" hidden></div></div>
+   <div class="editor-stage"><div id="editor"></div><div id="unifiedDiff" class="unified-diff" role="region" aria-label="1列の差分表示（読み取り専用）" tabindex="0" hidden></div><nav id="differenceMap" class="difference-map" aria-label="差分の位置マップ"></nav><div class="editor-drop" id="dropA"><svg class="icon"><use href="#i-open"/></svg><span>左にファイルを開く</span></div><div class="editor-drop" id="dropB"><svg class="icon"><use href="#i-open"/></svg><span>右にファイルを開く</span></div><div id="fileMessage" class="file-message" hidden></div></div>
    <div class="pane-footers"><span id="metaA">1行 · UTF-8 · LF</span><span id="metaB">1行 · UTF-8 · LF</span></div>
    <div class="merge-toolbar"><span class="merge-hint">差分を選んで取り込む</span><div><button class="btn" id="mergeToA" disabled="disabled"><svg class="icon"><use href="#i-left"/></svg>右を左へ</button><button class="btn" id="mergeToB" disabled="disabled">左を右へ<svg class="icon"><use href="#i-right"/></svg></button></div><button id="findBtn" class="text-btn"><svg class="icon"><use href="#i-search"/></svg>検索</button></div>
   </section>
@@ -3014,7 +3207,7 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
       <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>比較する内容を開く</strong><p>「テキスト」「Excel」「フォルダ」から選び、左右にファイルやフォルダを開きます。「サンプルで試す」から始められます。</p></li><li><strong>差分を確認する</strong><p>総数と変更・追加・削除の内訳を表示します。差分一覧・位置マップから移動でき、Excelは同名シートごとに値と数式を比較します。</p></li><li><strong>編集結果を保存する</strong><p>テキスト・Excelは両側を編集し、差分を左右に取り込めます。各側の「保存」でファイル、「結果を書き出す」で編集を反映したZIPを保存します。Excelの差分一覧はCSV保存もできます。元ファイルは変更しません。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p><details class="merge-help-details"><summary>対応範囲と詳しい使い方</summary><div><h3>テキストを比べる</h3><p>左右に文章を貼り付けるか、「開く」からファイルを選びます。両側を直接編集できます。差分の矢印、または下部の「右を左へ」「左を右へ」で、選んだ差分だけを取り込めます。</p><h3>差分の見方</h3><p>テキストは連続した差分箇所を1件として集計します。右側を基準に、変更は黄、追加は緑、削除は赤で表示。差分一覧や右端の位置マップから移動でき、取り込み・編集に合わせて件数が更新されます。</p><h3>Excelを比べる</h3><p>「Excel」から左右の .xlsx / .xls / .xlsm を開きます。テキストの「開く」でExcelを選んだ場合も自動で切り替わります。同名シートを対応づけ、セル番地ごとに値と数式を比較。シート一覧から切り替え、差分セルへの移動、差分行だけの表示、差分一覧のCSV保存ができます。非表示シートも含めて比較します。</p><p>セルをダブルクリック、Enter、F2で直接編集できます。Enter・Tabで確定して次のセルへ、Escapeで取り消し、Shift+Enterで改行します。選択セルまたはシート内の差分を左右へ取り込めます。各側の「保存」からブックをダウンロードできます。数式は再計算せず、元ファイルの保存済み結果を表示します。保存したブックはExcelで開くと再計算されます。書式・結合範囲・グラフ・マクロは比較しません。行・列の追加や移動もセル番地で比較するため、その後ろのセルに差分が増える場合があります。</p><p>.xlsx／.xlsmは取り込み先の既存書式・画像・グラフ・マクロを保持します。追加シートは値と数式のみです。.xlsは値・数式を新しい.xlsxへ変換し、書式・図形・マクロは保持しません。保護されたシート、電子署名、配列・共有数式の範囲、結合セルの左上以外の編集には対応していません。</p><h3>フォルダを比べる</h3><p>左右のフォルダを選択します。相対パスで対応づけ、ファイルの内容をバイト単位で比較します。ファイル名を選ぶとテキストの比較・編集、Excelファイルはシート比較へ進めます。別のファイルへ移動しても、編集中の内容はこの画面内に保持されます。</p><h3>保存する</h3><p>「保存」で表示中のテキスト・Excelをダウンロード。「結果を書き出す」で片側のフォルダをZIPにできます。元のファイルやフォルダを直接書き換えることはありません。編集内容は画面を閉じると失われるため、必要な内容は書き出してください。</p><h3>対応範囲</h3><p>テキストは1ファイル2 MB、フォルダは片側10,000ファイルまで。ZIPは合計200 MBまで。Excelは1ファイル20 MB・200シート・値または数式のある200,000セルまで、各シート50,000行・256列までです。範囲超過は切り捨てずエラーを表示します。空フォルダ、ファイル権限、シンボリックリンクの比較・保持は対象外です。バイナリは内容の一致・不一致を比較できます。文字コード・改行だけが異なるファイルは、フォルダで「変更」、本文で差分0件になる場合があります。</p><p>Shift-JIS等は設定で指定して開きます。保存時は文字コード・改行コードを選べます。画像・PDF・Excel以外のOffice文書の編集、フォルダの自動同期、3方向比較はこの版の対象外です。</p><p><a href="licenses/drop-merge.txt" target="_blank" rel="noopener">使用ライブラリのライセンス（別ファイル）</a></p></div></details>
+      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>比較する内容を開く</strong><p>「テキスト」「Excel」「フォルダ」から選び、左右にファイルやフォルダを開きます。テキストは左右の欄へ直接貼り付けることもできます。</p></li><li><strong>差分を確認する</strong><p>総数と変更・追加・削除の内訳を表示します。差分一覧・位置マップから移動でき、Excelは同名シートごとに値と数式を比較します。</p></li><li><strong>編集結果を保存する</strong><p>テキスト・Excelは両側を編集し、差分を左右に取り込めます。各側の「保存」でファイル、「結果を書き出す」で編集を反映したZIPを保存します。Excelの差分一覧はCSV保存もできます。元ファイルは変更しません。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p><details class="merge-help-details"><summary>対応範囲と詳しい使い方</summary><div><h3>テキストを比べる</h3><p>左右に文章を貼り付けるか、「開く」からファイルを選びます。両側を直接編集できます。差分の矢印、または下部の「右を左へ」「左を右へ」で、選んだ差分だけを取り込めます。</p><h3>差分の見方</h3><p>テキストは連続した差分箇所を1件として集計します。左側（変更前）の削除・変更された行は赤、右側（変更後）の追加・変更された行は緑で表示し、実際に変わった文字を濃い色で示します。行番号の横の「−」「+」でも区別でき、片側にしかない行の向かいは空き行になります。上部の件数は変更・追加・削除の種類別です。差分一覧や右端の位置マップから移動でき、取り込み・編集に合わせて件数が更新されます。</p><h3>Excelを比べる</h3><p>「Excel」から左右の .xlsx / .xls / .xlsm を開きます。テキストの「開く」でExcelを選んだ場合も自動で切り替わります。同名シートを対応づけ、セル番地ごとに値と数式を比較。シート一覧から切り替え、差分セルへの移動、差分行だけの表示、差分一覧のCSV保存ができます。非表示シートも含めて比較します。</p><p>セルをダブルクリック、Enter、F2で直接編集できます。Enter・Tabで確定して次のセルへ、Escapeで取り消し、Shift+Enterで改行します。選択セルまたはシート内の差分を左右へ取り込めます。各側の「保存」からブックをダウンロードできます。数式は再計算せず、元ファイルの保存済み結果を表示します。保存したブックはExcelで開くと再計算されます。書式・結合範囲・グラフ・マクロは比較しません。行・列の追加や移動もセル番地で比較するため、その後ろのセルに差分が増える場合があります。</p><p>.xlsx／.xlsmは取り込み先の既存書式・画像・グラフ・マクロを保持します。追加シートは値と数式のみです。.xlsは値・数式を新しい.xlsxへ変換し、書式・図形・マクロは保持しません。保護されたシート、電子署名、配列・共有数式の範囲、結合セルの左上以外の編集には対応していません。</p><h3>フォルダを比べる</h3><p>左右のフォルダを選択します。相対パスで対応づけ、ファイルの内容をバイト単位で比較します。ファイル名を選ぶとテキストの比較・編集、Excelファイルはシート比較へ進めます。別のファイルへ移動しても、編集中の内容はこの画面内に保持されます。</p><h3>保存する</h3><p>「保存」で表示中のテキスト・Excelをダウンロード。「結果を書き出す」で片側のフォルダをZIPにできます。元のファイルやフォルダを直接書き換えることはありません。編集内容は画面を閉じると失われるため、必要な内容は書き出してください。</p><h3>対応範囲</h3><p>テキストは1ファイル2 MB、フォルダは片側10,000ファイルまで。ZIPは合計200 MBまで。Excelは1ファイル20 MB・200シート・値または数式のある200,000セルまで、各シート50,000行・256列までです。範囲超過は切り捨てずエラーを表示します。空フォルダ、ファイル権限、シンボリックリンクの比較・保持は対象外です。バイナリは内容の一致・不一致を比較できます。文字コード・改行だけが異なるファイルは、フォルダで「変更」、本文で差分0件になる場合があります。</p><p>Shift-JIS等は設定で指定して開きます。保存時は文字コード・改行コードを選べます。画像・PDF・Excel以外のOffice文書の編集、フォルダの自動同期、3方向比較はこの版の対象外です。</p><p><a href="licenses/drop-merge.txt" target="_blank" rel="noopener">使用ライブラリのライセンス（別ファイル）</a></p></div></details>
 </div>
     </dialog>
     
@@ -27517,36 +27710,6 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
     }[c.kind], displayedCell(c.a), displayedCell(c.b), c.a?.formula ? "=" + c.a.formula : "", c.b?.formula ? "=" + c.b.formula : "" ]);
     return "\ufeff" + rows2.map(r => r.map(csvField).join(",")).join("\r\n");
   }
-  function sampleBooks() {
-    const cell = value => ({
-      type: typeof value === "number" ? "n" : "s",
-      value,
-      display: String(value)
-    });
-    const sheet = (name2, rows2) => {
-      const cells = Object.create(null);
-      rows2.forEach((r, i) => r.forEach((v, j) => {
-        if (v !== null) cells[cellAddress(i, j)] = cell(v);
-      }));
-      return {
-        name: name2,
-        cells,
-        maxRow: rows2.length - 1,
-        maxCol: Math.max(0, ...rows2.map(r => r.length)) - 1,
-        hidden: false
-      };
-    };
-    return {
-      a: {
-        name: "変更前.xlsx",
-        sheets: [ sheet("商品一覧", [ [ "商品コード", "商品名", "価格", "在庫" ], [ "001", "ノート", 380, 24 ], [ "002", "ペン", 180, 40 ], [ "003", "マグカップ", 1200, 8 ] ]), sheet("月次集計", [ [ "月", "売上" ], [ "4月", 45e3 ], [ "5月", 52e3 ] ]), sheet("旧キャンペーン", [ [ "企画", "対象" ], [ "春の特集", "文具" ] ]) ]
-      },
-      b: {
-        name: "変更後.xlsx",
-        sheets: [ sheet("商品一覧", [ [ "商品コード", "商品名", "価格", "在庫" ], [ "001", "ノート", 420, 24 ], [ "002", "ペン", 180, 35 ], [ "003", "マグカップ", 1200, null ], [ "004", "付箋", 250, 18 ] ]), sheet("月次集計", [ [ "月", "売上" ], [ "4月", 45e3 ], [ "5月", 52e3 ] ]), sheet("新キャンペーン", [ [ "企画", "対象" ], [ "夏の特集", "雑貨" ] ]) ]
-      }
-    };
-  }
   var XLSX = {};
   XLSX.version = "0.20.3";
   var current_codepage = 1200;
@@ -30321,15 +30484,6 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
       clear() {
         guardReplace(clearRaw);
       },
-      sample() {
-        guardReplace(() => {
-          clearRaw();
-          const sample = sampleBooks();
-          sessions.a = createBookSession(sample.a);
-          sessions.b = createBookSession(sample.b);
-          recompute();
-        });
-      },
       setFolderContext(value) {
         $3("excelBack").hidden = !value;
         if (!value && folderRow) {
@@ -30545,12 +30699,6 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
       from: targetFrom,
       to: Math.min(targetTo, target.length),
       insert: insert2
-    };
-  }
-  function sampleTexts() {
-    return {
-      a: '<!doctype html>\n<html lang="ja">\n<head>\n  <meta charset="utf-8">\n  <title>小さな道具店</title>\n  <style>\n    body { background: #ffffff; }\n    h1 { font-size: 28px; }\n    .button { border-radius: 8px; }\n  </style>\n</head>\n<body>\n  <main>\n    <h1>毎日の作業を、少し楽に。</h1>\n    <p>手元で使える、小さなツール。</p>\n    <button class="button">詳しく見る</button>\n  </main>\n</body>\n</html>\n',
-      b: '<!doctype html>\n<html lang="ja">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>小さな道具店</title>\n  <style>\n    body { background: #f5f5f7; }\n    h1 { font-size: 32px; }\n    .button { border-radius: 999px; }\n  </style>\n</head>\n<body>\n  <main>\n    <h1>毎日の作業を、少し楽に。</h1>\n    <p>開いて、すぐ使える小さなツール。</p>\n    <button class="button">ツールを試す</button>\n  </main>\n</body>\n</html>\n'
     };
   }
   var PRECISE_DIFF = {
@@ -30920,6 +31068,7 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
         })
       });
     }
+    unifiedScrollPending = true;
     refreshStats();
   }
   function renderDifferenceSummary() {
@@ -31042,12 +31191,85 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
       });
     }
   }
+  var narrowQuery = matchMedia("(max-width:650px)");
+  var unifiedPreferred = true;
+  var unifiedScrollPending = false;
+  var escapeText = text => text.replace(/[&<>"]/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;"
+  }[ch]));
+  function unifiedActive() {
+    return narrowQuery.matches && unifiedPreferred && !!merge && mode !== "excel" && $2("fileMessage").hidden && !!merge.chunks.length;
+  }
+  function renderUnified() {
+    const box = $2("unifiedDiff"), toggle = $2("unifiedToggle");
+    toggle.hidden = !(narrowQuery.matches && merge && mode !== "excel" && $2("fileMessage").hidden && merge.chunks.length);
+    toggle.setAttribute("aria-pressed", String(unifiedPreferred));
+    toggle.querySelector("span").textContent = unifiedPreferred ? "左右で編集" : "1列で表示";
+    const active = unifiedActive();
+    box.hidden = !active;
+    $2("editor").classList.toggle("unified-covered", active);
+    if (!active) {
+      box.replaceChildren();
+      return;
+    }
+    const docA = merge.a.state.doc, docB = merge.b.state.doc, rows2 = [], context = 3;
+    const row = (kind, numA, numB, text, chunk) => rows2.push(`<div class="ud-row ${kind}"${chunk != null ? ` data-chunk="${chunk}"` : ""}><span class="ud-num">${numA ?? ""}</span><span class="ud-num">${numB ?? ""}</span><span class="ud-mark">${kind === "removed" ? "−" : kind === "added" ? "+" : ""}</span><span class="ud-text">${escapeText(text) || " "}</span></div>`);
+    const same = (fromA, fromB, count2, isFirst, isLast) => {
+      const show = new Set;
+      for (let i = 0; i < count2; i++) if (!isFirst && i < context || !isLast && i >= count2 - context) show.add(i);
+      let skipped = 0;
+      for (let i = 0; i < count2; i++) {
+        if (show.has(i)) {
+          if (skipped) {
+            rows2.push(`<div class="ud-row ud-skip"><span class="ud-skip-text">${skipped.toLocaleString()}行 一致</span></div>`);
+            skipped = 0;
+          }
+          row("same", fromA + i, fromB + i, docB.line(fromB + i).text);
+        } else skipped++;
+      }
+      if (skipped) rows2.push(`<div class="ud-row ud-skip"><span class="ud-skip-text">${skipped.toLocaleString()}行 一致</span></div>`);
+    };
+    const range = (doc2, from, to) => {
+      if (to <= from) return [ doc2.lineAt(Math.min(from, doc2.length)).number, 0 ];
+      const first = doc2.lineAt(from).number, last2 = doc2.lineAt(Math.min(to - 1, doc2.length)).number;
+      return [ first, last2 - first + 1 ];
+    };
+    let lineA = 1, lineB = 1;
+    merge.chunks.forEach((chunk, index) => {
+      const [startA, countA] = range(docA, chunk.fromA, chunk.toA), [startB, countB] = range(docB, chunk.fromB, chunk.toB);
+      const before = Math.max(0, (countB ? startB : Math.min(startB, docB.lines + 1)) - lineB);
+      same(lineA, lineB, before, index === 0, false);
+      lineA += before;
+      lineB += before;
+      const head = rows2.length;
+      for (let i = 0; i < countA; i++) row("removed", startA + i, null, docA.line(startA + i).text, null);
+      for (let i = 0; i < countB; i++) row("added", null, startB + i, docB.line(startB + i).text, null);
+      if (rows2.length > head) rows2[head] = rows2[head].replace('class="ud-row ', `data-chunk="${index}" class="ud-row `);
+      lineA = countA ? startA + countA : lineA;
+      lineB = countB ? startB + countB : lineB;
+    });
+    same(lineA, lineB, Math.max(0, docB.lines - lineB + 1), !merge.chunks.length, true);
+    box.innerHTML = rows2.join("");
+    box.querySelector(`[data-chunk="${currentChunk}"]`)?.classList.add("ud-current");
+    if (unifiedScrollPending) {
+      unifiedScrollPending = false;
+      box.querySelector(".ud-current")?.scrollIntoView({
+        block: "center"
+      });
+    }
+  }
+  narrowQuery.addEventListener("change", () => {
+    if (merge) renderUnified();
+  });
   function refreshStats() {
     if (!merge) return;
     const n = merge.chunks.length;
     currentChunk = n ? Math.max(0, Math.min(currentChunk, n - 1)) : -1;
     const empty2 = !session.a.text && !session.b.text;
-    let label = empty2 ? "比較するテキストを入れてください" : n ? "テキスト比較" : "テキストは一致しています";
+    let label = empty2 ? mode === "folder" ? "左右のフォルダを選び、ファイルを開いてください" : "比較するテキストを入れてください" : n ? "テキスト比較" : "テキストは一致しています";
     if (!n && !empty2 && session.row?.status === "changed" && !session.row.edited) label = "本文は一致 · 文字コードや改行に違い";
     $2("diffLabel").textContent = label;
     $2("diffStatus").querySelector(".status-dot").className = "status-dot" + (empty2 ? " idle" : n ? "" : " same");
@@ -31063,6 +31285,7 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
     }
     $2("findBtn").disabled = !$2("fileMessage").hidden;
     renderDifferenceSummary();
+    renderUnified();
   }
   function navigateDiff(step) {
     if (!merge?.chunks.length) return;
@@ -31399,7 +31622,9 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
     $2("scanProgress").hidden = false;
     let finished = 0;
     const repaint = () => {
-      $2("progressBar").style.width = (rows.length ? finished / rows.length * 100 : 100) + "%";
+      const percent2 = rows.length ? finished / rows.length * 100 : 100;
+      $2("progressBar").style.width = percent2 + "%";
+      $2("scanProgress").setAttribute("aria-valuenow", String(Math.round(percent2)));
       renderFileList();
       updateFolderSummary();
     };
@@ -31520,79 +31745,6 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
     renderFileList();
     updateFolderSummary();
   }
-  function folderSample() {
-    const t2 = sampleTexts();
-    const file = (text, name2) => new File([ text ], name2, {
-      type: "text/plain"
-    });
-    const left = [ {
-      path: "index.html",
-      file: file(t2.a, "index.html")
-    }, {
-      path: "styles/main.css",
-      file: file("body { margin: 0; }\n.button { padding: 8px 16px; }\n", "main.css")
-    }, {
-      path: "README.md",
-      file: file("# 小さな道具店\n\nブラウザで開いて使います。\n", "README.md")
-    }, {
-      path: "notes.txt",
-      file: file("公開前に写真を確認する\n", "notes.txt")
-    } ];
-    const right = [ {
-      path: "index.html",
-      file: file(t2.b, "index.html")
-    }, {
-      path: "styles/main.css",
-      file: file("body { margin: 0; }\n.button { padding: 10px 20px; }\n", "main.css")
-    }, {
-      path: "README.md",
-      file: file("# 小さな道具店\n\nブラウザで開いて使います。\n", "README.md")
-    }, {
-      path: "scripts/app.js",
-      file: file('document.querySelector("button").textContent = "ツールを試す";\n', "app.js")
-    } ];
-    scanController?.abort();
-    folderA = {
-      name: "修正前（サンプル）",
-      files: fileMap(left),
-      loaded: true
-    };
-    folderB = {
-      name: "修正後（サンプル）",
-      files: fileMap(right),
-      loaded: true
-    };
-    rows = [];
-    selectedRow = null;
-    updateFolderNames();
-    scanFolders();
-  }
-  function loadSample() {
-    if (mode === "excel") {
-      excelView.sample();
-      return;
-    }
-    guard(mode === "text" ? isDirty(textSession.a) || isDirty(textSession.b) : folderDirty(), "サンプルに切り替える", "現在の比較をサンプルで置き換えます。必要な編集内容は先に保存してください。", () => {
-      if (mode === "folder") {
-        folderSample();
-        return;
-      }
-      const t2 = sampleTexts();
-      textSession = {
-        a: {
-          ...blank("before.html"),
-          text: t2.a,
-          original: t2.a
-        },
-        b: {
-          ...blank("after.html"),
-          text: t2.b,
-          original: t2.b
-        }
-      };
-      showSession(textSession);
-    });
-  }
   function newComparison() {
     if (mode === "excel") {
       excelView.clear();
@@ -31672,6 +31824,7 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
       controller.signal.throwIfAborted();
       const name2 = safeName((side === "a" ? folderA.name : folderB.name) || "merged-folder").replace(/\.(zip)$/i, "") + "-result.zip";
       download(zipped, name2, "application/zip");
+      busyExport = false;
       closeDialog("folderExportDialog");
       toast(`${candidates.length}ファイルのZIPを作成しました`);
     } catch (error) {
@@ -31799,7 +31952,6 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
   });
   $2("textMode").addEventListener("click", () => setMode("text"));
   $2("folderMode").addEventListener("click", () => setMode("folder"));
-  $2("sampleBtn").addEventListener("click", loadSample);
   $2("newBtn").addEventListener("click", newComparison);
   document.addEventListener("arttools:settings-open", () => {
     $2("wrapSetting").checked = preferences.wrap;
@@ -31828,6 +31980,12 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
   $2("findBtn").addEventListener("click", () => {
     merge[activeSide].focus();
     openSearchPanel(merge[activeSide]);
+  });
+  $2("unifiedToggle").addEventListener("click", () => {
+    unifiedPreferred = !unifiedPreferred;
+    unifiedScrollPending = unifiedPreferred;
+    renderUnified();
+    if (!unifiedPreferred && currentChunk >= 0) goToDifference(currentChunk);
   });
   $2("swapText").addEventListener("click", () => {
     [textSession.a, textSession.b] = [ textSession.b, textSession.a ];
@@ -31869,7 +32027,7 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
   $2("confirmDialog").addEventListener("close", () => pendingConfirm = null);
   all("[data-close]").forEach(b => b.addEventListener("click", () => closeDialog(b.dataset.close)));
   all("#saveDialog,#folderExportDialog,#confirmDialog").forEach(d => d.addEventListener("click", e => {
-    if (e.target !== d) return;
+    if (e.target !== d || d.id === "folderExportDialog" && busyExport) return;
     const r = d.getBoundingClientRect();
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) d.close();
   }));
@@ -31893,7 +32051,11 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
     $2("folderExportDialog").showModal();
   });
   $2("confirmFolderExport").addEventListener("click", exportFolder);
-  $2("folderExportDialog").addEventListener("close", () => exportController?.abort());
+  $2("folderExportDialog").addEventListener("close", () => {
+    const stopped = busyExport;
+    exportController?.abort();
+    if (stopped) toast("ZIPの書き出しを中止しました。ファイルは作成されていません。", true);
+  });
   window.addEventListener("keydown", e => {
     if (document.querySelector("dialog[open]")) return;
     if (e.altKey && !e.ctrlKey && !e.metaKey && [ "ArrowUp", "ArrowDown" ].includes(e.key)) {
@@ -32073,7 +32235,30 @@ body.art-app[data-tool=merge] :is(.text-btn:not([id])):not(:has(svg, .material-s
   } catch {
     saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.dataset.error = "true";
   }
-  applyTheme(preferences.theme), applySize(preferences.editorSize), window.addEventListener("storage", event => {
+  applyTheme(preferences.theme), applySize(preferences.editorSize);
+  const focusPrimaryInput = () => {
+    const target = document.querySelector("[data-art-autofocus]");
+    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
+    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
+    let finished = !1;
+    const finish = () => {
+      finished = !0;
+      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+    };
+    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    const attempt = () => {
+      if (!finished) {
+        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
+          preventScroll: !0
+        }), document.activeElement === target)) return finish();
+        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      }
+    };
+    attempt();
+  };
+  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
+    once: !0
+  }), window.addEventListener("storage", event => {
     event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
     applyTheme(preferences.theme), applySize(preferences.editorSize));
   });

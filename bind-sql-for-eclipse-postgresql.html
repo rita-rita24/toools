@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval'; worker-src blob:; style-src 'unsafe-inline'; img-src data:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
     <title>BindSQL for Eclipse — PostgreSQL専用</title>
-    <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22bind%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-bind-light-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f0aa50%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23c16b1d%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23874110%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-light-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%234d2c16%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-light-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffffff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23edf1ee%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-light-glass%22%20x1%3D%2258%22%20y1%3D%2256%22%20x2%3D%22103%22%20y2%3D%22108%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e4973e%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23a65616%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-light-metal%22%20x1%3D%2225%22%20y1%3D%2236%22%20x2%3D%2298%22%20y2%3D%2264%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffffff%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23b4c6ce%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f1f5f7%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-light-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-bind-light-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%234d2c16%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-bind-light-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%234d2c16%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-bind-light-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-bind-light-base)%22%20filter%3D%22url(%23art-icon-bind-light-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-bind-light-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-bind-light-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-bind-light-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(-8%2042%2063)%22%20filter%3D%22url(%23art-icon-bind-light-paper-shadow)%22%3E%3Crect%20x%3D%2217%22%20y%3D%2225%22%20width%3D%2249%22%20height%3D%2273%22%20rx%3D%2211%22%20fill%3D%22url(%23art-icon-bind-light-metal)%22%2F%3E%3Crect%20x%3D%2219%22%20y%3D%2225%22%20width%3D%2245%22%20height%3D%2268%22%20rx%3D%2210%22%20fill%3D%22url(%23art-icon-bind-light-paper)%22%2F%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2246%22%20r%3D%227%22%20fill%3D%22none%22%20stroke%3D%22%238c511f%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M42%2053v24h8m-8-8h6%22%20fill%3D%22none%22%20stroke%3D%22%238c511f%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22rotate(8%2087%2067)%22%20filter%3D%22url(%23art-icon-bind-light-paper-shadow)%22%3E%3Crect%20x%3D%2262%22%20y%3D%2234%22%20width%3D%2248%22%20height%3D%2273%22%20rx%3D%2211%22%20fill%3D%22url(%23art-icon-bind-light-metal)%22%2F%3E%3Crect%20x%3D%2264%22%20y%3D%2234%22%20width%3D%2244%22%20height%3D%2268%22%20rx%3D%2210%22%20fill%3D%22url(%23art-icon-bind-light-paper)%22%2F%3E%3Cpath%20d%3D%22M76%2051h22M76%2062h15M76%2084h22%22%20fill%3D%22none%22%20stroke%3D%22%238c511f%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url(%23art-icon-bind-light-paper-shadow)%22%3E%3Crect%20x%3D%2246%22%20y%3D%2259%22%20width%3D%2236%22%20height%3D%2228%22%20rx%3D%228%22%20fill%3D%22url(%23art-icon-bind-light-glass)%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.55%22%2F%3E%3Ccircle%20cx%3D%2264%22%20cy%3D%2273%22%20r%3D%225.3%22%20fill%3D%22%23fff%22%20fill-opacity%3D%22.94%22%2F%3E%3Cpath%20d%3D%22M53%2061h22%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.4%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-bind-dark-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23df9547%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23b06320%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237e421a%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-dark-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%234d2c16%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-dark-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e5eae8%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23cbd5d1%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-dark-glass%22%20x1%3D%2258%22%20y1%3D%2256%22%20x2%3D%22103%22%20y2%3D%22108%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e6a14f%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b46c27%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-dark-metal%22%20x1%3D%2225%22%20y1%3D%2236%22%20x2%3D%2298%22%20y2%3D%2264%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23eef2f4%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%2392a4af%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dbe4e9%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-bind-dark-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-bind-dark-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%234d2c16%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-bind-dark-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%234d2c16%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-bind-dark-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-bind-dark-base)%22%20filter%3D%22url(%23art-icon-bind-dark-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-bind-dark-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-bind-dark-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-bind-dark-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(-8%2042%2063)%22%20filter%3D%22url(%23art-icon-bind-dark-paper-shadow)%22%3E%3Crect%20x%3D%2217%22%20y%3D%2225%22%20width%3D%2249%22%20height%3D%2273%22%20rx%3D%2211%22%20fill%3D%22url(%23art-icon-bind-dark-metal)%22%2F%3E%3Crect%20x%3D%2219%22%20y%3D%2225%22%20width%3D%2245%22%20height%3D%2268%22%20rx%3D%2210%22%20fill%3D%22url(%23art-icon-bind-dark-paper)%22%2F%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2246%22%20r%3D%227%22%20fill%3D%22none%22%20stroke%3D%22%238c511f%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M42%2053v24h8m-8-8h6%22%20fill%3D%22none%22%20stroke%3D%22%238c511f%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22rotate(8%2087%2067)%22%20filter%3D%22url(%23art-icon-bind-dark-paper-shadow)%22%3E%3Crect%20x%3D%2262%22%20y%3D%2234%22%20width%3D%2248%22%20height%3D%2273%22%20rx%3D%2211%22%20fill%3D%22url(%23art-icon-bind-dark-metal)%22%2F%3E%3Crect%20x%3D%2264%22%20y%3D%2234%22%20width%3D%2244%22%20height%3D%2268%22%20rx%3D%2210%22%20fill%3D%22url(%23art-icon-bind-dark-paper)%22%2F%3E%3Cpath%20d%3D%22M76%2051h22M76%2062h15M76%2084h22%22%20fill%3D%22none%22%20stroke%3D%22%238c511f%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url(%23art-icon-bind-dark-paper-shadow)%22%3E%3Crect%20x%3D%2246%22%20y%3D%2259%22%20width%3D%2236%22%20height%3D%2228%22%20rx%3D%228%22%20fill%3D%22url(%23art-icon-bind-dark-glass)%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.55%22%2F%3E%3Ccircle%20cx%3D%2264%22%20cy%3D%2273%22%20r%3D%225.3%22%20fill%3D%22%23fff%22%20fill-opacity%3D%22.94%22%2F%3E%3Cpath%20d%3D%22M53%2061h22%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.4%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
+    <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22bind%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23aace39%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23d98e04%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%2215%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%225%22%20fill%3D%22%23d98e04%22%2F%3E%3Cpath%20d%3D%22m50%2068%2026%2026m-9-9%207-7m2%2016%206-6%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2266%22%20y%3D%2242%22%20width%3D%2228%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2272%22%20y%3D%2256%22%20width%3D%2222%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23aace39%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23d98e04%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%2215%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2258%22%20r%3D%225%22%20fill%3D%22%23d98e04%22%2F%3E%3Cpath%20d%3D%22m50%2068%2026%2026m-9-9%207-7m2%2016%206-6%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2266%22%20y%3D%2242%22%20width%3D%2228%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2272%22%20y%3D%2256%22%20width%3D%2222%22%20height%3D%228%22%20rx%3D%224%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
     <style id="bindsql-styles">:root {
   color-scheme: light;
   --on-brand: #ffffff;
@@ -539,93 +539,121 @@ summary {
 </style>
   <style id="arttools-common-ui">:root {
   --ui-font:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
+    "Noto Sans JP",
+    "Hiragino Sans",
     "Hiragino Kaku Gothic ProN",
-    "Yu Gothic",
+    Meiryo,
     sans-serif;
   --ui-mono:
     ui-monospace,
     SFMono-Regular,
     Menlo,
-    Monaco,
     Consolas,
-    "Liberation Mono",
     monospace;
   --ui-editor-size: 14px;
-  --ui-title-size: 16px;
-  --ui-body-size: 13px;
-  --ui-action-size: 12px;
-  --ui-meta-size: 11px;
-  --ui-dialog-title-size: 18px;
-  --ui-gutter: 20px;
-  --ui-gap: 12px;
-  --ui-panel-padding: 10px;
-  --ui-panel-radius: 18px;
+  --ui-title-size: 18px;
+  --ui-body-size: 14px;
+  --ui-action-size: 14px;
+  --ui-meta-size: 12px;
+  --ui-dialog-title-size: 20px;
+  --ui-panel-title-size: 16px;
+  --ui-gutter: 24px;
+  --ui-gap: 16px;
+  --ui-panel-padding: 12px;
+  --ui-panel-radius: 8px;
+  --ui-control-radius: 4px;
+  --ui-inner-radius: 6px;
+  --ui-dialog-radius: 12px;
   --ui-panel-head-height: calc(max(var(--ui-action-min-height), var(--ui-control-height)) + var(--ui-panel-head-padding) * 2 + 1px);
-  --ui-panel-head-padding: 10px;
-  --ui-panel-head-inline: 14px;
-  --ui-action-min-height: 42px;
+  --ui-panel-head-padding: 12px;
+  --ui-panel-head-inline: 16px;
+  --ui-action-min-height: 40px;
   --ui-action-padding-block: 9px;
-  --ui-action-padding-inline: 18px;
+  --ui-action-padding-inline: 16px;
   --ui-action-icon-gap: 8px;
-  --ui-action-group-gap: 10px;
-  --ui-workspace-bottom: 12px;
-  --ui-editor-padding: 10px;
-  --ui-control-height: 38px;
-  --ui-select-arrow-size: 20px;
-  --ui-select-arrow-inset: 8px;
+  --ui-action-group-gap: 8px;
+  --ui-workspace-bottom: 16px;
+  --ui-editor-padding: 12px;
+  --ui-control-height: 40px;
+  --ui-select-height: 28px;
+  --ui-select-arrow-size: 16px;
+  --ui-select-arrow-inset: 10px;
   --ui-select-text-gap: 8px;
   --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
-  --ui-dialog-padding: 20px;
-  --ui-header-height: 52px;
-  --ui-app-icon-size: 24px;
-  --ui-main-top: 6px;
+  --ui-dialog-padding: 24px;
+  --ui-header-height: 64px;
+  --ui-app-icon-size: 28px;
+  --ui-main-top: 16px;
 }
 html[data-ui-theme=light],
 html:not([data-ui-theme]) {
-  --ui-bg: #f5f5f7;
-  --ui-surface: #fff;
-  --ui-inset: #f8f8fa;
-  --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%231d1d1f%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%236e6e73%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #6e6e73;
-  --ui-border: #e0e0e5;
-  --ui-input-border: #c7c7cc;
-  --ui-accent: #006edb;
-  --ui-accent-soft: #edf5ff;
-  --ui-secondary-text: #0063b9;
-  --ui-on-accent: #fff;
-  --ui-success: #187447;
-  --ui-success-bg: #edf8f1;
-  --ui-warning: #855700;
-  --ui-error: #b4232f;
-  --ui-error-bg: #fff0f1;
-  --ui-shadow: 0 2px 8px #00000003;
+  --ui-bg: #fefffa;
+  --ui-surface: #ffffff;
+  --ui-inset: #f9fafb;
+  --ui-muted-bg: #f3f4f6;
+  --ui-text: #1e2939;
+  --ui-text-secondary: #4a5565;
+  --ui-icon: #6a7282;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #676f7f;
+  --ui-border: #e5e7eb;
+  --ui-control-border: #d1d5dc;
+  --ui-input-border: #6a7282;
+  --ui-accent: #b4432f;
+  --ui-accent-soft: #fdf1ee;
+  --ui-secondary-text: #b4432f;
+  --ui-on-accent: #ffffff;
+  --ui-focus-ring: #ea6c5566;
+  --ui-focus-border: #ee846f;
+  --ui-success: #016630;
+  --ui-success-bg: #f0fdf4;
+  --ui-success-border: #b9f8cf;
+  --ui-warning: #a65f00;
+  --ui-error: #c10007;
+  --ui-error-bg: #fef2f2;
+  --ui-error-border: #ffc9c9;
+  --ui-keyword: #1447e6;
+  --ui-string: #016630;
+  --ui-number: #973c00;
+  --ui-shadow: none;
+  --ui-shadow-sm: 0 1px 2px 0 #1018281a;
+  --ui-shadow-lg: 0 16px 40px -8px #10182829;
   color-scheme: light;
 }
 html[data-ui-theme=dark] {
-  --ui-bg: #202022;
-  --ui-surface: #2b2b2e;
-  --ui-inset: #252528;
-  --ui-text: #e8e8ed;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23e1e1e6%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23b2b2b9%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #b2b2b9;
-  --ui-border: #48484e;
-  --ui-input-border: #7a7a83;
-  --ui-accent: #6cabf6;
-  --ui-accent-soft: #243a54;
-  --ui-secondary-text: #8cc0ff;
-  --ui-on-accent: #0f1722;
-  --ui-success: #6fd391;
-  --ui-success-bg: #1f3b2b;
-  --ui-warning: #f0c35a;
-  --ui-error: #ff8a93;
-  --ui-error-bg: #4a2a2f;
+  --ui-bg: #121317;
+  --ui-surface: #1a1b20;
+  --ui-inset: #212329;
+  --ui-muted-bg: #282a31;
+  --ui-text: #f3f4f6;
+  --ui-text-secondary: #d1d5dc;
+  --ui-icon: #99a1af;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #99a1af;
+  --ui-border: #353840;
+  --ui-control-border: #464a53;
+  --ui-input-border: #6a7282;
+  --ui-accent: #ee846f;
+  --ui-accent-soft: #33221f;
+  --ui-secondary-text: #f29e8c;
+  --ui-on-accent: #1e2939;
+  --ui-focus-ring: #ea6c5580;
+  --ui-focus-border: #ee846f;
+  --ui-success: #7bf1a8;
+  --ui-success-bg: #142a1f;
+  --ui-success-border: #1f5a37;
+  --ui-warning: #ffd54d;
+  --ui-error: #ffa2a2;
+  --ui-error-bg: #301b1f;
+  --ui-error-border: #6a2a2f;
+  --ui-keyword: #8ec5ff;
+  --ui-string: #7bf1a8;
+  --ui-number: #ffd230;
   --ui-shadow: none;
+  --ui-shadow-sm: 0 1px 2px 0 #00000066;
+  --ui-shadow-lg: 0 20px 48px -8px #000000a6;
   color-scheme: dark;
 }
 :root .art-app {
@@ -643,7 +671,7 @@ html[data-ui-theme=dark] {
   --warning: var(--ui-warning);
   --error: var(--ui-error);
   --error-bg: var(--ui-error-bg);
-  --radius: 12px;
+  --radius: var(--ui-panel-radius);
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -683,26 +711,25 @@ html[data-ui-theme=dark] {
   display: none !important;
 }
 .art-app :focus-visible {
-  outline: 2px solid var(--ui-accent);
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
 }
 .art-app :is(button, .button) {
   cursor: pointer;
   min-height: var(--ui-control-height);
-  padding: 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-button-bg, var(--ui-accent-soft));
-  color: var(--ui-button-text, var(--ui-secondary-text));
+  padding: 9px 16px;
+  border: 1px solid var(--ui-button-border, var(--ui-control-border));
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-button-bg, var(--ui-surface));
+  color: var(--ui-button-text, var(--ui-text-secondary));
   font-size: var(--ui-action-size);
   font-weight: 500;
   line-height: 20px;
   transition: none;
 }
 .art-app[data-tool] :is(button, .button):focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
-  box-shadow: none;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app :is(.copy-button) {
   --ui-button-bg: var(--ui-accent);
@@ -714,20 +741,23 @@ html[data-ui-theme=dark] {
 .art-app :is(.copy-button[data-copied=true]) {
   --ui-button-bg: var(--ui-success-bg);
   --ui-button-text: var(--ui-success);
+  --ui-button-border: var(--ui-success-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app :is([aria-label=\5217\3092\524a\9664]) {
   --ui-button-bg: var(--ui-error-bg);
   --ui-button-text: var(--ui-error);
+  --ui-button-border: var(--ui-error-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app[data-tool] :is(button, .button):is(:disabled, [aria-disabled=true]) {
   background: var(--ui-inset);
   color: var(--ui-muted);
+  border-color: var(--ui-border);
   opacity: 1;
   cursor: not-allowed;
 }
@@ -760,14 +790,20 @@ html[data-ui-theme=dark] {
 }
 .art-app :is(input:not([type=checkbox]), select) {
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
-  background: var(--ui-editor-bg);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
 }
-.art-app :is(input, select, textarea, [contenteditable=true]):focus {
-  outline: 2px solid var(--ui-accent);
+.art-app :is(textarea, [contenteditable=true]):focus {
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
-  border-color: var(--ui-accent);
+  border-color: var(--ui-focus-border);
   box-shadow: none;
+}
+.art-app :is(input:not([type=checkbox], [type=radio]), select):focus {
+  outline: none;
+  border-color: var(--ui-focus-border);
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app input[type=checkbox] {
   accent-color: var(--ui-accent);
@@ -789,10 +825,11 @@ html[data-ui-theme=dark] {
 }
 .art-app :is(.panel__title) {
   margin: 0;
-  font-size: var(--ui-body-size);
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: -.015em;
+  font-size: var(--ui-panel-title-size);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: .04em;
+  color: var(--ui-text);
 }
 .art-app :is(.copy-hint) {
   color: var(--ui-muted);
@@ -808,7 +845,7 @@ html[data-ui-theme=dark] {
   gap: var(--ui-gap);
 }
 .art-app :is(.flash) {
-  border-radius: 12px;
+  border-radius: var(--ui-panel-radius);
 }
 .art-app .art-header {
   display: flex;
@@ -818,14 +855,14 @@ html[data-ui-theme=dark] {
   gap: 12px;
   min-width: 0;
   min-height: var(--ui-header-height);
-  padding: 3px var(--ui-gutter);
+  padding: 8px var(--ui-gutter);
   background: var(--ui-surface);
   border-bottom: 1px solid var(--ui-border);
 }
 .art-app .art-identity {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
 }
 .art-app .art-identity > div {
@@ -847,9 +884,9 @@ html[data-ui-theme=dark] {
   margin: 0;
   display: block;
   font-size: var(--ui-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
-  letter-spacing: -.035em;
+  letter-spacing: .02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -858,27 +895,28 @@ html[data-ui-theme=dark] {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 .art-app .art-header-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 7px;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 8px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-icon);
   white-space: nowrap;
   letter-spacing: normal;
 }
 .art-app .art-header-button svg {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog {
   position: fixed;
@@ -890,17 +928,20 @@ html[data-ui-theme=dark] {
   padding: 0;
   overflow: auto;
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font-family: var(--ui-font);
   letter-spacing: normal;
 }
 .art-dialog::backdrop {
-  background: #10101655;
+  background: #1e293966;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+html[data-ui-theme=dark] .art-dialog::backdrop {
+  background: #000000a6;
 }
 .art-app .art-dialog[open] {
   animation: none;
@@ -915,9 +956,9 @@ html[data-ui-theme=dark] {
 .art-app .art-dialog-title {
   margin: 0;
   font-size: var(--ui-dialog-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
-  letter-spacing: -.025em;
+  letter-spacing: .04em;
 }
 .art-app .art-close {
   display: grid;
@@ -926,11 +967,14 @@ html[data-ui-theme=dark] {
   width: 32px;
   min-height: 32px;
   padding: 6px;
-  background: var(--ui-border);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app .art-close svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog-body {
   padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
@@ -939,7 +983,7 @@ html[data-ui-theme=dark] {
   overflow: hidden;
   margin: 0 0 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
+  border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
 }
 .art-app .art-settings-row {
@@ -961,13 +1005,15 @@ html[data-ui-theme=dark] {
   margin: 0;
   font-size: var(--ui-body-size);
   font-weight: 500;
+  color: var(--ui-text-secondary);
 }
 .art-app .art-segments {
   display: flex;
-  gap: 8px;
-  padding: 6px;
-  border-radius: 11px;
-  background: var(--ui-bg);
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-inner-radius);
+  background: var(--ui-muted-bg);
 }
 .art-app .art-segments button {
   display: inline-flex;
@@ -976,19 +1022,21 @@ html[data-ui-theme=dark] {
   gap: 8px;
   flex: 1;
   min-width: 0;
-  min-height: max(40px, var(--ui-control-height));
-  padding: 8px 12px;
+  min-height: 34px;
+  padding: 7px 12px;
   white-space: nowrap;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-text-secondary);
   font-size: var(--ui-action-size);
   line-height: 20px;
 }
 .art-app .art-segments button[aria-pressed=true] {
-  background: var(--ui-accent);
-  color: var(--ui-on-accent);
-  box-shadow: none;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-weight: 700;
+  box-shadow: var(--ui-shadow-sm);
 }
 .art-app .art-segments svg {
   width: 16px;
@@ -998,7 +1046,7 @@ html[data-ui-theme=dark] {
   margin: 0;
   padding: 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-editor-bg);
   font: var(--ui-editor-size)/1.7 var(--ui-mono);
   overflow: auto;
@@ -1039,15 +1087,16 @@ html[data-ui-theme=dark] {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: var(--ui-accent);
+  color: var(--ui-secondary-text);
   background: var(--ui-accent-soft);
   font-size: var(--ui-meta-size);
-  font-weight: 600;
+  font-weight: 700;
 }
 .art-app .art-steps strong {
   display: block;
   font-size: var(--ui-body-size);
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--ui-text);
 }
 .art-app .art-steps p {
   margin: 4px 0 0;
@@ -1064,7 +1113,7 @@ html[data-ui-theme=dark] {
 .art-app[data-tool=bind] .editor {
   padding: var(--ui-editor-padding);
   border-color: var(--ui-border);
-  border-radius: 12px;
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-editor-bg);
   font: var(--ui-editor-size)/1.7 var(--ui-mono);
 }
@@ -1073,6 +1122,15 @@ html[data-ui-theme=dark] {
 }
 .art-app[data-tool=bind] .input-editor > textarea {
   background: transparent;
+}
+.art-app[data-tool=bind] .sql-token--keyword {
+  color: var(--ui-keyword);
+}
+.art-app[data-tool=bind] .sql-token--string {
+  color: var(--ui-string);
+}
+.art-app[data-tool=bind] .sql-token--number {
+  color: var(--ui-number);
 }
 .art-app[data-tool=bind] .input-editor > pre {
   border-color: transparent;
@@ -1120,10 +1178,8 @@ html[data-ui-theme=dark] {
     --ui-gutter: 16px;
     --ui-panel-head-inline: 12px;
     --ui-control-height: 40px;
+    --ui-select-height: 32px;
     --ui-dialog-padding: 16px;
-  }
-  .art-app {
-    --ui-panel-radius: 16px;
   }
   .art-app :is(input:not([type=checkbox]), select) {
     font-size: 16px;
@@ -1132,13 +1188,14 @@ html[data-ui-theme=dark] {
 @media (any-pointer: coarse) {
   :root {
     --ui-control-height: 44px;
+    --ui-select-height: 44px;
   }
   .art-app .art-header-button {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
-    padding: 13px;
+    padding: 12px;
   }
   .art-app .art-segments button {
     min-height: 44px;
@@ -1182,6 +1239,9 @@ html[data-ui-theme=dark] {
     --ui-text: #000;
     --ui-muted: #444;
     --ui-border: #bbb;
+    --ui-keyword: #000;
+    --ui-string: #000;
+    --ui-number: #000;
     height: auto;
     overflow: visible;
   }
@@ -1238,10 +1298,10 @@ html[data-ui-theme=dark] {
   max-height: calc(100dvh - 48px);
   max-block-size: calc(100dvh - 48px);
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font: 400 var(--ui-body-size)/1.55 var(--ui-font);
   letter-spacing: normal;
 }
@@ -1258,8 +1318,8 @@ html[data-ui-theme=dark] {
 }
 .art-app :is(.art-dialog-title) {
   margin: 0;
-  font: 600 var(--ui-dialog-title-size)/1.4 var(--ui-font);
-  letter-spacing: -.025em;
+  font: 700 var(--ui-dialog-title-size)/1.4 var(--ui-font);
+  letter-spacing: .04em;
 }
 .art-app :is(.art-dialog-body) {
   padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
@@ -1277,15 +1337,15 @@ html[data-ui-theme=dark] {
   height: 32px;
   min-height: 32px;
   padding: 6px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app :is(.art-dialog-head > button) :is(svg, .icon, [data-icon]) {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
   line-height: 1;
 }
 .art-app .art-dialog-body > p:not([class]) {
@@ -1308,14 +1368,14 @@ html[data-ui-theme=dark] {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
-  height: var(--ui-control-height);
-  min-height: var(--ui-control-height);
+  height: var(--ui-select-height);
+  min-height: var(--ui-select-height);
   min-width: 0;
   max-width: 100%;
-  padding: 8px var(--ui-select-text-inset) 8px 12px;
+  padding: 0 var(--ui-select-text-inset) 0 12px;
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
-  background-color: var(--ui-inset);
+  border-radius: var(--ui-control-radius);
+  background-color: var(--ui-surface);
   background-image: var(--ui-select-arrow);
   background-repeat: no-repeat;
   background-position: right var(--ui-select-arrow-inset) center;
@@ -1345,6 +1405,9 @@ html[data-ui-theme=dark] {
     border-color: ButtonText;
     color: ButtonText;
   }
+}
+.art-app[data-tool=bind] textarea.editor:not(:focus) {
+  border-color: var(--ui-input-border);
 }
 body.art-app[data-tool=bind] :is(.button) {
   min-height: max(var(--ui-action-min-height), var(--ui-control-height));
@@ -1452,7 +1515,7 @@ body.art-app[data-tool=bind] :is([data-action=recheck]):not(:has(svg, .material-
     
     <header class="art-header">
       <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="bind" data-icon-theme="light" aria-hidden="true"><defs><linearGradient id="art-icon-bind-light-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f0aa50"/><stop offset="0.5" stop-color="#c16b1d"/><stop offset="1" stop-color="#874110"/></linearGradient><linearGradient id="art-icon-bind-light-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#4d2c16" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-bind-light-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#edf1ee"/></linearGradient><linearGradient id="art-icon-bind-light-glass" x1="58" y1="56" x2="103" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e4973e"/><stop offset="1" stop-color="#a65616"/></linearGradient><linearGradient id="art-icon-bind-light-metal" x1="25" y1="36" x2="98" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#b4c6ce"/><stop offset="1" stop-color="#f1f5f7"/></linearGradient><linearGradient id="art-icon-bind-light-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-bind-light-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#4d2c16" flood-opacity=".23"/></filter><filter id="art-icon-bind-light-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#4d2c16" flood-opacity=".27"/></filter><clipPath id="art-icon-bind-light-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="light" display="inline"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-bind-light-base)" filter="url(#art-icon-bind-light-shadow)"/><g clip-path="url(#art-icon-bind-light-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-bind-light-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-bind-light-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(-8 42 63)" filter="url(#art-icon-bind-light-paper-shadow)"><rect x="17" y="25" width="49" height="73" rx="11" fill="url(#art-icon-bind-light-metal)"/><rect x="19" y="25" width="45" height="68" rx="10" fill="url(#art-icon-bind-light-paper)"/><circle cx="42" cy="46" r="7" fill="none" stroke="#8c511f" stroke-width="4"/><path d="M42 53v24h8m-8-8h6" fill="none" stroke="#8c511f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="rotate(8 87 67)" filter="url(#art-icon-bind-light-paper-shadow)"><rect x="62" y="34" width="48" height="73" rx="11" fill="url(#art-icon-bind-light-metal)"/><rect x="64" y="34" width="44" height="68" rx="10" fill="url(#art-icon-bind-light-paper)"/><path d="M76 51h22M76 62h15M76 84h22" fill="none" stroke="#8c511f" stroke-width="4" stroke-linecap="round"/></g><g filter="url(#art-icon-bind-light-paper-shadow)"><rect x="46" y="59" width="36" height="28" rx="8" fill="url(#art-icon-bind-light-glass)" stroke="#fff" stroke-opacity=".55"/><circle cx="64" cy="73" r="5.3" fill="#fff" fill-opacity=".94"/><path d="M53 61h22" stroke="#fff" stroke-opacity=".4"/></g></g></g><defs><linearGradient id="art-icon-bind-dark-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#df9547"/><stop offset="0.5" stop-color="#b06320"/><stop offset="1" stop-color="#7e421a"/></linearGradient><linearGradient id="art-icon-bind-dark-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#4d2c16" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-bind-dark-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e5eae8"/><stop offset="1" stop-color="#cbd5d1"/></linearGradient><linearGradient id="art-icon-bind-dark-glass" x1="58" y1="56" x2="103" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e6a14f"/><stop offset="1" stop-color="#b46c27"/></linearGradient><linearGradient id="art-icon-bind-dark-metal" x1="25" y1="36" x2="98" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#eef2f4"/><stop offset="0.5" stop-color="#92a4af"/><stop offset="1" stop-color="#dbe4e9"/></linearGradient><linearGradient id="art-icon-bind-dark-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-bind-dark-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#4d2c16" flood-opacity=".23"/></filter><filter id="art-icon-bind-dark-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#4d2c16" flood-opacity=".27"/></filter><clipPath id="art-icon-bind-dark-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="dark" display="none"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-bind-dark-base)" filter="url(#art-icon-bind-dark-shadow)"/><g clip-path="url(#art-icon-bind-dark-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-bind-dark-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-bind-dark-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(-8 42 63)" filter="url(#art-icon-bind-dark-paper-shadow)"><rect x="17" y="25" width="49" height="73" rx="11" fill="url(#art-icon-bind-dark-metal)"/><rect x="19" y="25" width="45" height="68" rx="10" fill="url(#art-icon-bind-dark-paper)"/><circle cx="42" cy="46" r="7" fill="none" stroke="#8c511f" stroke-width="4"/><path d="M42 53v24h8m-8-8h6" fill="none" stroke="#8c511f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="rotate(8 87 67)" filter="url(#art-icon-bind-dark-paper-shadow)"><rect x="62" y="34" width="48" height="73" rx="11" fill="url(#art-icon-bind-dark-metal)"/><rect x="64" y="34" width="44" height="68" rx="10" fill="url(#art-icon-bind-dark-paper)"/><path d="M76 51h22M76 62h15M76 84h22" fill="none" stroke="#8c511f" stroke-width="4" stroke-linecap="round"/></g><g filter="url(#art-icon-bind-dark-paper-shadow)"><rect x="46" y="59" width="36" height="28" rx="8" fill="url(#art-icon-bind-dark-glass)" stroke="#fff" stroke-opacity=".55"/><circle cx="64" cy="73" r="5.3" fill="#fff" fill-opacity=".94"/><path d="M53 61h22" stroke="#fff" stroke-opacity=".4"/></g></g></g></svg></span>
+        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="bind" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><circle cx="88" cy="28" r="26" fill="#aace39"/><circle cx="58" cy="70" r="50" fill="#d98e04"/><circle cx="40" cy="58" r="15" fill="#fff"/><circle cx="40" cy="58" r="5" fill="#d98e04"/><path d="m50 68 26 26m-9-9 7-7m2 16 6-6" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><rect x="66" y="42" width="28" height="8" rx="4" fill="#fff"/><rect x="72" y="56" width="22" height="8" rx="4" fill="#fff"/></g><g data-icon-appearance="dark" display="none"><circle cx="88" cy="28" r="26" fill="#aace39"/><circle cx="58" cy="70" r="50" fill="#d98e04"/><circle cx="40" cy="58" r="15" fill="#fff"/><circle cx="40" cy="58" r="5" fill="#d98e04"/><path d="m50 68 26 26m-9-9 7-7m2 16 6-6" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><rect x="66" y="42" width="28" height="8" rx="4" fill="#fff"/><rect x="72" y="56" width="22" height="8" rx="4" fill="#fff"/></g></svg></span>
         <div><h1 class="art-title" title="BindSQL for Eclipse">BindSQL for Eclipse</h1></div>
       </div>
       <div class="art-header-actions">
@@ -1478,7 +1541,7 @@ body.art-app[data-tool=bind] :is([data-action=recheck]):not(:has(svg, .material-
 
         <div class="panel__body input-editor">
           <pre class="editor" data-role="raw-highlight" aria-hidden="true" tabindex="-1"></pre>
-          <textarea aria-labelledby="input-title" aria-errormessage="validation-issues" class="editor" data-role="raw-input" wrap="off" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="SQLとバインド変数、またはSQLログを貼り付け&#10;&#10;例）&#10;SELECT * FROM users WHERE id = ? AND name = ?&#10;1 = 42&#10;2 = 山田&#10;&#10;または MyBatisのログ（Preparing: / Parameters: の2行）"></textarea>
+          <textarea data-art-autofocus data-art-persist aria-labelledby="input-title" aria-errormessage="validation-issues" class="editor" data-role="raw-input" wrap="off" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="SQLとバインド変数、またはSQLログを貼り付け&#10;&#10;例）&#10;SELECT * FROM users WHERE id = ? AND name = ?&#10;1 = 42&#10;2 = 山田&#10;&#10;または MyBatisのログ（Preparing: / Parameters: の2行）"></textarea>
         </div>
         <div class="log-tools" data-role="log-tools" hidden>
           <label for="log-select" data-role="log-summary"></label>
@@ -6318,7 +6381,25 @@ if (typeof exports === "object" && typeof module === "object") {
     _formatted = _splitSubqueryParentheses(_formatted);
     const _structuredLines = _formatStructuredLines(_formatted);
     const _indentedLines = _applyParenthesisIndent(_structuredLines);
-    const _normalizedOutput = _indentedLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    const _compactLines = [];
+    for (let _index = 0; _index < _indentedLines.length; _index += 1) {
+      const _line = _indentedLines[_index];
+      const _next = _indentedLines[_index + 1];
+      const _after = _indentedLines[_index + 2];
+      const _keyword = _line.match(/^(\s*)(?:SELECT(?:\s+DISTINCT)?|FROM|WHERE|SET|ORDER BY|GROUP BY|HAVING|UPDATE|DELETE FROM|INSERT INTO|USING)$/);
+      if (_keyword && _next !== undefined) {
+        const _childIndent = `${_keyword[1]}  `;
+        const _body = _next.startsWith(_childIndent) ? _next.slice(_childIndent.length) : "";
+        const _continues = _after !== undefined && _after.startsWith(_childIndent) && !/^(?:AND|OR)\b/.test(_after.slice(_childIndent.length));
+        if (_body && !/^\s/.test(_body) && !_body.startsWith(", ") && !_continues && !/\(\s*$/.test(_body) && _line.length + 1 + _body.length <= 100) {
+          _compactLines.push(`${_line} ${_body}`);
+          _index += 1;
+          continue;
+        }
+      }
+      _compactLines.push(_line);
+    }
+    const _normalizedOutput = _compactLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
     const _candidate = _restoreSqlProtectedSegments(_normalizedOutput, _protectedStore._segments);
     _parenScan._source = "";
     _parenScan._contexts = [];
@@ -7051,8 +7132,16 @@ if (typeof exports === "object" && typeof module === "object") {
     };
     $recheckButton.addEventListener("click", recheck);
     $reconvertButton.addEventListener("click", () => render(true));
-    qs('[data-role="wrap-toggle"]').addEventListener("change", event => {
+    const $wrapToggle = qs('[data-role="wrap-toggle"]');
+    try {
+      $wrapToggle.checked = localStorage.getItem("arttools.bind.wrap.v1") === "on";
+    } catch {}
+    $output.setAttribute("wrap", $wrapToggle.checked ? "soft" : "off");
+    $wrapToggle.addEventListener("change", event => {
       $output.setAttribute("wrap", event.target.checked ? "soft" : "off");
+      try {
+        localStorage.setItem("arttools.bind.wrap.v1", event.target.checked ? "on" : "off");
+      } catch {}
     });
     window.addEventListener("bindsql-validation-change", syncActionAvailability);
     $copyButton.addEventListener("click", copyResult);
@@ -7106,7 +7195,7 @@ WHERE id = ?;
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
       <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>SQLとバインド値を貼り付ける</strong><p>左側にSQLとバインド変数、またはSQLログを入力すると、自動でPostgreSQL向けのSQLに変換します。? の値は、SQLの後に「1 = 42」「2 = 山田」のように番号と値を1行ずつ書きます。MyBatisのログは Preparing: と Parameters: の行をそのまま貼り付けます。</p></li><li><strong>変換結果を確認する</strong><p>右側で結果とSQLチェックの状態を確認します。複数のSQLログがある場合は、入力欄の下で対象を選択できます。</p></li><li><strong>結果をコピーする</strong><p>右上の「コピー」を押します。「折り返す」で長いSQLの表示を切り替えられます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>SQLとバインド値を貼り付ける</strong><p>左側にSQLとバインド変数、またはSQLログを入力すると、自動でPostgreSQL向けのSQLに変換します。? の値は、SQLの後に「1 = 42」「2 = 山田」のように番号と値を1行ずつ書きます。MyBatisのログは Preparing: と Parameters: の行をそのまま貼り付けます。</p></li><li><strong>変換結果を確認する</strong><p>右側で結果とSQLチェックの状態を確認します。複数のSQLログがある場合は、入力欄の下で対象を選択できます。</p></li><li><strong>結果をコピーする</strong><p>右上の「コピー」を押します。「折り返す」で長いSQLの表示を切り替えられます。入力はこのブラウザーに保存され、次に開いたときに復元されます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
   <script id="arttools-common-ui-script">(() => {
@@ -7241,7 +7330,62 @@ WHERE id = ?;
   }).observe(root, {
     attributes: !0,
     attributeFilter: [ "data-mode" ]
-  }), window.addEventListener("storage", event => {
+  });
+  const focusPrimaryInput = () => {
+    const target = document.querySelector("[data-art-autofocus]");
+    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
+    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
+    let finished = !1;
+    const finish = () => {
+      finished = !0;
+      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+    };
+    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    const attempt = () => {
+      if (!finished) {
+        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
+          preventScroll: !0
+        }), document.activeElement === target)) return finish();
+        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      }
+    };
+    attempt();
+  };
+  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
+    once: !0
+  });
+  {
+    const field = document.querySelector("[data-art-persist]"), inputKey = "arttools.input.bind.v1", maxStoredCharacters = 2e6;
+    let saveTimer = 0, lastSaved = null;
+    const saveInput = () => {
+      if (window.clearTimeout(saveTimer), !(!field || field.value === lastSaved)) try {
+        if (field.value.length > maxStoredCharacters) throw new RangeError("input too large");
+        field.value ? localStorage.setItem(inputKey, field.value) : localStorage.removeItem(inputKey), 
+        lastSaved = field.value;
+      } catch {
+        saveNote && (saveNote.dataset.error = "true", saveNote.textContent = "入力内容をこのブラウザーへ保存できませんでした。ページを閉じる前に結果をコピーしてください。");
+      }
+    }, restoreInput = () => {
+      if (!field || field.value) return;
+      let stored = null;
+      try {
+        stored = localStorage.getItem(inputKey);
+      } catch {
+        return;
+      }
+      lastSaved = stored ?? "", stored && (field.value = stored, field.dispatchEvent(new Event("input", {
+        bubbles: !0
+      })));
+    };
+    field && (document.readyState === "complete" ? restoreInput() : window.addEventListener("load", restoreInput, {
+      once: !0
+    }), field.addEventListener("input", () => {
+      window.clearTimeout(saveTimer), saveTimer = window.setTimeout(saveInput, 400);
+    }), window.addEventListener("pagehide", saveInput), document.addEventListener("visibilitychange", () => {
+      document.visibilityState === "hidden" && saveInput();
+    }));
+  }
+  window.addEventListener("storage", event => {
     event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
     applyTheme(preferences.theme), applySize(preferences.editorSize));
   });

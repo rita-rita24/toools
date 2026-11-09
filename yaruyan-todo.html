@@ -1610,45 +1610,7 @@
     gap: 4px;
   }
 }
-</style><style id="task-actions-v33">.row-options {
-  position: relative;
-  display: block;
-  flex: none;
-}
-.row-options summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 6px 10px;
-  font-size: 13px;
-  border-radius: 4px;
-}
-.row-options:not([open]) .row-options-menu {
-  display: none;
-}
-.row-options-menu {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  z-index: 12;
-  display: flex;
-  gap: 6px;
-  background: var(--gm-surface,#fff);
-  padding: 10px;
-  box-shadow: 0 4px 16px #0002;
-  border: 1px solid var(--gm-border);
-  border-radius: 6px;
-  min-width: 110px;
-}
-.task-item {
-  overflow: visible;
-}
-.row-options summary:focus-visible {
-  outline: 2px solid var(--gm-brand);
-}
-.row-options .gm-btn {
-  min-width: 40px;
-}
-</style><link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22todo%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-todo-light-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fa8d78%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23d83d35%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%239f232b%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-light-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23522427%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-light-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffffff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23edf1ee%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-light-glass%22%20x1%3D%2258%22%20y1%3D%2256%22%20x2%3D%22103%22%20y2%3D%22108%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e86e62%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b33033%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-light-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-todo-light-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%23522427%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-todo-light-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%23522427%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-todo-light-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-todo-light-base)%22%20filter%3D%22url(%23art-icon-todo-light-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-todo-light-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-todo-light-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-todo-light-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(-5%2065%2065)%22%20filter%3D%22url(%23art-icon-todo-light-paper-shadow)%22%3E%3Crect%20x%3D%2226%22%20y%3D%2222%22%20width%3D%2278%22%20height%3D%2288%22%20rx%3D%228%22%20fill%3D%22url(%23art-icon-todo-light-paper)%22%2F%3E%3Cpath%20d%3D%22M43%2020v10m23-10v10m23-10v10%22%20stroke%3D%22%23657779%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M42%2019v9m23-9v9m23-9v9%22%20stroke%3D%22%23e6edef%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Crect%20x%3D%2236%22%20y%3D%2242%22%20width%3D%229%22%20height%3D%229%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23a3433f%22%20stroke-opacity%3D%22.45%22%20stroke-width%3D%221.6%22%2F%3E%3Crect%20x%3D%2236%22%20y%3D%2261%22%20width%3D%229%22%20height%3D%229%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23a3433f%22%20stroke-opacity%3D%22.45%22%20stroke-width%3D%221.6%22%2F%3E%3Cpath%20d%3D%22M54%2046.5h35M54%2065.5h29m-48%2019h40%22%20stroke%3D%22%23a3433f%22%20stroke-opacity%3D%22.32%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url(%23art-icon-todo-light-paper-shadow)%22%3E%3Cpath%20d%3D%22m30%2079%2020%2020a5%205%200%200%200%207%200l46-48a5%205%200%200%200-7-7L53%2088%2037%2072a5%205%200%200%200-7%207Z%22%20fill%3D%22url(%23art-icon-todo-light-glass)%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22m34%2076%2019%2019%2046-48%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.25%22%20stroke-width%3D%221.2%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-todo-dark-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e66b59%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23b52d29%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23731e26%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-dark-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23522427%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-dark-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e5eae8%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23cbd5d1%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-dark-glass%22%20x1%3D%2258%22%20y1%3D%2256%22%20x2%3D%22103%22%20y2%3D%22108%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e17c6f%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b94a46%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-todo-dark-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-todo-dark-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%23522427%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-todo-dark-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%23522427%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-todo-dark-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-todo-dark-base)%22%20filter%3D%22url(%23art-icon-todo-dark-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-todo-dark-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-todo-dark-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-todo-dark-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(-5%2065%2065)%22%20filter%3D%22url(%23art-icon-todo-dark-paper-shadow)%22%3E%3Crect%20x%3D%2226%22%20y%3D%2222%22%20width%3D%2278%22%20height%3D%2288%22%20rx%3D%228%22%20fill%3D%22url(%23art-icon-todo-dark-paper)%22%2F%3E%3Cpath%20d%3D%22M43%2020v10m23-10v10m23-10v10%22%20stroke%3D%22%23657779%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M42%2019v9m23-9v9m23-9v9%22%20stroke%3D%22%23e6edef%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Crect%20x%3D%2236%22%20y%3D%2242%22%20width%3D%229%22%20height%3D%229%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23a3433f%22%20stroke-opacity%3D%22.45%22%20stroke-width%3D%221.6%22%2F%3E%3Crect%20x%3D%2236%22%20y%3D%2261%22%20width%3D%229%22%20height%3D%229%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23a3433f%22%20stroke-opacity%3D%22.45%22%20stroke-width%3D%221.6%22%2F%3E%3Cpath%20d%3D%22M54%2046.5h35M54%2065.5h29m-48%2019h40%22%20stroke%3D%22%23a3433f%22%20stroke-opacity%3D%22.32%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20filter%3D%22url(%23art-icon-todo-dark-paper-shadow)%22%3E%3Cpath%20d%3D%22m30%2079%2020%2020a5%205%200%200%200%207%200l46-48a5%205%200%200%200-7-7L53%2088%2037%2072a5%205%200%200%200-7%207Z%22%20fill%3D%22url(%23art-icon-todo-dark-glass)%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22m34%2076%2019%2019%2046-48%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.25%22%20stroke-width%3D%221.2%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
+</style><link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22todo%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23ea6c55%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23d98e04%22%2F%3E%3Crect%20x%3D%2228%22%20y%3D%2238%22%20width%3D%2256%22%20height%3D%2262%22%20rx%3D%226%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2242%22%20y%3D%2231%22%20width%3D%2228%22%20height%3D%2213%22%20rx%3D%225%22%20fill%3D%22%23fff%22%20stroke%3D%22%23d98e04%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22m41%2070%2010%2010%2020-22%22%20fill%3D%22none%22%20stroke%3D%22%23d98e04%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23ea6c55%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%23d98e04%22%2F%3E%3Crect%20x%3D%2228%22%20y%3D%2238%22%20width%3D%2256%22%20height%3D%2262%22%20rx%3D%226%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2242%22%20y%3D%2231%22%20width%3D%2228%22%20height%3D%2213%22%20rx%3D%225%22%20fill%3D%22%23fff%22%20stroke%3D%22%23d98e04%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22m41%2070%2010%2010%2020-22%22%20fill%3D%22none%22%20stroke%3D%22%23d98e04%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
 <style id="arttools-product-design">.gm {
   --gm-font:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
   --gm-text-size:.9375rem;
@@ -1676,11 +1638,11 @@
   --gm-surface:#fff;
   --gm-background:#f5f5f7;
   --gm-border:#e0e0e5;
-  --gm-input-border:#c7c7cc;
-  --gm-brand:#006edb;
-  --gm-brand-soft:#edf5ff;
-  --gm-on-brand:#fff;
-  --gm-focus:#0071e3;
+  --gm-input-border:var(--ui-input-border);
+  --gm-brand:var(--ui-accent);
+  --gm-brand-soft:var(--ui-accent-soft);
+  --gm-on-brand:var(--ui-on-accent);
+  --gm-focus:var(--ui-accent);
   --gm-backdrop:#10101655;
 }
 .gm[data-mode=dark] {
@@ -1689,11 +1651,11 @@
   --gm-surface:#252527;
   --gm-background:#171719;
   --gm-border:#3b3b40;
-  --gm-input-border:#67676e;
-  --gm-brand:#66adff;
-  --gm-brand-soft:#253347;
-  --gm-on-brand:#111114;
-  --gm-focus:#66adff;
+  --gm-input-border:var(--ui-input-border);
+  --gm-brand:var(--ui-accent);
+  --gm-brand-soft:var(--ui-accent-soft);
+  --gm-on-brand:var(--ui-on-accent);
+  --gm-focus:var(--ui-accent);
   --gm-backdrop:#0009;
 }
 .gm :is(button, input, select, textarea):not(.material-symbols-outlined) {
@@ -1935,16 +1897,6 @@
   padding: 4px 7px;
   color: var(--gm-muted);
 }
-.gm .row-options summary {
-  font-size: 11px;
-  padding: 7px 10px;
-  border-radius: 999px;
-}
-.gm .row-options-menu {
-  border-radius: 14px;
-  box-shadow: 0 10px 30px -10px #0003;
-  padding: 10px;
-}
 .gm .setting-item {
   padding: 22px;
   border: 1px solid var(--gm-border);
@@ -2151,11 +2103,6 @@
   .gm .subtask-item {
     padding-block: 9px;
   }
-  .gm .row-options summary {
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-  }
 }
 @media (max-width: 650px) {
   .gm .task-main > .task-meta {
@@ -2184,94 +2131,125 @@
 </style>
 <style id="arttools-common-ui">:root {
   --ui-font:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
+    "Noto Sans JP",
+    "Hiragino Sans",
     "Hiragino Kaku Gothic ProN",
-    "Yu Gothic",
+    Meiryo,
     sans-serif;
   --ui-mono:
     ui-monospace,
     SFMono-Regular,
     Menlo,
-    Monaco,
     Consolas,
-    "Liberation Mono",
     monospace;
   --ui-editor-size: 14px;
-  --ui-title-size: 16px;
-  --ui-body-size: 13px;
-  --ui-action-size: 12px;
-  --ui-meta-size: 11px;
-  --ui-dialog-title-size: 18px;
-  --ui-gutter: 20px;
-  --ui-gap: 12px;
-  --ui-panel-padding: 10px;
-  --ui-panel-head-padding: 10px;
-  --ui-panel-head-inline: 14px;
-  --ui-action-min-height: 42px;
+  --ui-title-size: 18px;
+  --ui-body-size: 14px;
+  --ui-action-size: 14px;
+  --ui-meta-size: 12px;
+  --ui-dialog-title-size: 20px;
+  --ui-panel-title-size: 16px;
+  --ui-gutter: 24px;
+  --ui-gap: 16px;
+  --ui-panel-padding: 12px;
+  --ui-panel-radius: 8px;
+  --ui-control-radius: 4px;
+  --ui-inner-radius: 6px;
+  --ui-dialog-radius: 12px;
+  --ui-panel-head-padding: 12px;
+  --ui-panel-head-inline: 16px;
+  --ui-action-min-height: 40px;
   --ui-action-padding-block: 9px;
-  --ui-action-padding-inline: 18px;
+  --ui-action-padding-inline: 16px;
   --ui-action-icon-gap: 8px;
-  --ui-action-group-gap: 10px;
-  --ui-workspace-bottom: 12px;
-  --ui-control-height: 38px;
-  --ui-select-arrow-size: 20px;
-  --ui-select-arrow-inset: 8px;
+  --ui-action-group-gap: 8px;
+  --ui-workspace-bottom: 16px;
+  --ui-control-height: 40px;
+  --ui-select-height: 28px;
+  --ui-select-arrow-size: 16px;
+  --ui-select-arrow-inset: 10px;
   --ui-select-text-gap: 8px;
   --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
-  --ui-dialog-padding: 20px;
-  --ui-header-height: 52px;
+  --ui-dialog-padding: 24px;
+  --ui-header-height: 64px;
   --ui-workspace-height: calc(100dvh - var(--ui-header-height));
-  --ui-app-icon-size: 24px;
-  --ui-main-top: 6px;
-  --ui-toolbar-gap: 6px;
+  --ui-app-icon-size: 28px;
+  --ui-main-top: 16px;
+  --ui-toolbar-gap: 12px;
 }
 html[data-ui-theme=light],
 html:not([data-ui-theme]) {
-  --ui-bg: #f5f5f7;
-  --ui-surface: #fff;
-  --ui-inset: #f8f8fa;
-  --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%231d1d1f%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%236e6e73%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #6e6e73;
-  --ui-border: #e0e0e5;
-  --ui-input-border: #c7c7cc;
-  --ui-accent: #006edb;
-  --ui-accent-soft: #edf5ff;
-  --ui-secondary-text: #0063b9;
-  --ui-on-accent: #fff;
-  --ui-success: #187447;
-  --ui-success-bg: #edf8f1;
-  --ui-warning: #855700;
-  --ui-warning-bg: #fff6df;
-  --ui-error: #b4232f;
-  --ui-error-bg: #fff0f1;
-  --ui-function: #8250df;
+  --ui-bg: #fefffa;
+  --ui-surface: #ffffff;
+  --ui-inset: #f9fafb;
+  --ui-muted-bg: #f3f4f6;
+  --ui-text: #1e2939;
+  --ui-text-secondary: #4a5565;
+  --ui-icon: #6a7282;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #676f7f;
+  --ui-border: #e5e7eb;
+  --ui-control-border: #d1d5dc;
+  --ui-input-border: #6a7282;
+  --ui-accent: #b4432f;
+  --ui-accent-soft: #fdf1ee;
+  --ui-secondary-text: #b4432f;
+  --ui-on-accent: #ffffff;
+  --ui-focus-ring: #ea6c5566;
+  --ui-focus-border: #ee846f;
+  --ui-success: #016630;
+  --ui-success-bg: #f0fdf4;
+  --ui-success-border: #b9f8cf;
+  --ui-warning: #a65f00;
+  --ui-warning-bg: #fefce8;
+  --ui-warning-border: #fff085;
+  --ui-error: #c10007;
+  --ui-error-bg: #fef2f2;
+  --ui-error-border: #ffc9c9;
+  --ui-info: #1447e6;
+  --ui-info-bg: #eff6ff;
+  --ui-info-border: #bedbff;
+  --ui-function: #8200db;
+  --ui-shadow-sm: 0 1px 2px 0 #1018281a;
+  --ui-shadow-lg: 0 16px 40px -8px #10182829;
   color-scheme: light;
 }
 html[data-ui-theme=dark] {
-  --ui-bg: #202022;
-  --ui-surface: #2b2b2e;
-  --ui-inset: #252528;
-  --ui-text: #e8e8ed;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23e1e1e6%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23b2b2b9%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #b2b2b9;
-  --ui-border: #48484e;
-  --ui-input-border: #7a7a83;
-  --ui-accent: #6cabf6;
-  --ui-accent-soft: #243a54;
-  --ui-secondary-text: #8cc0ff;
-  --ui-on-accent: #0f1722;
-  --ui-success: #6fd391;
-  --ui-success-bg: #1f3b2b;
-  --ui-warning: #f0c35a;
-  --ui-warning-bg: #3e3420;
-  --ui-error: #ff8a93;
-  --ui-error-bg: #4a2a2f;
-  --ui-function: #d2a8ff;
+  --ui-bg: #121317;
+  --ui-surface: #1a1b20;
+  --ui-inset: #212329;
+  --ui-muted-bg: #282a31;
+  --ui-text: #f3f4f6;
+  --ui-text-secondary: #d1d5dc;
+  --ui-icon: #99a1af;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #99a1af;
+  --ui-border: #353840;
+  --ui-control-border: #464a53;
+  --ui-input-border: #6a7282;
+  --ui-accent: #ee846f;
+  --ui-accent-soft: #33221f;
+  --ui-secondary-text: #f29e8c;
+  --ui-on-accent: #1e2939;
+  --ui-focus-ring: #ea6c5580;
+  --ui-focus-border: #ee846f;
+  --ui-success: #7bf1a8;
+  --ui-success-bg: #142a1f;
+  --ui-success-border: #1f5a37;
+  --ui-warning: #ffd54d;
+  --ui-warning-bg: #2c2615;
+  --ui-warning-border: #5e4a12;
+  --ui-error: #ffa2a2;
+  --ui-error-bg: #301b1f;
+  --ui-error-border: #6a2a2f;
+  --ui-info: #8ec5ff;
+  --ui-info-bg: #18243a;
+  --ui-info-border: #26467a;
+  --ui-function: #dab2ff;
+  --ui-shadow-sm: 0 1px 2px 0 #00000066;
+  --ui-shadow-lg: 0 20px 48px -8px #000000a6;
   color-scheme: dark;
 }
 :root .art-app {
@@ -2304,7 +2282,7 @@ html[data-ui-theme=dark] {
   --gm-title-line-height: 1.3;
   --gm-section-title-size: var(--ui-body-size);
   --gm-section-title-line-height: 1.5;
-  --gm-radius: 12px;
+  --gm-radius: var(--ui-panel-radius);
   --gm-space-1: 4px;
   --gm-space-2: 8px;
   --gm-space-3: 12px;
@@ -2342,26 +2320,25 @@ html[data-ui-theme=dark] {
   display: none !important;
 }
 .art-app :focus-visible {
-  outline: 2px solid var(--ui-accent);
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
 }
 .art-app :is(button, .gm-btn, .button) {
   cursor: pointer;
   min-height: var(--ui-control-height);
-  padding: 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-button-bg, var(--ui-accent-soft));
-  color: var(--ui-button-text, var(--ui-secondary-text));
+  padding: 9px 16px;
+  border: 1px solid var(--ui-button-border, var(--ui-control-border));
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-button-bg, var(--ui-surface));
+  color: var(--ui-button-text, var(--ui-text-secondary));
   font-size: var(--ui-action-size);
   font-weight: 500;
   line-height: 20px;
   transition: none;
 }
 .art-app[data-tool] :is(button, .gm-btn, .button):focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
-  box-shadow: none;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app :is(.gm-btn-primary, .focus-btn.playable, .focus-action-btn.is-resume, .save-message-edit-btn) {
   --ui-button-bg: var(--ui-accent);
@@ -2373,27 +2350,31 @@ html[data-ui-theme=dark] {
 .art-app :is(.focus-action-btn.complete) {
   --ui-button-bg: var(--ui-success-bg);
   --ui-button-text: var(--ui-success);
+  --ui-button-border: var(--ui-success-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app :is(.gm-btn-danger, .danger, [aria-label=\5217\3092\524a\9664], .focus-action-btn.abort) {
   --ui-button-bg: var(--ui-error-bg);
   --ui-button-text: var(--ui-error);
+  --ui-button-border: var(--ui-error-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app .focus-action-btn.pause:not(.is-resume) {
   --ui-button-bg: var(--ui-warning-bg);
   --ui-button-text: var(--ui-warning);
+  --ui-button-border: var(--ui-warning-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app[data-tool] :is(button, .gm-btn, .button):is(:disabled, [aria-disabled=true]) {
   background: var(--ui-inset);
   color: var(--ui-muted);
+  border-color: var(--ui-border);
   opacity: 1;
   cursor: not-allowed;
 }
@@ -2428,14 +2409,20 @@ html[data-ui-theme=dark] {
 }
 .art-app :is(input:not([type=checkbox]), select) {
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
-  background: var(--ui-editor-bg);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
 }
-.art-app :is(input, select, textarea, [contenteditable=true]):focus {
-  outline: 2px solid var(--ui-accent);
+.art-app :is(textarea, [contenteditable=true]):focus {
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
-  border-color: var(--ui-accent);
+  border-color: var(--ui-focus-border);
   box-shadow: none;
+}
+.art-app :is(input:not([type=checkbox], [type=radio]), select):focus {
+  outline: none;
+  border-color: var(--ui-focus-border);
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app input[type=checkbox] {
   accent-color: var(--ui-accent);
@@ -2445,10 +2432,11 @@ html[data-ui-theme=dark] {
 }
 .art-app :is(.gm-label) {
   margin: 0;
-  font-size: var(--ui-body-size);
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: -.015em;
+  font-size: var(--ui-panel-title-size);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: .04em;
+  color: var(--ui-text);
 }
 .art-app :is(.main) {
   width: 100%;
@@ -2459,7 +2447,7 @@ html[data-ui-theme=dark] {
   gap: var(--ui-gap);
 }
 .art-app :is(.toast) {
-  border-radius: 12px;
+  border-radius: var(--ui-panel-radius);
 }
 .art-app .art-header {
   display: flex;
@@ -2469,14 +2457,14 @@ html[data-ui-theme=dark] {
   gap: 12px;
   min-width: 0;
   min-height: var(--ui-header-height);
-  padding: 3px var(--ui-gutter);
+  padding: 8px var(--ui-gutter);
   background: var(--ui-surface);
   border-bottom: 1px solid var(--ui-border);
 }
 .art-app .art-identity {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
 }
 .art-app .art-identity > div {
@@ -2498,9 +2486,9 @@ html[data-ui-theme=dark] {
   margin: 0;
   display: block;
   font-size: var(--ui-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
-  letter-spacing: -.035em;
+  letter-spacing: .02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2509,27 +2497,28 @@ html[data-ui-theme=dark] {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 .art-app .art-header-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 7px;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 8px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-icon);
   white-space: nowrap;
   letter-spacing: normal;
 }
 .art-app .art-header-button svg {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog {
   position: fixed;
@@ -2541,17 +2530,20 @@ html[data-ui-theme=dark] {
   padding: 0;
   overflow: auto;
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font-family: var(--ui-font);
   letter-spacing: normal;
 }
 .art-dialog::backdrop {
-  background: #10101655;
+  background: #1e293966;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+html[data-ui-theme=dark] .art-dialog::backdrop {
+  background: #000000a6;
 }
 .art-app .art-dialog[open] {
   animation: none;
@@ -2566,9 +2558,9 @@ html[data-ui-theme=dark] {
 .art-app .art-dialog-title {
   margin: 0;
   font-size: var(--ui-dialog-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
-  letter-spacing: -.025em;
+  letter-spacing: .04em;
 }
 .art-app .art-close {
   display: grid;
@@ -2577,11 +2569,14 @@ html[data-ui-theme=dark] {
   width: 32px;
   min-height: 32px;
   padding: 6px;
-  background: var(--ui-border);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app .art-close svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog-body {
   padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
@@ -2590,7 +2585,7 @@ html[data-ui-theme=dark] {
   overflow: hidden;
   margin: 0 0 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
+  border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
 }
 .art-app .art-settings-row {
@@ -2612,13 +2607,15 @@ html[data-ui-theme=dark] {
   margin: 0;
   font-size: var(--ui-body-size);
   font-weight: 500;
+  color: var(--ui-text-secondary);
 }
 .art-app .art-segments {
   display: flex;
-  gap: 8px;
-  padding: 6px;
-  border-radius: 11px;
-  background: var(--ui-bg);
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-inner-radius);
+  background: var(--ui-muted-bg);
 }
 .art-app .art-segments button {
   display: inline-flex;
@@ -2627,19 +2624,21 @@ html[data-ui-theme=dark] {
   gap: 8px;
   flex: 1;
   min-width: 0;
-  min-height: max(40px, var(--ui-control-height));
-  padding: 8px 12px;
+  min-height: 34px;
+  padding: 7px 12px;
   white-space: nowrap;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-text-secondary);
   font-size: var(--ui-action-size);
   line-height: 20px;
 }
 .art-app .art-segments button[aria-pressed=true] {
-  background: var(--ui-accent);
-  color: var(--ui-on-accent);
-  box-shadow: none;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-weight: 700;
+  box-shadow: var(--ui-shadow-sm);
 }
 .art-app .art-segments svg {
   width: 16px;
@@ -2649,7 +2648,7 @@ html[data-ui-theme=dark] {
   margin: 0;
   padding: 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-editor-bg);
   font: var(--ui-editor-size)/1.7 var(--ui-mono);
   overflow: auto;
@@ -2690,15 +2689,16 @@ html[data-ui-theme=dark] {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: var(--ui-accent);
+  color: var(--ui-secondary-text);
   background: var(--ui-accent-soft);
   font-size: var(--ui-meta-size);
-  font-weight: 600;
+  font-weight: 700;
 }
 .art-app .art-steps strong {
   display: block;
   font-size: var(--ui-body-size);
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--ui-text);
 }
 .art-app .art-steps p {
   margin: 4px 0 0;
@@ -2734,6 +2734,7 @@ html[data-ui-theme=dark] {
     --ui-gutter: 16px;
     --ui-panel-head-inline: 12px;
     --ui-control-height: 40px;
+    --ui-select-height: 32px;
     --ui-dialog-padding: 16px;
   }
   .art-app :is(input:not([type=checkbox]), select) {
@@ -2743,13 +2744,14 @@ html[data-ui-theme=dark] {
 @media (any-pointer: coarse) {
   :root {
     --ui-control-height: 44px;
+    --ui-select-height: 44px;
   }
   .art-app .art-header-button {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
-    padding: 13px;
+    padding: 12px;
   }
   .art-app .art-segments button {
     min-height: 44px;
@@ -2869,10 +2871,10 @@ html[data-ui-theme=dark] {
   max-height: calc(100dvh - 48px);
   max-block-size: calc(100dvh - 48px);
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font: 400 var(--ui-body-size)/1.55 var(--ui-font);
   letter-spacing: normal;
 }
@@ -2914,8 +2916,8 @@ html[data-ui-theme=dark] {
 .art-app :is(.art-dialog-title, .modal-title),
 .art-app .modal[role=dialog] > h3 {
   margin: 0;
-  font: 600 var(--ui-dialog-title-size)/1.4 var(--ui-font);
-  letter-spacing: -.025em;
+  font: 700 var(--ui-dialog-title-size)/1.4 var(--ui-font);
+  letter-spacing: .04em;
 }
 .art-app .modal[role=dialog] > h3 {
   margin-bottom: 16px;
@@ -2948,15 +2950,15 @@ html[data-ui-theme=dark] {
   height: 32px;
   min-height: 32px;
   padding: 6px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app :is(.art-dialog-head > button, .modal-close-btn) :is(svg, .material-symbols-outlined, [data-icon]) {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
   line-height: 1;
 }
 .art-app :is(.modal-footer) > button {
@@ -2972,11 +2974,11 @@ html[data-ui-theme=dark] {
   block-size: auto;
   min-height: var(--ui-control-height);
   min-block-size: var(--ui-control-height);
-  padding: 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-button-bg, var(--ui-accent-soft));
-  color: var(--ui-button-text, var(--ui-secondary-text));
+  padding: 9px 16px;
+  border: 1px solid var(--ui-button-border, var(--ui-control-border));
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-button-bg, var(--ui-surface));
+  color: var(--ui-button-text, var(--ui-text-secondary));
   font: 500 var(--ui-action-size)/20px var(--ui-font);
   letter-spacing: normal;
 }
@@ -2989,6 +2991,7 @@ html[data-ui-theme=dark] {
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: normal;
+  color: var(--ui-text-secondary);
 }
 .art-app :is(.modal[role=dialog]) :is(.field-helper) {
   font-size: var(--ui-meta-size);
@@ -3010,6 +3013,34 @@ html[data-ui-theme=dark] {
 .art-app .art-dialog-body > p:not([class]):last-child {
   margin-bottom: 0;
 }
+.art-app :is(.art-help-details) {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-panel-radius);
+  background: var(--ui-inset);
+}
+.art-app :is(.art-help-details) summary {
+  color: var(--ui-text);
+  font-size: var(--ui-body-size);
+  line-height: 1.5;
+  font-weight: 500;
+  cursor: pointer;
+}
+.art-app :is(.art-help-details) > div {
+  margin-top: 16px;
+  min-width: 0;
+  overflow: auto;
+}
+.art-app :is(.art-help-details) p {
+  color: var(--ui-muted);
+  font-size: var(--ui-body-size);
+  line-height: 1.55;
+}
+.art-app :is(.art-help-details) :is(h3, h4) {
+  font-size: var(--ui-body-size);
+  line-height: 1.5;
+}
 @media (max-width: 650px) {
   .art-app :is(.modal[role=dialog]) :is(input:not([type=checkbox]), select) {
     font-size: 16px;
@@ -3027,14 +3058,14 @@ html[data-ui-theme=dark] {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
-  height: var(--ui-control-height);
-  min-height: var(--ui-control-height);
+  height: var(--ui-select-height);
+  min-height: var(--ui-select-height);
   min-width: 0;
   max-width: 100%;
-  padding: 8px var(--ui-select-text-inset) 8px 12px;
+  padding: 0 var(--ui-select-text-inset) 0 12px;
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
-  background-color: var(--ui-inset);
+  border-radius: var(--ui-control-radius);
+  background-color: var(--ui-surface);
   background-image: var(--ui-select-arrow);
   background-repeat: no-repeat;
   background-position: right var(--ui-select-arrow-inset) center;
@@ -3064,6 +3095,30 @@ html[data-ui-theme=dark] {
     border-color: ButtonText;
     color: ButtonText;
   }
+}
+@media (any-pointer: coarse) {
+  .art-app :is([data-tool=todo] #taskSearchInput) {
+    min-height: 44px;
+  }
+}
+.art-app[data-tool] :is(.toast, #toast) {
+  background: var(--ui-info-bg);
+  color: var(--ui-info);
+  border: 1px solid var(--ui-info-border);
+  box-shadow: var(--ui-shadow-lg);
+}
+.art-app[data-tool] :is(.toast, #toast).success {
+  background: var(--ui-success-bg);
+  color: var(--ui-success);
+  border-color: var(--ui-success-border);
+}
+.art-app[data-tool] :is(.toast, #toast).error {
+  background: var(--ui-error-bg);
+  color: var(--ui-error);
+  border-color: var(--ui-error-border);
+}
+.art-app[data-tool] :is(.toast, #toast) button:not(.toast-close) {
+  background: var(--ui-surface);
 }
 body.art-app[data-tool=todo] :is(button.gm-btn:not(.nav-btn, .task-filter-btn, .mini-btn, .message-chip-btn, .focus-btn, .drag-handle, .modal-close-btn, .art-close, .focus-action-btn, .icon-btn:not(.show-label, #clearCompletedBtn, #clearAllBtn, #confirmDeleteBtn))) {
   min-height: max(var(--ui-action-min-height), var(--ui-control-height));
@@ -3206,7 +3261,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
 .art-app .art-tool-settings > :is(.page) {
   overflow: hidden;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
+  border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
 }
 .art-app .art-tool-settings :is(.setting-item, .card):first-child {
@@ -3235,7 +3290,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   grid-template-columns: none;
 }
 .art-app[data-tool=todo] .nav-btn {
-  border-radius: 999px;
+  border-radius: var(--ui-control-radius);
   min-height: var(--ui-control-height);
   padding: 8px 15px;
 }
@@ -3258,7 +3313,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
 .art-app[data-tool=todo] :is(.card, .task-item) {
   padding: var(--ui-panel-padding);
   border: 1px solid var(--ui-border);
-  border-radius: 18px;
+  border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
   box-shadow: none;
 }
@@ -3296,9 +3351,9 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   gap: var(--ui-toolbar-gap);
 }
 .art-app[data-tool=todo] .card.task-composer {
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 4px var(--ui-action-group-gap);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 4px;
   padding: var(--ui-panel-head-padding) var(--ui-panel-head-inline);
 }
 .art-app[data-tool=todo] .task-composer .row {
@@ -3307,21 +3362,21 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   flex-wrap: nowrap;
 }
 .art-app[data-tool=todo] #taskInputHint {
-  grid-column: 2;
+  grid-column: 1;
   margin: 0;
 }
 .art-app[data-tool=todo] .task-toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
   gap: var(--ui-action-group-gap);
   min-width: 0;
 }
 .art-app[data-tool=todo] .task-search {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 4px;
   flex: 1 1 360px;
   min-width: 0;
   padding: 0;
@@ -3332,7 +3387,13 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   min-width: 0;
   flex-wrap: nowrap;
 }
-.art-app[data-tool=todo] .task-search .field-label {
+.art-app[data-tool=todo] :is(.task-composer, .task-search) > .field-label {
+  margin: 0;
+  font-size: var(--ui-meta-size);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: var(--ui-text-secondary);
   white-space: nowrap;
 }
 .art-app[data-tool=todo] #taskSearchInput {
@@ -3378,12 +3439,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   gap: var(--ui-action-group-gap);
 }
 @media (max-width: 650px) {
-  .art-app[data-tool=todo] .card.task-composer {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .art-app[data-tool=todo] #taskInputHint {
-    grid-column: 1;
-  }
   .art-app[data-tool=todo] .task-search {
     flex-basis: 100%;
   }
@@ -3395,10 +3450,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   .art-app[data-tool=todo] #taskProgressBar {
     width: 64px;
   }
-  .art-app[data-tool=todo] .task-search {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
-  }
 }
 .art-app[data-tool=todo] :is(.task-title, .subtask-item .text, #taskInput, #parentEditInput, #subtaskEditInput) {
   font-size: var(--ui-editor-size);
@@ -3409,15 +3460,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
 }
 .art-app[data-tool=todo] .task-filter-group {
   background: var(--ui-inset);
-}
-.art-app[data-tool=todo] .row-options > summary {
-  display: flex;
-  align-items: center;
-  min-height: var(--ui-control-height);
-  padding: 8px 15px;
-  white-space: nowrap;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
 }
 .art-app[data-tool=todo] #taskFilterGroup .task-filter-btn {
   min-height: var(--ui-control-height);
@@ -3456,7 +3498,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     min-height: calc(100dvh - var(--ui-header-height));
   }
   .art-app[data-tool=todo] :is(.card, .task-item) {
-    border-radius: 16px;
+    border-radius: var(--ui-panel-radius);
   }
 }
 .art-app[data-tool=todo] .main {
@@ -3500,6 +3542,66 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     0 -2px 0 var(--ui-bg),
     2px 0 0 var(--ui-bg),
     -2px 0 0 var(--ui-bg);
+}
+.art-app[data-tool=todo] #celebrationText.show {
+  background:
+    linear-gradient(
+      100deg,
+      #ff4d2e 0%,
+      #ffb020 45%,
+      #ff3d8b 95%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 3px 0 var(--ui-surface)) drop-shadow(0 0 14px rgb(255 140 60 / .55));
+}
+.art-app[data-tool=todo] #celebrationText::before,
+.art-app[data-tool=todo] #celebrationText::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+.art-app[data-tool=todo] #celebrationText::before {
+  z-index: -1;
+  width: min(70vmin, 520px);
+  aspect-ratio: 1;
+  background:
+    radial-gradient(
+      circle,
+      rgb(255 214 120 / .9) 0%,
+      rgb(255 140 80 / .45) 38%,
+      transparent 70%);
+}
+.art-app[data-tool=todo] #celebrationText::after {
+  z-index: -2;
+  width: min(120vmin, 960px);
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      rgb(255 190 80 / .38) 0deg 7deg,
+      transparent 7deg 20deg);
+  -webkit-mask:
+    radial-gradient(
+      circle,
+      #000 18%,
+      transparent 68%);
+  mask:
+    radial-gradient(
+      circle,
+      #000 18%,
+      transparent 68%);
+}
+.art-app[data-tool=todo] .celebration-burst i.t {
+  top: -24px;
+  bottom: auto;
+  left: var(--sx);
 }
 .art-app[data-tool=todo] #celebrationText.show {
   opacity: 1;
@@ -3787,35 +3889,264 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   --d:0.07s;
   --c:var(--ui-warning);
 }
+.art-app[data-tool=todo] .celebration-burst i:nth-child(37) {
+  --sx:3%;
+  --x:-60px;
+  --r:-450deg;
+  --d:0.0s;
+  --c:var(--ui-accent);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(38) {
+  --sx:44%;
+  --x:-7px;
+  --r:-353deg;
+  --d:0.35s;
+  --c:var(--ui-success);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(39) {
+  --sx:85%;
+  --x:46px;
+  --r:-256deg;
+  --d:0.15s;
+  --c:var(--ui-warning);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(40) {
+  --sx:32%;
+  --x:-21px;
+  --r:-159deg;
+  --d:0.5s;
+  --c:var(--ui-error);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(41) {
+  --sx:73%;
+  --x:32px;
+  --r:-62deg;
+  --d:0.3s;
+  --c:var(--ui-function);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(42) {
+  --sx:20%;
+  --x:-35px;
+  --r:35deg;
+  --d:0.1s;
+  --c:#ff7ab6;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(43) {
+  --sx:61%;
+  --x:18px;
+  --r:132deg;
+  --d:0.45s;
+  --c:#ffb020;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(44) {
+  --sx:8%;
+  --x:-49px;
+  --r:229deg;
+  --d:0.25s;
+  --c:#4ac2ff;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(45) {
+  --sx:49%;
+  --x:4px;
+  --r:326deg;
+  --d:0.05s;
+  --c:var(--ui-accent);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(46) {
+  --sx:90%;
+  --x:57px;
+  --r:423deg;
+  --d:0.4s;
+  --c:var(--ui-success);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(47) {
+  --sx:37%;
+  --x:-10px;
+  --r:-380deg;
+  --d:0.2s;
+  --c:var(--ui-warning);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(48) {
+  --sx:78%;
+  --x:43px;
+  --r:-283deg;
+  --d:0.0s;
+  --c:var(--ui-error);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(49) {
+  --sx:25%;
+  --x:-24px;
+  --r:-186deg;
+  --d:0.35s;
+  --c:var(--ui-function);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(50) {
+  --sx:66%;
+  --x:29px;
+  --r:-89deg;
+  --d:0.15s;
+  --c:#ff7ab6;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(51) {
+  --sx:13%;
+  --x:-38px;
+  --r:8deg;
+  --d:0.5s;
+  --c:#ffb020;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(52) {
+  --sx:54%;
+  --x:15px;
+  --r:105deg;
+  --d:0.3s;
+  --c:#4ac2ff;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(53) {
+  --sx:95%;
+  --x:-52px;
+  --r:202deg;
+  --d:0.1s;
+  --c:var(--ui-accent);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(54) {
+  --sx:42%;
+  --x:1px;
+  --r:299deg;
+  --d:0.45s;
+  --c:var(--ui-success);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(55) {
+  --sx:83%;
+  --x:54px;
+  --r:396deg;
+  --d:0.25s;
+  --c:var(--ui-warning);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(56) {
+  --sx:30%;
+  --x:-13px;
+  --r:-407deg;
+  --d:0.05s;
+  --c:var(--ui-error);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(57) {
+  --sx:71%;
+  --x:40px;
+  --r:-310deg;
+  --d:0.4s;
+  --c:var(--ui-function);
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(58) {
+  --sx:18%;
+  --x:-27px;
+  --r:-213deg;
+  --d:0.2s;
+  --c:#ff7ab6;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(59) {
+  --sx:59%;
+  --x:26px;
+  --r:-116deg;
+  --d:0.0s;
+  --c:#ffb020;
+}
+.art-app[data-tool=todo] .celebration-burst i:nth-child(60) {
+  --sx:6%;
+  --x:-41px;
+  --r:-19deg;
+  --d:0.35s;
+  --c:#4ac2ff;
+}
 @media screen and (prefers-reduced-motion: no-preference) {
   .art-app[data-tool=todo] #celebrationText.show {
-    animation: art-todo-pop 1.6s cubic-bezier(.2, .9, .25, 1.2) both !important;
+    animation: art-todo-pop 2.2s cubic-bezier(.2, .9, .25, 1.2) both !important;
+  }
+  .art-app[data-tool=todo] #celebrationText.show::before {
+    animation: art-todo-flash .9s cubic-bezier(.1, .7, .3, 1) both !important;
+  }
+  .art-app[data-tool=todo] #celebrationText.show::after {
+    animation: art-todo-rays 2s ease-out both !important;
   }
   .art-app[data-tool=todo] #celebrationText.show + .celebration-burst i {
-    animation: art-todo-confetti 1.5s cubic-bezier(.15, .7, .35, 1) var(--d) both !important;
+    animation: art-todo-confetti 1.6s cubic-bezier(.15, .7, .35, 1) var(--d) both !important;
+  }
+  .art-app[data-tool=todo] #celebrationText.show + .celebration-burst i.t {
+    animation: art-todo-rain 1.7s cubic-bezier(.3, .1, .6, 1) calc(var(--d) + .12s) both !important;
   }
   @keyframes art-todo-pop {
     0% {
       opacity: 0;
-      transform: translate(-50%, -50%) rotate(-8deg) scale(.3);
+      transform: translate(-50%, -50%) rotate(-20deg) scale(.2);
     }
-    18% {
+    12% {
       opacity: 1;
-      transform: translate(-50%, -50%) rotate(-8deg) scale(1.18);
+      transform: translate(-50%, -50%) rotate(-3deg) scale(1.32);
     }
-    30% {
-      transform: translate(-50%, -50%) rotate(-8deg) scale(.96);
+    22% {
+      transform: translate(-50%, -50%) rotate(-12deg) scale(.92);
     }
-    40% {
-      transform: translate(-50%, -50%) rotate(-8deg) scale(1);
+    32% {
+      transform: translate(-50%, -50%) rotate(-5deg) scale(1.1);
     }
-    82% {
+    42% {
+      transform: translate(-50%, -50%) rotate(-9deg) scale(.98);
+    }
+    52% {
+      transform: translate(-50%, -50%) rotate(-8deg) scale(1.02);
+    }
+    84% {
       opacity: 1;
       transform: translate(-50%, -50%) rotate(-8deg) scale(1);
     }
     100% {
       opacity: 0;
-      transform: translate(-50%, -50%) rotate(-8deg) scale(1.04);
+      transform: translate(-50%, -50%) rotate(-8deg) scale(1.12);
+    }
+  }
+  @keyframes art-todo-flash {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0);
+    }
+    18% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.7);
+    }
+  }
+  @keyframes art-todo-rays {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.4) rotate(0deg);
+    }
+    18% {
+      opacity: 1;
+    }
+    72% {
+      opacity: .85;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.15) rotate(80deg);
+    }
+  }
+  @keyframes art-todo-rain {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) rotate(0deg);
+    }
+    8% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--x), calc(100vh + 48px)) rotate(var(--r));
     }
   }
   @keyframes art-todo-confetti {
@@ -3850,6 +4181,10 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   line-height: 1;
   letter-spacing: normal;
 }
+.art-app .art-help-details :is(td, kbd) {
+  font-size: var(--ui-meta-size);
+  line-height: 1.55;
+}
 .art-app[data-tool=todo] :is(#parentModalOverlay, #subtaskModalOverlay) .modal {
   --ui-dialog-width: 620px;
 }
@@ -3864,7 +4199,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
 }
 .art-app[data-tool=todo] .modal-subtask-list.is-empty {
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-inset);
 }
 .art-app[data-tool=todo] .modal-confirm .confirm-message {
@@ -3889,6 +4224,78 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
 .art-app[data-tool=todo] #confirmActionLabel {
   display: inline;
 }
+.art-app[data-tool] :is(.icon-btn):not(.art-header-button, .toast-close, .search-clear, #searchClearBtn) {
+  border-radius: var(--ui-control-radius);
+}
+.art-app[data-tool] :is(.gm-input) {
+  border-radius: var(--ui-control-radius);
+  box-shadow: none;
+}
+.art-app[data-tool] :is(.modal) {
+  border-radius: var(--ui-dialog-radius);
+  box-shadow: var(--ui-shadow-lg);
+}
+.art-app[data-tool] :is(.toast) {
+  border-radius: var(--ui-panel-radius);
+}
+.art-app[data-tool=todo] .subtask-item {
+  border-radius: var(--ui-inner-radius);
+}
+.art-app[data-tool=todo] :is(.setting-item, .empty, #page-settings .card) {
+  border-radius: var(--ui-panel-radius);
+}
+.art-app[data-tool=todo] .task-filter-group {
+  border-radius: var(--ui-inner-radius);
+}
+.art-app[data-tool=todo] .row-icon-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex: none;
+}
+.art-app[data-tool=todo] .row-icon-actions .icon-action-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-icon);
+}
+.art-app[data-tool=todo] .row-icon-actions .icon-action-btn.danger {
+  border-color: var(--ui-error-border);
+  color: var(--ui-error);
+}
+.art-app[data-tool=todo] .row-icon-actions .icon-action-btn > .material-symbols-outlined {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 1;
+}
+@media (any-pointer: coarse) {
+  .art-app[data-tool=todo] .row-icon-actions .icon-action-btn {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+.art-app[data-tool=todo] .modal-subtask-list.is-empty {
+  display: grid;
+  place-items: center;
+  min-height: 62px;
+}
+.art-app[data-tool=todo] .modal-subtask-list.is-empty::before {
+  content: "\5b50\30bf\30b9\30af\306f\307e\3060\3042\308a\307e\305b\3093";
+  color: var(--ui-muted);
+  font-size: var(--ui-meta-size);
+}
 </style>
 </head>
 <body class="art-app" data-tool="todo">
@@ -3896,7 +4303,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
 
     <header class="art-header">
       <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="todo" data-icon-theme="light" aria-hidden="true"><defs><linearGradient id="art-icon-todo-light-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fa8d78"/><stop offset="0.5" stop-color="#d83d35"/><stop offset="1" stop-color="#9f232b"/></linearGradient><linearGradient id="art-icon-todo-light-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#522427" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-todo-light-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#edf1ee"/></linearGradient><linearGradient id="art-icon-todo-light-glass" x1="58" y1="56" x2="103" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e86e62"/><stop offset="1" stop-color="#b33033"/></linearGradient><linearGradient id="art-icon-todo-light-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-todo-light-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#522427" flood-opacity=".23"/></filter><filter id="art-icon-todo-light-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#522427" flood-opacity=".27"/></filter><clipPath id="art-icon-todo-light-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="light" display="inline"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-todo-light-base)" filter="url(#art-icon-todo-light-shadow)"/><g clip-path="url(#art-icon-todo-light-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-todo-light-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-todo-light-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(-5 65 65)" filter="url(#art-icon-todo-light-paper-shadow)"><rect x="26" y="22" width="78" height="88" rx="8" fill="url(#art-icon-todo-light-paper)"/><path d="M43 20v10m23-10v10m23-10v10" stroke="#657779" stroke-width="5" stroke-linecap="round"/><path d="M42 19v9m23-9v9m23-9v9" stroke="#e6edef" stroke-width="2" stroke-linecap="round"/><rect x="36" y="42" width="9" height="9" rx="2" fill="none" stroke="#a3433f" stroke-opacity=".45" stroke-width="1.6"/><rect x="36" y="61" width="9" height="9" rx="2" fill="none" stroke="#a3433f" stroke-opacity=".45" stroke-width="1.6"/><path d="M54 46.5h35M54 65.5h29m-48 19h40" stroke="#a3433f" stroke-opacity=".32" stroke-width="3" stroke-linecap="round"/></g><g filter="url(#art-icon-todo-light-paper-shadow)"><path d="m30 79 20 20a5 5 0 0 0 7 0l46-48a5 5 0 0 0-7-7L53 88 37 72a5 5 0 0 0-7 7Z" fill="url(#art-icon-todo-light-glass)" stroke="#fff" stroke-opacity=".7" stroke-width="1.2"/><path d="m34 76 19 19 46-48" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1.2" stroke-linecap="round"/></g></g></g><defs><linearGradient id="art-icon-todo-dark-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e66b59"/><stop offset="0.5" stop-color="#b52d29"/><stop offset="1" stop-color="#731e26"/></linearGradient><linearGradient id="art-icon-todo-dark-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#522427" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-todo-dark-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e5eae8"/><stop offset="1" stop-color="#cbd5d1"/></linearGradient><linearGradient id="art-icon-todo-dark-glass" x1="58" y1="56" x2="103" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e17c6f"/><stop offset="1" stop-color="#b94a46"/></linearGradient><linearGradient id="art-icon-todo-dark-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-todo-dark-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#522427" flood-opacity=".23"/></filter><filter id="art-icon-todo-dark-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#522427" flood-opacity=".27"/></filter><clipPath id="art-icon-todo-dark-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="dark" display="none"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-todo-dark-base)" filter="url(#art-icon-todo-dark-shadow)"/><g clip-path="url(#art-icon-todo-dark-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-todo-dark-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-todo-dark-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(-5 65 65)" filter="url(#art-icon-todo-dark-paper-shadow)"><rect x="26" y="22" width="78" height="88" rx="8" fill="url(#art-icon-todo-dark-paper)"/><path d="M43 20v10m23-10v10m23-10v10" stroke="#657779" stroke-width="5" stroke-linecap="round"/><path d="M42 19v9m23-9v9m23-9v9" stroke="#e6edef" stroke-width="2" stroke-linecap="round"/><rect x="36" y="42" width="9" height="9" rx="2" fill="none" stroke="#a3433f" stroke-opacity=".45" stroke-width="1.6"/><rect x="36" y="61" width="9" height="9" rx="2" fill="none" stroke="#a3433f" stroke-opacity=".45" stroke-width="1.6"/><path d="M54 46.5h35M54 65.5h29m-48 19h40" stroke="#a3433f" stroke-opacity=".32" stroke-width="3" stroke-linecap="round"/></g><g filter="url(#art-icon-todo-dark-paper-shadow)"><path d="m30 79 20 20a5 5 0 0 0 7 0l46-48a5 5 0 0 0-7-7L53 88 37 72a5 5 0 0 0-7 7Z" fill="url(#art-icon-todo-dark-glass)" stroke="#fff" stroke-opacity=".7" stroke-width="1.2"/><path d="m34 76 19 19 46-48" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1.2" stroke-linecap="round"/></g></g></g></svg></span>
+        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="todo" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><circle cx="88" cy="28" r="26" fill="#ea6c55"/><circle cx="58" cy="70" r="50" fill="#d98e04"/><rect x="28" y="38" width="56" height="62" rx="6" fill="#fff"/><rect x="42" y="31" width="28" height="13" rx="5" fill="#fff" stroke="#d98e04" stroke-width="4"/><path d="m41 70 10 10 20-22" fill="none" stroke="#d98e04" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><circle cx="88" cy="28" r="26" fill="#ea6c55"/><circle cx="58" cy="70" r="50" fill="#d98e04"/><rect x="28" y="38" width="56" height="62" rx="6" fill="#fff"/><rect x="42" y="31" width="28" height="13" rx="5" fill="#fff" stroke="#d98e04" stroke-width="4"/><path d="m41 70 10 10 20-22" fill="none" stroke="#d98e04" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
         <div><h1 class="art-title" title="やるやん！Todo">やるやん！Todo</h1></div>
       </div>
       <div class="art-header-actions">
@@ -4076,7 +4483,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
             <div class="card task-composer">
               <label class="field-label gm-label" for="taskInput">タスクを追加</label>
               <div class="row">
-                <input id="taskInput" class="text-input gm-input" type="text" autocomplete="off" aria-describedby="taskInputHint">
+                <input data-art-autofocus id="taskInput" class="text-input gm-input" type="text" autocomplete="off" aria-describedby="taskInputHint">
                 <button type="button" id="addBtn" class="icon-btn add-btn show-label gm-btn gm-btn-primary" aria-label="親タスク追加">
                   <span aria-hidden="true" class="material-symbols-outlined">add_task</span>
                   <span>追加</span>
@@ -4300,7 +4707,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   </div>
 
   <div class="celebration-text" id="celebrationText" role="status" aria-live="polite">やるやん！</div>
-  <div class="celebration-burst" aria-hidden="true"><i class="l s"></i><i class="l"></i><i class="l s"></i><i class="l s"></i><i class="l c"></i><i class="l s"></i><i class="l"></i><i class="l s"></i><i class="l"></i><i class="l c"></i><i class="l c"></i><i class="l s"></i><i class="l c"></i><i class="l s"></i><i class="l s"></i><i class="l"></i><i class="l s"></i><i class="l c"></i><i class="r s"></i><i class="r"></i><i class="r s"></i><i class="r s"></i><i class="r s"></i><i class="r s"></i><i class="r"></i><i class="r"></i><i class="r c"></i><i class="r"></i><i class="r c"></i><i class="r s"></i><i class="r s"></i><i class="r c"></i><i class="r s"></i><i class="r"></i><i class="r s"></i><i class="r s"></i></div>
+  <div class="celebration-burst" aria-hidden="true"><i class="l s"></i><i class="l"></i><i class="l s"></i><i class="l s"></i><i class="l c"></i><i class="l s"></i><i class="l"></i><i class="l s"></i><i class="l"></i><i class="l c"></i><i class="l c"></i><i class="l s"></i><i class="l c"></i><i class="l s"></i><i class="l s"></i><i class="l"></i><i class="l s"></i><i class="l c"></i><i class="r s"></i><i class="r"></i><i class="r s"></i><i class="r s"></i><i class="r s"></i><i class="r s"></i><i class="r"></i><i class="r"></i><i class="r c"></i><i class="r"></i><i class="r c"></i><i class="r s"></i><i class="r s"></i><i class="r c"></i><i class="r s"></i><i class="r"></i><i class="r s"></i><i class="r s"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i><i class="t"></i></div>
   <div id="storageWarning" class="card" role="status" aria-live="polite" hidden></div>
   <div id="quickTooltip" class="quick-tooltip" role="tooltip" aria-hidden="true" hidden></div>
   <div id="deleteUndoToastLayer" class="toast-layer delete-undo-layer" aria-live="assertive" aria-atomic="true"></div>
@@ -4407,7 +4814,30 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
       <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>タスクを追加する</strong><p>タスク名を入力し、「追加」を押します。</p></li><li><strong>進み具合を記録する</strong><p>子タスクを追加し、「開始」で集中タイマーを動かします。終わったら集中画面の「完了」を押します。</p></li><li><strong>バックアップと設定</strong><p>バックアップや集中時間、完了メッセージは右上の「設定」から変更できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>タスクを追加する</strong><p>タスク名を入力し、「追加」を押します。</p></li><li><strong>進み具合を記録する</strong><p>子タスクを追加し、「開始」で集中タイマーを動かします。終わったら集中画面の「完了」を押します。</p></li><li><strong>バックアップと設定</strong><p>バックアップや集中時間、完了メッセージは右上の「設定」から変更できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p><details class="art-help-details"><summary>検索・取消・ショートカット・上限の詳細</summary><div>
+      <div class="help-steps">
+        <section class="help-step">
+          <span class="help-step-number">1</span>
+          <div><h3>探す・絞り込む</h3><p>「タスクを検索」でタスクと子タスクの名前を検索します。「すべて」「未完了」「完了」で表示を切り替え、「一括操作」から完了済みやすべてのタスクをまとめて削除できます。</p></div>
+        </section>
+        <section class="help-step">
+          <span class="help-step-number">2</span>
+          <div><h3>並べ替える</h3><p>左のハンドルでドラッグするか、タスクの「操作」の「上へ移動」「下へ移動」、またはタスクにフォーカスして<kbd>Alt</kbd>＋<kbd>↑</kbd>／<kbd>↓</kbd>で移動します。</p></div>
+        </section>
+        <section class="help-step">
+          <span class="help-step-number">3</span>
+          <div><h3>元に戻す</h3><p>削除したタスク・子タスク、一括削除は、30秒以内なら通知の「元に戻す」で復元できます。バックアップの読み込みも、直後の通知から読み込み前の状態へ戻せます。</p></div>
+        </section>
+      </div>
+      <div class="help-storage"><strong>保存とバックアップ</strong><br>保存先はこのブラウザー内です。クラウド同期はありません。右上の「設定」からバックアップのJSONを保存・読み込みできます。</div>
+      <details class="help-details">
+        <summary>キーボード操作と上限</summary>
+        <p><kbd>Alt</kbd>＋<kbd>N</kbd>でタスクの入力欄へ移動し、<kbd>Enter</kbd>で追加します。編集画面は<kbd>Ctrl</kbd>／<kbd>⌘</kbd>＋<kbd>S</kbd>または<kbd>Ctrl</kbd>／<kbd>⌘</kbd>＋<kbd>Enter</kbd>で保存します。</p>
+        <p><kbd>Alt</kbd>＋<kbd>Shift</kbd>＋<kbd>C</kbd>で完了済みを削除、<kbd>Alt</kbd>＋<kbd>Shift</kbd>＋<kbd>A</kbd>ですべて削除の確認を開きます。集中画面は<kbd>Space</kbd>で一時停止／再開、<kbd>Enter</kbd>で完了、<kbd>X</kbd>または<kbd>Esc</kbd>で中断します。</p>
+        <p>タスク名・子タスク名は120文字まで、タスクは200件まで、子タスクは1件のタスクにつき50件までです。</p>
+      </details>
+    </div></details>
+</div>
     </dialog>
     
 <script>(async () => {
@@ -4444,7 +4874,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   const MAX_MESSAGE_TEXT_LENGTH = 80;
   const MAX_MESSAGE_COUNT = 30;
   const MAX_ORGANIZE_MEMO_LENGTH = 1e4;
-  const ORGANIZE_MEMO_WARNING_THRESHOLD = .9;
   const MAX_BACKUP_FILE_BYTES = 8 * 1024 * 1024;
   const CORRUPT_STORAGE_BACKUP_SUFFIX = "__corrupt";
   const MAX_CORRUPT_STORAGE_BACKUP_CHARS = 64 * 1024;
@@ -5583,11 +6012,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     if (!backupImportLimitText) return;
     backupImportLimitText.textContent = formatFileSize(MAX_BACKUP_FILE_BYTES);
   }
-  function getMemoLimitStatusText() {
-    const length = organizeMemo.length;
-    if (length < Math.floor(MAX_ORGANIZE_MEMO_LENGTH * ORGANIZE_MEMO_WARNING_THRESHOLD)) return "";
-    return `（残り${Math.max(0, MAX_ORGANIZE_MEMO_LENGTH - length)}文字）`;
-  }
   function _markAppStateChanged() {
     _appStateVersion += 1;
     return _appStateVersion;
@@ -5810,7 +6234,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     const normalizedTaskView = normalizeTaskViewState(snapshot.taskView);
     taskViewState.filter = normalizedTaskView.filter;
     applySidebarState();
-    setMemoSaveStatus("saved");
   }
   function _restoreStateAfterFailedSave(snapshot, message = "保存できなかったため変更を取り消しました", options = {}) {
     const expectedVersion = Number.isInteger(options?.expectedVersion) ? options.expectedVersion : null;
@@ -6047,7 +6470,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     })();
   }
   function showToast(message, options = {}) {
-    const {type = "error", icon = type === "success" ? "task_alt" : "error", durationMs = type === "success" ? 1700 : 2200, actionLabel = "", onAction = null, onDismiss = null} = options;
+    const {type = "error", durationMs = type === "success" ? 1700 : 2200, actionLabel = "", onAction = null, onDismiss = null} = options;
     if (!toastLayer) return;
     if (toastHideTimerId) {
       clearTimeout(toastHideTimerId);
@@ -6060,7 +6483,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     const normalizedActionLabel = String(actionLabel || "").trim();
     const hasAction = normalizedActionLabel.length > 0 && typeof onAction === "function";
     const actionButtonHtml = hasAction ? `<button type="button" class="toast-action-btn gm-btn" aria-label="${escapeHtml(normalizedActionLabel)}">${escapeHtml(normalizedActionLabel)}</button>` : "";
-    toastLayer.innerHTML = `\n          <div class="toast ${type}" role="alert">\n            <span class="material-symbols-outlined" aria-hidden="true">${icon}</span>\n            <span class="toast-message">${escapeHtml(message)}</span>\n            ${actionButtonHtml}\n          </div>\n        `;
+    toastLayer.innerHTML = `\n          <div class="toast ${type}" role="alert">\n            <span class="toast-message">${escapeHtml(message)}</span>\n            ${actionButtonHtml}\n          </div>\n        `;
     hydrateMaterialIcons(toastLayer);
     const toast = qs(".toast", toastLayer);
     if (!toast) {
@@ -6100,7 +6523,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   function showErrorToast(message) {
     showToast(message, {
       type: "error",
-      icon: "error",
       durationMs: 2200
     });
   }
@@ -6117,6 +6539,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
       if (deleteUndoToastLayer.contains(toast)) deleteUndoToastLayer.replaceChildren();
     })();
   }
+  const DELETE_UNDO_HOLD_MS = DELETE_UNDO_WINDOW_MS * 6;
   function _showDeleteUndoToast(message, undoVersion) {
     if (!deleteUndoToastLayer) return false;
     if (_deleteUndoToastHideTimerId) {
@@ -6125,7 +6548,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     }
     _deleteUndoToastSessionId += 1;
     const toastSessionId = _deleteUndoToastSessionId;
-    deleteUndoToastLayer.innerHTML = `\n          <div class="toast success" role="alert">\n            <span class="material-symbols-outlined" aria-hidden="true">delete</span>\n            <span class="toast-message">${escapeHtml(message)}</span>\n            <button type="button" class="toast-action-btn toast-undo-action-btn gm-btn" aria-label="元に戻す">元に戻す</button>\n          </div>\n        `;
+    deleteUndoToastLayer.innerHTML = `\n          <div class="toast success" role="alert">\n            <span class="toast-message">${escapeHtml(message)}</span>\n            <button type="button" class="toast-action-btn toast-undo-action-btn gm-btn" aria-label="元に戻す">元に戻す</button>\n          </div>\n        `;
     hydrateMaterialIcons(deleteUndoToastLayer);
     const toast = qs(".toast", deleteUndoToastLayer);
     if (!toast) return false;
@@ -6146,8 +6569,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
       _hideDeleteUndoToastBySession(toastSessionId);
       render();
       showToast("削除を元に戻しました", {
-        type: "success",
-        icon: "undo"
+        type: "success"
       });
     });
     (() => {
@@ -6161,7 +6583,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
         _deleteUndoState.payload = null;
       }
       _hideDeleteUndoToastBySession(toastSessionId);
-    }, DELETE_UNDO_WINDOW_MS);
+    }, DELETE_UNDO_HOLD_MS);
     return true;
   }
   function _registerDeleteUndoToast(message, payload) {
@@ -6172,8 +6594,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     if (_showDeleteUndoToast(message, undoVersion)) return;
     showToast(message, {
       type: "success",
-      icon: "delete",
-      durationMs: DELETE_UNDO_WINDOW_MS,
+      durationMs: DELETE_UNDO_HOLD_MS,
       actionLabel: "元に戻す",
       onAction: async () => {
         if (isStateSaveOperationPending()) return;
@@ -6184,8 +6605,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
         _deleteUndoState.payload = null;
         render();
         showToast("削除を元に戻しました", {
-          type: "success",
-          icon: "undo"
+          type: "success"
         });
       },
       onDismiss: () => {
@@ -6240,8 +6660,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   }
   function _captureModalReturnFocus($element) {
     if (!($element instanceof HTMLElement)) return null;
-    const $rowActions = $element.closest(".row-options");
-    if ($rowActions) $element = qs("summary", $rowActions) || $element;
     const rowSelector = [ ".modal-subtask-row", ".subtask-item", ".task-item", ".message-item" ].find(selector => $element.closest(selector));
     if (!rowSelector) return {
       elementId: $element.id || null
@@ -6255,7 +6673,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
       parentId: $row.dataset.parentId || null,
       rowId: $row.dataset.subId || $row.dataset.id,
       rowIndex: qsa(rowSelector, $scope).indexOf($row),
-      rowOptionsSummary: $element.matches(".row-options > summary"),
       buttonIndex: qsa("button", $row).indexOf($element.closest("button"))
     };
   }
@@ -6271,10 +6688,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     const rows = qsa(target.rowSelector, target.scope);
     const $row = target.rowId && rows.find(row => (row.dataset.subId || row.dataset.id) === target.rowId && (row.dataset.parentId || null) === target.parentId) || rows[Math.min(Math.max(0, target.rowIndex), rows.length - 1)];
     if (!$row) return null;
-    if (target.rowOptionsSummary) {
-      const $summary = qs(".row-options > summary", $row);
-      if (canFocus($summary)) return $summary;
-    }
     const buttons = qsa("button", $row);
     const $sameControl = buttons[target.buttonIndex];
     if (canFocus($sameControl)) return $sameControl;
@@ -6748,22 +7161,10 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   async function save(options = {}) {
     return _enqueueStoredStateSave(() => _getPersistedStateEntries(), options);
   }
-  function setMemoSaveStatus(mode) {
-    if (!memoSaveStatus) return;
-    memoSaveStatus.classList.toggle("is-saving", mode === "saving");
-    memoSaveStatus.classList.toggle("is-error", mode === "error");
-    const limitStatus = getMemoLimitStatusText();
-    const label = mode === "saving" ? "保存中..." : mode === "error" ? "保存できませんでした" : "保存済み";
-    const text = limitStatus ? `${label} ${limitStatus}` : label;
-    if (memoSaveStatus.textContent !== text) memoSaveStatus.textContent = text;
-  }
   function persistOrganizeMemoLocalCheckpoint() {
     if (persistOrganizeMemoLocalCheckpoint.pending) return persistOrganizeMemoLocalCheckpoint.pending;
     const pending = _enqueueStoredStateSave(() => _getPersistedStateEntries(), {
       localCheckpoint: true
-    }).then(ok => {
-      setMemoSaveStatus(ok ? "saving" : "error");
-      return ok;
     }).finally(() => {
       persistOrganizeMemoLocalCheckpoint.pending = null;
     });
@@ -6777,9 +7178,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     }
     setStateSaveOperationPending(true);
     try {
-      const ok = await _enqueueStoredStateSave(() => _getPersistedStateEntries(), options);
-      setMemoSaveStatus(ok ? "saved" : "error");
-      return ok;
+      return await _enqueueStoredStateSave(() => _getPersistedStateEntries(), options);
     } finally {
       setStateSaveOperationPending(false);
     }
@@ -6819,11 +7218,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     syncRunningFocusElapsedForPersist(Date.now());
     const entries = _getPersistedStateEntries();
     const localResult = _saveLocalStorageForUnload(entries);
-    if (!localResult.ok) {
-      setMemoSaveStatus("error");
-    } else if (localResult.wrote) {
-      setMemoSaveStatus("saving");
-    }
     let shouldRollbackLocalWrite = false;
     void _enqueueStoredStateSave(() => _getPersistedStateEntries(), {
       indexedConflictBaselineMeta: localResult.indexedConflictBaselineMeta,
@@ -6837,7 +7231,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
           _handlePersistentStorageError("storage-rollback", entries[0]?.[0] || STATE_META_KEY, new Error("localStorage rollback failed"));
         }
       }
-      setMemoSaveStatus(ok ? "saved" : "error");
     }).catch(error => {
       if (shouldRollbackLocalWrite && localResult.wrote && localResult.rollbackLocalStorageWrite) {
         const rollbackOk = localResult.rollbackLocalStorageWrite();
@@ -6846,7 +7239,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
         }
       }
       _handlePersistentStorageError("storage-write", entries[0]?.[0] || STATE_META_KEY, error);
-      setMemoSaveStatus("error");
     });
   }
   async function checkpointActiveFocusElapsed(nowMs = Date.now()) {
@@ -6922,12 +7314,11 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     organizeMemo = normalized.organizeMemo;
     taskViewState.filter = normalized.taskView.filter;
     applySidebarState();
-    setMemoSaveStatus("saved");
   }
   function buildImportBackupConfirmMessage(normalized) {
     const currentCounts = formatBulkDeleteCountText(getTaskStructureCounts(tasks));
     const incomingCounts = formatBulkDeleteCountText(getTaskStructureCounts(normalized.tasks));
-    return [ `現在の${currentCounts}を、バックアップの${incomingCounts}に置き換えます。`, `整理メモ ${organizeMemo.length}文字 → ${normalized.organizeMemo.length}文字 / 完了メッセージ ${settings.messages.length}件 → ${normalized.settings.messages.length}件`, "読み込み前の状態は一時的に元に戻せます。読み込みますか？" ].join("\n");
+    return [ `現在の${currentCounts}を、バックアップの${incomingCounts}に置き換えます。`, `完了メッセージ ${settings.messages.length}件 → ${normalized.settings.messages.length}件`, "読み込み前の状態は一時的に元に戻せます。読み込みますか？" ].join("\n");
   }
   function _registerImportUndoToast(snapshot) {
     _importUndoState.snapshot = _copyTaskSnapshot(snapshot);
@@ -6958,8 +7349,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
         _importUndoState.appStateVersion = null;
         render();
         showToast("読み込み前の状態に戻しました", {
-          type: "success",
-          icon: "undo"
+          type: "success"
         });
       },
       onDismiss: () => {
@@ -6998,8 +7388,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 0);
     showToast("バックアップを書き出しました", {
-      type: "success",
-      icon: "save"
+      type: "success"
     });
   }
   async function importBackupFile(file) {
@@ -7033,7 +7422,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     if (organizeMemoSaveTimerId !== null) {
       clearTimeout(organizeMemoSaveTimerId);
     }
-    setMemoSaveStatus("saving");
     organizeMemoSaveTimerId = window.setTimeout(() => {
       organizeMemoSaveTimerId = null;
       void persistOrganizeMemoCheckpoint();
@@ -7317,10 +7705,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     for (const page of qsa(".page")) {
       page.classList.toggle("active", page.id === `page-${route}`);
     }
-    navButtons.forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.route === route);
-      if (btn.dataset.route === route) btn.setAttribute("aria-current", "page"); else btn.removeAttribute("aria-current");
-    });
     if (routeChanged) {
       closeBulkActions();
       if (!_getActiveModalOverlay()) {
@@ -7339,12 +7723,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
   }
   window.addEventListener("hashchange", () => {
     navigate(getRouteFromHash());
-  });
-  navButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (focusOverlay.classList.contains("show")) return;
-      navigate(btn.dataset.route);
-    });
   });
   function getAudioCtx() {
     if (!audioCtx || audioCtx.state === "closed") {
@@ -7446,140 +7824,302 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     osc.start(time);
     osc.stop(time + dur + releaseTail);
   }
+  const NOTE = {
+    C3: 130.81,
+    F3: 174.61,
+    G3: 196,
+    G2: 98,
+    E4: 329.63,
+    G4: 392,
+    A4: 440,
+    B4: 493.88,
+    C5: 523.25,
+    D5: 587.33,
+    E5: 659.25,
+    F5: 698.46,
+    G5: 783.99,
+    A5: 880,
+    B5: 987.77,
+    C6: 1046.5,
+    D6: 1174.66,
+    E6: 1318.51,
+    F6: 1396.91,
+    G6: 1567.98,
+    A6: 1760,
+    B6: 1975.53,
+    C7: 2093
+  };
+  const _pulseWaves = new Map;
+  const _chipVolume = .7;
+  let _jingleNodes = [];
+  function _pulseWave(ctx, duty) {
+    if (_pulseWaves.has(duty)) return _pulseWaves.get(duty);
+    const size = 48;
+    const real = new Float32Array(size);
+    const imag = new Float32Array(size);
+    for (let i = 1; i < size; i += 1) imag[i] = 2 / (i * Math.PI) * Math.sin(i * Math.PI * duty);
+    const wave = ctx.createPeriodicWave(real, imag);
+    _pulseWaves.set(duty, wave);
+    return wave;
+  }
+  function playPulse({ctx, time, freq, dur, gain = .03, duty = .25, pan = 0}) {
+    const output = _getAudioOutputNode(ctx);
+    gain *= _chipVolume;
+    if (!output || ctx.state !== "running") return;
+    const osc = ctx.createOscillator();
+    const volume = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    osc.setPeriodicWave(_pulseWave(ctx, duty));
+    osc.frequency.setValueAtTime(freq, time);
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(5200, time);
+    volume.gain.setValueAtTime(1e-4, time);
+    volume.gain.exponentialRampToValueAtTime(gain, time + .004);
+    volume.gain.setValueAtTime(gain * .85, time + Math.max(.006, dur - .02));
+    volume.gain.exponentialRampToValueAtTime(1e-4, time + dur + .04);
+    osc.connect(filter).connect(volume);
+    _connectToOutputWithPan({
+      ctx,
+      source: volume,
+      output,
+      pan,
+      time
+    });
+    _jingleNodes.push(osc);
+    osc.start(time);
+    osc.stop(time + dur + .06);
+  }
+  function playTri({ctx, time, freq, dur, gain = .07}) {
+    const output = _getAudioOutputNode(ctx);
+    gain *= _chipVolume;
+    if (!output || ctx.state !== "running") return;
+    const osc = ctx.createOscillator();
+    const volume = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(freq, time);
+    volume.gain.setValueAtTime(1e-4, time);
+    volume.gain.exponentialRampToValueAtTime(gain, time + .003);
+    volume.gain.setValueAtTime(gain * .85, time + Math.max(.005, dur - .02));
+    volume.gain.exponentialRampToValueAtTime(1e-4, time + dur + .04);
+    osc.connect(volume).connect(output);
+    _jingleNodes.push(osc);
+    osc.start(time);
+    osc.stop(time + dur + .06);
+  }
+  function playNoiseTick({ctx, time, gain = .03, dur = .05, freq = 7e3}) {
+    const output = _getAudioOutputNode(ctx);
+    gain *= _chipVolume;
+    if (!output || ctx.state !== "running") return;
+    const length = Math.max(1, Math.floor(ctx.sampleRate * (dur + .02)));
+    const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i += 1) data[i] = Math.random() * 2 - 1;
+    const source = ctx.createBufferSource();
+    const filter = ctx.createBiquadFilter();
+    const volume = ctx.createGain();
+    source.buffer = buffer;
+    filter.type = "highpass";
+    filter.frequency.setValueAtTime(freq, time);
+    volume.gain.setValueAtTime(gain, time);
+    volume.gain.exponentialRampToValueAtTime(1e-4, time + dur);
+    source.connect(filter).connect(volume).connect(output);
+    _jingleNodes.push(source);
+    source.start(time);
+    source.stop(time + dur + .02);
+  }
+  function playChipArpeggio({ctx, time, notes, dur, gain = .024}) {
+    const step = .032;
+    let index = 0;
+    for (let t = 0; t < dur; t += step) {
+      playPulse({
+        ctx,
+        time: time + t,
+        freq: notes[index % notes.length],
+        dur: step,
+        gain: gain * (1 - t / dur * .7),
+        duty: .125
+      });
+      index += 1;
+    }
+  }
+  function playBell({ctx, time, freq, gain = .03, dur = .5, pan = 0}) {
+    playTone({
+      ctx,
+      time,
+      freq,
+      dur,
+      gain,
+      type: "sine",
+      filterFreq: 6e3,
+      q: .5,
+      attack: .004,
+      pan
+    });
+    playTone({
+      ctx,
+      time,
+      freq: freq * 2.01,
+      dur: dur * .55,
+      gain: gain * .32,
+      type: "sine",
+      filterFreq: 8e3,
+      q: .4,
+      attack: .003,
+      pan
+    });
+    playTone({
+      ctx,
+      time,
+      freq: freq * 3.98,
+      dur: dur * .28,
+      gain: gain * .1,
+      type: "sine",
+      filterFreq: 9e3,
+      q: .4,
+      attack: .002,
+      pan
+    });
+  }
+  function playPop({ctx, time, gain = .05, from = 700, to = 1400, pan = 0}) {
+    playTone({
+      ctx,
+      time,
+      freq: from,
+      endFreq: to,
+      dur: .07,
+      gain,
+      type: "sine",
+      filterFreq: 5e3,
+      q: .5,
+      attack: .002,
+      releaseTail: .01,
+      pan
+    });
+  }
+  let _lastFanfareAt = 0;
+  const _beat = .07;
+  function _stopJingle(ctx) {
+    _jingleNodes.forEach(node => {
+      try {
+        node.stop(ctx.currentTime);
+      } catch {}
+    });
+    _jingleNodes = [];
+  }
+  function playChipRun(ctx, start, notes, harmony, bass, landing) {
+    _jingleNodes = [];
+    notes.forEach((note, index) => {
+      const time = start + index * _beat;
+      playPulse({
+        ctx,
+        time,
+        freq: NOTE[note],
+        dur: _beat * .92,
+        gain: .03,
+        duty: .25,
+        pan: -.1
+      });
+      if (harmony[index]) playPulse({
+        ctx,
+        time,
+        freq: NOTE[harmony[index]],
+        dur: _beat * .92,
+        gain: .017,
+        duty: .125,
+        pan: .15
+      });
+      if (index % 2 === 0) playNoiseTick({
+        ctx,
+        time,
+        gain: .022
+      });
+    });
+    bass.forEach(([note, at, len]) => playTri({
+      ctx,
+      time: start + at * _beat,
+      freq: NOTE[note],
+      dur: len * _beat
+    }));
+    const land = start + notes.length * _beat;
+    playPulse({
+      ctx,
+      time: land,
+      freq: NOTE[landing.top],
+      dur: landing.dur,
+      gain: .03,
+      duty: .25
+    });
+    playChipArpeggio({
+      ctx,
+      time: land,
+      notes: landing.chord.map(note => NOTE[note]),
+      dur: landing.dur,
+      gain: .015
+    });
+    playTri({
+      ctx,
+      time: land,
+      freq: NOTE.C3,
+      dur: landing.dur
+    });
+    playNoiseTick({
+      ctx,
+      time: land,
+      gain: .04,
+      dur: landing.dur * .6,
+      freq: 6e3
+    });
+  }
   function playSubtaskCompleteSound() {
-    playParentCompleteSound();
+    if (!settings.sound) return;
+    _withRunningAudio(ctx => {
+      playChipRun(ctx, ctx.currentTime + .002, [ "G5", "C6", "E6" ], [ "E5", "G5", "C6" ], [ [ "C3", 0, 3 ] ], {
+        top: "G6",
+        chord: [ "C6", "E6", "G6" ],
+        dur: .32
+      });
+    });
   }
   function playParentCompleteSound() {
     if (!settings.sound) return;
     _withRunningAudio(ctx => {
       const now = ctx.currentTime + .002;
-      playTone({
-        ctx,
-        time: now,
-        freq: 261.63,
-        endFreq: 329.63,
-        dur: .34,
-        gain: .014,
-        type: "triangle",
-        filterFreq: 1700,
-        q: .85,
-        attack: .014,
-        pan: -.16
-      });
-      const notes = [ {
-        freq: 523.25,
-        t: 0,
-        dur: .13,
-        gain: .031,
-        pan: -.12
-      }, {
-        freq: 659.25,
-        t: .075,
-        dur: .14,
-        gain: .032,
-        pan: .08
-      }, {
-        freq: 783.99,
-        t: .155,
-        dur: .15,
-        gain: .034,
-        pan: -.07
-      }, {
-        freq: 1046.5,
-        t: .24,
-        dur: .19,
-        gain: .036,
-        pan: .1
-      }, {
-        freq: 1318.51,
-        t: .335,
-        dur: .25,
-        gain: .038,
-        pan: 0
-      } ];
-      notes.forEach(note => {
-        const t = now + note.t;
-        playTone({
-          ctx,
-          time: t,
-          freq: note.freq * .99,
-          endFreq: note.freq * 1.01,
-          dur: note.dur,
-          gain: note.gain,
-          type: "triangle",
-          filterFreq: 3e3,
-          q: .85,
-          attack: .01,
-          pan: note.pan
-        });
-        playTone({
-          ctx,
-          time: t + .01,
-          freq: note.freq,
-          dur: note.dur * .72,
-          gain: note.gain * .2,
-          type: "sine",
-          filterFreq: 4400,
-          q: .32,
-          attack: .007,
-          pan: 0
-        });
-      });
-      const chordTime = now + .44;
-      [ {
-        freq: 1046.5,
-        pan: -.2,
-        gain: .014
-      }, {
-        freq: 1318.51,
-        pan: .2,
-        gain: .013
-      }, {
-        freq: 1567.98,
-        pan: 0,
-        gain: .006
-      } ].forEach(tone => {
-        playTone({
-          ctx,
-          time: chordTime,
-          freq: tone.freq,
-          dur: .34,
-          gain: tone.gain,
-          type: "sine",
-          filterFreq: 4200,
-          q: .3,
-          attack: .009,
-          pan: tone.pan
-        });
+      _lastFanfareAt = now;
+      playChipRun(ctx, now, [ "G4", "C5", "E5", "G5", "C6", "E6", "G6" ], [ "E4", "G4", "C5", "E5", "G5", "C6", "E6" ], [ [ "C3", 0, 4 ], [ "G3", 4, 3 ] ], {
+        top: "C7",
+        chord: [ "C6", "E6", "G6", "C7" ],
+        dur: .55
       });
     });
   }
   function playAllClearSound() {
-    playParentCompleteSound();
+    if (!settings.sound) return;
+    _withRunningAudio(ctx => {
+      if (ctx.currentTime - _lastFanfareAt < .1) _stopJingle(ctx);
+      playChipRun(ctx, ctx.currentTime + .004, [ "C5", "E5", "G5", "C6", "F5", "A5", "C6", "F6", "G5", "B5", "D6", "G6", "A6", "B6" ], [ "G4", "C5", "E5", "G5", "C5", "F5", "A5", "C6", "D5", "G5", "B5", "D6", "F6", "G6" ], [ [ "C3", 0, 4 ], [ "F3", 4, 4 ], [ "G3", 8, 6 ] ], {
+        top: "C7",
+        chord: [ "C6", "E6", "G6", "C7" ],
+        dur: .8
+      });
+    });
   }
   function playFocusStartSound() {
     if (!settings.sound) return;
     _withRunningAudio(ctx => {
       const now = ctx.currentTime + .001;
-      playTone({
+      playBell({
         ctx,
         time: now,
-        freq: 349.23,
-        dur: .08,
-        gain: .038,
-        type: "sine",
-        filterFreq: 2400,
-        q: .7
+        freq: 783.99,
+        gain: .035,
+        dur: .22
       });
-      playTone({
+      playBell({
         ctx,
-        time: now + .05,
-        freq: 523.25,
-        dur: .1,
-        gain: .042,
-        type: "triangle",
-        filterFreq: 2800,
-        q: .8
+        time: now + .07,
+        freq: 1174.66,
+        gain: .038,
+        dur: .38
       });
     });
   }
@@ -7588,43 +8128,35 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     _withRunningAudio(ctx => {
       const now = ctx.currentTime + .001;
       if (mode === "resume") {
-        playTone({
+        playBell({
           ctx,
           time: now,
-          freq: 392,
-          dur: .07,
-          gain: .034,
-          type: "triangle",
-          filterFreq: 2500
+          freq: 880,
+          gain: .032,
+          dur: .2
         });
-        playTone({
+        playBell({
           ctx,
-          time: now + .05,
-          freq: 587.33,
-          dur: .09,
-          gain: .03,
-          type: "triangle",
-          filterFreq: 2900
+          time: now + .06,
+          freq: 1318.51,
+          gain: .034,
+          dur: .34
         });
         return;
       }
-      playTone({
+      playBell({
         ctx,
         time: now,
-        freq: 440,
-        dur: .08,
+        freq: 1174.66,
         gain: .03,
-        type: "sine",
-        filterFreq: 2200
+        dur: .2
       });
-      playTone({
+      playBell({
         ctx,
-        time: now + .05,
-        freq: 329.63,
-        dur: .08,
-        gain: .027,
-        type: "sine",
-        filterFreq: 2100
+        time: now + .07,
+        freq: 880,
+        gain: .028,
+        dur: .34
       });
     });
   }
@@ -7632,23 +8164,19 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     if (!settings.sound) return;
     _withRunningAudio(ctx => {
       const now = ctx.currentTime + .001;
-      playTone({
+      playBell({
         ctx,
         time: now,
-        freq: 320,
-        dur: .1,
+        freq: 659.25,
         gain: .03,
-        type: "triangle",
-        filterFreq: 1700
+        dur: .22
       });
-      playTone({
+      playBell({
         ctx,
-        time: now + .06,
-        freq: 220,
-        dur: .12,
+        time: now + .08,
+        freq: 523.25,
         gain: .028,
-        type: "triangle",
-        filterFreq: 1500
+        dur: .4
       });
     });
   }
@@ -7656,23 +8184,19 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     if (!settings.sound) return;
     _withRunningAudio(ctx => {
       const now = ctx.currentTime + .001;
-      playTone({
+      playPop({
         ctx,
         time: now,
-        freq: 523.25,
-        dur: .08,
-        gain: .05,
-        type: "triangle",
-        filterFreq: 2600
+        gain: .045,
+        from: 500,
+        to: 1100
       });
-      playTone({
+      playBell({
         ctx,
-        time: now + .04,
-        freq: 659.25,
-        dur: .1,
-        gain: .04,
-        type: "triangle",
-        filterFreq: 2800
+        time: now + .03,
+        freq: 1567.98,
+        gain: .03,
+        dur: .3
       });
     });
   }
@@ -7680,21 +8204,25 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     if (!settings.sound) return;
     _withRunningAudio(ctx => {
       const now = ctx.currentTime + .001;
-      const output = _getAudioOutputNode(ctx);
-      if (!output) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(380, now);
-      osc.frequency.exponentialRampToValueAtTime(180, now + .14);
-      filter.type = "lowpass";
-      filter.frequency.setValueAtTime(1800, now);
-      gain.gain.setValueAtTime(.08, now);
-      gain.gain.exponentialRampToValueAtTime(.001, now + .14);
-      osc.connect(filter).connect(gain).connect(output);
-      osc.start(now);
-      osc.stop(now + .14);
+      playTone({
+        ctx,
+        time: now,
+        freq: 520,
+        endFreq: 240,
+        dur: .16,
+        gain: .05,
+        type: "sine",
+        filterFreq: 1800,
+        q: .6,
+        attack: .004
+      });
+      playBell({
+        ctx,
+        time: now + .02,
+        freq: 440,
+        gain: .012,
+        dur: .22
+      });
     });
   }
   function showCelebration(customText = "") {
@@ -7713,7 +8241,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
       if (sessionId !== showCelebration.sessionId) return;
       celebrationText.classList.remove("show");
       showCelebration.hideTimerId = null;
-    }, 1650);
+    }, 2300);
   }
   function celebrateCompletion(options = {}) {
     const {soundType = "subtask", skipVisual = false} = options;
@@ -8369,7 +8897,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     if (isBreakPhase) {
       showToast("ポモドーロ: 休憩に入りました", {
         type: "success",
-        icon: "coffee",
         durationMs: 1800
       });
       playFocusShiftSound("pause");
@@ -8377,7 +8904,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     }
     showToast("ポモドーロ: 集中を再開します", {
       type: "success",
-      icon: "play_circle",
       durationMs: 1800
     });
     playFocusShiftSound("resume");
@@ -9069,7 +9595,7 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
       const parentStartControl = parentFocusDisabled ? "" : `\n              <button\n                class="focus-btn playable action-btn open-focus-parent-btn ${parentFocusDisabled ? "disabled" : ""} gm-btn"\n                data-id="${task.id}"\n                type="button"\n                aria-label="${parentFocusTitle}"\n                ${parentFocusDisabled ? 'disabled aria-disabled="true"' : ""}\n              >\n                <span aria-hidden="true" class="material-symbols-outlined">${parentFocusDisabled ? "block" : getFocusIconForMeta(task.focus, false)}</span>\n                <span>${parentFocusTitle}</span>\n              </button>\n            `;
       const leftControl = task.done && runnableParent ? `\n              <button\n                class="focus-btn done action-btn undo-parent-btn gm-btn"\n                data-id="${task.id}"\n                type="button"\n                aria-label="完了を取り消す"\n              >\n                <span aria-hidden="true" class="material-symbols-outlined">undo</span>\n                <span>取り消し</span>\n              </button>\n            ` : parentStartControl;
       const parentDragHandle = `\n            <button\n              class="mini-btn drag-handle parent-drag-handle gm-btn"\n              data-id="${task.id}"\n              draggable="true"\n              type="button"\n              aria-label="親タスクをドラッグで並び替え"\n              aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"\n            >\n              <span aria-hidden="true" class="material-symbols-outlined">drag_indicator</span>\n            </button>\n          `;
-      li.innerHTML = `\n            <div class="task-main">\n              <div class="task-leading-controls">\n                ${parentDragHandle}\n                ${leftControl ? `<div class="task-focus-wrap">\n                  ${leftControl}\n                </div>` : ""}\n              </div>\n\n              <div class="task-meta">\n                ${parentAchievement}\n                <div class="task-title">${escapeHtml(task.text)}</div>\n              </div>\n\n              <details class="task-tools row-options"><summary aria-label="操作：親タスクの編集と削除">操作</summary><div class="row-options-menu">\n                <button class="mini-btn action-btn edit-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="編集">\n                  <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                  <span>編集</span>\n                </button>\n                <button class="mini-btn danger action-btn delete-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="削除">\n                  <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                  <span>削除</span>\n                </button>\n              </div></details>\n            </div>\n\n            ${visibleSubtasks.length > 0 ? `\n              <div class="subtask-wrap" id="children-${task.id}">\n                <ul class="subtask-list" data-parent-id="${task.id}">\n                  ${visibleSubtasks.map(sub => `\n                    <li class="subtask-item ${sub.done ? "done" : ""}" data-parent-id="${task.id}" data-sub-id="${sub.id}">\n                      <div class="task-leading-controls">\n                        <button\n                          class="mini-btn drag-handle subtask-drag-handle gm-btn"\n                          data-parent-id="${task.id}"\n                          data-sub-id="${sub.id}"\n                          draggable="true"\n                          type="button"\n                          aria-label="子タスクをドラッグで並び替え"\n                          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"\n                        >\n                          <span aria-hidden="true" class="material-symbols-outlined">drag_indicator</span>\n                        </button>\n\n                        ${sub.done ? `\n                          <button\n                            class="focus-btn done action-btn undo-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="完了を取り消す"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">undo</span>\n                            <span>取り消し</span>\n                          </button>\n                        ` : `\n                          <button\n                            class="focus-btn playable action-btn open-focus-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="${sub.focus?.focusState === "paused" ? "再開" : "開始"}"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">${getFocusIconForMeta(sub.focus, false)}</span>\n                            <span>${sub.focus?.focusState === "paused" ? "再開" : "開始"}</span>\n                          </button>\n                          `}\n                      </div>\n\n                      <div class="subtask-text-wrap">\n                        ${sub.done || sub.focus?.focusState === "paused" ? `\n                          <div class="achievement-time subtask-achievement">\n                            <span aria-hidden="true" class="material-symbols-outlined">timer</span>\n                            <span>${formatAchievementElapsed(sub.focus?.elapsedMs || 0)}</span>\n                          </div>\n                        ` : ""}\n                        <div class="text">${escapeHtml(sub.text)}</div>\n                      </div>\n\n                      <details class="subtask-actions row-options"><summary aria-label="操作：子タスクの編集と削除">操作</summary><div class="row-options-menu">\n                        <button class="mini-btn action-btn edit-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="編集">\n                          <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                          <span>編集</span>\n                        </button>\n                        <button class="mini-btn danger action-btn delete-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="削除">\n                          <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                          <span>削除</span>\n                        </button>\n                      </div></details>\n                    </li>\n                  `).join("")}\n                </ul>\n              </div>\n            ` : ""}\n          `;
+      li.innerHTML = `\n            <div class="task-main">\n              <div class="task-leading-controls">\n                ${parentDragHandle}\n                ${leftControl ? `<div class="task-focus-wrap">\n                  ${leftControl}\n                </div>` : ""}\n              </div>\n\n              <div class="task-meta">\n                ${parentAchievement}\n                <div class="task-title">${escapeHtml(task.text)}</div>\n              </div>\n\n              <div class="task-tools row-icon-actions">\n                <button class="mini-btn icon-action-btn action-btn edit-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="編集" title="編集">\n                  <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                </button>\n                <button class="mini-btn icon-action-btn danger action-btn delete-parent-btn gm-btn" data-id="${task.id}" type="button" aria-label="削除" title="削除">\n                  <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                </button>\n              </div>\n            </div>\n\n            ${visibleSubtasks.length > 0 ? `\n              <div class="subtask-wrap" id="children-${task.id}">\n                <ul class="subtask-list" data-parent-id="${task.id}">\n                  ${visibleSubtasks.map(sub => `\n                    <li class="subtask-item ${sub.done ? "done" : ""}" data-parent-id="${task.id}" data-sub-id="${sub.id}">\n                      <div class="task-leading-controls">\n                        <button\n                          class="mini-btn drag-handle subtask-drag-handle gm-btn"\n                          data-parent-id="${task.id}"\n                          data-sub-id="${sub.id}"\n                          draggable="true"\n                          type="button"\n                          aria-label="子タスクをドラッグで並び替え"\n                          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"\n                        >\n                          <span aria-hidden="true" class="material-symbols-outlined">drag_indicator</span>\n                        </button>\n\n                        ${sub.done ? `\n                          <button\n                            class="focus-btn done action-btn undo-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="完了を取り消す"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">undo</span>\n                            <span>取り消し</span>\n                          </button>\n                        ` : `\n                          <button\n                            class="focus-btn playable action-btn open-focus-subtask-btn gm-btn"\n                            data-parent-id="${task.id}"\n                            data-sub-id="${sub.id}"\n                            type="button"\n                            aria-label="${sub.focus?.focusState === "paused" ? "再開" : "開始"}"\n                          >\n                            <span aria-hidden="true" class="material-symbols-outlined">${getFocusIconForMeta(sub.focus, false)}</span>\n                            <span>${sub.focus?.focusState === "paused" ? "再開" : "開始"}</span>\n                          </button>\n                          `}\n                      </div>\n\n                      <div class="subtask-text-wrap">\n                        ${sub.done || sub.focus?.focusState === "paused" ? `\n                          <div class="achievement-time subtask-achievement">\n                            <span aria-hidden="true" class="material-symbols-outlined">timer</span>\n                            <span>${formatAchievementElapsed(sub.focus?.elapsedMs || 0)}</span>\n                          </div>\n                        ` : ""}\n                        <div class="text">${escapeHtml(sub.text)}</div>\n                      </div>\n\n                      <div class="subtask-actions row-icon-actions">\n                        <button class="mini-btn icon-action-btn action-btn edit-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="編集" title="編集">\n                          <span aria-hidden="true" class="material-symbols-outlined">edit</span>\n                        </button>\n                        <button class="mini-btn icon-action-btn danger action-btn delete-subtask-btn gm-btn" data-parent-id="${task.id}" data-sub-id="${sub.id}" type="button" aria-label="削除" title="削除">\n                          <span aria-hidden="true" class="material-symbols-outlined">delete</span>\n                        </button>\n                      </div>\n                    </li>\n                  `).join("")}\n                </ul>\n              </div>\n            ` : ""}\n          `;
       rows.push(li);
       nextRowCache.set(task.id, {
         key,
@@ -9658,42 +10184,6 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
       preventScroll: true
     });
   }
-  function closeTaskActions(except = null, restoreFocus = false) {
-    for (const menu of qsa(".row-options[open]", taskList)) {
-      if (menu === except) continue;
-      const focusWasInside = menu.contains(document.activeElement);
-      menu.open = false;
-      if (restoreFocus && focusWasInside) qs("summary", menu)?.focus({
-        preventScroll: true
-      });
-    }
-  }
-  taskList.addEventListener("toggle", event => {
-    if (!event.target.matches(".row-options") || !event.target.open) return;
-    closeTaskActions(event.target);
-    closeBulkActions();
-  }, true);
-  taskList.addEventListener("keydown", event => {
-    if (event.key !== "Escape" || event.isComposing || event.keyCode === 229) return;
-    if (!event.target.closest(".row-options[open]")) return;
-    event.preventDefault();
-    event.stopPropagation();
-    closeTaskActions(null, true);
-  });
-  document.addEventListener("pointerdown", event => {
-    closeTaskActions(event.target.closest(".row-options"));
-  }, {
-    capture: true
-  });
-  taskList.addEventListener("focusout", event => {
-    const menu = event.target.closest(".row-options[open]");
-    if (menu && event.relatedTarget && !menu.contains(event.relatedTarget)) menu.open = false;
-  });
-  taskList.addEventListener("click", event => {
-    if (event.target.closest(".row-options-menu button")) closeTaskActions(null, true);
-  }, {
-    capture: true
-  });
   bulkActions.addEventListener("keydown", event => {
     if (event.key !== "Escape" || event.isComposing || event.keyCode === 229) return;
     event.preventDefault();
@@ -10321,6 +10811,29 @@ body.art-app[data-tool=todo] :is(.toast-action-btn):not(:has(svg, .material-symb
     subtree: !0,
     attributes: !0,
     attributeFilter: [ "class", "hidden" ]
+  });
+  const focusPrimaryInput = () => {
+    const target = document.querySelector("[data-art-autofocus]");
+    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
+    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
+    let finished = !1;
+    const finish = () => {
+      finished = !0;
+      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+    };
+    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    const attempt = () => {
+      if (!finished) {
+        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
+          preventScroll: !0
+        }), document.activeElement === target)) return finish();
+        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      }
+    };
+    attempt();
+  };
+  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
+    once: !0
   }), window.addEventListener("storage", event => {
     event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
     applyTheme(preferences.theme), applySize(preferences.editorSize));

@@ -1270,11 +1270,14 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    inline-size: max-content;
+    max-inline-size: calc(100vw - 32px);
   }
   .toast {
     padding: 14px 16px 14px 20px;
-    background: var(--gm-text);
-    color: var(--gm-background);
+    border: 1px solid var(--ui-border);
+    background: var(--ui-surface);
+    color: var(--ui-text);
     border-radius: var(--gm-radius);
     font-size: var(--gm-label-size);
     box-shadow: 0 4px 20px oklch(0 0 0 / 0.2);
@@ -1311,6 +1314,24 @@
     color: currentColor;
     cursor: pointer;
     flex: 0 0 auto;
+  }
+  .toast-action {
+    pointer-events: auto;
+    flex: 0 0 auto;
+    margin-inline-start: 8px;
+    padding: 4px 12px;
+    border: 1px solid var(--ui-secondary-border);
+    border-radius: 999px;
+    background: var(--ui-accent-soft);
+    color: var(--ui-secondary-text);
+    font: 500 12px/20px var(--ui-font);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  @media (pointer: coarse) {
+    .toast-action {
+      min-block-size: 44px;
+    }
   }
   .modal-overlay {
     display: none;
@@ -2181,7 +2202,7 @@
 .search-bar {
   align-items: start;
 }
-</style><link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22csv%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-csv-light-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2355c58a%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%231a965d%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230b633c%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-light-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23103c27%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-light-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffffff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23edf3ed%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-light-header%22%20x1%3D%2242%22%20y1%3D%2220%22%20x2%3D%2268%22%20y2%3D%2244%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232f9d62%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23146a40%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-light-fold%22%20x1%3D%2288%22%20y1%3D%2222%22%20x2%3D%2298%22%20y2%3D%2245%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffffff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23d5e3d8%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-light-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-csv-light-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%23103c27%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-csv-light-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%23103c27%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-csv-light-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-csv-light-base)%22%20filter%3D%22url(%23art-icon-csv-light-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-csv-light-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-csv-light-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-csv-light-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(7%2067%2064)%22%3E%3Crect%20x%3D%2230%22%20y%3D%2218%22%20width%3D%2272%22%20height%3D%2291%22%20rx%3D%228%22%20fill%3D%22%23d9eddf%22%20stroke%3D%22%23d5f2df%22%20stroke-opacity%3D%22.6%22%20stroke-width%3D%221%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22rotate(-5%2063%2064)%22%20filter%3D%22url(%23art-icon-csv-light-paper-shadow)%22%3E%3Cpath%20d%3D%22M28%2021h54l23%2023v56a8%208%200%200%201-8%208H28a8%208%200%200%201-8-8V29a8%208%200%200%201%208-8Z%22%20fill%3D%22url(%23art-icon-csv-light-paper)%22%2F%3E%3Cpath%20d%3D%22M28%2021h54v22H20V29a8%208%200%200%201%208-8Z%22%20fill%3D%22url(%23art-icon-csv-light-header)%22%2F%3E%3Cpath%20d%3D%22M28%2021.7h53%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.45%22%2F%3E%3Cpath%20d%3D%22M82%2022v15a7%207%200%200%200%207%207h15%22%20fill%3D%22none%22%20stroke%3D%22%23244e36%22%20stroke-opacity%3D%22.16%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M82%2021v15a8%208%200%200%200%208%208h15Z%22%20fill%3D%22url(%23art-icon-csv-light-fold)%22%2F%3E%3Crect%20x%3D%2229%22%20y%3D%2253%22%20width%3D%2267%22%20height%3D%2243%22%20rx%3D%222%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23becfc2%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22M31%2053h63a2%202%200%200%201%202%202v10H29V55a2%202%200%200%201%202-2Z%22%20fill%3D%22%23d4e9d9%22%2F%3E%3Cpath%20d%3D%22M29%2065h67M29%2080h67M49%2053v43M72%2053v43%22%20fill%3D%22none%22%20stroke%3D%22%23becfc2%22%20stroke-width%3D%221.1%22%2F%3E%3Crect%20x%3D%2250%22%20y%3D%2266%22%20width%3D%2221%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%238dc8a4%22%20fill-opacity%3D%22.62%22%2F%3E%3Cpath%20d%3D%22M34%2072.5h9m-9%2015h9m12%200h11m12%200h11%22%20fill%3D%22none%22%20stroke%3D%22%2371977f%22%20stroke-opacity%3D%22.75%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M28%20107.4h69a7.4%207.4%200%200%200%207.4-7.4V45%22%20fill%3D%22none%22%20stroke%3D%22%23153e26%22%20stroke-opacity%3D%22.09%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-csv-dark-base%22%20x1%3D%2225%22%20y1%3D%226%22%20x2%3D%22103%22%20y2%3D%22125%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2343b278%22%2F%3E%3Cstop%20offset%3D%220.5%22%20stop-color%3D%22%23188852%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230d5d39%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-dark-rim%22%20x1%3D%2224%22%20y1%3D%225%22%20x2%3D%22103%22%20y2%3D%22123%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.14%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23103c27%22%20stop-opacity%3D%22.35%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-dark-paper%22%20x1%3D%2244%22%20y1%3D%2220%22%20x2%3D%2286%22%20y2%3D%22110%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23e5eee8%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23c9d9cf%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-dark-header%22%20x1%3D%2242%22%20y1%3D%2220%22%20x2%3D%2268%22%20y2%3D%2244%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2346af78%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23247c50%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-dark-fold%22%20x1%3D%2288%22%20y1%3D%2222%22%20x2%3D%2298%22%20y2%3D%2245%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f6f3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b4c9bb%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22art-icon-csv-dark-sheen%22%20x1%3D%2264%22%20y1%3D%227%22%20x2%3D%2264%22%20y2%3D%2280%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3Cfilter%20id%3D%22art-icon-csv-dark-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%224%22%20stdDeviation%3D%223%22%20flood-color%3D%22%23103c27%22%20flood-opacity%3D%22.23%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20id%3D%22art-icon-csv-dark-paper-shadow%22%20x%3D%22-35%25%22%20y%3D%22-25%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeDropShadow%20dx%3D%220%22%20dy%3D%223%22%20stdDeviation%3D%222.5%22%20flood-color%3D%22%23103c27%22%20flood-opacity%3D%22.27%22%2F%3E%3C%2Ffilter%3E%3CclipPath%20id%3D%22art-icon-csv-dark-tile%22%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Crect%20data-icon-surface%3D%22%22%20x%3D%226%22%20y%3D%225%22%20width%3D%22116%22%20height%3D%22116%22%20rx%3D%2227%22%20fill%3D%22url(%23art-icon-csv-dark-base)%22%20filter%3D%22url(%23art-icon-csv-dark-shadow)%22%2F%3E%3Cg%20clip-path%3D%22url(%23art-icon-csv-dark-tile)%22%3E%3Cpath%20d%3D%22M6%205h116v39C87%2056%2042%2055%206%2078Z%22%20fill%3D%22url(%23art-icon-csv-dark-sheen)%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%226.7%22%20y%3D%225.7%22%20width%3D%22114.6%22%20height%3D%22114.6%22%20rx%3D%2226.3%22%20fill%3D%22none%22%20stroke%3D%22url(%23art-icon-csv-dark-rim)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20data-icon-glyph%3D%22%22%3E%3Cg%20transform%3D%22rotate(7%2067%2064)%22%3E%3Crect%20x%3D%2230%22%20y%3D%2218%22%20width%3D%2272%22%20height%3D%2291%22%20rx%3D%228%22%20fill%3D%22%2391ad9c%22%20stroke%3D%22%2391b39f%22%20stroke-opacity%3D%22.6%22%20stroke-width%3D%221%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22rotate(-5%2063%2064)%22%20filter%3D%22url(%23art-icon-csv-dark-paper-shadow)%22%3E%3Cpath%20d%3D%22M28%2021h54l23%2023v56a8%208%200%200%201-8%208H28a8%208%200%200%201-8-8V29a8%208%200%200%201%208-8Z%22%20fill%3D%22url(%23art-icon-csv-dark-paper)%22%2F%3E%3Cpath%20d%3D%22M28%2021h54v22H20V29a8%208%200%200%201%208-8Z%22%20fill%3D%22url(%23art-icon-csv-dark-header)%22%2F%3E%3Cpath%20d%3D%22M28%2021.7h53%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.45%22%2F%3E%3Cpath%20d%3D%22M82%2022v15a7%207%200%200%200%207%207h15%22%20fill%3D%22none%22%20stroke%3D%22%23244e36%22%20stroke-opacity%3D%22.16%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M82%2021v15a8%208%200%200%200%208%208h15Z%22%20fill%3D%22url(%23art-icon-csv-dark-fold)%22%2F%3E%3Crect%20x%3D%2229%22%20y%3D%2253%22%20width%3D%2267%22%20height%3D%2243%22%20rx%3D%222%22%20fill%3D%22%23e5eee8%22%20stroke%3D%22%2388a794%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22M31%2053h63a2%202%200%200%201%202%202v10H29V55a2%202%200%200%201%202-2Z%22%20fill%3D%22%23b8d2c1%22%2F%3E%3Cpath%20d%3D%22M29%2065h67M29%2080h67M49%2053v43M72%2053v43%22%20fill%3D%22none%22%20stroke%3D%22%2388a794%22%20stroke-width%3D%221.1%22%2F%3E%3Crect%20x%3D%2250%22%20y%3D%2266%22%20width%3D%2221%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%2372a987%22%20fill-opacity%3D%22.62%22%2F%3E%3Cpath%20d%3D%22M34%2072.5h9m-9%2015h9m12%200h11m12%200h11%22%20fill%3D%22none%22%20stroke%3D%22%23496f57%22%20stroke-opacity%3D%22.75%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M28%20107.4h69a7.4%207.4%200%200%200%207.4-7.4V45%22%20fill%3D%22none%22%20stroke%3D%22%23153e26%22%20stroke-opacity%3D%22.09%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
+</style><link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22csv%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23ea6c55%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%237fa324%22%2F%3E%3Cpath%20d%3D%22M29%2030h37l12%2012v49a3%203%200%200%201-3%203h-46a3%203%200%200%201-3-3v-58a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M66%2030v10a2%202%200%200%200%202%202h10%22%20fill%3D%22none%22%20stroke%3D%22%237fa324%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2234%22%20y%3D%2252%22%20width%3D%2236%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%237fa324%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M34%2063h36M34%2073h36M46%2052v32M58%2052v32%22%20fill%3D%22none%22%20stroke%3D%22%237fa324%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%2228%22%20r%3D%2226%22%20fill%3D%22%23ea6c55%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2270%22%20r%3D%2250%22%20fill%3D%22%237fa324%22%2F%3E%3Cpath%20d%3D%22M29%2030h37l12%2012v49a3%203%200%200%201-3%203h-46a3%203%200%200%201-3-3v-58a3%203%200%200%201%203-3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M66%2030v10a2%202%200%200%200%202%202h10%22%20fill%3D%22none%22%20stroke%3D%22%237fa324%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2234%22%20y%3D%2252%22%20width%3D%2236%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%237fa324%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M34%2063h36M34%2073h36M46%2052v32M58%2052v32%22%20fill%3D%22none%22%20stroke%3D%22%237fa324%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
 <style id="arttools-product-design">.gm {
   --gm-font:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
   --gm-text-size:.9375rem;
@@ -2214,11 +2235,11 @@
   --gm-surface:#fff;
   --gm-background:#f5f5f7;
   --gm-border:#e0e0e5;
-  --gm-input-border:#c7c7cc;
-  --gm-brand:#006edb;
-  --gm-brand-soft:#edf5ff;
-  --gm-on-brand:#fff;
-  --gm-focus:#0071e3;
+  --gm-input-border:var(--ui-input-border);
+  --gm-brand:var(--ui-accent);
+  --gm-brand-soft:var(--ui-accent-soft);
+  --gm-on-brand:var(--ui-on-accent);
+  --gm-focus:var(--ui-accent);
   --gm-backdrop:#10101655;
 }
 .gm[data-mode=dark] {
@@ -2227,11 +2248,11 @@
   --gm-surface:#252527;
   --gm-background:#171719;
   --gm-border:#3b3b40;
-  --gm-input-border:#67676e;
-  --gm-brand:#66adff;
-  --gm-brand-soft:#253347;
-  --gm-on-brand:#111114;
-  --gm-focus:#66adff;
+  --gm-input-border:var(--ui-input-border);
+  --gm-brand:var(--ui-accent);
+  --gm-brand-soft:var(--ui-accent-soft);
+  --gm-on-brand:var(--ui-on-accent);
+  --gm-focus:var(--ui-accent);
   --gm-backdrop:#0009;
 }
 .gm :is(button, input, select, textarea):not(.material-symbols-outlined) {
@@ -2692,89 +2713,119 @@
 </style>
 <style id="arttools-common-ui">:root {
   --ui-font:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
+    "Noto Sans JP",
+    "Hiragino Sans",
     "Hiragino Kaku Gothic ProN",
-    "Yu Gothic",
+    Meiryo,
     sans-serif;
   --ui-mono:
     ui-monospace,
     SFMono-Regular,
     Menlo,
-    Monaco,
     Consolas,
-    "Liberation Mono",
     monospace;
   --ui-editor-size: 14px;
-  --ui-title-size: 16px;
-  --ui-body-size: 13px;
-  --ui-action-size: 12px;
-  --ui-meta-size: 11px;
-  --ui-dialog-title-size: 18px;
-  --ui-gutter: 20px;
-  --ui-gap: 12px;
-  --ui-panel-padding: 10px;
-  --ui-action-min-height: 42px;
+  --ui-title-size: 18px;
+  --ui-body-size: 14px;
+  --ui-action-size: 14px;
+  --ui-meta-size: 12px;
+  --ui-dialog-title-size: 20px;
+  --ui-gutter: 24px;
+  --ui-gap: 16px;
+  --ui-panel-padding: 12px;
+  --ui-panel-radius: 8px;
+  --ui-control-radius: 4px;
+  --ui-inner-radius: 6px;
+  --ui-dialog-radius: 12px;
+  --ui-action-min-height: 40px;
   --ui-action-padding-block: 9px;
-  --ui-action-padding-inline: 18px;
+  --ui-action-padding-inline: 16px;
   --ui-action-icon-gap: 8px;
-  --ui-action-group-gap: 10px;
-  --ui-workspace-bottom: 12px;
-  --ui-control-height: 38px;
-  --ui-select-arrow-size: 20px;
-  --ui-select-arrow-inset: 8px;
+  --ui-action-group-gap: 8px;
+  --ui-workspace-bottom: 16px;
+  --ui-control-height: 40px;
+  --ui-select-height: 28px;
+  --ui-select-arrow-size: 16px;
+  --ui-select-arrow-inset: 10px;
   --ui-select-text-gap: 8px;
   --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
-  --ui-dialog-padding: 20px;
-  --ui-header-height: 52px;
-  --ui-app-icon-size: 24px;
-  --ui-main-top: 6px;
-  --ui-toolbar-gap: 6px;
+  --ui-dialog-padding: 24px;
+  --ui-header-height: 64px;
+  --ui-app-icon-size: 28px;
+  --ui-main-top: 16px;
+  --ui-toolbar-gap: 12px;
 }
 html[data-ui-theme=light],
 html:not([data-ui-theme]) {
-  --ui-bg: #f5f5f7;
-  --ui-surface: #fff;
-  --ui-inset: #f8f8fa;
-  --ui-text: #1d1d1f;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%231d1d1f%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%236e6e73%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #6e6e73;
-  --ui-border: #e0e0e5;
-  --ui-input-border: #c7c7cc;
-  --ui-accent: #006edb;
-  --ui-accent-soft: #edf5ff;
-  --ui-secondary-text: #0063b9;
-  --ui-on-accent: #fff;
-  --ui-success: #187447;
-  --ui-success-bg: #edf8f1;
-  --ui-warning: #855700;
-  --ui-warning-bg: #fff6df;
-  --ui-error: #b4232f;
-  --ui-error-bg: #fff0f1;
+  --ui-bg: #fefffa;
+  --ui-surface: #ffffff;
+  --ui-inset: #f9fafb;
+  --ui-muted-bg: #f3f4f6;
+  --ui-text: #1e2939;
+  --ui-text-secondary: #4a5565;
+  --ui-icon: #6a7282;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #676f7f;
+  --ui-border: #e5e7eb;
+  --ui-control-border: #d1d5dc;
+  --ui-input-border: #6a7282;
+  --ui-accent: #b4432f;
+  --ui-accent-soft: #fdf1ee;
+  --ui-secondary-text: #b4432f;
+  --ui-secondary-border: #f29e8c;
+  --ui-on-accent: #ffffff;
+  --ui-focus-ring: #ea6c5566;
+  --ui-focus-border: #ee846f;
+  --ui-success: #016630;
+  --ui-success-bg: #f0fdf4;
+  --ui-success-border: #b9f8cf;
+  --ui-warning: #a65f00;
+  --ui-warning-bg: #fefce8;
+  --ui-error: #c10007;
+  --ui-error-bg: #fef2f2;
+  --ui-error-border: #ffc9c9;
+  --ui-info: #1447e6;
+  --ui-info-bg: #eff6ff;
+  --ui-info-border: #bedbff;
+  --ui-shadow-sm: 0 1px 2px 0 #1018281a;
+  --ui-shadow-lg: 0 16px 40px -8px #10182829;
   color-scheme: light;
 }
 html[data-ui-theme=dark] {
-  --ui-bg: #202022;
-  --ui-surface: #2b2b2e;
-  --ui-inset: #252528;
-  --ui-text: #e8e8ed;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23e1e1e6%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%20-960%20960%20960%22%20fill%3D%22%23b2b2b9%22%3E%3Cpath%20d%3D%22M480-333%20240-573l51-51%20189%20189%20189-189%2051%2051-240%20240Z%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #b2b2b9;
-  --ui-border: #48484e;
-  --ui-input-border: #7a7a83;
-  --ui-accent: #6cabf6;
-  --ui-accent-soft: #243a54;
-  --ui-secondary-text: #8cc0ff;
-  --ui-on-accent: #0f1722;
-  --ui-success: #6fd391;
-  --ui-success-bg: #1f3b2b;
-  --ui-warning: #f0c35a;
-  --ui-warning-bg: #3e3420;
-  --ui-error: #ff8a93;
-  --ui-error-bg: #4a2a2f;
+  --ui-bg: #121317;
+  --ui-surface: #1a1b20;
+  --ui-inset: #212329;
+  --ui-muted-bg: #282a31;
+  --ui-text: #f3f4f6;
+  --ui-text-secondary: #d1d5dc;
+  --ui-icon: #99a1af;
+  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --ui-muted: #99a1af;
+  --ui-border: #353840;
+  --ui-control-border: #464a53;
+  --ui-input-border: #6a7282;
+  --ui-accent: #ee846f;
+  --ui-accent-soft: #33221f;
+  --ui-secondary-text: #f29e8c;
+  --ui-secondary-border: #8a4538;
+  --ui-on-accent: #1e2939;
+  --ui-focus-ring: #ea6c5580;
+  --ui-focus-border: #ee846f;
+  --ui-success: #7bf1a8;
+  --ui-success-bg: #142a1f;
+  --ui-success-border: #1f5a37;
+  --ui-warning: #ffd54d;
+  --ui-warning-bg: #2c2615;
+  --ui-error: #ffa2a2;
+  --ui-error-bg: #301b1f;
+  --ui-error-border: #6a2a2f;
+  --ui-info: #8ec5ff;
+  --ui-info-bg: #18243a;
+  --ui-info-border: #26467a;
+  --ui-shadow-sm: 0 1px 2px 0 #00000066;
+  --ui-shadow-lg: 0 20px 48px -8px #000000a6;
   color-scheme: dark;
 }
 :root .art-app {
@@ -2803,7 +2854,7 @@ html[data-ui-theme=dark] {
   --gm-title-line-height: 1.3;
   --gm-section-title-size: var(--ui-body-size);
   --gm-section-title-line-height: 1.5;
-  --gm-radius: 12px;
+  --gm-radius: var(--ui-panel-radius);
   --gm-space-1: 4px;
   --gm-space-2: 8px;
   --gm-space-3: 12px;
@@ -2843,26 +2894,25 @@ html[data-ui-theme=dark] {
   display: none !important;
 }
 .art-app :focus-visible {
-  outline: 2px solid var(--ui-accent);
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
 }
 .art-app :is(button, .gm-btn, .button) {
   cursor: pointer;
   min-height: var(--ui-control-height);
-  padding: 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-button-bg, var(--ui-accent-soft));
-  color: var(--ui-button-text, var(--ui-secondary-text));
+  padding: 9px 16px;
+  border: 1px solid var(--ui-button-border, var(--ui-control-border));
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-button-bg, var(--ui-surface));
+  color: var(--ui-button-text, var(--ui-text-secondary));
   font-size: var(--ui-action-size);
   font-weight: 500;
   line-height: 20px;
   transition: none;
 }
 .art-app[data-tool] :is(button, .gm-btn, .button):focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
-  box-shadow: none;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app :is(.gm-btn-primary) {
   --ui-button-bg: var(--ui-accent);
@@ -2874,20 +2924,23 @@ html[data-ui-theme=dark] {
 .art-app :is(.copied) {
   --ui-button-bg: var(--ui-success-bg);
   --ui-button-text: var(--ui-success);
+  --ui-button-border: var(--ui-success-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app :is(.gm-btn-danger, .danger, [aria-label=\5217\3092\524a\9664]) {
   --ui-button-bg: var(--ui-error-bg);
   --ui-button-text: var(--ui-error);
+  --ui-button-border: var(--ui-error-border);
   background: var(--ui-button-bg);
   color: var(--ui-button-text);
-  border-color: transparent;
+  border-color: var(--ui-button-border);
 }
 .art-app[data-tool] :is(button, .gm-btn, .button):is(:disabled, [aria-disabled=true]) {
   background: var(--ui-inset);
   color: var(--ui-muted);
+  border-color: var(--ui-border);
   opacity: 1;
   cursor: not-allowed;
 }
@@ -2906,16 +2959,27 @@ html[data-ui-theme=dark] {
   border-color: transparent;
   box-shadow: none;
 }
-.art-app :is(input:not([type=checkbox]), select, .gm-textarea) {
+.art-app :is(input:not([type=checkbox]), select) {
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+}
+.art-app .gm-textarea {
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-editor-bg);
 }
-.art-app :is(input, select, textarea, [contenteditable=true]):focus {
-  outline: 2px solid var(--ui-accent);
+.art-app :is(textarea, [contenteditable=true]):focus {
+  outline: 2px solid var(--ui-focus-border);
   outline-offset: -2px;
-  border-color: var(--ui-accent);
+  border-color: var(--ui-focus-border);
   box-shadow: none;
+}
+.art-app :is(input:not([type=checkbox], [type=radio]), select):focus {
+  outline: none;
+  border-color: var(--ui-focus-border);
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
 }
 .art-app input[type=checkbox] {
   accent-color: var(--ui-accent);
@@ -2932,7 +2996,7 @@ html[data-ui-theme=dark] {
   gap: var(--ui-gap);
 }
 .art-app :is(.toast) {
-  border-radius: 12px;
+  border-radius: var(--ui-panel-radius);
 }
 .art-app .art-header {
   display: flex;
@@ -2942,14 +3006,14 @@ html[data-ui-theme=dark] {
   gap: 12px;
   min-width: 0;
   min-height: var(--ui-header-height);
-  padding: 3px var(--ui-gutter);
+  padding: 8px var(--ui-gutter);
   background: var(--ui-surface);
   border-bottom: 1px solid var(--ui-border);
 }
 .art-app .art-identity {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
 }
 .art-app .art-identity > div {
@@ -2971,9 +3035,9 @@ html[data-ui-theme=dark] {
   margin: 0;
   display: block;
   font-size: var(--ui-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
-  letter-spacing: -.035em;
+  letter-spacing: .02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2982,27 +3046,28 @@ html[data-ui-theme=dark] {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 .art-app .art-header-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 7px;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 8px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-icon);
   white-space: nowrap;
   letter-spacing: normal;
 }
 .art-app .art-header-button svg {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog {
   position: fixed;
@@ -3014,17 +3079,20 @@ html[data-ui-theme=dark] {
   padding: 0;
   overflow: auto;
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font-family: var(--ui-font);
   letter-spacing: normal;
 }
 .art-dialog::backdrop {
-  background: #10101655;
+  background: #1e293966;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+html[data-ui-theme=dark] .art-dialog::backdrop {
+  background: #000000a6;
 }
 .art-app .art-dialog[open] {
   animation: none;
@@ -3039,9 +3107,9 @@ html[data-ui-theme=dark] {
 .art-app .art-dialog-title {
   margin: 0;
   font-size: var(--ui-dialog-title-size);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
-  letter-spacing: -.025em;
+  letter-spacing: .04em;
 }
 .art-app .art-close {
   display: grid;
@@ -3050,11 +3118,14 @@ html[data-ui-theme=dark] {
   width: 32px;
   min-height: 32px;
   padding: 6px;
-  background: var(--ui-border);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app .art-close svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 .art-app .art-dialog-body {
   padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
@@ -3063,7 +3134,7 @@ html[data-ui-theme=dark] {
   overflow: hidden;
   margin: 0 0 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
+  border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
 }
 .art-app .art-settings-row {
@@ -3085,13 +3156,15 @@ html[data-ui-theme=dark] {
   margin: 0;
   font-size: var(--ui-body-size);
   font-weight: 500;
+  color: var(--ui-text-secondary);
 }
 .art-app .art-segments {
   display: flex;
-  gap: 8px;
-  padding: 6px;
-  border-radius: 11px;
-  background: var(--ui-bg);
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-inner-radius);
+  background: var(--ui-muted-bg);
 }
 .art-app .art-segments button {
   display: inline-flex;
@@ -3100,19 +3173,21 @@ html[data-ui-theme=dark] {
   gap: 8px;
   flex: 1;
   min-width: 0;
-  min-height: max(40px, var(--ui-control-height));
-  padding: 8px 12px;
+  min-height: 34px;
+  padding: 7px 12px;
   white-space: nowrap;
-  border-radius: 8px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-text-secondary);
   font-size: var(--ui-action-size);
   line-height: 20px;
 }
 .art-app .art-segments button[aria-pressed=true] {
-  background: var(--ui-accent);
-  color: var(--ui-on-accent);
-  box-shadow: none;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-weight: 700;
+  box-shadow: var(--ui-shadow-sm);
 }
 .art-app .art-segments svg {
   width: 16px;
@@ -3122,7 +3197,7 @@ html[data-ui-theme=dark] {
   margin: 0;
   padding: 12px;
   border: 1px solid var(--ui-border);
-  border-radius: 10px;
+  border-radius: var(--ui-inner-radius);
   background: var(--ui-editor-bg);
   font: var(--ui-editor-size)/1.7 var(--ui-mono);
   overflow: auto;
@@ -3163,15 +3238,16 @@ html[data-ui-theme=dark] {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: var(--ui-accent);
+  color: var(--ui-secondary-text);
   background: var(--ui-accent-soft);
   font-size: var(--ui-meta-size);
-  font-weight: 600;
+  font-weight: 700;
 }
 .art-app .art-steps strong {
   display: block;
   font-size: var(--ui-body-size);
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--ui-text);
 }
 .art-app .art-steps p {
   margin: 4px 0 0;
@@ -3206,6 +3282,7 @@ html[data-ui-theme=dark] {
   :root {
     --ui-gutter: 16px;
     --ui-control-height: 40px;
+    --ui-select-height: 32px;
     --ui-dialog-padding: 16px;
   }
   .art-app :is(input:not([type=checkbox]), select) {
@@ -3215,13 +3292,14 @@ html[data-ui-theme=dark] {
 @media (any-pointer: coarse) {
   :root {
     --ui-control-height: 44px;
+    --ui-select-height: 44px;
   }
   .art-app .art-header-button {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
-    padding: 13px;
+    padding: 12px;
   }
   .art-app .art-segments button {
     min-height: 44px;
@@ -3340,10 +3418,10 @@ html[data-ui-theme=dark] {
   max-height: calc(100dvh - 48px);
   max-block-size: calc(100dvh - 48px);
   border: 1px solid var(--ui-border);
-  border-radius: 24px;
-  background: var(--ui-bg);
+  border-radius: var(--ui-dialog-radius);
+  background: var(--ui-surface);
   color: var(--ui-text);
-  box-shadow: 0 24px 80px #0003;
+  box-shadow: var(--ui-shadow-lg);
   font: 400 var(--ui-body-size)/1.55 var(--ui-font);
   letter-spacing: normal;
 }
@@ -3389,8 +3467,8 @@ html[data-ui-theme=dark] {
 .art-app .modal[role=dialog] > h3,
 .art-app .modal[role=dialog] .import-wizard-header > h3 {
   margin: 0;
-  font: 600 var(--ui-dialog-title-size)/1.4 var(--ui-font);
-  letter-spacing: -.025em;
+  font: 700 var(--ui-dialog-title-size)/1.4 var(--ui-font);
+  letter-spacing: .04em;
 }
 .art-app .modal[role=dialog] > h3 {
   margin-bottom: 16px;
@@ -3428,15 +3506,15 @@ html[data-ui-theme=dark] {
   height: 32px;
   min-height: 32px;
   padding: 6px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  border: 0;
+  border-radius: var(--ui-control-radius);
+  background: transparent;
+  color: var(--ui-icon);
 }
 .art-app :is(.art-dialog-head > button, .import-wizard-header > button) :is(svg, .material-symbols-outlined, [data-icon]) {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
   line-height: 1;
 }
 .art-app :is(.modal-actions) > button {
@@ -3452,11 +3530,11 @@ html[data-ui-theme=dark] {
   block-size: auto;
   min-height: var(--ui-control-height);
   min-block-size: var(--ui-control-height);
-  padding: 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ui-button-bg, var(--ui-accent-soft));
-  color: var(--ui-button-text, var(--ui-secondary-text));
+  padding: 9px 16px;
+  border: 1px solid var(--ui-button-border, var(--ui-control-border));
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-button-bg, var(--ui-surface));
+  color: var(--ui-button-text, var(--ui-text-secondary));
   font: 500 var(--ui-action-size)/20px var(--ui-font);
   letter-spacing: normal;
 }
@@ -3465,6 +3543,7 @@ html[data-ui-theme=dark] {
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: normal;
+  color: var(--ui-text-secondary);
 }
 .art-app :is(.modal[role=dialog]) :is(.settings-hint) {
   font-size: var(--ui-meta-size);
@@ -3490,8 +3569,8 @@ html[data-ui-theme=dark] {
   margin-top: 20px;
   padding: 18px;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
-  background: var(--ui-surface);
+  border-radius: var(--ui-panel-radius);
+  background: var(--ui-inset);
 }
 .art-app :is(.art-help-details) summary {
   color: var(--ui-text);
@@ -3531,14 +3610,14 @@ html[data-ui-theme=dark] {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
-  height: var(--ui-control-height);
-  min-height: var(--ui-control-height);
+  height: var(--ui-select-height);
+  min-height: var(--ui-select-height);
   min-width: 0;
   max-width: 100%;
-  padding: 8px var(--ui-select-text-inset) 8px 12px;
+  padding: 0 var(--ui-select-text-inset) 0 12px;
   border: 1px solid var(--ui-input-border);
-  border-radius: 10px;
-  background-color: var(--ui-inset);
+  border-radius: var(--ui-control-radius);
+  background-color: var(--ui-surface);
   background-image: var(--ui-select-arrow);
   background-repeat: no-repeat;
   background-position: right var(--ui-select-arrow-inset) center;
@@ -3568,6 +3647,43 @@ html[data-ui-theme=dark] {
     border-color: ButtonText;
     color: ButtonText;
   }
+}
+@media (any-pointer: coarse) {
+  .art-app :is([data-tool=csv] #searchInput) {
+    min-height: 44px;
+  }
+}
+.art-app[data-tool=csv] #toastContainer,
+.art-app[data-tool=csv] #toastContainer:popover-open {
+  inset-block-end: 64px;
+  align-items: center;
+}
+.art-app[data-tool] .toast-close {
+  background: transparent;
+  border-color: transparent;
+  color: inherit;
+}
+.art-app[data-tool=csv] .th-filter-btn {
+  border-color: transparent;
+}
+.art-app[data-tool] :is(.toast, #toast) {
+  background: var(--ui-info-bg);
+  color: var(--ui-info);
+  border: 1px solid var(--ui-info-border);
+  box-shadow: var(--ui-shadow-lg);
+}
+.art-app[data-tool] :is(.toast, #toast).success {
+  background: var(--ui-success-bg);
+  color: var(--ui-success);
+  border-color: var(--ui-success-border);
+}
+.art-app[data-tool] :is(.toast, #toast).error {
+  background: var(--ui-error-bg);
+  color: var(--ui-error);
+  border-color: var(--ui-error-border);
+}
+.art-app[data-tool] :is(.toast, #toast) button:not(.toast-close) {
+  background: var(--ui-surface);
 }
 body.art-app[data-tool=csv] :is(button.gm-btn:not(.gm-icon-btn, #undoBtn, #redoBtn, #importWizardCloseBtn)) {
   min-height: max(var(--ui-action-min-height), var(--ui-control-height));
@@ -3791,7 +3907,7 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
 .art-app .art-tool-settings > :is(.settings-grid) {
   overflow: hidden;
   border: 1px solid var(--ui-border);
-  border-radius: 14px;
+  border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
 }
 .art-app .art-tool-settings :is(.settings-group):first-child {
@@ -3843,11 +3959,12 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: var(--ui-control-height);
-  padding: 8px 15px;
-  border-radius: 999px;
-  background: var(--ui-accent-soft);
-  color: var(--ui-secondary-text);
+  min-height: max(var(--ui-action-min-height), var(--ui-control-height));
+  padding: var(--ui-action-padding-block) var(--ui-action-padding-inline);
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text-secondary);
   font: 500 var(--ui-action-size)/20px var(--ui-font);
   list-style: none;
   cursor: pointer;
@@ -3896,6 +4013,16 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
 .art-app[data-tool=csv] #replaceControls {
   flex: 0 0 auto;
 }
+.art-app[data-tool=csv] #replaceControls > .secondary-controls-content > #replaceInput {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 0;
+}
+@media (max-width: 650px) {
+  .art-app[data-tool=csv] #replaceControls > .secondary-controls-content > #replaceInput {
+    flex-basis: 100%;
+  }
+}
 .art-app[data-tool=csv] .search-advanced {
   flex: 1 1 100%;
   gap: 12px;
@@ -3910,7 +4037,7 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
 }
 .art-app[data-tool=csv] :is(.paste-zone, .table-container) {
   background: var(--ui-inset);
-  border-radius: 18px;
+  border-radius: var(--ui-panel-radius);
   box-shadow: none;
 }
 .art-app[data-tool=csv] .table-container {
@@ -4075,7 +4202,7 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
     overflow: auto;
     padding: 20px;
     border: 1px solid var(--ui-border);
-    border-radius: 14px;
+    border-radius: var(--ui-panel-radius);
     background: var(--ui-surface);
     box-shadow: 0 12px 32px #0002;
   }
@@ -4099,7 +4226,7 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
     margin-top: 12px;
     padding: 16px;
     border: 1px solid var(--ui-border);
-    border-radius: 14px;
+    border-radius: var(--ui-panel-radius);
     background: var(--ui-surface);
     gap: 8px;
   }
@@ -4126,7 +4253,7 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
     white-space: normal;
   }
   .art-app[data-tool=csv] :is(.paste-zone, .table-container) {
-    border-radius: 16px;
+    border-radius: var(--ui-panel-radius);
   }
   .art-app[data-tool=csv] .filter-status {
     align-items: flex-start;
@@ -4277,6 +4404,29 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
     padding-inline-end: 48px;
   }
 }
+.art-app[data-tool] :is(.gm-icon-btn):not(.art-header-button, .toast-close, .search-clear, #searchClearBtn) {
+  border-radius: var(--ui-control-radius);
+}
+.art-app[data-tool] :is(.gm-input, .gm-select, .gm-textarea) {
+  border-radius: var(--ui-control-radius);
+  box-shadow: none;
+}
+.art-app[data-tool] :is(.modal) {
+  border-radius: var(--ui-dialog-radius);
+  box-shadow: var(--ui-shadow-lg);
+}
+.art-app[data-tool] :is(.toast) {
+  border-radius: var(--ui-panel-radius);
+}
+.art-app[data-tool=csv] .filename-badge {
+  border-radius: var(--ui-control-radius);
+}
+.art-app[data-tool=csv] :is(.toolbar-more[open], .export-preview-section) {
+  border-radius: var(--ui-panel-radius);
+}
+.art-app[data-tool=csv] :is(.th-filter-btn, .th-menu-btn) {
+  border-radius: var(--ui-control-radius);
+}
 </style>
 </head>
 
@@ -4284,7 +4434,7 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
 
     <header class="art-header">
       <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="csv" data-icon-theme="light" aria-hidden="true"><defs><linearGradient id="art-icon-csv-light-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#55c58a"/><stop offset="0.5" stop-color="#1a965d"/><stop offset="1" stop-color="#0b633c"/></linearGradient><linearGradient id="art-icon-csv-light-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#103c27" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-csv-light-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#edf3ed"/></linearGradient><linearGradient id="art-icon-csv-light-header" x1="42" y1="20" x2="68" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2f9d62"/><stop offset="1" stop-color="#146a40"/></linearGradient><linearGradient id="art-icon-csv-light-fold" x1="88" y1="22" x2="98" y2="45" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d5e3d8"/></linearGradient><linearGradient id="art-icon-csv-light-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-csv-light-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#103c27" flood-opacity=".23"/></filter><filter id="art-icon-csv-light-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#103c27" flood-opacity=".27"/></filter><clipPath id="art-icon-csv-light-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="light" display="inline"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-csv-light-base)" filter="url(#art-icon-csv-light-shadow)"/><g clip-path="url(#art-icon-csv-light-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-csv-light-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-csv-light-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(7 67 64)"><rect x="30" y="18" width="72" height="91" rx="8" fill="#d9eddf" stroke="#d5f2df" stroke-opacity=".6" stroke-width="1"/></g><g transform="rotate(-5 63 64)" filter="url(#art-icon-csv-light-paper-shadow)"><path d="M28 21h54l23 23v56a8 8 0 0 1-8 8H28a8 8 0 0 1-8-8V29a8 8 0 0 1 8-8Z" fill="url(#art-icon-csv-light-paper)"/><path d="M28 21h54v22H20V29a8 8 0 0 1 8-8Z" fill="url(#art-icon-csv-light-header)"/><path d="M28 21.7h53" fill="none" stroke="#fff" stroke-opacity=".45"/><path d="M82 22v15a7 7 0 0 0 7 7h15" fill="none" stroke="#244e36" stroke-opacity=".16" stroke-width="2"/><path d="M82 21v15a8 8 0 0 0 8 8h15Z" fill="url(#art-icon-csv-light-fold)"/><rect x="29" y="53" width="67" height="43" rx="2" fill="#ffffff" stroke="#becfc2" stroke-width="1.2"/><path d="M31 53h63a2 2 0 0 1 2 2v10H29V55a2 2 0 0 1 2-2Z" fill="#d4e9d9"/><path d="M29 65h67M29 80h67M49 53v43M72 53v43" fill="none" stroke="#becfc2" stroke-width="1.1"/><rect x="50" y="66" width="21" height="13" rx="1" fill="#8dc8a4" fill-opacity=".62"/><path d="M34 72.5h9m-9 15h9m12 0h11m12 0h11" fill="none" stroke="#71977f" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"/><path d="M28 107.4h69a7.4 7.4 0 0 0 7.4-7.4V45" fill="none" stroke="#153e26" stroke-opacity=".09"/></g></g></g><defs><linearGradient id="art-icon-csv-dark-base" x1="25" y1="6" x2="103" y2="125" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#43b278"/><stop offset="0.5" stop-color="#188852"/><stop offset="1" stop-color="#0d5d39"/></linearGradient><linearGradient id="art-icon-csv-dark-rim" x1="24" y1="5" x2="103" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#103c27" stop-opacity=".35"/></linearGradient><linearGradient id="art-icon-csv-dark-paper" x1="44" y1="20" x2="86" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e5eee8"/><stop offset="1" stop-color="#c9d9cf"/></linearGradient><linearGradient id="art-icon-csv-dark-header" x1="42" y1="20" x2="68" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#46af78"/><stop offset="1" stop-color="#247c50"/></linearGradient><linearGradient id="art-icon-csv-dark-fold" x1="88" y1="22" x2="98" y2="45" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f2f6f3"/><stop offset="1" stop-color="#b4c9bb"/></linearGradient><linearGradient id="art-icon-csv-dark-sheen" x1="64" y1="7" x2="64" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><filter id="art-icon-csv-dark-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#103c27" flood-opacity=".23"/></filter><filter id="art-icon-csv-dark-paper-shadow" x="-35%" y="-25%" width="170%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#103c27" flood-opacity=".27"/></filter><clipPath id="art-icon-csv-dark-tile"><rect x="6" y="5" width="116" height="116" rx="27"/></clipPath></defs><g data-icon-appearance="dark" display="none"><rect data-icon-surface="" x="6" y="5" width="116" height="116" rx="27" fill="url(#art-icon-csv-dark-base)" filter="url(#art-icon-csv-dark-shadow)"/><g clip-path="url(#art-icon-csv-dark-tile)"><path d="M6 5h116v39C87 56 42 55 6 78Z" fill="url(#art-icon-csv-dark-sheen)"/></g><rect x="6.7" y="5.7" width="114.6" height="114.6" rx="26.3" fill="none" stroke="url(#art-icon-csv-dark-rim)" stroke-width="1.4"/><g data-icon-glyph=""><g transform="rotate(7 67 64)"><rect x="30" y="18" width="72" height="91" rx="8" fill="#91ad9c" stroke="#91b39f" stroke-opacity=".6" stroke-width="1"/></g><g transform="rotate(-5 63 64)" filter="url(#art-icon-csv-dark-paper-shadow)"><path d="M28 21h54l23 23v56a8 8 0 0 1-8 8H28a8 8 0 0 1-8-8V29a8 8 0 0 1 8-8Z" fill="url(#art-icon-csv-dark-paper)"/><path d="M28 21h54v22H20V29a8 8 0 0 1 8-8Z" fill="url(#art-icon-csv-dark-header)"/><path d="M28 21.7h53" fill="none" stroke="#fff" stroke-opacity=".45"/><path d="M82 22v15a7 7 0 0 0 7 7h15" fill="none" stroke="#244e36" stroke-opacity=".16" stroke-width="2"/><path d="M82 21v15a8 8 0 0 0 8 8h15Z" fill="url(#art-icon-csv-dark-fold)"/><rect x="29" y="53" width="67" height="43" rx="2" fill="#e5eee8" stroke="#88a794" stroke-width="1.2"/><path d="M31 53h63a2 2 0 0 1 2 2v10H29V55a2 2 0 0 1 2-2Z" fill="#b8d2c1"/><path d="M29 65h67M29 80h67M49 53v43M72 53v43" fill="none" stroke="#88a794" stroke-width="1.1"/><rect x="50" y="66" width="21" height="13" rx="1" fill="#72a987" fill-opacity=".62"/><path d="M34 72.5h9m-9 15h9m12 0h11m12 0h11" fill="none" stroke="#496f57" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"/><path d="M28 107.4h69a7.4 7.4 0 0 0 7.4-7.4V45" fill="none" stroke="#153e26" stroke-opacity=".09"/></g></g></g></svg></span>
+        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="csv" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><circle cx="88" cy="28" r="26" fill="#ea6c55"/><circle cx="58" cy="70" r="50" fill="#7fa324"/><path d="M29 30h37l12 12v49a3 3 0 0 1-3 3h-46a3 3 0 0 1-3-3v-58a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M66 30v10a2 2 0 0 0 2 2h10" fill="none" stroke="#7fa324" stroke-width="3" stroke-linejoin="round"/><rect x="34" y="52" width="36" height="32" rx="2" fill="none" stroke="#7fa324" stroke-width="4"/><path d="M34 63h36M34 73h36M46 52v32M58 52v32" fill="none" stroke="#7fa324" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><circle cx="88" cy="28" r="26" fill="#ea6c55"/><circle cx="58" cy="70" r="50" fill="#7fa324"/><path d="M29 30h37l12 12v49a3 3 0 0 1-3 3h-46a3 3 0 0 1-3-3v-58a3 3 0 0 1 3-3Z" fill="#fff"/><path d="M66 30v10a2 2 0 0 0 2 2h10" fill="none" stroke="#7fa324" stroke-width="3" stroke-linejoin="round"/><rect x="34" y="52" width="36" height="32" rx="2" fill="none" stroke="#7fa324" stroke-width="4"/><path d="M34 63h36M34 73h36M46 52v32M58 52v32" fill="none" stroke="#7fa324" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
         <div><h1 class="art-title" title="LocalCSV">LocalCSV</h1></div>
       </div>
       <div class="art-header-actions">
@@ -4472,7 +4622,7 @@ body.art-app[data-tool=csv] :is(#pasteImportConfirmBtn):not(:has(svg, .material-
               <option value="utf-16be">UTF-16 BE</option>
             </select></span>
           </label>
-          <span class="save-status" id="saveStatus" data-state="idle" title="復元用保存の状態" role="status" aria-live="polite" aria-atomic="true">復元用保存: —</span>
+          <span class="save-status" id="saveStatus" data-state="idle" title="ブラウザ内保存の状態" role="status" aria-live="polite" aria-atomic="true">復元用保存: —</span>
         </div>
 
 
@@ -20071,6 +20221,9 @@ const JA_EN_REGEX_RULES = [ {
   re: /行を追加しました/g,
   to: "Added row"
 }, {
+  re: /空の表を作成しました/g,
+  to: "Created an empty table"
+}, {
   re: /列を削除しました/g,
   to: "Deleted column"
 }, {
@@ -20779,8 +20932,6 @@ const $modalConfirmBtn = qs("#modalConfirmBtn");
 
 const $modalCancelBtn = qs("#modalCancelBtn");
 
-const TOAST_ALLOWED_ICON_NAMES = new Set([ "undo", "redo", "content_copy", "delete", "content_paste", "filter_alt", "filter_alt_off", "sort", "folder_open", "save", "download", "error" ]);
-
 const MODAL_FOCUSABLE_SELECTOR = [ "button:not([disabled])", "[href]", 'input:not([disabled]):not([type="hidden"])', "select:not([disabled])", "textarea:not([disabled])", '[tabindex]:not([tabindex="-1"])' ].join(",");
 
 const _overlayFocusTargets = new WeakMap;
@@ -20982,15 +21133,7 @@ const appendToastMessageSafely = ($toast, message) => {
   const $template = document.createElement("template");
   $template.innerHTML = translateText(message);
   for (const $node of $template.content.childNodes) {
-    if ($node.nodeType === Node.ELEMENT_NODE && $node.matches("span.material-symbols-outlined") && TOAST_ALLOWED_ICON_NAMES.has($node.textContent.trim())) {
-      const $icon = document.createElement("span");
-      $icon.className = "material-symbols-outlined";
-      $icon.setAttribute("aria-hidden", "true");
-      $icon.textContent = $node.textContent.trim();
-      $toast.append($icon);
-    } else {
-      $toast.append(document.createTextNode($node.textContent ?? ""));
-    }
+    $toast.append(document.createTextNode($node.textContent ?? ""));
   }
 };
 
@@ -21001,7 +21144,7 @@ $toastContainer.addEventListener("click", _event => {
   if ($close) _toastClosers.get($close.closest(".toast"))?.();
 });
 
-const showToast = (message, type = "") => {
+const showToast = (message, type = "", action = null) => {
   const $toast = document.createElement("div");
   $toast.className = `toast ${type}`;
   const isAlert = type === "error";
@@ -21016,7 +21159,19 @@ const showToast = (message, type = "") => {
   $close.className = "toast-close";
   $close.setAttribute("aria-label", isEnglish() ? "Close notification" : "通知を閉じる");
   $close.textContent = "×";
-  $toast.append($message, $close);
+  $toast.append($message);
+  if (action) {
+    const $action = document.createElement("button");
+    $action.type = "button";
+    $action.className = "toast-action";
+    $action.textContent = action.label;
+    $action.addEventListener("click", () => {
+      action.run();
+      _toastClosers.get($toast)?.();
+    });
+    $toast.append($action);
+  }
+  $toast.append($close);
   $toastContainer.appendChild($toast);
   let closed = false;
   let hideTimer = null;
@@ -21125,11 +21280,11 @@ const Editor = (() => {
   const $virtualHeaderPresetName = qs("#virtualHeaderPresetName");
   const SAVE_STATUS_LABELS = {
     idle: {
-      ja: "復元用保存: —",
+      ja: "ブラウザ内保存: —",
       en: "Recovery: —"
     },
     saving: {
-      ja: "復元用保存中…",
+      ja: "ブラウザ内に保存中…",
       en: "Saving recovery copy…"
     },
     saved: {
@@ -21137,15 +21292,15 @@ const Editor = (() => {
       en: "Saved in browser"
     },
     unsaved: {
-      ja: "復元用の未保存あり",
+      ja: "ブラウザ内に未保存の変更あり",
       en: "Recovery copy pending"
     },
     fallback: {
-      ja: "代替先に復元用保存",
+      ja: "予備の保存先に保存",
       en: "Recovery saved in fallback"
     },
     error: {
-      ja: "復元用保存に失敗",
+      ja: "ブラウザ内の保存に失敗",
       en: "Recovery save failed"
     }
   };
@@ -21155,11 +21310,11 @@ const Editor = (() => {
   };
   const SAVE_STATUS_TITLE_PREFIXES = {
     idle: {
-      ja: "復元用保存の状態",
+      ja: "ブラウザ内保存の状態",
       en: "Recovery save status"
     },
     saving: {
-      ja: "復元用保存中",
+      ja: "ブラウザ内に保存中",
       en: "Saving recovery copy"
     },
     saved: {
@@ -21167,15 +21322,15 @@ const Editor = (() => {
       en: "Saved in browser"
     },
     unsaved: {
-      ja: "復元用の未保存あり",
+      ja: "ブラウザ内に未保存の変更あり",
       en: "Recovery copy pending"
     },
     fallback: {
-      ja: "代替先に復元用保存",
+      ja: "予備の保存先に保存",
       en: "Recovery saved in fallback"
     },
     error: {
-      ja: "復元用保存に失敗",
+      ja: "ブラウザ内の保存に失敗",
       en: "Recovery save failed"
     }
   };
@@ -22513,7 +22668,7 @@ const Editor = (() => {
         console.warn("IndexedDB save failed:", e);
         updateSaveStatusBadge("error");
         if (showErrorToast) {
-          showToast('<span class="material-symbols-outlined">error</span> 自動保存に失敗しました。手動でエクスポートしてください。', "error");
+          showToast("自動保存に失敗しました。手動でエクスポートしてください。", "error");
         }
         return false;
       }
@@ -22533,6 +22688,7 @@ const Editor = (() => {
     _saveTimer = setTimeout(() => {
       _saveTimer = null;
       const persistTask = async () => {
+        if (!_bootHydrationDone) return;
         if (_savedRevision === _saveRevision) return;
         const revision = _saveRevision;
         await persistRevisionNow(revision);
@@ -22667,6 +22823,22 @@ const Editor = (() => {
       });
     });
   };
+  const adoptStoredStateAfterBootChange = async () => {
+    try {
+      let hadSaved = false;
+      await IDBStore.withStateLock(async () => {
+        const saved = await IDBStore.get(PRO_STATE_STORAGE_KEY);
+        _persistStorageVersion = _getPersistenceVersion(saved);
+        hadSaved = !!saved && typeof saved === "object";
+        if (hadSaved) _persistChunkMeta = (await normalizePersistedState(saved, loadColumnWidthsFromLocal()))._persistMeta ?? null;
+      });
+      _persistRequiresFullSave = true;
+      if (hadSaved) showToast("前回の自動保存データは表示せず、今回の内容で上書き保存します");
+      if (_savedRevision !== _saveRevision) saveToStorage();
+    } catch (e) {
+      console.warn("Saved state adoption failed:", e);
+    }
+  };
   const loadFromStorage = async () => {
     const localColumnWidths = loadColumnWidthsFromLocal();
     let hasSavedObject = false;
@@ -22743,7 +22915,7 @@ const Editor = (() => {
       if (isPersistChunkIntegrityError(e)) {
         hasSavedObject = false;
         updateSaveStatusBadge("error");
-        showToast('<span class="material-symbols-outlined">error</span> 保存データの一部が欠落しているため、自動復元を中止しました。必要に応じて元ファイルを開き直してください。', "error");
+        showToast("保存データの一部が欠落しているため、自動復元を中止しました。必要に応じて元ファイルを開き直してください。", "error");
       }
     }
     return restoredSavedObject;
@@ -22858,7 +23030,7 @@ const Editor = (() => {
     updateStats();
     saveToStorage();
     updateHistoryButtons();
-    showToast('<span class="material-symbols-outlined">undo</span> 元に戻しました');
+    showToast("元に戻しました");
   };
   const redo = () => {
     commitActiveCellEdit();
@@ -22883,7 +23055,7 @@ const Editor = (() => {
     updateStats();
     saveToStorage();
     updateHistoryButtons();
-    showToast('<span class="material-symbols-outlined">redo</span> やり直しました');
+    showToast("やり直しました");
   };
   const formatBytes = bytes => {
     if (bytes < 1024) return `${bytes} B`;
@@ -24580,7 +24752,7 @@ const Editor = (() => {
     if (totalCells === 0) return false;
     try {
       if (!await copyTextToClipboard(_buildTsvRows(rows))) throw new Error("copy failed");
-      showToast(`<span class="material-symbols-outlined">content_copy</span> ${totalCells}セルをコピーしました`, "success");
+      showToast(`${totalCells}セルをコピーしました`, "success");
       return true;
     } catch {
       showToast("コピーに失敗しました", "error");
@@ -24795,7 +24967,7 @@ const Editor = (() => {
     updateStats();
     saveToStorage();
     void _refreshViewAfterCellBatchEdit();
-    showToast(`<span class="material-symbols-outlined">delete</span> ${validCoords.length}セルをクリアしました`, "success");
+    showToast(`${validCoords.length}セルをクリアしました`, "success");
     return true;
   };
   const _isMultiCellClipboardData = clipData => clipData.length > 1 || (clipData[0]?.length ?? 0) > 1;
@@ -24881,7 +25053,7 @@ const Editor = (() => {
       selectedCoords: validCoords
     });
     if (count === 0) return false;
-    showToast(`<span class="material-symbols-outlined">content_paste</span> ${count}セルに貼り付けました`, "success");
+    showToast(`${count}セルに貼り付けました`, "success");
     return true;
   };
   let _$composingCell = null;
@@ -26228,7 +26400,7 @@ const Editor = (() => {
     if (_panelRevision === _colFilterPanelRevision) closeColFilterPanel();
     const active = columnFilters.size;
     if (active > 0) {
-      showToast(`<span class="material-symbols-outlined">filter_alt</span> フィルタ適用中（${active}列）`, "success");
+      showToast(`フィルタ適用中（${active}列）`, "success");
     }
   };
   const clearColumnFilter = async colIdx => {
@@ -26239,7 +26411,7 @@ const Editor = (() => {
     if (columnFilters.size > 0) await refreshColumnFilterRows();
     if (!_deferCellViewRefresh() && !commitActiveCellEdit()) renderTable();
     if (_panelRevision === _colFilterPanelRevision) closeColFilterPanel();
-    showToast(`<span class="material-symbols-outlined">filter_alt_off</span> フィルタを解除しました`, "success");
+    showToast(`フィルタを解除しました`, "success");
   };
   const filterValueList = () => {
     if (!_filterValuePanelState) return;
@@ -26379,7 +26551,7 @@ const Editor = (() => {
     state.data = state.hasHeader ? [ state.data[0], ...sorted ] : sorted;
     renderTable();
     saveToStorage();
-    showToast(`<span class="material-symbols-outlined">sort</span> 「${escapeHTML(colName)}」を${dir === "asc" ? "昇順" : "降順"}に並び替えました`, "success");
+    showToast(`「${escapeHTML(colName)}」を${dir === "asc" ? "昇順" : "降順"}に並び替えました`, "success");
   };
   const copyColumn = async () => {
     commitActiveCellEdit();
@@ -26389,7 +26561,7 @@ const Editor = (() => {
     const rows = rowIndexes.map(rowIdx => [ state.data[rowIdx]?.[activeColumnIndex] ?? "" ]);
     try {
       if (!await copyTextToClipboard(_buildTsvRows(rows))) throw new Error("copy failed");
-      showToast(`<span class="material-symbols-outlined">content_copy</span> 「${escapeHTML(getColName())}」をコピーしました`, "success");
+      showToast(`「${escapeHTML(getColName())}」をコピーしました`, "success");
     } catch {
       showToast("コピーに失敗しました", "error");
     }
@@ -26475,7 +26647,10 @@ const Editor = (() => {
     renderTable();
     updateStats();
     saveToStorage();
-    showToast("列を削除しました", "success");
+    showToast("列を削除しました", "success", {
+      label: "元に戻す",
+      run: () => qs("#undoBtn")?.click()
+    });
   };
   const shiftColumnWidths = insertIndex => {
     const newWidths = {};
@@ -26528,7 +26703,7 @@ const Editor = (() => {
     const text = _buildTsvRows([ rowData ]);
     try {
       if (!await copyTextToClipboard(text)) throw new Error("copy failed");
-      showToast(`<span class="material-symbols-outlined">content_copy</span> ${state.hasHeader ? activeRowIndex : activeRowIndex + 1}行目をコピーしました`, "success");
+      showToast(`${state.hasHeader ? activeRowIndex : activeRowIndex + 1}行目をコピーしました`, "success");
     } catch {
       showToast("コピーに失敗しました", "error");
     }
@@ -26553,9 +26728,12 @@ const Editor = (() => {
     renderTable();
     updateStats();
     saveToStorage();
-    showToast("行を削除しました", "success");
+    showToast("行を削除しました", "success", {
+      label: "元に戻す",
+      run: () => qs("#undoBtn")?.click()
+    });
   };
-  const addRowAt = insertIndex => {
+  const addRowAt = (insertIndex, message = "行を追加しました") => {
     const colCount = state.data[0]?.length ?? 1;
     const safeIndex = Math.max(0, Math.min(insertIndex, state.data.length));
     saveToHistory();
@@ -26563,7 +26741,7 @@ const Editor = (() => {
     renderTable();
     updateStats();
     saveToStorage();
-    showToast("行を追加しました", "success");
+    showToast(message, "success");
   };
   const addRowAbove = () => {
     if (activeRowIndex < 0) return;
@@ -26978,7 +27156,7 @@ const Editor = (() => {
       });
       closeImportWizard();
       const _rowCount = Math.max(0, _data.length - (_hasHeader ? 1 : 0)).toLocaleString(getLocaleTag());
-      showToast(`<span class="material-symbols-outlined">folder_open</span> ${escapeHTML(_fileName)} ${isEnglish() ? `imported (${_rowCount} rows)` : `を読み込みました（${_rowCount}行）`}`, "success");
+      showToast(`${escapeHTML(_fileName)} ${isEnglish() ? `imported (${_rowCount} rows)` : `を読み込みました（${_rowCount}行）`}`, "success");
     } catch (e) {
       if (_revision === _wizImportRevision) _setWizError(isUnclosedQuoteParseError(e) ? isEnglish() ? "A quoted cell is missing its closing quote. Your current table has been kept." : "引用符が閉じていないセルがあります。現在の表は変更していません。" : isEnglish() ? "Import failed. Your current table has been kept. Check the file and try again." : "読み込みに失敗しました。現在の表は変更していません。ファイルを確認して再試行してください。");
     } finally {
@@ -27212,7 +27390,7 @@ const Editor = (() => {
             markSettingsChanged();
             saveToStorage();
           }
-          showToast(`<span class="material-symbols-outlined">save</span> ${escapeHTML(_targetHandle.name)} に保存しました`, "success");
+          showToast(`${escapeHTML(_targetHandle.name)} に保存しました`, "success");
           return;
         } catch (e) {
           if (e.name === "AbortError") return;
@@ -27240,7 +27418,7 @@ const Editor = (() => {
             markSettingsChanged();
             saveToStorage();
           }
-          showToast(`<span class="material-symbols-outlined">save</span> ${escapeHTML(handle.name)} に保存しました`, "success");
+          showToast(`${escapeHTML(handle.name)} に保存しました`, "success");
         } catch (e) {
           if (e.name !== "AbortError") {
             showToast("保存に失敗したため、ダウンロード保存に切り替えます。", "error");
@@ -27272,7 +27450,7 @@ const Editor = (() => {
     try {
       const text = await generateOutputAsync(_outputMeta.delimiter, _outputMeta);
       if (!await copyTextToClipboard(text)) throw new Error("copy failed");
-      showToast(`<span class="material-symbols-outlined">content_copy</span> ${_formatLabel}としてコピーしました`, "success");
+      showToast(`${_formatLabel}としてコピーしました`, "success");
     } catch {
       showToast("コピーに失敗しました", "error");
     }
@@ -27620,7 +27798,7 @@ const Editor = (() => {
     }
     try {
       if (!await copyTextToClipboard(text)) throw new Error("copy failed");
-      showToast(`<span class="material-symbols-outlined">content_copy</span> クリップボードにコピーしました`, "success");
+      showToast(`クリップボードにコピーしました`, "success");
       closeExportWizard();
     } catch {
       showToast("コピーに失敗しました", "error");
@@ -27697,8 +27875,8 @@ const Editor = (() => {
   });
   const confirmClearAll = () => {
     if (state.data.length === 0) return;
-    openModal("全データを削除", "すべてのデータを削除しますか？この操作は元に戻せます。", async () => {
-      await _clearAllDataSafely('<span class="material-symbols-outlined">delete</span> すべてのデータをクリアしました');
+    openModal("全データを削除", "すべてのデータを削除しますか？この画面を開いている間は「元に戻す」で戻せますが、ブラウザ内の保存データも削除されるため、ページを閉じると戻せません。", async () => {
+      await _clearAllDataSafely("すべてのデータをクリアしました");
     });
   };
   const colActions = {
@@ -28207,7 +28385,7 @@ const Editor = (() => {
       if (!hasValidCellCoords(coords)) return;
       const {count} = _applyClipboardDataAt(clipData, coords.row, coords.col);
       if (count === 0) return;
-      showToast(`<span class="material-symbols-outlined">content_paste</span> ${count}セルに貼り付けました`, "success");
+      showToast(`${count}セルに貼り付けました`, "success");
       return;
     }
     if (!$pasteZone.classList.contains("has-data")) {
@@ -28764,7 +28942,7 @@ const Editor = (() => {
     }
   });
   qs("#createTableBtn").addEventListener("click", () => {
-    if (!state.data.length) addRow();
+    if (!state.data.length) addRowAt(0, "空の表を作成しました");
   });
   qs("#addRowBtn").addEventListener("click", addRow);
   qs("#addColBtn").addEventListener("click", addColumn);
@@ -29046,9 +29224,15 @@ const Editor = (() => {
             console.warn("Storage migration skipped:", e);
           }
         }
-        if (_bootUserChanged) return;
+        if (_bootUserChanged) {
+          await adoptStoredStateAfterBootChange();
+          return;
+        }
         await loadFromStorage();
-        if (_bootUserChanged) return;
+        if (_bootUserChanged) {
+          await adoptStoredStateAfterBootChange();
+          return;
+        }
         try {
           await loadSearchHistory();
         } catch (e) {
@@ -29284,6 +29468,29 @@ const Editor = (() => {
     subtree: !0,
     attributes: !0,
     attributeFilter: [ "class", "hidden" ]
+  });
+  const focusPrimaryInput = () => {
+    const target = document.querySelector("[data-art-autofocus]");
+    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
+    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
+    let finished = !1;
+    const finish = () => {
+      finished = !0;
+      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+    };
+    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    const attempt = () => {
+      if (!finished) {
+        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
+          preventScroll: !0
+        }), document.activeElement === target)) return finish();
+        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      }
+    };
+    attempt();
+  };
+  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
+    once: !0
   }), window.addEventListener("storage", event => {
     event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
     applyTheme(preferences.theme), applySize(preferences.editorSize));
