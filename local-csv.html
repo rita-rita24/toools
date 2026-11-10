@@ -21209,6 +21209,20 @@ const openModal = (title, message, onConfirm, options = {}) => {
   });
 };
 
+const askModal = (title, message, {confirm = true, cancel = false, dismiss = cancel, ...options} = {}) => new Promise(resolve => {
+  let settled = false;
+  const finish = value => {
+    if (settled) return;
+    settled = true;
+    resolve(value);
+  };
+  openModal(title, message, () => finish(confirm), {
+    ...options,
+    onCancel: () => finish(cancel),
+    onDismiss: () => finish(dismiss)
+  });
+});
+
 const closeModal = ({confirmed = false, source = "dismiss"} = {}) => {
   if (!confirmed) {
     const callback = source === "cancel" ? _modalCancelCallback : _modalDismissCallback;
@@ -21399,91 +21413,21 @@ const Editor = (() => {
     "euc-jp": "EUCJP",
     "iso-2022-jp": "JIS"
   };
-  const ENCODING_TO_DECODER_LABEL = {
-    "utf-8": "utf-8",
-    "shift-jis": "shift_jis",
-    "euc-jp": "euc-jp",
-    "iso-2022-jp": "iso-2022-jp",
-    "utf-16le": "utf-16le",
-    "utf-16be": "utf-16be"
+  const getDecoderLabel = enc => {
+    const normalized = normalizeEncoding(enc);
+    return normalized === "shift-jis" ? "shift_jis" : normalized;
   };
   const BOM_SUPPORTED_ENCODINGS = new Set([ "utf-8", "utf-16le", "utf-16be" ]);
   const HAS_LEGACY_ENCODING_LIB = typeof Encoding !== "undefined";
   const EXPORT_SUPPORTED_ENCODINGS = new Set(HAS_LEGACY_ENCODING_LIB ? SUPPORTED_ENCODINGS : SUPPORTED_ENCODINGS.filter(enc => !(enc in ENCODING_TO_LIBRARY)));
-  const EXPORT_FORMATS = {
-    csv: {
-      id: "csv",
-      label: "CSV",
-      extension: "csv",
-      delimiter: ",",
-      isDsv: true,
-      supportsEncoding: true,
-      mimeType: "text/plain;charset=utf-8"
-    },
-    tsv: {
-      id: "tsv",
-      label: "TSV",
-      extension: "tsv",
-      delimiter: "\t",
-      isDsv: true,
-      supportsEncoding: true,
-      mimeType: "text/plain;charset=utf-8"
-    },
-    ssv: {
-      id: "ssv",
-      label: "SSV",
-      extension: "ssv",
-      delimiter: ";",
-      isDsv: true,
-      supportsEncoding: true,
-      mimeType: "text/plain;charset=utf-8"
-    },
-    txt: {
-      id: "txt",
-      label: "TXT",
-      extension: "txt",
-      delimiter: " ",
-      isDsv: true,
-      supportsEncoding: true,
-      mimeType: "text/plain;charset=utf-8"
-    },
-    json: {
-      id: "json",
-      label: "JSON",
-      extension: "json",
-      delimiter: null,
-      isDsv: false,
-      supportsEncoding: false,
-      mimeType: "application/json;charset=utf-8"
-    },
-    ndjson: {
-      id: "ndjson",
-      label: "NDJSON",
-      extension: "ndjson",
-      delimiter: null,
-      isDsv: false,
-      supportsEncoding: false,
-      mimeType: "application/x-ndjson;charset=utf-8"
-    },
-    html: {
-      id: "html",
-      label: "HTML",
-      extension: "html",
-      delimiter: null,
-      isDsv: false,
-      supportsEncoding: false,
-      mimeType: "text/html;charset=utf-8"
-    },
-    markdown: {
-      id: "markdown",
-      label: "Markdown",
-      extension: "md",
-      delimiter: null,
-      isDsv: false,
-      supportsEncoding: false,
-      mimeType: "text/plain;charset=utf-8"
-    }
-  };
+  const EXPORT_FORMATS = Object.fromEntries([ [ "csv", "CSV", "csv", ",", "text/plain" ], [ "tsv", "TSV", "tsv", "\t", "text/plain" ], [ "ssv", "SSV", "ssv", ";", "text/plain" ], [ "txt", "TXT", "txt", " ", "text/plain" ], [ "json", "JSON", "json", null, "application/json" ], [ "ndjson", "NDJSON", "ndjson", null, "application/x-ndjson" ], [ "html", "HTML", "html", null, "text/html" ], [ "markdown", "Markdown", "md", null, "text/plain" ] ].map(([id, label, extension, delimiter, mimeType]) => [ id, {
+    id,
+    label,
+    extension,
+    delimiter,
+    isDsv: delimiter !== null,
+    mimeType: `${mimeType};charset=utf-8`
+  } ]));
   const DELIMITER_TO_DSV_FORMAT_ID = {
     ",": "csv",
     "\t": "tsv",
@@ -21515,28 +21459,15 @@ const Editor = (() => {
     }
   };
   const supportsBom = enc => BOM_SUPPORTED_ENCODINGS.has(normalizeEncoding(enc));
-  const getEncodingDisplayName = enc => {
-    const normalized = normalizeEncoding(enc);
-    switch (normalized) {
-     case "shift-jis":
-      return "Shift-JIS (CP932)";
-
-     case "euc-jp":
-      return "EUC-JP";
-
-     case "iso-2022-jp":
-      return "ISO-2022-JP (JIS)";
-
-     case "utf-16le":
-      return "UTF-16 LE";
-
-     case "utf-16be":
-      return "UTF-16 BE";
-
-     default:
-      return "UTF-8";
-    }
+  const ENCODING_DISPLAY_NAMES = {
+    "utf-8": "UTF-8",
+    "shift-jis": "Shift-JIS (CP932)",
+    "euc-jp": "EUC-JP",
+    "iso-2022-jp": "ISO-2022-JP (JIS)",
+    "utf-16le": "UTF-16 LE",
+    "utf-16be": "UTF-16 BE"
   };
+  const getEncodingDisplayName = enc => ENCODING_DISPLAY_NAMES[normalizeEncoding(enc)];
   const prependBytes = (head, body) => {
     const out = new Uint8Array(head.length + body.length);
     out.set(head, 0);
@@ -21588,25 +21519,21 @@ const Editor = (() => {
     }
     return null;
   };
-  const decodeWithTextDecoder = (bytes, enc, options = {}) => {
-    const label = ENCODING_TO_DECODER_LABEL[normalizeEncoding(enc)] ?? "utf-8";
+  const decodeWithTextDecoder = (bytes, enc) => {
     try {
-      return new TextDecoder(label, {
-        ...options,
+      return new TextDecoder(getDecoderLabel(enc), {
         ignoreBOM: true
       }).decode(bytes);
     } catch {
-      if (options.fatal) throw new Error("fatal_decode_failed");
       return new TextDecoder("utf-8", {
         ignoreBOM: true
       }).decode(bytes);
     }
   };
   const strictTextDecoderResult = (bytes, enc) => {
-    const label = ENCODING_TO_DECODER_LABEL[normalizeEncoding(enc)] ?? "utf-8";
     let decoder;
     try {
-      decoder = new TextDecoder(label, {
+      decoder = new TextDecoder(getDecoderLabel(enc), {
         fatal: true
       });
     } catch {
@@ -21654,25 +21581,18 @@ const Editor = (() => {
   };
   const encodeToBytes = (text, enc, withBom = false) => {
     const normalized = normalizeEncoding(enc);
-    if (normalized === "utf-16le") {
-      const body = encodeUtf16Bytes(text, true);
-      return withBom ? prependBytes(new Uint8Array([ 255, 254 ]), body) : body;
-    }
-    if (normalized === "utf-16be") {
-      const body = encodeUtf16Bytes(text, false);
-      return withBom ? prependBytes(new Uint8Array([ 254, 255 ]), body) : body;
+    if (normalized === "utf-16le" || normalized === "utf-16be") {
+      const littleEndian = normalized === "utf-16le";
+      const body = encodeUtf16Bytes(text, littleEndian);
+      return withBom ? prependBytes(new Uint8Array(littleEndian ? [ 255, 254 ] : [ 254, 255 ]), body) : body;
     }
     const libCode = ENCODING_TO_LIBRARY[normalized];
-    if (libCode && HAS_LEGACY_ENCODING_LIB) {
-      const unicodeArray = Encoding.stringToCode(text);
-      const encoded = Encoding.convert(unicodeArray, {
+    if (libCode) {
+      if (!HAS_LEGACY_ENCODING_LIB) throw new Error("legacy_encoding_unavailable");
+      return new Uint8Array(Encoding.convert(Encoding.stringToCode(text), {
         to: libCode,
         from: "UNICODE"
-      });
-      return new Uint8Array(encoded);
-    }
-    if (libCode) {
-      throw new Error("legacy_encoding_unavailable");
+      }));
     }
     const utf8 = (new TextEncoder).encode(text);
     return withBom ? prependBytes(new Uint8Array([ 239, 187, 191 ]), utf8) : utf8;
@@ -21694,20 +21614,13 @@ const Editor = (() => {
     });
     return decoded === text;
   };
-  const _confirmWithSharedModal = (title, message, confirmLabel) => new Promise(resolve => {
-    let _settled = false;
-    const _finish = value => {
-      if (!_settled) {
-        _settled = true;
-        setTimeout(() => resolve(value), 0);
-      }
-    };
-    openModal(title, message, () => _finish(true), {
+  const _confirmWithSharedModal = async (title, message, confirmLabel) => {
+    const confirmed = await askModal(title, message, {
       confirmLabel,
-      confirmVariant: "gm-btn-primary",
-      onCancel: () => _finish(false)
+      confirmVariant: "gm-btn-primary"
     });
-  });
+    return new Promise(resolve => setTimeout(() => resolve(confirmed), 0));
+  };
   const confirmLegacyEncodingRoundTrip = ({text, encoding, actionLabel}) => {
     const normalized = normalizeEncoding(encoding);
     if (!(normalized in ENCODING_TO_LIBRARY)) return true;
@@ -21780,12 +21693,6 @@ const Editor = (() => {
   let _virtualRenderRAF = 0;
   let _searchTaskToken = 0;
   let _searchDebounceTimer = null;
-  let _searchWorkerRequestSeq = 0;
-  let _searchWorker = null;
-  let _searchWorkerUrl = "";
-  const _searchWorkerPending = new Map;
-  let _searchWorkerDataRevision = -1;
-  let _searchWorkerDirtyRows = null;
   let _searchInProgress = false;
   let _searchError = "";
   let _searchTotalCount = 0;
@@ -21801,12 +21708,6 @@ const Editor = (() => {
   };
   let _columnFilterRows = null;
   let _columnFilterTaskToken = 0;
-  let _filterWorkerRequestSeq = 0;
-  let _filterWorker = null;
-  let _filterWorkerUrl = "";
-  const _filterWorkerPending = new Map;
-  let _filterWorkerDataRevision = -1;
-  let _filterWorkerDirtyRows = null;
   let _selectionModel = new Map;
   let _statsTaskToken = 0;
   let _statsDebounceTimer = null;
@@ -21834,6 +21735,11 @@ const Editor = (() => {
   let _persistChunkMeta = null;
   const _persistDirtyRows = new Set;
   let _persistRequiresFullSave = true;
+  const resetPersistMeta = (meta = null) => {
+    _persistChunkMeta = meta;
+    _persistDirtyRows.clear();
+    _persistRequiresFullSave = true;
+  };
   const EXPORT_PREVIEW_ROW_LIMIT = 200;
   const EXPORT_PREVIEW_DEBOUNCE_MS = 120;
   const virtualState = {
@@ -21885,17 +21791,14 @@ const Editor = (() => {
     });
   };
   const hasOverwriteFormatMismatch = () => !!_fileHandle && !!_openedFileMeta && !isSameOutputMeta(_openedFileMeta, getCurrentOutputMeta());
-  const _cloneColumnFilterConfig = config => ({
-    values: config?.values ? [ ...config.values ] : null,
-    conditions: (config?.conditions ?? []).map(c => ({
+  const serializeColumnFilters = (excludeColIdx = -1) => [ ...columnFilters ].filter(([colIdx]) => colIdx !== excludeColIdx).map(([colIdx, config]) => ({
+    colIdx,
+    values: config.values ? [ ...config.values ] : null,
+    conditions: (config.conditions ?? []).map(c => ({
       op: c.op,
       val: c.val
     })),
-    logic: config?.logic === "or" ? "or" : "and"
-  });
-  const _captureColumnFiltersSnapshot = () => [ ...columnFilters.entries() ].map(([colIdx, config]) => ({
-    colIdx,
-    ..._cloneColumnFilterConfig(config)
+    logic: config.logic === "or" ? "or" : "and"
   }));
   const _restoreColumnFiltersSnapshot = entries => {
     columnFilters.clear();
@@ -21927,6 +21830,20 @@ const Editor = (() => {
     _columnFilterRows = null;
     delete $searchTargetCol.dataset.pendingValue;
   };
+  const resetSearchControls = () => {
+    _columnFilterTaskToken++;
+    columnFilters.clear();
+    _columnFilterRows = null;
+    _filterValueCache.clear();
+    $searchInput.value = "";
+    $replaceInput.value = "";
+    $searchCaseSensitive.checked = false;
+    $searchExactMatch.checked = false;
+    $searchRegex.checked = false;
+    $filterMode.checked = false;
+    delete $searchTargetCol.dataset.pendingValue;
+    $searchTargetCol.value = "-1";
+  };
   const resetViewStateForNewDataset = () => {
     _searchError = "";
     _searchInProgress = false;
@@ -21937,26 +21854,15 @@ const Editor = (() => {
       _searchDebounceTimer = null;
     }
     _searchTaskToken++;
-    _columnFilterTaskToken++;
     searchMatches = [];
     searchMatchMap = new Map;
     currentMatchIndex = -1;
     filteredRows = null;
-    columnFilters.clear();
-    _columnFilterRows = null;
-    _filterValueCache.clear();
+    resetSearchControls();
     _resetCellSelection();
     activeColumnIndex = -1;
     activeRowIndex = -1;
     filterPanelColIndex = -1;
-    $searchInput.value = "";
-    $replaceInput.value = "";
-    $searchCaseSensitive.checked = false;
-    $searchExactMatch.checked = false;
-    $searchRegex.checked = false;
-    $filterMode.checked = false;
-    delete $searchTargetCol.dataset.pendingValue;
-    $searchTargetCol.value = "-1";
     closeColFilterPanel();
     if ($colFilterSearch) $colFilterSearch.value = "";
     $colFilterValues.replaceChildren();
@@ -21971,7 +21877,7 @@ const Editor = (() => {
     regex: $searchRegex.checked,
     targetCol: $searchTargetCol.value,
     filterMode: $filterMode.checked,
-    columnFilters: _captureColumnFiltersSnapshot()
+    columnFilters: serializeColumnFilters()
   });
   const _applySearchFilterSnapshot = snapshot => {
     if (!snapshot || typeof snapshot !== "object") {
@@ -22314,8 +22220,8 @@ const Editor = (() => {
     }
   };
   const noteDirtyRowForWorkers = rowIdx => {
-    if (_searchWorkerDirtyRows !== null) _searchWorkerDirtyRows.add(rowIdx);
-    if (_filterWorkerDirtyRows !== null) _filterWorkerDirtyRows.add(rowIdx);
+    searchWorker.dirtyRows?.add(rowIdx);
+    filterWorker.dirtyRows?.add(rowIdx);
   };
   const createStateSnapshot = () => {
     const snapshot = {
@@ -22611,38 +22517,21 @@ const Editor = (() => {
     if (typeof cancelIdleCallback === "function") cancelIdleCallback(_saveIdleHandle); else clearTimeout(_saveIdleHandle);
     _saveIdleHandle = null;
   };
-  const scheduleIdlePersist = (fn, timeout = 1200) => {
-    if (timeout <= 0) {
-      setTimeout(fn, 0);
-      return;
-    }
-    if (typeof requestIdleCallback === "function") {
-      _saveIdleHandle = requestIdleCallback(() => {
-        _saveIdleHandle = null;
-        fn();
-      }, {
-        timeout
-      });
-      return;
-    }
-    _saveIdleHandle = setTimeout(() => {
+  const scheduleIdlePersist = (fn, timeout) => {
+    const run = () => {
       _saveIdleHandle = null;
       fn();
-    }, 0);
+    };
+    _saveIdleHandle = typeof requestIdleCallback === "function" ? requestIdleCallback(run, {
+      timeout
+    }) : setTimeout(run, 0);
   };
-  const getAutosaveDebounceMs = () => {
+  const getAutosaveTiming = () => {
     const rowCount = state.data.length;
-    if (rowCount >= HUGE_DATA_ROW_THRESHOLD) return 2600;
-    if (rowCount >= LARGE_DATA_ROW_THRESHOLD) return 1200;
-    if (rowCount >= SEARCH_WORKER_ROW_THRESHOLD) return 180;
-    return 0;
-  };
-  const getAutosaveIdleTimeoutMs = () => {
-    const rowCount = state.data.length;
-    if (rowCount >= HUGE_DATA_ROW_THRESHOLD) return 1200;
-    if (rowCount >= LARGE_DATA_ROW_THRESHOLD) return 800;
-    if (rowCount >= SEARCH_WORKER_ROW_THRESHOLD) return 250;
-    return 0;
+    if (rowCount >= HUGE_DATA_ROW_THRESHOLD) return [ 2600, 1200 ];
+    if (rowCount >= LARGE_DATA_ROW_THRESHOLD) return [ 1200, 800 ];
+    if (rowCount >= SEARCH_WORKER_ROW_THRESHOLD) return [ 180, 250 ];
+    return [ 0, 0 ];
   };
   const persistRevisionNow = async (revision, {showErrorToast = true} = {}) => {
     while (_storageSavePromise || _storageClearPromise) {
@@ -22688,18 +22577,16 @@ const Editor = (() => {
     _saveTimer = setTimeout(() => {
       _saveTimer = null;
       const persistTask = async () => {
-        if (!_bootHydrationDone) return;
-        if (_savedRevision === _saveRevision) return;
-        const revision = _saveRevision;
-        await persistRevisionNow(revision);
+        if (!_bootHydrationDone || _savedRevision === _saveRevision) return;
+        await persistRevisionNow(_saveRevision);
       };
-      const idleTimeout = getAutosaveIdleTimeoutMs();
+      const [, idleTimeout] = getAutosaveTiming();
       if (idleTimeout <= 0) {
         void persistTask();
         return;
       }
       scheduleIdlePersist(persistTask, idleTimeout);
-    }, getAutosaveDebounceMs());
+    }, getAutosaveTiming()[0]);
   };
   const clearSearchHistoryState = () => {
     searchHistory = [];
@@ -22784,9 +22671,7 @@ const Editor = (() => {
         if (includeSearchHistory) clearSearchHistoryState();
         _savedRevision = _clearRevision;
         _persistStorageVersion = "";
-        _persistChunkMeta = null;
-        _persistDirtyRows.clear();
-        _persistRequiresFullSave = true;
+        resetPersistMeta();
       });
     })();
     _storageClearPromise = _pending;
@@ -22807,20 +22692,13 @@ const Editor = (() => {
     }).format(_savedDate) : "";
     const savedAtLine = _savedDateLabel ? `\n保存日時: ${_savedDateLabel}` : "";
     const _fileLine = loadedState.sourceFileName ? `\n${isEnglish() ? "File" : "ファイル"}: ${loadedState.sourceFileName}` : "";
-    return new Promise(resolve => {
-      let settled = false;
-      const finish = action => {
-        if (settled) return;
-        settled = true;
-        resolve(action);
-      };
-      openModal("前回のデータを復元", `前回の自動保存データがあります。\n行数: ${rows.toLocaleString(getLocaleTag())} / 列数: ${cols.toLocaleString(getLocaleTag())}${savedAtLine}${_fileLine}\n\n復元するまで表には表示しません。不要な場合は破棄して保存データを削除します。`, () => finish("restore"), {
-        confirmLabel: "復元",
-        confirmVariant: "gm-btn-primary",
-        cancelLabel: "破棄",
-        onCancel: () => finish("discard"),
-        onDismiss: () => finish("skip")
-      });
+    return askModal("前回のデータを復元", `前回の自動保存データがあります。\n行数: ${rows.toLocaleString(getLocaleTag())} / 列数: ${cols.toLocaleString(getLocaleTag())}${savedAtLine}${_fileLine}\n\n復元するまで表には表示しません。不要な場合は破棄して保存データを削除します。`, {
+      confirm: "restore",
+      cancel: "discard",
+      dismiss: "skip",
+      confirmLabel: "復元",
+      confirmVariant: "gm-btn-primary",
+      cancelLabel: "破棄"
     });
   };
   const adoptStoredStateAfterBootChange = async () => {
@@ -22841,7 +22719,6 @@ const Editor = (() => {
   };
   const loadFromStorage = async () => {
     const localColumnWidths = loadColumnWidthsFromLocal();
-    let hasSavedObject = false;
     let restoredSavedObject = false;
     let discardFailed = false;
     try {
@@ -22856,8 +22733,7 @@ const Editor = (() => {
         return _legacy;
       });
       _persistStorageVersion = _getPersistenceVersion(saved);
-      hasSavedObject = !!saved && typeof saved === "object";
-      if (hasSavedObject) {
+      if (saved && typeof saved === "object") {
         const normalizedState = await IDBStore.withStateLock(async () => {
           await _assertPersistenceVersion();
           return normalizePersistedState(saved, localColumnWidths);
@@ -22879,21 +22755,12 @@ const Editor = (() => {
             updateSaveStatusBadge("error");
             showToast("保存データの削除に失敗しました", "error");
           }
-          hasSavedObject = false;
         } else {
-          _persistChunkMeta = normalizedState._persistMeta ?? null;
-          _persistDirtyRows.clear();
-          _persistRequiresFullSave = true;
+          resetPersistMeta(normalizedState._persistMeta ?? null);
         }
-      } else if (Object.keys(localColumnWidths).length > 0) {
-        state.columnWidths = localColumnWidths;
-        _persistChunkMeta = null;
-        _persistDirtyRows.clear();
-        _persistRequiresFullSave = true;
       } else {
-        _persistChunkMeta = null;
-        _persistDirtyRows.clear();
-        _persistRequiresFullSave = true;
+        if (Object.keys(localColumnWidths).length > 0) state.columnWidths = localColumnWidths;
+        resetPersistMeta();
       }
       _saveRevision = 0;
       _savedRevision = 0;
@@ -22909,166 +22776,123 @@ const Editor = (() => {
       }
     } catch (e) {
       console.warn("Saved state load failed:", e);
-      _persistChunkMeta = null;
-      _persistDirtyRows.clear();
-      _persistRequiresFullSave = true;
+      resetPersistMeta();
       if (isPersistChunkIntegrityError(e)) {
-        hasSavedObject = false;
         updateSaveStatusBadge("error");
         showToast("保存データの一部が欠落しているため、自動復元を中止しました。必要に応じて元ファイルを開き直してください。", "error");
       }
     }
     return restoredSavedObject;
   };
-  const createSnapshotHistoryEntry = () => ({
-    type: HISTORY_ENTRY_SNAPSHOT,
-    snapshot: createStateSnapshot()
-  });
-  const createCellHistoryEntry = (row, col, before, after) => ({
-    type: HISTORY_ENTRY_CELL,
-    row,
-    col,
-    before,
-    after
-  });
-  const createCellBatchHistoryEntry = changes => ({
-    type: HISTORY_ENTRY_CELL_BATCH,
-    changes
-  });
+  const refreshTable = () => {
+    renderTable();
+    updateStats();
+    saveToStorage();
+  };
   const trimHistoryStack = stack => {
     if (stack.length > MAX_HISTORY) stack.shift();
   };
-  const saveToHistory = () => {
-    commitActiveCellEdit();
-    undoStack.push(createSnapshotHistoryEntry());
+  const pushUndoEntry = (entry, dirtyRows) => {
+    undoStack.push(entry);
     trimHistoryStack(undoStack);
     redoStack = [];
-    markDataChanged();
+    markDataChanged(dirtyRows && {
+      dirtyRows
+    });
     updateHistoryButtons();
+  };
+  const saveToHistory = () => {
+    commitActiveCellEdit();
+    pushUndoEntry({
+      type: HISTORY_ENTRY_SNAPSHOT,
+      snapshot: createStateSnapshot()
+    });
   };
   const saveCellEditToHistory = (row, col, before, after) => {
     if (before === after) return;
-    const last = undoStack[undoStack.length - 1];
-    if (last && last.type === HISTORY_ENTRY_CELL && last.row === row && last.col === col && redoStack.length === 0) {
+    const last = undoStack.at(-1);
+    if (last?.type === HISTORY_ENTRY_CELL && last.row === row && last.col === col && redoStack.length === 0) {
       last.after = after;
-    } else {
-      undoStack.push(createCellHistoryEntry(row, col, before, after));
-      trimHistoryStack(undoStack);
+      markDataChanged({
+        dirtyRows: [ row ]
+      });
+      updateHistoryButtons();
+      return;
     }
-    redoStack = [];
-    markDataChanged({
-      dirtyRows: [ row ]
-    });
-    updateHistoryButtons();
+    pushUndoEntry({
+      type: HISTORY_ENTRY_CELL,
+      row,
+      col,
+      before,
+      after
+    }, [ row ]);
   };
   const saveCellBatchToHistory = changes => {
     const filtered = changes.filter(c => c.before !== c.after);
     if (filtered.length === 0) return false;
-    undoStack.push(createCellBatchHistoryEntry(filtered));
-    trimHistoryStack(undoStack);
-    redoStack = [];
-    const dirtyRows = new Set;
-    for (const change of filtered) dirtyRows.add(change.row);
-    markDataChanged({
-      dirtyRows
-    });
-    updateHistoryButtons();
+    pushUndoEntry({
+      type: HISTORY_ENTRY_CELL_BATCH,
+      changes: filtered
+    }, new Set(filtered.map(change => change.row)));
     return true;
   };
   const applyHistoryEntry = (entry, mode) => {
-    if (!entry) return false;
     if (entry.type === HISTORY_ENTRY_SNAPSHOT) {
       applyStateSnapshot(entry.snapshot);
       return true;
     }
-    if (entry.type === HISTORY_ENTRY_CELL) {
-      if (!state.data[entry.row]) return false;
-      setCellValue(entry.row, entry.col, mode === "undo" ? entry.before : entry.after);
-      markDataChanged({
-        dirtyRows: [ entry.row ]
-      });
-      return true;
+    const changes = entry.type === HISTORY_ENTRY_CELL ? [ entry ] : entry.changes;
+    if (entry.type === HISTORY_ENTRY_CELL && !state.data[entry.row]) return false;
+    const dirtyRows = new Set;
+    for (const change of changes) {
+      if (!state.data[change.row]) continue;
+      setCellValue(change.row, change.col, mode === "undo" ? change.before : change.after);
+      dirtyRows.add(change.row);
     }
-    if (entry.type === HISTORY_ENTRY_CELL_BATCH) {
-      const dirtyRows = new Set;
-      for (const change of entry.changes) {
-        if (!state.data[change.row]) continue;
-        setCellValue(change.row, change.col, mode === "undo" ? change.before : change.after);
-        dirtyRows.add(change.row);
-      }
-      markDataChanged({
-        dirtyRows
-      });
-      return true;
-    }
-    return false;
+    markDataChanged({
+      dirtyRows
+    });
+    return true;
   };
   const updateHistoryButtons = () => {
     $undoBtn.disabled = undoStack.length === 0;
     $redoBtn.disabled = redoStack.length === 0;
   };
-  const undo = () => {
+  const stepHistory = mode => {
     commitActiveCellEdit();
-    if (undoStack.length === 0) return;
-    const entry = undoStack.pop();
-    let redoEntry = null;
-    if (entry.type === HISTORY_ENTRY_SNAPSHOT) {
-      redoEntry = createSnapshotHistoryEntry();
-    } else if (entry.type === HISTORY_ENTRY_CELL) {
-      redoEntry = createCellHistoryEntry(entry.row, entry.col, entry.before, entry.after);
-    } else if (entry.type === HISTORY_ENTRY_CELL_BATCH) {
-      redoEntry = createCellBatchHistoryEntry(entry.changes);
-    }
-    const applied = applyHistoryEntry(entry, "undo");
-    if (!applied) {
-      undoStack.push(entry);
+    const [from, to] = mode === "undo" ? [ undoStack, redoStack ] : [ redoStack, undoStack ];
+    if (from.length === 0) return;
+    const entry = from.pop();
+    const reverse = entry.type === HISTORY_ENTRY_SNAPSHOT ? {
+      type: HISTORY_ENTRY_SNAPSHOT,
+      snapshot: createStateSnapshot()
+    } : {
+      ...entry
+    };
+    if (!applyHistoryEntry(entry, mode)) {
+      from.push(entry);
       updateHistoryButtons();
       return;
     }
-    if (redoEntry) redoStack.push(redoEntry);
-    renderTable();
-    updateStats();
-    saveToStorage();
+    to.push(reverse);
+    refreshTable();
     updateHistoryButtons();
-    showToast("元に戻しました");
+    showToast(mode === "undo" ? "元に戻しました" : "やり直しました");
   };
-  const redo = () => {
-    commitActiveCellEdit();
-    if (redoStack.length === 0) return;
-    const entry = redoStack.pop();
-    let undoEntry = null;
-    if (entry.type === HISTORY_ENTRY_SNAPSHOT) {
-      undoEntry = createSnapshotHistoryEntry();
-    } else if (entry.type === HISTORY_ENTRY_CELL) {
-      undoEntry = createCellHistoryEntry(entry.row, entry.col, entry.before, entry.after);
-    } else if (entry.type === HISTORY_ENTRY_CELL_BATCH) {
-      undoEntry = createCellBatchHistoryEntry(entry.changes);
-    }
-    const applied = applyHistoryEntry(entry, "redo");
-    if (!applied) {
-      redoStack.push(entry);
-      updateHistoryButtons();
-      return;
-    }
-    if (undoEntry) undoStack.push(undoEntry);
-    renderTable();
-    updateStats();
-    saveToStorage();
-    updateHistoryButtons();
-    showToast("やり直しました");
-  };
+  const undo = () => stepHistory("undo");
+  const redo = () => stepHistory("redo");
   const formatBytes = bytes => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
-  const buildCsvLine = (row, delimiter, quoteStyle) => row.map(cell => {
-    const c = cell ?? "";
-    const escaped = String(c).replace(/"/g, '""');
-    if (quoteStyle === "all") return `"${escaped}"`;
-    if (quoteStyle === "none") return String(c);
-    return c === "" && (row.length === 1 || delimiter === " ") || String(c).includes(delimiter) || String(c).includes('"') || String(c).includes("\n") || String(c).includes("\r") ? `"${escaped}"` : String(c);
-  }).join(delimiter);
+  const needsDsvQuote = (cell, delimiter, columnCount) => cell === "" && (columnCount === 1 || delimiter === " ") || cell.includes(delimiter) || /["\n\r]/.test(cell);
+  const quoteDsvCell = (cell, delimiter, quoteStyle, columnCount) => {
+    if (quoteStyle === "none") return cell;
+    const quoted = `"${cell.replace(/"/g, '""')}"`;
+    return quoteStyle === "all" || needsDsvQuote(cell, delimiter, columnCount) ? quoted : cell;
+  };
+  const buildCsvLine = (row, delimiter, quoteStyle) => row.map(cell => quoteDsvCell(String(cell ?? ""), delimiter, quoteStyle, row.length)).join(delimiter);
   const calcRowBytes = (row, delimiter, encoding, quoteStyle, suffix) => {
     const line = buildCsvLine(row, delimiter, quoteStyle) + suffix;
     try {
@@ -23107,16 +22931,11 @@ const Editor = (() => {
       $dataSize.textContent = "0 B";
       return;
     }
-    const calcSync = () => {
-      let bytes = bomBytes;
-      for (let i = 0; i < rows.length; i++) {
-        const suffix = i < rows.length - 1 ? newline : "";
-        bytes += calcRowBytes(rows[i] ?? [], delimiter, encoding, quoteStyle, suffix);
-      }
-      return bytes;
-    };
+    const rowBytes = i => calcRowBytes(rows[i] ?? [], delimiter, encoding, quoteStyle, i < rows.length - 1 ? newline : "");
     if (rows.length <= STATS_ASYNC_ROW_THRESHOLD) {
-      $dataSize.textContent = formatBytes(calcSync());
+      let bytes = bomBytes;
+      for (let i = 0; i < rows.length; i++) bytes += rowBytes(i);
+      $dataSize.textContent = formatBytes(bytes);
       return;
     }
     $dataSize.textContent = "計算中...";
@@ -23125,32 +22944,20 @@ const Editor = (() => {
     const runChunk = () => {
       if (token !== _statsTaskToken) return;
       const startedAt = performance.now();
-      let processed = 0;
-      while (i < rows.length && (processed < STATS_MIN_BATCH_ROWS || performance.now() - startedAt < STATS_TIME_BUDGET_MS)) {
-        const suffix = i < rows.length - 1 ? newline : "";
-        bytes += calcRowBytes(rows[i] ?? [], delimiter, encoding, quoteStyle, suffix);
+      for (let processed = 0; i < rows.length && (processed < STATS_MIN_BATCH_ROWS || performance.now() - startedAt < STATS_TIME_BUDGET_MS); processed++) {
+        bytes += rowBytes(i);
         i++;
-        processed++;
       }
-      if (i < rows.length) {
-        setTimeout(runChunk, 0);
-        return;
-      }
-      if (token !== _statsTaskToken) return;
-      $dataSize.textContent = formatBytes(bytes);
-    };
-    const runMainChunked = () => {
-      if (token !== _statsTaskToken) return;
-      runChunk();
+      if (i < rows.length) setTimeout(runChunk, 0); else $dataSize.textContent = formatBytes(bytes);
     };
     if (rows.length >= LARGE_DATA_ROW_THRESHOLD) {
       _statsDebounceTimer = setTimeout(() => {
         _statsDebounceTimer = null;
-        runMainChunked();
+        runChunk();
       }, STATS_DEBOUNCE_MS);
       return;
     }
-    runMainChunked();
+    runChunk();
   };
   const CSV_PARSE_ERROR_UNCLOSED_QUOTE = "csv_unclosed_quote";
   const isUnclosedQuoteParseError = error => error?.code === CSV_PARSE_ERROR_UNCLOSED_QUOTE || error?.message === CSV_PARSE_ERROR_UNCLOSED_QUOTE;
@@ -23356,10 +23163,7 @@ const Editor = (() => {
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].length > maxCols) maxCols = rows[i].length;
     }
-    return rows.map(row => {
-      while (row.length < maxCols) row.push("");
-      return row;
-    });
+    return rows.map(row => row.length < maxCols ? [ ...row, ...Array(maxCols - row.length).fill("") ] : row);
   };
   const _quoteTsvCell = (cell, _columnIndex, _row) => {
     const text = normalizeCellValue(cell);
@@ -23480,240 +23284,132 @@ const Editor = (() => {
       URL.revokeObjectURL(_url);
     }
   };
-  const terminateSearchWorker = () => {
-    if (_searchWorker) {
-      _searchWorker.terminate();
-      _searchWorker = null;
-    }
-    if (_searchWorkerUrl) {
-      URL.revokeObjectURL(_searchWorkerUrl);
-      _searchWorkerUrl = "";
-    }
-    _searchWorkerPending.forEach(({reject}) => reject(new Error("Search worker terminated")));
-    _searchWorkerPending.clear();
-    _searchWorkerDataRevision = -1;
-    _searchWorkerDirtyRows = null;
-  };
   const _exactSearchPattern = _source => `^(?:${_source})(?![\\s\\S])`;
   const _createLiteralSearchRegex = (_query, _caseSensitive, _exactMatch, _global = false) => {
     const _source = escapeRegExp(_query);
     return new RegExp(_exactMatch ? _exactSearchPattern(_source) : _source, `${_global ? "g" : ""}${_caseSensitive ? "" : "i"}u`);
   };
-  const ensureSearchWorker = () => {
-    if (typeof Worker === "undefined") return null;
-    if (_searchWorker) return _searchWorker;
-    const workerCode = `let data = [];\n\nlet rowCache = [];\n\nlet latestSearchToken = 0;\n\nlet searchRunning = false;\n\nlet pendingSearch = null;\n\nconst SEP = '';\n\nconst sleep = () => new Promise(resolve => setTimeout(resolve, 0));\n\nconst _exactSearchPattern = ${_exactSearchPattern.toString()};\n\nconst escapeRegExp = ${escapeRegExp.toString()};\n\nconst _createLiteralSearchRegex = ${_createLiteralSearchRegex.toString()};\n\nconst buildMatcher = (query, caseSensitive, exactMatch, useRegex) => {\n  if (useRegex) {\n    const flags = caseSensitive ? '' : 'i';\n    let re;\n    try {\n      re = new RegExp(query, flags);\n      if (exactMatch) re = new RegExp(_exactSearchPattern(re.source), flags);\n    } catch {\n      return null;\n    }\n    return cell => re.test(cell);\n  }\n  const _literal = _createLiteralSearchRegex(query, caseSensitive, exactMatch);\n  return cell => _literal.test(cell);\n};\n\nconst getRowSearchText = rowIndex => {\n  let cached = rowCache[rowIndex];\n  if (!cached) {\n    const row = data[rowIndex] ?? [];\n    const raw = row.join(SEP);\n    cached = {\n      raw\n    };\n    rowCache[rowIndex] = cached;\n  }\n  return cached;\n};\n\nconst runSearch = async payload => {\n  const {taskToken, start, rowIndexes, targetCol, query, caseSensitive, exactMatch, useRegex, filterBySearch, highlightAllMatches, storeLimit, canUseRowPrefilter, minBatchRows, timeBudgetMs} = payload;\n  const matcher = buildMatcher(query, caseSensitive, exactMatch, useRegex);\n  if (!matcher) return {\n    invalidRegex: true\n  };\n  const matches = [];\n  const ranges = new Map;\n  const highlightRegex = useRegex && !exactMatch ? new RegExp(query, 'g' + (caseSensitive ? '' : 'i')) : null;\n  const matchMap = highlightAllMatches ? new Map : null;\n  const matchedRows = filterBySearch ? [] : null;\n  let totalCount = 0;\n  const searchRows = Array.isArray(rowIndexes) ? rowIndexes : null;\n  let rowPointer = searchRows ? 0 : start;\n  const pushMatch = (r, c) => {\n    totalCount++;\n    if (matches.length >= storeLimit) return;\n    matches.push([ r, c ]);\n    const text = data[r]?.[c] ?? '';\n    if (highlightRegex && !ranges.has(text)) {\n      highlightRegex.lastIndex = 0;\n      const offsets = [];\n      let match;\n      while (match = highlightRegex.exec(text)) {\n        if (match[0].length) offsets.push([ match.index, match.index + match[0].length ]); else if (highlightRegex.lastIndex <= match.index) highlightRegex.lastIndex = match.index + 1;\n      }\n      ranges.set(text, offsets);\n    }\n    if (!matchMap) return;\n    let cols = matchMap.get(r);\n    if (!cols) {\n      cols = [];\n      matchMap.set(r, cols);\n    }\n    cols.push(c);\n  };\n  const hasNextRow = () => searchRows ? rowPointer < searchRows.length : rowPointer < data.length;\n  while (hasNextRow()) {\n    if (taskToken !== latestSearchToken) return {\n      aborted: true\n    };\n    const startedAt = performance.now();\n    let processedRows = 0;\n    while (hasNextRow() && (processedRows < minBatchRows || performance.now() - startedAt < timeBudgetMs)) {\n      if (taskToken !== latestSearchToken) return {\n        aborted: true\n      };\n      const rowIndex = searchRows ? searchRows[rowPointer] : rowPointer;\n      const row = data[rowIndex] ?? [];\n      let rowMatched = false;\n      if (targetCol >= 0) {\n        const cell = row[targetCol] ?? '';\n        if (matcher(cell)) {\n          pushMatch(rowIndex, targetCol);\n          rowMatched = true;\n        }\n      } else {\n        if (canUseRowPrefilter) {\n          const rowSearchText = getRowSearchText(rowIndex);\n          if (!matcher(rowSearchText.raw)) {\n            rowPointer++;\n            processedRows++;\n            continue;\n          }\n        }\n        for (let colIndex = 0; colIndex < row.length; colIndex++) {\n          if (matcher(row[colIndex] ?? '')) {\n            pushMatch(rowIndex, colIndex);\n            rowMatched = true;\n          }\n        }\n      }\n      if (filterBySearch && rowMatched) matchedRows.push(rowIndex);\n      rowPointer++;\n      processedRows++;\n    }\n    if (hasNextRow()) await sleep();\n  }\n  if (taskToken !== latestSearchToken) return {\n    aborted: true\n  };\n  const matchMapEntries = matchMap ? [ ...matchMap ] : null;\n  return {\n    matches,\n    matchMapEntries,\n    totalCount,\n    matchedRows,\n    ranges: [ ...ranges ]\n  };\n};\n\nconst processSearchQueue = async () => {\n  if (searchRunning) return;\n  searchRunning = true;\n  while (pendingSearch) {\n    const task = pendingSearch;\n    pendingSearch = null;\n    try {\n      const result = await runSearch(task.payload);\n      self.postMessage({\n        id: task.id,\n        ok: true,\n        result\n      });\n    } catch (error) {\n      self.postMessage({\n        id: task.id,\n        ok: false,\n        error: error?.message ?? String(error)\n      });\n    }\n  }\n  searchRunning = false;\n};\n\nself.onmessage = event => {\n  const {id, type, payload} = event.data || {};\n  try {\n    if (type === 'syncData') {\n      if (Array.isArray(payload?.data)) {\n        data = payload.data;\n        rowCache = new Array(data.length);\n      } else if (Array.isArray(payload?.dirty)) {\n        for (const entry of payload.dirty) {\n          const idx = entry?.idx | 0;\n          if (idx < 0) continue;\n          if (idx >= data.length) {\n            data.length = idx + 1;\n            rowCache.length = idx + 1;\n          }\n          data[idx] = Array.isArray(entry.row) ? entry.row : [];\n          rowCache[idx] = undefined;\n        }\n      }\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          rows: data.length\n        }\n      });\n      return;\n    }\n    if (type === 'cancel') {\n      latestSearchToken = payload?.taskToken ?? latestSearchToken;\n      if (pendingSearch) {\n        self.postMessage({\n          id: pendingSearch.id,\n          ok: true,\n          result: {\n            aborted: true\n          }\n        });\n        pendingSearch = null;\n      }\n      if (id) self.postMessage({\n        id,\n        ok: true,\n        result: {\n          cancelled: true\n        }\n      });\n      return;\n    }\n    if (type === 'search') {\n      latestSearchToken = payload?.taskToken ?? latestSearchToken;\n      if (pendingSearch) {\n        self.postMessage({\n          id: pendingSearch.id,\n          ok: true,\n          result: {\n            aborted: true\n          }\n        });\n      }\n      pendingSearch = {\n        id,\n        payload\n      };\n      void processSearchQueue();\n      return;\n    }\n    self.postMessage({\n      id,\n      ok: false,\n      error: 'Unknown search worker task'\n    });\n  } catch (e) {\n    self.postMessage({\n      id,\n      ok: false,\n      error: e?.message ?? String(e)\n    });\n  }\n};`;
-    _searchWorkerUrl = URL.createObjectURL(new Blob([ workerCode ], {
-      type: "text/javascript"
-    }));
-    try {
-      _searchWorker = new Worker(_searchWorkerUrl);
-    } catch (_error) {
-      terminateSearchWorker();
-      throw _error;
-    }
-    _searchWorker.onmessage = event => {
-      const packet = event.data ?? {};
-      const pending = _searchWorkerPending.get(packet.id);
-      if (!pending) return;
-      _searchWorkerPending.delete(packet.id);
-      if (packet.ok) pending.resolve(packet.result); else pending.reject(new Error(packet.error || "Search worker error"));
-    };
-    _searchWorker.onerror = event => {
-      console.warn("Search worker crashed:", event);
-      terminateSearchWorker();
-    };
-    _searchWorker.onmessageerror = _searchWorker.onerror;
-    return _searchWorker;
-  };
-  const callSearchWorker = (type, payload) => new Promise((resolve, reject) => {
-    const worker = ensureSearchWorker();
-    if (!worker) {
-      reject(new Error("Search worker unavailable"));
-      return;
-    }
-    const id = ++_searchWorkerRequestSeq;
-    const _timer = setTimeout(() => terminateSearchWorker(), payload?.useRegex ? REGEX_WORKER_TIMEOUT_MS : DATA_WORKER_TIMEOUT_MS);
-    _searchWorkerPending.set(id, {
-      useRegex: !!payload?.useRegex,
-      resolve: _value => {
-        clearTimeout(_timer);
-        resolve(_value);
+  const createWorkerChannel = (label, buildCode) => {
+    let worker = null;
+    let url = "";
+    let requestSeq = 0;
+    const pending = new Map;
+    const channel = {
+      dataRevision: -1,
+      dirtyRows: null,
+      get worker() {
+        return worker;
       },
-      reject: _error => {
-        clearTimeout(_timer);
-        reject(_error);
-      }
-    });
-    try {
-      worker.postMessage({
-        id,
-        type,
-        payload
-      });
-    } catch (error) {
-      clearTimeout(_timer);
-      _searchWorkerPending.delete(id);
-      reject(error);
-    }
-  });
-  const syncSearchWorkerDataIfNeeded = async ({force = false} = {}) => {
-    if (!force && state.data.length < SEARCH_WORKER_ROW_THRESHOLD) {
-      terminateSearchWorker();
+      hasPendingRegex: () => [ ...pending.values() ].some(task => task.useRegex),
+      terminate: () => {
+        worker?.terminate();
+        worker = null;
+        if (url) {
+          URL.revokeObjectURL(url);
+          url = "";
+        }
+        pending.forEach(({reject}) => reject(new Error(`${label} worker terminated`)));
+        pending.clear();
+        channel.dataRevision = -1;
+        channel.dirtyRows = null;
+      },
+      ensure: () => {
+        if (typeof Worker === "undefined") return null;
+        if (worker) return worker;
+        url = URL.createObjectURL(new Blob([ buildCode() ], {
+          type: "text/javascript"
+        }));
+        try {
+          worker = new Worker(url);
+        } catch (error) {
+          channel.terminate();
+          throw error;
+        }
+        worker.onmessage = event => {
+          const packet = event.data ?? {};
+          const task = pending.get(packet.id);
+          if (!task) return;
+          pending.delete(packet.id);
+          if (packet.ok) task.resolve(packet.result); else task.reject(new Error(packet.error || `${label} worker error`));
+        };
+        worker.onerror = event => {
+          console.warn(`${label} worker crashed:`, event);
+          channel.terminate();
+        };
+        worker.onmessageerror = worker.onerror;
+        return worker;
+      },
+      call: (type, payload) => new Promise((resolve, reject) => {
+        const target = channel.ensure();
+        if (!target) {
+          reject(new Error(`${label} worker unavailable`));
+          return;
+        }
+        const id = ++requestSeq;
+        const useRegex = !!payload?.useRegex;
+        const timer = setTimeout(() => channel.terminate(), useRegex ? REGEX_WORKER_TIMEOUT_MS : DATA_WORKER_TIMEOUT_MS);
+        pending.set(id, {
+          useRegex,
+          resolve: value => {
+            clearTimeout(timer);
+            resolve(value);
+          },
+          reject: error => {
+            clearTimeout(timer);
+            reject(error);
+          }
+        });
+        try {
+          target.postMessage({
+            id,
+            type,
+            payload
+          });
+        } catch (error) {
+          clearTimeout(timer);
+          pending.delete(id);
+          reject(error);
+        }
+      })
+    };
+    return channel;
+  };
+  const searchWorker = createWorkerChannel("Search", () => `let data = [];\n\nlet rowCache = [];\n\nlet latestSearchToken = 0;\n\nlet searchRunning = false;\n\nlet pendingSearch = null;\n\nconst SEP = '';\n\nconst sleep = () => new Promise(resolve => setTimeout(resolve, 0));\n\nconst _exactSearchPattern = ${_exactSearchPattern.toString()};\n\nconst escapeRegExp = ${escapeRegExp.toString()};\n\nconst _createLiteralSearchRegex = ${_createLiteralSearchRegex.toString()};\n\nconst buildMatcher = (query, caseSensitive, exactMatch, useRegex) => {\n  if (useRegex) {\n    const flags = caseSensitive ? '' : 'i';\n    let re;\n    try {\n      re = new RegExp(query, flags);\n      if (exactMatch) re = new RegExp(_exactSearchPattern(re.source), flags);\n    } catch {\n      return null;\n    }\n    return cell => re.test(cell);\n  }\n  const _literal = _createLiteralSearchRegex(query, caseSensitive, exactMatch);\n  return cell => _literal.test(cell);\n};\n\nconst getRowSearchText = rowIndex => {\n  let cached = rowCache[rowIndex];\n  if (!cached) {\n    const row = data[rowIndex] ?? [];\n    const raw = row.join(SEP);\n    cached = {\n      raw\n    };\n    rowCache[rowIndex] = cached;\n  }\n  return cached;\n};\n\nconst runSearch = async payload => {\n  const {taskToken, start, rowIndexes, targetCol, query, caseSensitive, exactMatch, useRegex, filterBySearch, highlightAllMatches, storeLimit, canUseRowPrefilter, minBatchRows, timeBudgetMs} = payload;\n  const matcher = buildMatcher(query, caseSensitive, exactMatch, useRegex);\n  if (!matcher) return {\n    invalidRegex: true\n  };\n  const matches = [];\n  const ranges = new Map;\n  const highlightRegex = useRegex && !exactMatch ? new RegExp(query, 'g' + (caseSensitive ? '' : 'i')) : null;\n  const matchMap = highlightAllMatches ? new Map : null;\n  const matchedRows = filterBySearch ? [] : null;\n  let totalCount = 0;\n  const searchRows = Array.isArray(rowIndexes) ? rowIndexes : null;\n  let rowPointer = searchRows ? 0 : start;\n  const pushMatch = (r, c) => {\n    totalCount++;\n    if (matches.length >= storeLimit) return;\n    matches.push([ r, c ]);\n    const text = data[r]?.[c] ?? '';\n    if (highlightRegex && !ranges.has(text)) {\n      highlightRegex.lastIndex = 0;\n      const offsets = [];\n      let match;\n      while (match = highlightRegex.exec(text)) {\n        if (match[0].length) offsets.push([ match.index, match.index + match[0].length ]); else if (highlightRegex.lastIndex <= match.index) highlightRegex.lastIndex = match.index + 1;\n      }\n      ranges.set(text, offsets);\n    }\n    if (!matchMap) return;\n    let cols = matchMap.get(r);\n    if (!cols) {\n      cols = [];\n      matchMap.set(r, cols);\n    }\n    cols.push(c);\n  };\n  const hasNextRow = () => searchRows ? rowPointer < searchRows.length : rowPointer < data.length;\n  while (hasNextRow()) {\n    if (taskToken !== latestSearchToken) return {\n      aborted: true\n    };\n    const startedAt = performance.now();\n    let processedRows = 0;\n    while (hasNextRow() && (processedRows < minBatchRows || performance.now() - startedAt < timeBudgetMs)) {\n      if (taskToken !== latestSearchToken) return {\n        aborted: true\n      };\n      const rowIndex = searchRows ? searchRows[rowPointer] : rowPointer;\n      const row = data[rowIndex] ?? [];\n      let rowMatched = false;\n      if (targetCol >= 0) {\n        const cell = row[targetCol] ?? '';\n        if (matcher(cell)) {\n          pushMatch(rowIndex, targetCol);\n          rowMatched = true;\n        }\n      } else {\n        if (canUseRowPrefilter) {\n          const rowSearchText = getRowSearchText(rowIndex);\n          if (!matcher(rowSearchText.raw)) {\n            rowPointer++;\n            processedRows++;\n            continue;\n          }\n        }\n        for (let colIndex = 0; colIndex < row.length; colIndex++) {\n          if (matcher(row[colIndex] ?? '')) {\n            pushMatch(rowIndex, colIndex);\n            rowMatched = true;\n          }\n        }\n      }\n      if (filterBySearch && rowMatched) matchedRows.push(rowIndex);\n      rowPointer++;\n      processedRows++;\n    }\n    if (hasNextRow()) await sleep();\n  }\n  if (taskToken !== latestSearchToken) return {\n    aborted: true\n  };\n  const matchMapEntries = matchMap ? [ ...matchMap ] : null;\n  return {\n    matches,\n    matchMapEntries,\n    totalCount,\n    matchedRows,\n    ranges: [ ...ranges ]\n  };\n};\n\nconst processSearchQueue = async () => {\n  if (searchRunning) return;\n  searchRunning = true;\n  while (pendingSearch) {\n    const task = pendingSearch;\n    pendingSearch = null;\n    try {\n      const result = await runSearch(task.payload);\n      self.postMessage({\n        id: task.id,\n        ok: true,\n        result\n      });\n    } catch (error) {\n      self.postMessage({\n        id: task.id,\n        ok: false,\n        error: error?.message ?? String(error)\n      });\n    }\n  }\n  searchRunning = false;\n};\n\nself.onmessage = event => {\n  const {id, type, payload} = event.data || {};\n  try {\n    if (type === 'syncData') {\n      if (Array.isArray(payload?.data)) {\n        data = payload.data;\n        rowCache = new Array(data.length);\n      } else if (Array.isArray(payload?.dirty)) {\n        for (const entry of payload.dirty) {\n          const idx = entry?.idx | 0;\n          if (idx < 0) continue;\n          if (idx >= data.length) {\n            data.length = idx + 1;\n            rowCache.length = idx + 1;\n          }\n          data[idx] = Array.isArray(entry.row) ? entry.row : [];\n          rowCache[idx] = undefined;\n        }\n      }\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          rows: data.length\n        }\n      });\n      return;\n    }\n    if (type === 'cancel') {\n      latestSearchToken = payload?.taskToken ?? latestSearchToken;\n      if (pendingSearch) {\n        self.postMessage({\n          id: pendingSearch.id,\n          ok: true,\n          result: {\n            aborted: true\n          }\n        });\n        pendingSearch = null;\n      }\n      if (id) self.postMessage({\n        id,\n        ok: true,\n        result: {\n          cancelled: true\n        }\n      });\n      return;\n    }\n    if (type === 'search') {\n      latestSearchToken = payload?.taskToken ?? latestSearchToken;\n      if (pendingSearch) {\n        self.postMessage({\n          id: pendingSearch.id,\n          ok: true,\n          result: {\n            aborted: true\n          }\n        });\n      }\n      pendingSearch = {\n        id,\n        payload\n      };\n      void processSearchQueue();\n      return;\n    }\n    self.postMessage({\n      id,\n      ok: false,\n      error: 'Unknown search worker task'\n    });\n  } catch (e) {\n    self.postMessage({\n      id,\n      ok: false,\n      error: e?.message ?? String(e)\n    });\n  }\n};`);
+  const filterWorker = createWorkerChannel("Filter", () => `let data = [];\n\nconst STRICT_NUMERIC_RE = ${STRICT_NUMERIC_RE.toString()};\n\nconst _parseExactNumeric = ${_parseExactNumeric.toString()};\n\nconst _compareExactNumbers = ${_compareExactNumbers.toString()};\n\nconst evalCondition = ${evalCondition.toString()};\n\nconst _prepareFilters = _filters => (Array.isArray(_filters) ? _filters : []).map(_config => ({\n  ..._config,\n  values: Array.isArray(_config.values) ? new Set(_config.values) : null\n}));\n\nconst rowPasses = (row, filters) => {\n  for (let i = 0; i < filters.length; i++) {\n    const config = filters[i];\n    const cellVal = row[config.colIdx] ?? '';\n    if (config.values && !config.values.has(cellVal)) return false;\n    if (config.conditions && config.conditions.length > 0) {\n      const results = config.conditions.map(c => evalCondition(cellVal, c.op, c.val));\n      const condPass = config.logic === 'and' ? results.every(Boolean) : results.some(Boolean);\n      if (!condPass) return false;\n    }\n  }\n  return true;\n};\n\nself.onmessage = event => {\n  const {id, type, payload} = event.data || {};\n  try {\n    if (type === 'syncData') {\n      if (Array.isArray(payload?.data)) {\n        data = payload.data;\n      } else if (Array.isArray(payload?.dirty)) {\n        for (const entry of payload.dirty) {\n          const idx = entry?.idx | 0;\n          if (idx < 0) continue;\n          if (idx >= data.length) data.length = idx + 1;\n          data[idx] = Array.isArray(entry.row) ? entry.row : [];\n        }\n      }\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          rows: data.length\n        }\n      });\n      return;\n    }\n    if (type === 'valueCounts') {\n      const colIdx = payload?.colIdx ?? 0;\n      const start = payload?.start ?? 0;\n      const filters = _prepareFilters(payload?.filters);\n      const valueCounts = new Map;\n      for (let i = start; i < data.length; i++) {\n        const row = data[i] ?? [];\n        if (filters.length > 0 && !rowPasses(row, filters)) continue;\n        const value = row[colIdx] ?? '';\n        valueCounts.set(value, (valueCounts.get(value) ?? 0) + 1);\n      }\n      const sorted = [ ...valueCounts ];\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          sorted\n        }\n      });\n      return;\n    }\n    if (type === 'evaluateFilters') {\n      const start = payload?.start ?? 0;\n      const filters = _prepareFilters(payload?.filters);\n      const passingRows = [];\n      for (let i = start; i < data.length; i++) {\n        const row = data[i] ?? [];\n        if (rowPasses(row, filters)) passingRows.push(i);\n      }\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          passingRows\n        }\n      });\n      return;\n    }\n    self.postMessage({\n      id,\n      ok: false,\n      error: 'Unknown filter worker task'\n    });\n  } catch (e) {\n    self.postMessage({\n      id,\n      ok: false,\n      error: e?.message ?? String(e)\n    });\n  }\n};`);
+  const syncWorkerData = async (channel, other, threshold, force = false) => {
+    if (!force && state.data.length < threshold) {
+      channel.terminate();
       return false;
     }
-    if (state.data.length >= WORKER_EXCLUSIVE_ROW_THRESHOLD) {
-      terminateFilterWorker();
-    }
-    ensureSearchWorker();
-    if (!_searchWorker) return false;
-    if (_searchWorkerDataRevision === _dataRevision) return true;
+    if (state.data.length >= WORKER_EXCLUSIVE_ROW_THRESHOLD) other.terminate();
+    if (!channel.ensure()) return false;
+    if (channel.dataRevision === _dataRevision) return true;
     const revisionAtStart = _dataRevision;
-    const dirty = _searchWorkerDirtyRows;
-    const canDiff = dirty !== null && _searchWorkerDataRevision >= 0 && dirty.size > 0 && dirty.size < state.data.length;
-    if (canDiff) {
-      const payload = {
-        dirty: []
-      };
-      for (const idx of dirty) {
-        payload.dirty.push({
-          idx,
-          row: state.data[idx] ?? []
-        });
-      }
-      await callSearchWorker("syncData", payload);
-    } else {
-      await callSearchWorker("syncData", {
-        data: state.data
-      });
-    }
+    const dirty = channel.dirtyRows;
+    const canDiff = dirty !== null && channel.dataRevision >= 0 && dirty.size > 0 && dirty.size < state.data.length;
+    await channel.call("syncData", canDiff ? {
+      dirty: [ ...dirty ].map(idx => ({
+        idx,
+        row: state.data[idx] ?? []
+      }))
+    } : {
+      data: state.data
+    });
     if (revisionAtStart !== _dataRevision) return false;
-    _searchWorkerDataRevision = _dataRevision;
-    _searchWorkerDirtyRows = new Set;
+    channel.dataRevision = _dataRevision;
+    channel.dirtyRows = new Set;
     return true;
   };
-  const terminateFilterWorker = () => {
-    if (_filterWorker) {
-      _filterWorker.terminate();
-      _filterWorker = null;
-    }
-    if (_filterWorkerUrl) {
-      URL.revokeObjectURL(_filterWorkerUrl);
-      _filterWorkerUrl = "";
-    }
-    _filterWorkerPending.forEach(({reject}) => reject(new Error("Filter worker terminated")));
-    _filterWorkerPending.clear();
-    _filterWorkerDataRevision = -1;
-    _filterWorkerDirtyRows = null;
-  };
-  const ensureFilterWorker = () => {
-    if (typeof Worker === "undefined") return null;
-    if (_filterWorker) return _filterWorker;
-    const workerCode = `let data = [];\n\nconst STRICT_NUMERIC_RE = ${STRICT_NUMERIC_RE.toString()};\n\nconst _parseExactNumeric = ${_parseExactNumeric.toString()};\n\nconst _compareExactNumbers = ${_compareExactNumbers.toString()};\n\nconst evalCondition = ${evalCondition.toString()};\n\nconst _prepareFilters = _filters => (Array.isArray(_filters) ? _filters : []).map(_config => ({\n  ..._config,\n  values: Array.isArray(_config.values) ? new Set(_config.values) : null\n}));\n\nconst rowPasses = (row, filters) => {\n  for (let i = 0; i < filters.length; i++) {\n    const config = filters[i];\n    const cellVal = row[config.colIdx] ?? '';\n    if (config.values && !config.values.has(cellVal)) return false;\n    if (config.conditions && config.conditions.length > 0) {\n      const results = config.conditions.map(c => evalCondition(cellVal, c.op, c.val));\n      const condPass = config.logic === 'and' ? results.every(Boolean) : results.some(Boolean);\n      if (!condPass) return false;\n    }\n  }\n  return true;\n};\n\nself.onmessage = event => {\n  const {id, type, payload} = event.data || {};\n  try {\n    if (type === 'syncData') {\n      if (Array.isArray(payload?.data)) {\n        data = payload.data;\n      } else if (Array.isArray(payload?.dirty)) {\n        for (const entry of payload.dirty) {\n          const idx = entry?.idx | 0;\n          if (idx < 0) continue;\n          if (idx >= data.length) data.length = idx + 1;\n          data[idx] = Array.isArray(entry.row) ? entry.row : [];\n        }\n      }\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          rows: data.length\n        }\n      });\n      return;\n    }\n    if (type === 'valueCounts') {\n      const colIdx = payload?.colIdx ?? 0;\n      const start = payload?.start ?? 0;\n      const filters = _prepareFilters(payload?.filters);\n      const valueCounts = new Map;\n      for (let i = start; i < data.length; i++) {\n        const row = data[i] ?? [];\n        if (filters.length > 0 && !rowPasses(row, filters)) continue;\n        const value = row[colIdx] ?? '';\n        valueCounts.set(value, (valueCounts.get(value) ?? 0) + 1);\n      }\n      const sorted = [ ...valueCounts ];\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          sorted\n        }\n      });\n      return;\n    }\n    if (type === 'evaluateFilters') {\n      const start = payload?.start ?? 0;\n      const filters = _prepareFilters(payload?.filters);\n      const passingRows = [];\n      for (let i = start; i < data.length; i++) {\n        const row = data[i] ?? [];\n        if (rowPasses(row, filters)) passingRows.push(i);\n      }\n      self.postMessage({\n        id,\n        ok: true,\n        result: {\n          passingRows\n        }\n      });\n      return;\n    }\n    self.postMessage({\n      id,\n      ok: false,\n      error: 'Unknown filter worker task'\n    });\n  } catch (e) {\n    self.postMessage({\n      id,\n      ok: false,\n      error: e?.message ?? String(e)\n    });\n  }\n};`;
-    _filterWorkerUrl = URL.createObjectURL(new Blob([ workerCode ], {
-      type: "text/javascript"
-    }));
-    try {
-      _filterWorker = new Worker(_filterWorkerUrl);
-    } catch (_error) {
-      terminateFilterWorker();
-      throw _error;
-    }
-    _filterWorker.onmessage = event => {
-      const packet = event.data ?? {};
-      const pending = _filterWorkerPending.get(packet.id);
-      if (!pending) return;
-      _filterWorkerPending.delete(packet.id);
-      if (packet.ok) pending.resolve(packet.result); else pending.reject(new Error(packet.error || "Filter worker error"));
-    };
-    _filterWorker.onerror = event => {
-      console.warn("Filter worker crashed:", event);
-      terminateFilterWorker();
-    };
-    _filterWorker.onmessageerror = _filterWorker.onerror;
-    return _filterWorker;
-  };
-  const callFilterWorker = (type, payload) => new Promise((resolve, reject) => {
-    const worker = ensureFilterWorker();
-    if (!worker) {
-      reject(new Error("Filter worker unavailable"));
-      return;
-    }
-    const id = ++_filterWorkerRequestSeq;
-    const _timer = setTimeout(() => terminateFilterWorker(), DATA_WORKER_TIMEOUT_MS);
-    _filterWorkerPending.set(id, {
-      resolve: _value => {
-        clearTimeout(_timer);
-        resolve(_value);
-      },
-      reject: _error => {
-        clearTimeout(_timer);
-        reject(_error);
-      }
-    });
-    try {
-      worker.postMessage({
-        id,
-        type,
-        payload
-      });
-    } catch (error) {
-      clearTimeout(_timer);
-      _filterWorkerPending.delete(id);
-      reject(error);
-    }
+  const terminateSearchWorker = () => searchWorker.terminate();
+  const terminateFilterWorker = () => filterWorker.terminate();
+  const callSearchWorker = (type, payload) => searchWorker.call(type, payload);
+  const callFilterWorker = (type, payload) => filterWorker.call(type, payload);
+  const syncSearchWorkerDataIfNeeded = ({force = false} = {}) => syncWorkerData(searchWorker, filterWorker, SEARCH_WORKER_ROW_THRESHOLD, force);
+  const syncFilterWorkerDataIfNeeded = () => syncWorkerData(filterWorker, searchWorker, FILTER_WORKER_ROW_THRESHOLD);
+  const _confirmDataReplacement = async () => state.data.length === 0 || askModal("データを置換", "現在のデータを新しいデータで置換しますか？この操作は元に戻せます。", {
+    confirmLabel: "置換",
+    confirmVariant: "gm-btn-danger"
   });
-  const syncFilterWorkerDataIfNeeded = async () => {
-    if (state.data.length < FILTER_WORKER_ROW_THRESHOLD) {
-      terminateFilterWorker();
-      return false;
-    }
-    if (state.data.length >= WORKER_EXCLUSIVE_ROW_THRESHOLD) {
-      terminateSearchWorker();
-    }
-    ensureFilterWorker();
-    if (!_filterWorker) return false;
-    if (_filterWorkerDataRevision === _dataRevision) return true;
-    const revisionAtStart = _dataRevision;
-    const dirty = _filterWorkerDirtyRows;
-    const canDiff = dirty !== null && _filterWorkerDataRevision >= 0 && dirty.size > 0 && dirty.size < state.data.length;
-    if (canDiff) {
-      const payload = {
-        dirty: []
-      };
-      for (const idx of dirty) {
-        payload.dirty.push({
-          idx,
-          row: state.data[idx] ?? []
-        });
-      }
-      await callFilterWorker("syncData", payload);
-    } else {
-      await callFilterWorker("syncData", {
-        data: state.data
-      });
-    }
-    if (revisionAtStart !== _dataRevision) return false;
-    _filterWorkerDataRevision = _dataRevision;
-    _filterWorkerDirtyRows = new Set;
-    return true;
-  };
-  const _confirmDataReplacement = () => {
-    if (state.data.length === 0) return Promise.resolve(true);
-    return new Promise(resolve => {
-      let settled = false;
-      const finish = confirmed => {
-        if (settled) return;
-        settled = true;
-        resolve(confirmed);
-      };
-      openModal("データを置換", "現在のデータを新しいデータで置換しますか？この操作は元に戻せます。", () => finish(true), {
-        confirmLabel: "置換",
-        confirmVariant: "gm-btn-danger",
-        onCancel: () => finish(false)
-      });
-    });
-  };
   const _commitImportedData = ({data, delimiter, hasHeader, newline, encoding, bom, fileContext = null}) => {
     const hadExistingData = state.data.length > 0;
     if (hadExistingData) {
@@ -23778,7 +23474,7 @@ const Editor = (() => {
       newline,
       fileContext: null
     });
-    showToast(`${state.data.length}行のデータを読み込みました`, "success");
+    showToast(`${getDataShapeMeta(state.data, state.hasHeader).rowCount}行のデータを読み込みました`, "success");
     return true;
   };
   const $pasteImportOverlay = qs("#pasteImportOverlay");
@@ -23945,29 +23641,19 @@ const Editor = (() => {
     }
     applyRenderedTableWidth(renderedTableWidth + delta);
   };
-  const rowPassesColumnFilters = rowIdx => {
-    if (columnFilters.size === 0) return true;
-    if (_columnFilterRows) return _columnFilterRows.has(rowIdx);
+  const rowPassesFilters = (rowIdx, excludeColIdx = -1) => {
     for (const [colIdx, config] of columnFilters) {
+      if (colIdx === excludeColIdx) continue;
       const cellVal = state.data[rowIdx]?.[colIdx] ?? "";
       if (config.values && !config.values.has(cellVal)) return false;
       if (config.conditions.length > 0) {
         const results = config.conditions.map(c => evalCondition(cellVal, c.op, c.val));
-        const condPass = config.logic === "and" ? results.every(Boolean) : results.some(Boolean);
-        if (!condPass) return false;
+        if (!(config.logic === "and" ? results.every(Boolean) : results.some(Boolean))) return false;
       }
     }
     return true;
   };
-  const serializeColumnFilters = () => [ ...columnFilters.entries() ].map(([colIdx, config]) => ({
-    colIdx,
-    values: config.values ? [ ...config.values ] : null,
-    conditions: (config.conditions ?? []).map(c => ({
-      op: c.op,
-      val: c.val
-    })),
-    logic: config.logic === "or" ? "or" : "and"
-  }));
+  const rowPassesColumnFilters = rowIdx => columnFilters.size === 0 || (_columnFilterRows ? _columnFilterRows.has(rowIdx) : rowPassesFilters(rowIdx));
   const computeColumnFilterRowsMain = () => {
     const passing = new Set;
     const start = getBodyDataStart();
@@ -24359,9 +24045,7 @@ const Editor = (() => {
     saveToHistory();
     state.hasHeader = !state.hasHeader;
     fitHeaderColumnWidths();
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     showToast(state.hasHeader ? "ヘッダーを有効にしました" : "ヘッダーを無効にしました");
   };
   const normalizeVirtualHeaderPreset = preset => {
@@ -25501,6 +25185,18 @@ const Editor = (() => {
     _searchInProgress = false;
     clearCurrentMatchCell();
   };
+  const cancelWorkerSearch = () => {
+    if (searchWorker.worker && searchWorker.hasPendingRegex()) terminateSearchWorker();
+    try {
+      searchWorker.worker?.postMessage({
+        id: 0,
+        type: "cancel",
+        payload: {
+          taskToken: _searchTaskToken
+        }
+      });
+    } catch {}
+  };
   const cancelSearchTasks = () => {
     _searchTaskToken++;
     _searchInProgress = false;
@@ -25508,18 +25204,20 @@ const Editor = (() => {
       clearTimeout(_searchDebounceTimer);
       _searchDebounceTimer = null;
     }
-    if (_searchWorker && [ ..._searchWorkerPending.values() ].some(_task => _task.useRegex)) terminateSearchWorker();
-    if (_searchWorker) {
-      try {
-        _searchWorker.postMessage({
-          id: 0,
-          type: "cancel",
-          payload: {
-            taskToken: _searchTaskToken
-          }
-        });
-      } catch {}
-    }
+    cancelWorkerSearch();
+  };
+  const clearSearchResults = (refresh, {render = true} = {}) => {
+    resetSearchState();
+    filteredRows = null;
+    if (render) renderForSearchResult({
+      affectsVisibility: refresh,
+      refreshBody: refresh,
+      clearHighlights: !refresh
+    });
+  };
+  const showInvalidRegex = () => {
+    _searchError = isEnglish() ? "Invalid regular expression. Check the search pattern." : "正規表現が無効です。検索式を確認してください。";
+    updateSearchInfo();
   };
   const _failRegexSearch = () => {
     resetSearchState();
@@ -25529,8 +25227,7 @@ const Editor = (() => {
       affectsVisibility: $filterMode.checked,
       refreshBody: true
     });
-    _searchError = isEnglish() ? "Invalid regular expression. Check the search pattern." : "正規表現が無効です。検索式を確認してください。";
-    updateSearchInfo();
+    showInvalidRegex();
   };
   const runSearchTask = async () => {
     if (_deferCellViewRefresh() || commitActiveCellEdit()) return;
@@ -25539,31 +25236,16 @@ const Editor = (() => {
     _regexHighlightRanges = new Map;
     if (!query) {
       const hadResult = searchMatches.length > 0 || filteredRows !== null;
-      const needVisibilityRefresh = $filterMode.checked || filteredRows !== null;
-      resetSearchState();
-      filteredRows = null;
-      if (hadResult) {
-        renderForSearchResult({
-          affectsVisibility: needVisibilityRefresh,
-          refreshBody: needVisibilityRefresh,
-          clearHighlights: !needVisibilityRefresh
-        });
-      }
+      clearSearchResults($filterMode.checked || filteredRows !== null, {
+        render: hadResult
+      });
       updateSearchInfo();
       return;
     }
     const matcher = buildMatcher(query);
     if (!matcher) {
-      const needVisibilityRefresh = $filterMode.checked;
-      resetSearchState();
-      filteredRows = null;
-      renderForSearchResult({
-        affectsVisibility: needVisibilityRefresh,
-        refreshBody: needVisibilityRefresh,
-        clearHighlights: !needVisibilityRefresh
-      });
-      _searchError = isEnglish() ? "Invalid regular expression. Check the search pattern." : "正規表現が無効です。検索式を確認してください。";
-      updateSearchInfo();
+      clearSearchResults($filterMode.checked);
+      showInvalidRegex();
       return;
     }
     _searchError = "";
@@ -25606,15 +25288,8 @@ const Editor = (() => {
           if (_deferCellViewRefresh() || commitActiveCellEdit() || token !== _searchTaskToken) return;
           if (result?.aborted) return;
           if (result?.invalidRegex) {
-            resetSearchState();
-            filteredRows = null;
-            renderForSearchResult({
-              affectsVisibility: filterBySearch,
-              refreshBody: filterBySearch,
-              clearHighlights: !filterBySearch
-            });
-            _searchError = isEnglish() ? "Invalid regular expression. Check the search pattern." : "正規表現が無効です。検索式を確認してください。";
-            updateSearchInfo();
+            clearSearchResults(filterBySearch);
+            showInvalidRegex();
             return;
           }
           const workerMatches = buildSearchMatchesFromPairs(result?.matches);
@@ -25714,18 +25389,7 @@ const Editor = (() => {
     _searchTaskToken++;
     _searchInProgress = false;
     _searchError = "";
-    if (_searchWorker && [ ..._searchWorkerPending.values() ].some(_task => _task.useRegex)) terminateSearchWorker();
-    if (_searchWorker) {
-      try {
-        _searchWorker.postMessage({
-          id: 0,
-          type: "cancel",
-          payload: {
-            taskToken: _searchTaskToken
-          }
-        });
-      } catch {}
-    }
+    cancelWorkerSearch();
     if (_searchDebounceTimer !== null) clearTimeout(_searchDebounceTimer);
     _searchDebounceTimer = setTimeout(() => {
       _searchDebounceTimer = null;
@@ -25825,31 +25489,13 @@ const Editor = (() => {
     $searchInput.value = "";
     $replaceInput.value = "";
     cancelSearchTasks();
-    const needVisibilityRefresh = $filterMode.checked || filteredRows !== null;
-    resetSearchState();
-    filteredRows = null;
-    renderForSearchResult({
-      affectsVisibility: needVisibilityRefresh,
-      refreshBody: needVisibilityRefresh,
-      clearHighlights: !needVisibilityRefresh
-    });
+    clearSearchResults($filterMode.checked || filteredRows !== null);
     updateSearchInfo();
   };
   const _clearAllSearchFilters = () => {
     commitActiveCellEdit();
     cancelSearchTasks();
-    _columnFilterTaskToken++;
-    columnFilters.clear();
-    _columnFilterRows = null;
-    _filterValueCache.clear();
-    $searchInput.value = "";
-    $replaceInput.value = "";
-    $searchCaseSensitive.checked = false;
-    $searchExactMatch.checked = false;
-    $searchRegex.checked = false;
-    $filterMode.checked = false;
-    delete $searchTargetCol.dataset.pendingValue;
-    $searchTargetCol.value = "-1";
+    resetSearchControls();
     resetSearchState();
     filteredRows = null;
     closeColFilterPanel();
@@ -25929,9 +25575,7 @@ const Editor = (() => {
     }
     saveToHistory();
     setCellValue(row, col, next);
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     performSearchImmediate();
     showToast("1件置換しました", "success");
   };
@@ -25970,15 +25614,13 @@ const Editor = (() => {
         count: nextCount
       };
     };
-    let count = 0;
-    const shouldUseWorker = !literalReplacement || state.data.length >= 5e3;
-    let nextData = null;
     const _token = _searchTaskToken;
-    if (shouldUseWorker) {
+    let result = null;
+    if (!literalReplacement || state.data.length >= 5e3) {
       const revisionAtStart = _dataRevision;
+      showToast("一括置換を実行中...", "success");
       try {
-        showToast("一括置換を実行中...", "success");
-        const result = await runDataWorker(`self.onmessage = event => {\n  const {data, start, targetCol, regexSource, regexFlags, replacement, literalReplacement, rowIndexes} = event.data;\n  const re = new RegExp(regexSource, regexFlags);\n  const targetRows = Array.isArray(rowIndexes) ? new Set(rowIndexes) : null;\n  let count = 0;\n  const nextData = data.map((row, i) => {\n    if (i < start) return row;\n    if (targetRows && !targetRows.has(i)) return row;\n    const nextRow = row.slice();\n    if (targetCol >= 0) {\n      if (targetCol >= nextRow.length) return nextRow;\n      const cell = nextRow[targetCol] ?? '';\n      const next = cell.replace(re, literalReplacement ? () => replacement : replacement);\n      if (cell !== next) {\n        nextRow[targetCol] = next;\n        count++;\n      }\n      return nextRow;\n    }\n    for (let j = 0; j < nextRow.length; j++) {\n      const cell = nextRow[j] ?? '';\n      const next = cell.replace(re, literalReplacement ? () => replacement : replacement);\n      if (cell !== next) {\n        nextRow[j] = next;\n        count++;\n      }\n    }\n    return nextRow;\n  });\n  self.postMessage({\n    data: nextData,\n    count\n  });\n};`, {
+        result = await runDataWorker(`self.onmessage = event => {\n  const {data, start, targetCol, regexSource, regexFlags, replacement, literalReplacement, rowIndexes} = event.data;\n  const re = new RegExp(regexSource, regexFlags);\n  const targetRows = Array.isArray(rowIndexes) ? new Set(rowIndexes) : null;\n  let count = 0;\n  const nextData = data.map((row, i) => {\n    if (i < start) return row;\n    if (targetRows && !targetRows.has(i)) return row;\n    const nextRow = row.slice();\n    if (targetCol >= 0) {\n      if (targetCol >= nextRow.length) return nextRow;\n      const cell = nextRow[targetCol] ?? '';\n      const next = cell.replace(re, literalReplacement ? () => replacement : replacement);\n      if (cell !== next) {\n        nextRow[targetCol] = next;\n        count++;\n      }\n      return nextRow;\n    }\n    for (let j = 0; j < nextRow.length; j++) {\n      const cell = nextRow[j] ?? '';\n      const next = cell.replace(re, literalReplacement ? () => replacement : replacement);\n      if (cell !== next) {\n        nextRow[j] = next;\n        count++;\n      }\n    }\n    return nextRow;\n  });\n  self.postMessage({\n    data: nextData,\n    count\n  });\n};`, {
           data: state.data,
           start,
           targetCol,
@@ -25990,42 +25632,26 @@ const Editor = (() => {
         }, {
           timeoutMs: literalReplacement ? DATA_WORKER_TIMEOUT_MS : REGEX_WORKER_TIMEOUT_MS
         });
-        commitActiveCellEdit();
-        if (revisionAtStart !== _dataRevision) {
-          showToast("データが変更されたため、一括置換の結果を破棄しました", "error");
-          return;
-        }
-        if (_token !== _searchTaskToken) return;
-        nextData = result.data;
-        count = result.count;
       } catch (e) {
         if (!literalReplacement) {
           if (_token === _searchTaskToken) _failRegexSearch();
           return;
         }
         console.warn("Worker replace failed, fallback to main thread", e);
-        commitActiveCellEdit();
-        if (revisionAtStart !== _dataRevision) {
-          showToast("データが変更されたため、一括置換の結果を破棄しました", "error");
-          return;
-        }
-        if (_token !== _searchTaskToken) return;
-        const result = applyReplaceMain();
-        nextData = result.data;
-        count = result.count;
       }
-    } else {
-      const result = applyReplaceMain();
-      nextData = result.data;
-      count = result.count;
+      commitActiveCellEdit();
+      if (revisionAtStart !== _dataRevision) {
+        showToast("データが変更されたため、一括置換の結果を破棄しました", "error");
+        return;
+      }
+      if (_token !== _searchTaskToken) return;
     }
+    const {data: nextData, count} = result ?? applyReplaceMain();
     if (count > 0) {
       saveToHistory();
       state.data = nextData;
       if (columnFilters.size > 0) await refreshColumnFilterRows();
-      renderTable();
-      updateStats();
-      saveToStorage();
+      refreshTable();
       performSearchImmediate();
     }
     showToast(`${count}件置換しました`, "success");
@@ -26144,41 +25770,19 @@ const Editor = (() => {
       restoreFocus: true
     });
   };
-  const serializeOtherColumnFilters = excludeColIdx => [ ...columnFilters.entries() ].filter(([colIdx]) => colIdx !== excludeColIdx).map(([colIdx, config]) => ({
-    colIdx,
-    values: config.values ? [ ...config.values ] : null,
-    conditions: (config.conditions ?? []).map(c => ({
-      op: c.op,
-      val: c.val
-    })),
-    logic: config.logic === "or" ? "or" : "and"
-  }));
-  const rowPassesOtherColumnFilters = (rowIdx, excludeColIdx) => {
-    for (const [colIdx, config] of columnFilters) {
-      if (colIdx === excludeColIdx) continue;
-      const cellVal = state.data[rowIdx]?.[colIdx] ?? "";
-      if (config.values && !config.values.has(cellVal)) return false;
-      if (config.conditions.length > 0) {
-        const results = config.conditions.map(c => evalCondition(cellVal, c.op, c.val));
-        const condPass = config.logic === "and" ? results.every(Boolean) : results.some(Boolean);
-        if (!condPass) return false;
-      }
-    }
-    return true;
-  };
   const computeFilterValuesMain = colIdx => {
     const start = state.hasHeader ? 1 : 0;
     const valueCounts = new Map;
     const hasOtherFilters = [ ...columnFilters.keys() ].some(idx => idx !== colIdx);
     for (let i = start; i < state.data.length; i++) {
-      if (hasOtherFilters && !rowPassesOtherColumnFilters(i, colIdx)) continue;
+      if (hasOtherFilters && !rowPassesFilters(i, colIdx)) continue;
       const v = state.data[i][colIdx] ?? "";
       valueCounts.set(v, (valueCounts.get(v) ?? 0) + 1);
     }
     return [ ...valueCounts.entries() ];
   };
   const buildFilterValueCacheKey = colIdx => {
-    const otherFilters = serializeOtherColumnFilters(colIdx);
+    const otherFilters = serializeColumnFilters(colIdx);
     const ctx = otherFilters.length === 0 ? "" : JSON.stringify(otherFilters);
     return `${_dataRevision}:${state.hasHeader ? 1 : 0}:${colIdx}:${ctx}`;
   };
@@ -26248,7 +25852,7 @@ const Editor = (() => {
   const populateFilterValues = async colIdx => {
     const _draft = _filterValuePanelState;
     const revisionAtStart = _dataRevision;
-    const otherFilters = serializeOtherColumnFilters(colIdx);
+    const otherFilters = serializeColumnFilters(colIdx);
     const cacheKey = buildFilterValueCacheKey(colIdx);
     let sorted = _filterValueCache.get(cacheKey);
     if (!sorted) {
@@ -26514,39 +26118,29 @@ const Editor = (() => {
     if (!hasValidActiveColumn()) return;
     const colIndex = activeColumnIndex;
     const colName = getColName();
-    const start = state.hasHeader ? 1 : 0;
-    let sorted;
-    const rowsToSort = state.data.slice(start);
-    const shouldUseWorker = rowsToSort.length >= 5e3;
+    const rowsToSort = state.data.slice(state.hasHeader ? 1 : 0);
     const localeTag = getLocaleTag();
-    if (shouldUseWorker) {
+    let sorted = null;
+    if (rowsToSort.length >= 5e3) {
       const revisionAtStart = _dataRevision;
+      showToast("並び替えを実行中...", "success");
       try {
-        showToast("並び替えを実行中...", "success");
-        const result = await runDataWorker(`const STRICT_NUMERIC_RE = ${STRICT_NUMERIC_RE.toString()};\n\nconst _parseExactNumeric = ${_parseExactNumeric.toString()};\n\nconst _compareExactNumbers = ${_compareExactNumbers.toString()};\n\nconst _compareSortableKeys = ${_compareSortableKeys.toString()};\n\nconst sortRowsByColumn = ${sortRowsByColumn.toString()};\n\nself.onmessage = event => {\n  const {rows, colIndex, dir, localeTag} = event.data;\n  const sorted = sortRowsByColumn(rows, colIndex, dir, localeTag);\n  self.postMessage(sorted);\n};`, {
+        sorted = await runDataWorker(`const STRICT_NUMERIC_RE = ${STRICT_NUMERIC_RE.toString()};\n\nconst _parseExactNumeric = ${_parseExactNumeric.toString()};\n\nconst _compareExactNumbers = ${_compareExactNumbers.toString()};\n\nconst _compareSortableKeys = ${_compareSortableKeys.toString()};\n\nconst sortRowsByColumn = ${sortRowsByColumn.toString()};\n\nself.onmessage = event => {\n  const {rows, colIndex, dir, localeTag} = event.data;\n  self.postMessage(sortRowsByColumn(rows, colIndex, dir, localeTag));\n};`, {
           rows: rowsToSort,
           colIndex,
           dir,
           localeTag
         });
-        commitActiveCellEdit();
-        if (revisionAtStart !== _dataRevision) {
-          showToast("データが変更されたため、並び替えの結果を破棄しました", "error");
-          return;
-        }
-        sorted = result;
       } catch (e) {
         console.warn("Worker sort failed, fallback to main thread", e);
-        commitActiveCellEdit();
-        if (revisionAtStart !== _dataRevision) {
-          showToast("データが変更されたため、並び替えの結果を破棄しました", "error");
-          return;
-        }
-        sorted = sortRowsByColumn(rowsToSort, colIndex, dir, localeTag);
       }
-    } else {
-      sorted = sortRowsByColumn(rowsToSort, colIndex, dir, localeTag);
+      commitActiveCellEdit();
+      if (revisionAtStart !== _dataRevision) {
+        showToast("データが変更されたため、並び替えの結果を破棄しました", "error");
+        return;
+      }
     }
+    sorted ??= sortRowsByColumn(rowsToSort, colIndex, dir, localeTag);
     saveToHistory();
     state.data = state.hasHeader ? [ state.data[0], ...sorted ] : sorted;
     renderTable();
@@ -26570,23 +26164,13 @@ const Editor = (() => {
     if (!hasValidActiveColumn()) return;
     const sourceIndex = activeColumnIndex;
     saveToHistory();
-    state.data = state.data.map(r => {
-      const n = [ ...r ];
-      n.splice(sourceIndex + 1, 0, r[sourceIndex]);
-      return n;
-    });
-    const newWidths = {};
-    Object.entries(state.columnWidths).forEach(([key, val]) => {
-      const idx = parseInt(key);
-      newWidths[idx <= sourceIndex ? idx : idx + 1] = val;
-    });
-    newWidths[sourceIndex + 1] = state.columnWidths[sourceIndex] ?? 150;
-    state.columnWidths = newWidths;
+    state.data = state.data.map(row => row.toSpliced(sourceIndex + 1, 0, row[sourceIndex]));
+    const sourceWidth = state.columnWidths[sourceIndex] ?? DEFAULT_COLUMN_WIDTH;
+    remapColumnWidths(idx => idx > sourceIndex ? idx + 1 : idx);
+    state.columnWidths[sourceIndex + 1] = sourceWidth;
     remapColumnScopedState(idx => idx > sourceIndex ? idx + 1 : idx);
     state.virtualHeaders[sourceIndex + 1] = state.virtualHeaders[sourceIndex] ?? "";
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     showToast("列を複製しました", "success");
   };
   const _clearAllDataSafely = async successMessage => {
@@ -26629,36 +26213,21 @@ const Editor = (() => {
       return;
     }
     saveToHistory();
-    state.data = state.data.map(r => {
-      const n = [ ...r ];
-      n.splice(removedIndex, 1);
-      return n;
-    });
-    remapColumnScopedState(idx => {
+    state.data = state.data.map(row => row.toSpliced(removedIndex, 1));
+    const mapper = idx => {
       if (idx === removedIndex) return -1;
       return idx > removedIndex ? idx - 1 : idx;
-    });
-    const newWidths = {};
-    Object.entries(state.columnWidths).forEach(([key, val]) => {
-      const idx = parseInt(key);
-      if (idx < removedIndex) newWidths[idx] = val; else if (idx > removedIndex) newWidths[idx - 1] = val;
-    });
-    state.columnWidths = newWidths;
-    renderTable();
-    updateStats();
-    saveToStorage();
+    };
+    remapColumnScopedState(mapper);
+    remapColumnWidths(mapper);
+    refreshTable();
     showToast("列を削除しました", "success", {
       label: "元に戻す",
       run: () => qs("#undoBtn")?.click()
     });
   };
-  const shiftColumnWidths = insertIndex => {
-    const newWidths = {};
-    Object.entries(state.columnWidths).forEach(([key, val]) => {
-      const idx = parseInt(key, 10);
-      newWidths[idx < insertIndex ? idx : idx + 1] = val;
-    });
-    state.columnWidths = newWidths;
+  const remapColumnWidths = mapper => {
+    state.columnWidths = Object.fromEntries(Object.entries(state.columnWidths).map(([key, width]) => [ mapper(Number.parseInt(key, 10)), width ]).filter(([idx]) => idx >= 0));
   };
   const addColumnAt = insertIndex => {
     const colCount = state.data[0]?.length ?? 0;
@@ -26667,19 +26236,12 @@ const Editor = (() => {
     if (state.data.length === 0) {
       state.data = [ [ "" ] ];
     } else {
-      state.data = state.data.map(r => {
-        const n = [ ...r ];
-        n.splice(safeIndex, 0, "");
-        return n;
-      });
-      shiftColumnWidths(safeIndex);
-      const baseWidth = state.columnWidths[safeIndex - 1] ?? 150;
-      state.columnWidths[safeIndex] = baseWidth;
+      state.data = state.data.map(row => row.toSpliced(safeIndex, 0, ""));
+      remapColumnWidths(idx => idx < safeIndex ? idx : idx + 1);
+      state.columnWidths[safeIndex] = state.columnWidths[safeIndex - 1] ?? DEFAULT_COLUMN_WIDTH;
     }
     remapColumnScopedState(idx => idx >= safeIndex ? idx + 1 : idx);
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     showToast(safeIndex === insertIndex ? "列を追加しました" : "列を追加しました（位置を調整）", "success");
   };
   const addColumnLeft = () => {
@@ -26694,9 +26256,10 @@ const Editor = (() => {
     if (!hasValidActiveColumn()) return;
     openModal("列を削除", `「${getColName()}」を削除しますか？この操作は元に戻せます。`, deleteColumn);
   };
+  const hasValidActiveRow = () => Number.isInteger(activeRowIndex) && activeRowIndex >= 0 && activeRowIndex < state.data.length;
   const copyRow = async () => {
     commitActiveCellEdit();
-    if (!Number.isInteger(activeRowIndex) || activeRowIndex < 0 || activeRowIndex >= state.data.length) return;
+    if (!hasValidActiveRow()) return;
     if (!_isRowVisible(activeRowIndex) && !(state.hasHeader && activeRowIndex === 0)) return;
     const rowData = state.data[activeRowIndex];
     if (!Array.isArray(rowData)) return;
@@ -26709,12 +26272,10 @@ const Editor = (() => {
     }
   };
   const duplicateRow = () => {
-    if (!Number.isInteger(activeRowIndex) || activeRowIndex < 0 || activeRowIndex >= state.data.length) return;
+    if (!hasValidActiveRow()) return;
     saveToHistory();
     state.data.splice(activeRowIndex + 1, 0, [ ...state.data[activeRowIndex] ]);
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     showToast(`${state.hasHeader ? activeRowIndex : activeRowIndex + 1}行目を複製しました`, "success");
   };
   const deleteRow = async rowIndex => {
@@ -26725,9 +26286,7 @@ const Editor = (() => {
     }
     saveToHistory();
     state.data.splice(rowIndex, 1);
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     showToast("行を削除しました", "success", {
       label: "元に戻す",
       run: () => qs("#undoBtn")?.click()
@@ -26738,9 +26297,7 @@ const Editor = (() => {
     const safeIndex = Math.max(0, Math.min(insertIndex, state.data.length));
     saveToHistory();
     state.data.splice(safeIndex, 0, Array(colCount).fill(""));
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     showToast(message, "success");
   };
   const addRowAbove = () => {
@@ -26752,7 +26309,7 @@ const Editor = (() => {
     addRowAt(activeRowIndex + 1);
   };
   const confirmDeleteRow = () => {
-    if (!Number.isInteger(activeRowIndex) || activeRowIndex < 0 || activeRowIndex >= state.data.length) return;
+    if (!hasValidActiveRow()) return;
     const rowNum = state.hasHeader ? activeRowIndex : activeRowIndex + 1;
     openModal("行を削除", `${rowNum}行目を削除しますか？`, () => deleteRow(activeRowIndex));
   };
@@ -26777,8 +26334,7 @@ const Editor = (() => {
       const row = rows[rowIdx] ?? [];
       for (let colIdx = 0; colIdx < row.length; colIdx++) {
         const value = row[colIdx] ?? "";
-        const _isAmbiguousEmptyCell = value === "" && (row.length === 1 || delimiter === " ");
-        if (!_isAmbiguousEmptyCell && !value.includes(delimiter) && !value.includes('"') && !value.includes("\n") && !value.includes("\r")) continue;
+        if (!needsDsvQuote(value, delimiter, row.length)) continue;
         count++;
         if (sample.length < sampleLimit) {
           sample.push({
@@ -26812,25 +26368,13 @@ const Editor = (() => {
   const generateOutputAsync = async (dlm, {spreadsheetSafeMode = false, quoteStyle = state.quoteStyle, newline = state.newline} = {}) => {
     const _rows = state.data.slice();
     beginSnapshotEpoch();
-    const qs_ = quoteStyle;
-    const nl = newline === "crlf" ? "\r\n" : "\n";
     const lines = [];
-    const chunkRows = 500;
     for (let i = 0; i < _rows.length; i++) {
       const row = _rows[i] ?? [];
-      const line = row.map(cell => {
-        const c = sanitizeSpreadsheetFormulaCell(cell, spreadsheetSafeMode);
-        const escaped = c.replace(/"/g, '""');
-        if (qs_ === "all") return `"${escaped}"`;
-        if (qs_ === "none") return c;
-        return c === "" && (row.length === 1 || dlm === " ") || c.includes(dlm) || c.includes('"') || c.includes("\n") || c.includes("\r") ? `"${escaped}"` : c;
-      }).join(dlm);
-      lines.push(line);
-      if ((i + 1) % chunkRows === 0) {
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
+      lines.push(row.map(cell => quoteDsvCell(sanitizeSpreadsheetFormulaCell(cell, spreadsheetSafeMode), dlm, quoteStyle, row.length)).join(dlm));
+      if ((i + 1) % 500 === 0) await new Promise(resolve => setTimeout(resolve, 0));
     }
-    return lines.join(nl);
+    return lines.join(newline === "crlf" ? "\r\n" : "\n");
   };
   const getFormatLabel = (delimiter = state.delimiter) => {
     const formatId = getDsvFormatIdByDelimiter(delimiter);
@@ -26855,56 +26399,32 @@ const Editor = (() => {
       })
     };
   };
-  const decodeFileBytesWithMeta = (arrayBuffer, encodingHint = "utf-8") => {
+  const decodeFileBytesWithMeta = (arrayBuffer, encoding) => {
     const bytes = new Uint8Array(arrayBuffer);
     const bomInfo = detectBomEncoding(bytes);
-    if (bomInfo) {
-      return decodeBytesWithMeta(bytes, bomInfo.encoding, {
-        offset: bomInfo.offset,
-        bom: true
-      });
-    }
-    const hint = normalizeEncoding(encodingHint);
-    if (hint && encodingHint !== "auto") {
-      return decodeBytesWithMeta(bytes, hint);
-    }
-    if (HAS_LEGACY_ENCODING_LIB) {
-      const detected = Encoding.detect(bytes);
-      if (detected === "SJIS") return decodeBytesWithMeta(bytes, "shift-jis");
-      if (detected === "EUCJP") return decodeBytesWithMeta(bytes, "euc-jp");
-      if (detected === "JIS") return decodeBytesWithMeta(bytes, "iso-2022-jp");
-      if (detected === "UTF16") {
-        const likelyBE = bytes.length >= 2 && bytes[0] === 0 && bytes[1] !== 0;
-        return decodeBytesWithMeta(bytes, likelyBE ? "utf-16be" : "utf-16le");
-      }
-    }
-    if (bytes.length >= 4) {
-      const likelyBE = bytes[0] === 0 && bytes[1] !== 0;
-      const likelyLE = bytes[1] === 0 && bytes[0] !== 0;
-      if (likelyBE) return decodeBytesWithMeta(bytes, "utf-16be");
-      if (likelyLE) return decodeBytesWithMeta(bytes, "utf-16le");
-    }
-    return decodeBytesWithMeta(bytes, "utf-8");
+    return bomInfo ? decodeBytesWithMeta(bytes, bomInfo.encoding, {
+      offset: bomInfo.offset,
+      bom: true
+    }) : decodeBytesWithMeta(bytes, encoding);
+  };
+  const LIBRARY_TO_ENCODING = {
+    SJIS: "shift-jis",
+    EUCJP: "euc-jp",
+    JIS: "iso-2022-jp"
   };
   const detectEncodingLabel = arrayBuffer => {
     const bytes = new Uint8Array(arrayBuffer);
     const bomInfo = detectBomEncoding(bytes);
     if (bomInfo) return bomInfo.encoding;
+    const likelyBE = bytes[0] === 0 && bytes[1] !== 0;
     if (HAS_LEGACY_ENCODING_LIB) {
       const detected = Encoding.detect(bytes);
-      if (detected === "SJIS") return "shift-jis";
-      if (detected === "EUCJP") return "euc-jp";
-      if (detected === "JIS") return "iso-2022-jp";
-      if (detected === "UTF16") {
-        const likelyBE = bytes.length >= 2 && bytes[0] === 0 && bytes[1] !== 0;
-        return likelyBE ? "utf-16be" : "utf-16le";
-      }
+      if (LIBRARY_TO_ENCODING[detected]) return LIBRARY_TO_ENCODING[detected];
+      if (detected === "UTF16") return bytes.length >= 2 && likelyBE ? "utf-16be" : "utf-16le";
     }
     if (bytes.length >= 4) {
-      const likelyBE = bytes[0] === 0 && bytes[1] !== 0;
-      const likelyLE = bytes[1] === 0 && bytes[0] !== 0;
       if (likelyBE) return "utf-16be";
-      if (likelyLE) return "utf-16le";
+      if (bytes[1] === 0 && bytes[0] !== 0) return "utf-16le";
     }
     return "utf-8";
   };
@@ -26923,14 +26443,15 @@ const Editor = (() => {
   let _wizImportRevision = 0;
   let _wizImportInProgress = false;
   let _fileReadRevision = 0;
-  let _wizDecodedCache = {
+  const emptyWizDecode = () => ({
     requestedEncoding: null,
     text: "",
     encoding: "utf-8",
     bom: false,
     warnings: [],
     hasValue: false
-  };
+  });
+  let _wizDecodedCache = emptyWizDecode();
   const _setWizError = (_message = "") => {
     const $error = qs("#wizImportError");
     $error.textContent = _message;
@@ -26944,11 +26465,6 @@ const Editor = (() => {
     });
     $wizImportBtn.setAttribute("aria-busy", String(_busy));
     qs("#wizImportBtnLabel").textContent = _busy ? isEnglish() ? "Importing…" : "読み込み中…" : isEnglish() ? "Import" : "読み込む";
-  };
-  const formatFileSize = bytes => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
   const wizSetStep = step => {
     _wizStep = step;
@@ -27033,14 +26549,7 @@ const Editor = (() => {
     _wizArrayBuffer = arrayBuffer;
     _wizFileName = fileName;
     _wizFileHandle = fileHandle;
-    _wizDecodedCache = {
-      requestedEncoding: null,
-      text: "",
-      encoding: "utf-8",
-      bom: false,
-      warnings: [],
-      hasValue: false
-    };
+    _wizDecodedCache = emptyWizDecode();
     const detectedEnc = detectEncodingLabel(arrayBuffer);
     const decoded = decodeFileBytesWithMeta(arrayBuffer, detectedEnc);
     const text = decoded.text;
@@ -27060,7 +26569,7 @@ const Editor = (() => {
     const colCount = detectSampleRows[0]?.length ?? 0;
     qs("#wizFileName").textContent = fileName;
     qs("#wizDetectSize").textContent = `先頭 ${detectSampleRows.length.toLocaleString(getLocaleTag())} 行で判定 / ${colCount.toLocaleString(getLocaleTag())} 列`;
-    qs("#wizDetectFileSize").textContent = formatFileSize(arrayBuffer.byteLength);
+    qs("#wizDetectFileSize").textContent = formatBytes(arrayBuffer.byteLength);
     qs("#wizEncoding").value = normalizeEncoding(decoded.encoding);
     qs("#wizDelimiter").value = detectedDlm;
     qs("#wizHeader").checked = _looksLikeHeaderRow(detectSampleRows);
@@ -27077,31 +26586,12 @@ const Editor = (() => {
     _wizArrayBuffer = null;
     _wizFileName = "";
     _wizFileHandle = null;
-    _wizDecodedCache = {
-      requestedEncoding: null,
-      text: "",
-      encoding: "utf-8",
-      bom: false,
-      warnings: [],
-      hasValue: false
-    };
+    _wizDecodedCache = emptyWizDecode();
   };
-  const confirmDecodeWarnings = warnings => {
-    if (!Array.isArray(warnings) || warnings.length === 0) return Promise.resolve(true);
-    return new Promise(resolve => {
-      let settled = false;
-      const finish = confirmed => {
-        if (settled) return;
-        settled = true;
-        resolve(confirmed);
-      };
-      openModal("文字コードの警告", `${warnings.join("\n")}\n\n読み込みを続行すると一部の文字が置き換わっている可能性があります。このまま読み込みますか？`, () => finish(true), {
-        confirmLabel: "このまま読み込む",
-        confirmVariant: "gm-btn-primary",
-        onCancel: () => finish(false)
-      });
-    });
-  };
+  const confirmDecodeWarnings = async warnings => !warnings?.length || askModal("文字コードの警告", `${warnings.join("\n")}\n\n読み込みを続行すると一部の文字が置き換わっている可能性があります。このまま読み込みますか？`, {
+    confirmLabel: "このまま読み込む",
+    confirmVariant: "gm-btn-primary"
+  });
   const wizExecuteImport = async () => {
     if (_wizImportInProgress || !_wizArrayBuffer) return;
     const _revision = ++_wizImportRevision;
@@ -27298,7 +26788,46 @@ const Editor = (() => {
   document.addEventListener("dragleave", _handleFileDragLeave);
   document.addEventListener("drop", _handleFileDrop);
   document.addEventListener("dragend", _clearFileDragState);
-  const buildBlob = (text, outputMeta = getCurrentOutputMeta()) => buildEncodedBlob(text, outputMeta.encoding, outputMeta.bom, "text/plain");
+  const buildOutputBlob = (text, outputMeta, contextRevision) => {
+    try {
+      return buildEncodedBlob(text, outputMeta.encoding, outputMeta.bom, "text/plain");
+    } catch {
+      if (_fileContextRevision !== contextRevision || !isSameOutputMeta(getCurrentOutputMeta(), outputMeta)) {
+        showToast(isEnglish() ? "Encoding the output failed. Check the output settings and try again." : "出力の文字コード変換に失敗しました。出力設定を確認して再試行してください。", "error");
+        return null;
+      }
+      showToast("この文字コードは外部ライブラリなしでは出力できません。UTF-8に切り替えました。", "error");
+      state.encoding = EXPORT_FALLBACK_ENCODING;
+      state.bom = supportsBom(state.encoding) ? state.bom : false;
+      saveToStorage();
+      return null;
+    }
+  };
+  const prepareTableOutput = async (actionLabel, encodingActionLabel = null) => {
+    if (!await confirmNoQuoteRisk({
+      quoteStyle: state.quoteStyle,
+      rows: state.data,
+      delimiter: state.delimiter,
+      actionLabel
+    })) return null;
+    const outputMeta = getCurrentOutputMeta();
+    let text;
+    try {
+      text = await generateOutputAsync(outputMeta.delimiter, outputMeta);
+    } catch {
+      showToast("出力の生成に失敗しました", "error");
+      return null;
+    }
+    if (encodingActionLabel && !await confirmLegacyEncodingRoundTrip({
+      text,
+      encoding: outputMeta.encoding,
+      actionLabel: encodingActionLabel
+    })) return null;
+    return {
+      text,
+      outputMeta
+    };
+  };
   const downloadPreparedBlob = (blob, filename) => {
     const objectUrl = URL.createObjectURL(blob);
     const $a = document.createElement("a");
@@ -27336,61 +26865,36 @@ const Editor = (() => {
         showToast("保存するデータがありません", "error");
         return;
       }
-      if (!await confirmNoQuoteRisk({
-        quoteStyle: state.quoteStyle,
-        rows: state.data,
-        delimiter: state.delimiter,
-        actionLabel: isEnglish() ? "save" : "保存"
-      })) return;
-      const _outputMeta = getCurrentOutputMeta();
       const _targetHandle = _fileHandle;
       const _contextRevision = _fileContextRevision;
+      const formatMismatch = hasOverwriteFormatMismatch();
+      const prepared = await prepareTableOutput(isEnglish() ? "save" : "保存", isEnglish() ? "Saving" : "保存");
+      if (!prepared) return;
+      const {outputMeta: _outputMeta} = prepared;
       const _formatLabel = getFormatLabel(_outputMeta.delimiter);
       const ext = getFormatExt(_outputMeta.delimiter);
       const fallbackName = _getSuggestedOutputName(ext);
-      const formatMismatch = hasOverwriteFormatMismatch();
-      let text;
-      try {
-        text = await generateOutputAsync(_outputMeta.delimiter, _outputMeta);
-      } catch {
-        showToast("出力の生成に失敗しました", "error");
-        return;
-      }
-      if (!await confirmLegacyEncodingRoundTrip({
-        text,
-        encoding: _outputMeta.encoding,
-        actionLabel: isEnglish() ? "Saving" : "保存"
-      })) return;
-      let blob;
-      try {
-        blob = buildBlob(text, _outputMeta);
-      } catch {
-        if (_fileContextRevision !== _contextRevision || !isSameOutputMeta(getCurrentOutputMeta(), _outputMeta)) {
-          showToast(isEnglish() ? "Encoding the output failed. Check the output settings and try again." : "出力の文字コード変換に失敗しました。出力設定を確認して再試行してください。", "error");
-          return;
-        }
-        showToast("この文字コードは外部ライブラリなしでは出力できません。UTF-8に切り替えました。", "error");
-        state.encoding = EXPORT_FALLBACK_ENCODING;
-        state.bom = supportsBom(state.encoding) ? state.bom : false;
-        saveToStorage();
-        return;
-      }
+      const blob = buildOutputBlob(prepared.text, _outputMeta, _contextRevision);
+      if (!blob) return;
       if (formatMismatch) {
         showToast(isEnglish() ? "Current output settings differ from the opened file. Switching to Save As." : "現在の出力設定が開いた時の形式と異なるため、上書き保存は行わず「名前を付けて保存」に切り替えます。", "error");
       }
+      const writeAndAdopt = async handle => {
+        await _writeFileBlob(handle, blob);
+        if (_fileContextRevision === _contextRevision) {
+          setOpenFileContext({
+            fileHandle: handle,
+            fileName: handle.name,
+            outputMeta: _outputMeta
+          });
+          markSettingsChanged();
+          saveToStorage();
+        }
+        showToast(`${escapeHTML(handle.name)} に保存しました`, "success");
+      };
       if (_targetHandle && !formatMismatch) {
         try {
-          await _writeFileBlob(_targetHandle, blob);
-          if (_fileContextRevision === _contextRevision) {
-            setOpenFileContext({
-              fileHandle: _targetHandle,
-              fileName: _targetHandle.name,
-              outputMeta: _outputMeta
-            });
-            markSettingsChanged();
-            saveToStorage();
-          }
-          showToast(`${escapeHTML(_targetHandle.name)} に保存しました`, "success");
+          await writeAndAdopt(_targetHandle);
           return;
         } catch (e) {
           if (e.name === "AbortError") return;
@@ -27408,17 +26912,7 @@ const Editor = (() => {
               }
             } ]
           });
-          await _writeFileBlob(handle, blob);
-          if (_fileContextRevision === _contextRevision) {
-            setOpenFileContext({
-              fileHandle: handle,
-              fileName: handle.name,
-              outputMeta: _outputMeta
-            });
-            markSettingsChanged();
-            saveToStorage();
-          }
-          showToast(`${escapeHTML(handle.name)} に保存しました`, "success");
+          await writeAndAdopt(handle);
         } catch (e) {
           if (e.name !== "AbortError") {
             showToast("保存に失敗したため、ダウンロード保存に切り替えます。", "error");
@@ -27446,11 +26940,10 @@ const Editor = (() => {
       actionLabel: isEnglish() ? "copy" : "コピー"
     })) return;
     const _outputMeta = getCurrentOutputMeta();
-    const _formatLabel = getFormatLabel(_outputMeta.delimiter);
     try {
       const text = await generateOutputAsync(_outputMeta.delimiter, _outputMeta);
       if (!await copyTextToClipboard(text)) throw new Error("copy failed");
-      showToast(`${_formatLabel}としてコピーしました`, "success");
+      showToast(`${getFormatLabel(_outputMeta.delimiter)}としてコピーしました`, "success");
     } catch {
       showToast("コピーに失敗しました", "error");
     }
@@ -27461,42 +26954,11 @@ const Editor = (() => {
       showToast("ダウンロードするデータがありません", "error");
       return;
     }
-    if (!await confirmNoQuoteRisk({
-      quoteStyle: state.quoteStyle,
-      rows: state.data,
-      delimiter: state.delimiter,
-      actionLabel: isEnglish() ? "download" : "保存"
-    })) return;
-    const _outputMeta = getCurrentOutputMeta();
     const _contextRevision = _fileContextRevision;
-    const _filename = _getSuggestedOutputName(getFormatExt(_outputMeta.delimiter));
-    let text;
-    try {
-      text = await generateOutputAsync(_outputMeta.delimiter, _outputMeta);
-    } catch {
-      showToast("出力の生成に失敗しました", "error");
-      return;
-    }
-    if (!await confirmLegacyEncodingRoundTrip({
-      text,
-      encoding: _outputMeta.encoding,
-      actionLabel: isEnglish() ? "Downloading" : "ダウンロード"
-    })) return;
-    let blob;
-    try {
-      blob = buildBlob(text, _outputMeta);
-    } catch {
-      if (_fileContextRevision !== _contextRevision || !isSameOutputMeta(getCurrentOutputMeta(), _outputMeta)) {
-        showToast(isEnglish() ? "Encoding the output failed. Check the output settings and try again." : "出力の文字コード変換に失敗しました。出力設定を確認して再試行してください。", "error");
-        return;
-      }
-      showToast("この文字コードは外部ライブラリなしでは出力できません。UTF-8に切り替えました。", "error");
-      state.encoding = EXPORT_FALLBACK_ENCODING;
-      state.bom = supportsBom(state.encoding) ? state.bom : false;
-      saveToStorage();
-      return;
-    }
-    downloadPreparedBlob(blob, _filename);
+    const prepared = await prepareTableOutput(isEnglish() ? "download" : "保存", isEnglish() ? "Downloading" : "ダウンロード");
+    if (!prepared) return;
+    const blob = buildOutputBlob(prepared.text, prepared.outputMeta, _contextRevision);
+    if (blob) downloadPreparedBlob(blob, _getSuggestedOutputName(getFormatExt(prepared.outputMeta.delimiter)));
   };
   const $exportOverlay = qs("#exportWizardOverlay");
   const $expFormat = qs("#expFormat");
@@ -27644,19 +27106,7 @@ const Editor = (() => {
     const nl = $expNewline.value === "crlf" ? "\r\n" : "\n";
     const qs_ = $expQuote.value;
     const spreadsheetSafeMode = $expSpreadsheetSafe.checked;
-    const quoteDSV = (c, dlm, _columnCount) => {
-      const cell = sanitizeSpreadsheetFormulaCell(c, spreadsheetSafeMode);
-      const escaped = cell.replace(/"/g, '""');
-      if (qs_ === "all") return `"${escaped}"`;
-      if (qs_ === "none") return cell;
-      return cell === "" && (_columnCount === 1 || dlm === " ") || cell.includes(dlm) || cell.includes('"') || cell.includes("\n") || cell.includes("\r") ? `"${escaped}"` : cell;
-    };
-    const dsvOutput = dlm => {
-      const lines = [];
-      if (headers.length) lines.push(headers.map(c => quoteDSV(c, dlm, headers.length)).join(dlm));
-      rows.forEach(r => lines.push(r.map(c => quoteDSV(c, dlm, r.length)).join(dlm)));
-      return lines.join(nl);
-    };
+    const dsvOutput = dlm => (headers.length ? [ headers, ...rows ] : rows).map(row => row.map(cell => quoteDsvCell(sanitizeSpreadsheetFormulaCell(cell, spreadsheetSafeMode), dlm, qs_, row.length)).join(dlm)).join(nl);
     const buildUniqueObjectKeys = sourceHeaders => {
       const used = new Set;
       const counts = new Map;
@@ -27779,23 +27229,29 @@ const Editor = (() => {
       updateExportPreview();
     }, immediate ? 0 : EXPORT_PREVIEW_DEBOUNCE_MS);
   };
-  const getExportExt = () => getExportFormatConfig($expFormat.value).extension;
-  const exportCopy = async () => {
+  const prepareExportText = async actionLabel => {
     const exportData = getExportData();
-    const exportFormat = getExportFormatConfig($expFormat.value);
-    const quoteStyle = $expQuote.value;
+    const formatConfig = getExportFormatConfig($expFormat.value);
     const rowsForRisk = exportData.headers.length > 0 ? [ exportData.headers, ...exportData.rows ] : exportData.rows;
-    if (exportFormat.isDsv && !await confirmNoQuoteRisk({
-      quoteStyle,
+    if (formatConfig.isDsv && !await confirmNoQuoteRisk({
+      quoteStyle: $expQuote.value,
       rows: rowsForRisk,
-      delimiter: exportFormat.delimiter ?? state.delimiter,
-      actionLabel: isEnglish() ? "export copy" : "コピー"
-    })) return;
+      delimiter: formatConfig.delimiter,
+      actionLabel
+    })) return null;
     const text = generateExportOutput(exportData);
     if (!text) {
       showToast("エクスポートするデータがありません", "error");
-      return;
+      return null;
     }
+    return {
+      text,
+      formatConfig
+    };
+  };
+  const exportCopy = async () => {
+    const {text} = await prepareExportText(isEnglish() ? "export copy" : "コピー") ?? {};
+    if (!text) return;
     try {
       if (!await copyTextToClipboard(text)) throw new Error("copy failed");
       showToast(`クリップボードにコピーしました`, "success");
@@ -27805,25 +27261,12 @@ const Editor = (() => {
     }
   };
   const exportDownload = async () => {
-    const exportData = getExportData();
-    const formatConfig = getExportFormatConfig($expFormat.value);
-    const quoteStyle = $expQuote.value;
-    const rowsForRisk = exportData.headers.length > 0 ? [ exportData.headers, ...exportData.rows ] : exportData.rows;
-    if (formatConfig.isDsv && !await confirmNoQuoteRisk({
-      quoteStyle,
-      rows: rowsForRisk,
-      delimiter: formatConfig.delimiter ?? state.delimiter,
-      actionLabel: isEnglish() ? "export save" : "保存"
-    })) return;
-    const text = generateExportOutput(exportData);
-    if (!text) {
-      showToast("エクスポートするデータがありません", "error");
-      return;
-    }
-    const isDSV = formatConfig.isDsv;
+    const prepared = await prepareExportText(isEnglish() ? "export save" : "保存");
+    if (!prepared) return;
+    const {text, formatConfig} = prepared;
     const enc = normalizeExportEncoding($expEncoding.value);
     let blob;
-    if (isDSV) {
+    if (formatConfig.isDsv) {
       if (!await confirmLegacyEncodingRoundTrip({
         text,
         encoding: enc,
@@ -27842,8 +27285,7 @@ const Editor = (() => {
         type: formatConfig.mimeType
       });
     }
-    const ext = getExportExt();
-    downloadPreparedBlob(blob, _getSuggestedOutputName(ext));
+    downloadPreparedBlob(blob, _getSuggestedOutputName(formatConfig.extension));
     closeExportWizard();
   };
   $expFormat.addEventListener("change", () => {
@@ -27956,8 +27398,8 @@ const Editor = (() => {
     }
     const $th = e.target.closest(".th-content");
     if ($th) {
-      const ci = parseInt($th.closest("th").dataset.col);
-      if (!isNaN(ci)) openColumnMenu(e, ci);
+      const ci = Number.parseInt($th.closest("th").dataset.col, 10);
+      if (!Number.isNaN(ci)) openColumnMenu(e, ci);
       return;
     }
     const $rm = e.target.closest("[data-row-menu]");
@@ -28002,37 +27444,12 @@ const Editor = (() => {
     const tag = $el.tagName;
     return tag === "INPUT" && ![ "checkbox", "radio" ].includes($el.type) || tag === "TEXTAREA" || tag === "SELECT" || $el.isContentEditable && !$el.closest("#dataTable");
   };
-  const hasOpenOverlay = () => $cellEditOverlay.classList.contains("show") || $pasteImportOverlay.classList.contains("show") || $modalOverlay.classList.contains("show") || $exportOverlay.classList.contains("show") || $wizOverlay.classList.contains("show") || $virtualHeaderOverlay?.classList.contains("show") || $paletteOverlay?.classList.contains("show") || !!document.querySelector("dialog[open]");
+  const overlayClosers = () => [ [ $cellEditOverlay, () => closeOverlay($cellEditOverlay) ], [ $paletteOverlay, closeCommandPalette ], [ $modalOverlay, () => closeModal() ], [ $pasteImportOverlay, _closePasteImport ], [ $exportOverlay, closeExportWizard ], [ $wizOverlay, closeImportWizard ], [ $virtualHeaderOverlay, closeVirtualHeaderModal ] ];
+  const hasOpenOverlay = () => overlayClosers().some(([$overlay]) => $overlay?.classList.contains("show")) || !!document.querySelector("dialog[open]");
   const closeActiveOverlay = () => {
-    if ($cellEditOverlay.classList.contains("show")) {
-      closeOverlay($cellEditOverlay);
-      return true;
-    }
-    if ($paletteOverlay?.classList.contains("show")) {
-      closeCommandPalette();
-      return true;
-    }
-    if ($modalOverlay.classList.contains("show")) {
-      closeModal();
-      return true;
-    }
-    if ($pasteImportOverlay.classList.contains("show")) {
-      _closePasteImport();
-      return true;
-    }
-    if ($exportOverlay.classList.contains("show")) {
-      closeExportWizard();
-      return true;
-    }
-    if ($wizOverlay.classList.contains("show")) {
-      closeImportWizard();
-      return true;
-    }
-    if ($virtualHeaderOverlay?.classList.contains("show")) {
-      closeVirtualHeaderModal();
-      return true;
-    }
-    return false;
+    const close = overlayClosers().find(([$overlay]) => $overlay?.classList.contains("show"))?.[1];
+    close?.();
+    return !!close;
   };
   document.addEventListener("click", e => {
     if (!$columnMenu.contains(e.target) && !e.target.closest(".th-menu-btn")) closeColumnMenu();
@@ -28140,94 +27557,40 @@ const Editor = (() => {
     clearDragOverTarget();
     clearActiveDragHandle();
   };
-  const getColumnDropIndexAt = clientX => {
-    const $ths = qsa("th[data-col]", $tableHead);
-    if ($ths.length === 0) return {
+  const getDropIndexAt = ($items, position, key, [start, end, size]) => {
+    const miss = {
       index: -1,
       $target: null,
       before: true
     };
-    const firstRect = $ths[0].getBoundingClientRect();
-    if (clientX <= firstRect.left) {
-      const idx = parseInt($ths[0].dataset.col, 10);
-      return {
-        index: idx,
-        $target: $ths[0],
-        before: true
-      };
-    }
-    const lastTh = $ths[$ths.length - 1];
-    const lastRect = lastTh.getBoundingClientRect();
-    if (clientX >= lastRect.right) {
-      const idx = parseInt(lastTh.dataset.col, 10);
-      return {
-        index: idx + 1,
-        $target: lastTh,
-        before: false
-      };
-    }
-    for (const $th of $ths) {
-      const rect = $th.getBoundingClientRect();
-      if (clientX >= rect.left && clientX <= rect.right) {
-        const idx = parseInt($th.dataset.col, 10);
-        const before = clientX < rect.left + rect.width / 2;
-        return {
-          index: before ? idx : idx + 1,
-          $target: $th,
-          before
-        };
-      }
-    }
-    return {
-      index: -1,
-      $target: null,
+    if ($items.length === 0) return miss;
+    const $first = $items[0];
+    const $last = $items.at(-1);
+    if (position <= $first.getBoundingClientRect()[start]) return {
+      index: Number.parseInt($first.dataset[key], 10),
+      $target: $first,
       before: true
     };
+    if (position >= $last.getBoundingClientRect()[end]) return {
+      index: Number.parseInt($last.dataset[key], 10) + 1,
+      $target: $last,
+      before: false
+    };
+    for (const $item of $items) {
+      const rect = $item.getBoundingClientRect();
+      if (position < rect[start] || position > rect[end]) continue;
+      const idx = Number.parseInt($item.dataset[key], 10);
+      const before = position < rect[start] + rect[size] / 2;
+      return {
+        index: before ? idx : idx + 1,
+        $target: $item,
+        before
+      };
+    }
+    return miss;
   };
-  const getRowDropIndexAt = clientY => {
-    const $trs = qsa("tr[data-row]", $tableBody);
-    if ($trs.length === 0) return {
-      index: -1,
-      $target: null,
-      before: true
-    };
-    const firstRect = $trs[0].getBoundingClientRect();
-    if (clientY <= firstRect.top) {
-      const idx = parseInt($trs[0].dataset.row, 10);
-      return {
-        index: idx,
-        $target: $trs[0],
-        before: true
-      };
-    }
-    const lastTr = $trs[$trs.length - 1];
-    const lastRect = lastTr.getBoundingClientRect();
-    if (clientY >= lastRect.bottom) {
-      const idx = parseInt(lastTr.dataset.row, 10);
-      return {
-        index: idx + 1,
-        $target: lastTr,
-        before: false
-      };
-    }
-    for (const $tr of $trs) {
-      const rect = $tr.getBoundingClientRect();
-      if (clientY >= rect.top && clientY <= rect.bottom) {
-        const idx = parseInt($tr.dataset.row, 10);
-        const before = clientY < rect.top + rect.height / 2;
-        return {
-          index: before ? idx : idx + 1,
-          $target: $tr,
-          before
-        };
-      }
-    }
-    return {
-      index: -1,
-      $target: null,
-      before: true
-    };
-  };
+  const getColumnDropIndexAt = clientX => getDropIndexAt(qsa("th[data-col]", $tableHead), clientX, "col", [ "left", "right", "width" ]);
+  const getRowDropIndexAt = clientY => getDropIndexAt(qsa("tr[data-row]", $tableBody), clientY, "row", [ "top", "bottom", "height" ]);
   const moveColumn = (fromIndex, dropIndex) => {
     const colCount = state.data[0]?.length ?? 0;
     if (fromIndex < 0 || colCount <= 1) return;
@@ -28241,25 +27604,15 @@ const Editor = (() => {
       next.splice(insertIndex, 0, moved);
       return next;
     });
-    const widths = Array.from({
-      length: colCount
-    }, (_, i) => state.columnWidths[i]);
-    const [movedWidth] = widths.splice(fromIndex, 1);
-    widths.splice(insertIndex, 0, movedWidth);
-    const newWidths = {};
-    widths.forEach((w, i) => {
-      if (w !== undefined) newWidths[i] = w;
-    });
-    state.columnWidths = newWidths;
-    remapColumnScopedState(idx => {
+    const mapper = idx => {
       if (idx === fromIndex) return insertIndex;
       if (fromIndex < insertIndex && idx > fromIndex && idx <= insertIndex) return idx - 1;
       if (insertIndex < fromIndex && idx >= insertIndex && idx < fromIndex) return idx + 1;
       return idx;
-    });
-    renderTable();
-    updateStats();
-    saveToStorage();
+    };
+    remapColumnWidths(idx => idx < colCount ? mapper(idx) : -1);
+    remapColumnScopedState(mapper);
+    refreshTable();
     showToast("列を移動しました", "success");
   };
   const moveRow = (fromIndex, dropIndex) => {
@@ -28272,9 +27625,7 @@ const Editor = (() => {
     const insertIndex = targetIndex > fromIndex ? targetIndex - 1 : targetIndex;
     state.data.splice(insertIndex, 0, moved);
     _columnFilterRows = null;
-    renderTable();
-    updateStats();
-    saveToStorage();
+    refreshTable();
     showToast("行を移動しました", "success");
   };
   const updateDragPreviewFromPoint = (clientX, clientY) => {
@@ -28469,22 +27820,10 @@ const Editor = (() => {
     if (persist) IDBStore.set(STATUS_BAR_VISIBLE_KEY, _statusBarVisible).catch(() => {});
   };
   const initStatusBarVisibility = async () => {
-    try {
-      const saved = await IDBStore.get(STATUS_BAR_VISIBLE_KEY);
-      if (typeof saved === "boolean") {
-        setStatusBarVisible(saved, {
-          persist: false
-        });
-      } else {
-        setStatusBarVisible(false, {
-          persist: false
-        });
-      }
-    } catch {
-      setStatusBarVisible(false, {
-        persist: false
-      });
-    }
+    const saved = await IDBStore.get(STATUS_BAR_VISIBLE_KEY).catch(() => false);
+    setStatusBarVisible(saved === true, {
+      persist: false
+    });
   };
   const scheduleStatusBarUpdate = () => {
     if (!_statusBarVisible) return;
@@ -28966,7 +28305,7 @@ const Editor = (() => {
     if (e.key === "Enter") {
       e.preventDefault();
       saveSearchToHistory($searchInput.value);
-      if (e.shiftKey) navigateMatch(-1); else navigateMatch(1);
+      navigateMatch(e.shiftKey ? -1 : 1);
     }
   });
   qs("#replaceNextBtn").addEventListener("click", replaceNext);
@@ -29123,45 +28462,33 @@ const Editor = (() => {
       $sourceSelect: e.target
     });
   });
-  $settingBOM.addEventListener("change", e => {
-    state.bom = e.target.checked;
+  const onOutputSettingChange = (selector, apply) => {
+    qs(selector).addEventListener("change", e => {
+      apply(e.target);
+      updateStats();
+      markSettingsChanged();
+      saveToStorage();
+    });
+  };
+  onOutputSettingChange("#settingBOM", $input => {
+    state.bom = $input.checked;
     syncSettingBomState();
-    updateStats();
-    markSettingsChanged();
-    saveToStorage();
   });
-  qs("#settingDelimiter").addEventListener("change", e => {
-    state.delimiter = e.target.value;
+  onOutputSettingChange("#settingDelimiter", $input => {
+    state.delimiter = $input.value;
     updateButtonLabels();
-    updateStats();
-    markSettingsChanged();
-    saveToStorage();
   });
-  qs("#settingNewline").addEventListener("change", e => {
-    state.newline = e.target.value;
-    updateStats();
-    markSettingsChanged();
-    saveToStorage();
+  onOutputSettingChange("#settingNewline", $input => {
+    state.newline = $input.value;
   });
-  qs("#settingQuote").addEventListener("change", e => {
-    state.quoteStyle = e.target.value;
-    updateStats();
-    markSettingsChanged();
-    saveToStorage();
+  onOutputSettingChange("#settingQuote", $input => {
+    state.quoteStyle = $input.value;
   });
-  qs("#settingHeader").addEventListener("change", () => {
-    toggleHeader();
-  });
-  qs("#settingShowStatusBar").addEventListener("change", e => {
-    setStatusBarVisible(e.target.checked, {
-      persist: true
-    });
-  });
-  if ($settingLanguage) {
-    $settingLanguage.addEventListener("change", e => {
-      setLanguage(e.target.value);
-    });
-  }
+  qs("#settingHeader").addEventListener("change", toggleHeader);
+  qs("#settingShowStatusBar").addEventListener("change", e => setStatusBarVisible(e.target.checked, {
+    persist: true
+  }));
+  $settingLanguage?.addEventListener("change", e => setLanguage(e.target.value));
   const resetExportWizard = () => {
     closeOverlay($exportOverlay);
     $expFormat.value = "csv";
@@ -29316,14 +28643,24 @@ const Editor = (() => {
 
 <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.csv.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
-  let preferences = {}, faviconTheme = "";
-  const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
+  const root = document.documentElement;
+  const body = document.body;
+  const storageKey = `arttools.ui.csv.v1`;
+  const legacySharedKey = "arttools.shared-ui.v1";
+  const settingsDialog = document.getElementById("art-settings");
+  const helpDialog = document.getElementById("art-help");
+  const saveNote = document.getElementById("art-save-note");
+  let preferences = {};
+  let faviconTheme = "";
+  const validTheme = value => value === "light" || value === "dark";
+  const editorSizes = [ 10, 14, 18 ];
+  const validSize = value => editorSizes.includes(value);
+  const migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
     try {
       const value = JSON.parse(raw);
-      if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
+      if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+      const editorSize = migrateSize(typeof value.editorSize === "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -29341,29 +28678,37 @@ const Editor = (() => {
   }
   function syncTheme() {
     const theme = originalTheme();
-    root.dataset.uiTheme !== theme && (root.dataset.uiTheme = theme), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (root.dataset.uiTheme !== theme) root.dataset.uiTheme = theme;
+    document.querySelectorAll("[data-art-theme]").forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.artTheme === theme));
-    }), syncFavicon();
+    });
+    syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg"), theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
+    const original = document.querySelector(".art-mark svg");
+    const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
       layer.setAttribute("display", layer.dataset.iconAppearance === theme ? "inline" : "none");
-    }), original.setAttribute("data-icon-theme", theme);
-    const icon = original.cloneNode(!0), favicon = document.getElementById("art-favicon");
-    favicon.type = "image/svg+xml", favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon)), 
+    });
+    original.setAttribute("data-icon-theme", theme);
+    const icon = original.cloneNode(true);
+    const favicon = document.getElementById("art-favicon");
+    favicon.type = "image/svg+xml";
+    favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon));
     faviconTheme = theme;
   }
   function applyTheme(theme) {
-    validTheme(theme) && originalTheme() !== theme && document.querySelector("#themeModeToggle").click(), 
+    if (validTheme(theme) && originalTheme() !== theme) document.querySelector("#themeModeToggle").click();
     syncTheme();
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px"), document.querySelectorAll("[data-art-size]").forEach(button => {
+    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
-    }), document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
+    });
+    document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
       detail: {
         size: nextSize
       }
@@ -29371,77 +28716,111 @@ const Editor = (() => {
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
-      saveNote.hidden = !0, saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+      saveNote.textContent = "";
+      saveNote.hidden = true;
+      saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。";
+      saveNote.hidden = false;
       saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
-    if (!dialog.open) {
-      if (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-      dialog.showModal(), dialog === settingsDialog) {
-        for (const layer of document.querySelectorAll("#toastContainer")) if (typeof layer.showPopover == "function") try {
-          layer.setAttribute("popover", "manual"), layer.showPopover();
+    if (dialog.open) return;
+    if (dialog === settingsDialog) document.dispatchEvent(new Event("arttools:settings-open"));
+    dialog.showModal();
+    if (dialog === settingsDialog) {
+      for (const layer of document.querySelectorAll("#toastContainer")) {
+        if (typeof layer.showPopover !== "function") continue;
+        try {
+          layer.setAttribute("popover", "manual");
+          layer.showPopover();
         } catch {}
       }
-      dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true");
     }
+    dialog.scrollTop = 0;
+    button.setAttribute("aria-expanded", "true");
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
-    button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
+    button.addEventListener("click", () => openDialog(dialog, button));
+    dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
       if (dialog === settingsDialog) {
-        for (const layer of document.querySelectorAll("#toastContainer")) if (layer.hasAttribute("popover")) {
+        for (const layer of document.querySelectorAll("#toastContainer")) {
+          if (!layer.hasAttribute("popover")) continue;
           try {
             layer.hidePopover();
           } catch {}
           layer.removeAttribute("popover");
         }
       }
-      button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
-        preventScroll: !0
+      button.setAttribute("aria-expanded", "false");
+      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
+      destination.focus({
+        preventScroll: true
       });
     });
-    let backdropStart = !1;
+    let backdropStart = false;
     const outside = event => {
       const rect = dialog.getBoundingClientRect();
       return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
     };
     dialog.addEventListener("pointerdown", event => {
       backdropStart = event.target === dialog && outside(event);
-    }), dialog.addEventListener("click", event => {
-      backdropStart && event.target === dialog && outside(event) && dialog.close(), backdropStart = !1;
+    });
+    dialog.addEventListener("click", event => {
+      if (backdropStart && event.target === dialog && outside(event)) dialog.close();
+      backdropStart = false;
     });
   }
   body.addEventListener("keydown", event => {
     const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
-    if (!dialog || (event.stopPropagation(), event.isComposing || event.keyCode === 229)) return;
+    if (!dialog) {
+      return;
+    }
+    event.stopPropagation();
+    if (event.isComposing || event.keyCode === 229) return;
     if (event.key === "Escape") {
-      event.preventDefault(), dialog.close();
+      event.preventDefault();
+      dialog.close();
       return;
     }
     if (event.key !== "Tab") return;
     const controls = [ ...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, a[href], [tabindex="0"]') ].filter(control => {
-      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return !1;
-      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return !1;
-      return !0;
-    }), first = controls[0], last = controls[controls.length - 1];
+      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return false;
+      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return false;
+      }
+      return true;
+    });
+    const first = controls[0];
+    const last = controls[controls.length - 1];
     if (!first) {
       event.preventDefault();
       return;
     }
-    event.shiftKey && document.activeElement === first ? (event.preventDefault(), last.focus()) : !event.shiftKey && document.activeElement === last && (event.preventDefault(), 
-    first.focus());
-  }), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
+      preferences.theme = button.dataset.artTheme;
+      save();
+      applyTheme(preferences.theme);
     });
-  }), document.querySelectorAll("[data-art-size]").forEach(button => {
+  });
+  document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.editorSize = Number(button.dataset.artSize), applySize(preferences.editorSize), 
+      preferences.editorSize = Number(button.dataset.artSize);
+      applySize(preferences.editorSize);
       save();
     });
   });
@@ -29449,57 +28828,76 @@ const Editor = (() => {
     let raw = localStorage.getItem(storageKey);
     if (raw === null) {
       const legacy = localStorage.getItem(legacySharedKey);
-      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+      if (legacy !== null) {
+        raw = JSON.stringify(readPreferences(legacy));
+        localStorage.setItem(storageKey, raw);
+      }
     }
-    if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
+    preferences = readPreferences(raw);
+    if (validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
-      stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
-        ...stored,
-        editorSize: preferences.editorSize
-      }));
+      if (stored.editorSize !== preferences.editorSize) {
+        localStorage.setItem(storageKey, JSON.stringify({
+          ...stored,
+          editorSize: preferences.editorSize
+        }));
+      }
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。";
+    saveNote.hidden = false;
     saveNote.dataset.error = "true";
   }
-  applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
-    validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();
-  }).observe(root, {
-    attributes: !0,
+  applyTheme(preferences.theme);
+  applySize(preferences.editorSize);
+  const observer = new MutationObserver(() => {
+    if (validTheme(preferences.theme) && originalTheme() !== preferences.theme) applyTheme(preferences.theme); else syncTheme();
+  });
+  observer.observe(root, {
+    attributes: true,
     attributeFilter: [ "data-mode" ]
-  }), new MutationObserver(() => {
+  });
+  new MutationObserver(() => {
     if (!settingsDialog.open) return;
-    [ ...document.querySelectorAll(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open") ].some(el => !settingsDialog.contains(el)) && settingsDialog.close();
+    const nested = [ ...document.querySelectorAll(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open") ].some(el => !settingsDialog.contains(el));
+    if (nested) settingsDialog.close();
   }).observe(body, {
-    subtree: !0,
-    attributes: !0,
+    subtree: true,
+    attributes: true,
     attributeFilter: [ "class", "hidden" ]
   });
   const focusPrimaryInput = () => {
     const target = document.querySelector("[data-art-autofocus]");
     if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
-    let finished = !1;
+    const deadline = performance.now() + 3e3;
+    const userEvents = [ "pointerdown", "keydown" ];
+    let finished = false;
     const finish = () => {
-      finished = !0;
-      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+      finished = true;
+      for (const type of userEvents) window.removeEventListener(type, finish, true);
     };
-    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    for (const type of userEvents) window.addEventListener(type, finish, true);
     const attempt = () => {
-      if (!finished) {
-        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
-          preventScroll: !0
-        }), document.activeElement === target)) return finish();
-        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      if (finished) return;
+      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
+      if (target.getClientRects().length) {
+        target.focus({
+          preventScroll: true
+        });
+        if (document.activeElement === target) return finish();
       }
+      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
     };
     attempt();
   };
-  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
-    once: !0
-  }), window.addEventListener("storage", event => {
-    event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
-    applyTheme(preferences.theme), applySize(preferences.editorSize));
+  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
+    once: true
+  });
+  window.addEventListener("storage", event => {
+    if (event.key !== storageKey && event.key !== null) return;
+    preferences = readPreferences(event.newValue);
+    applyTheme(preferences.theme);
+    applySize(preferences.editorSize);
   });
 })();</script>
 <script id="arttools-csv-workspace-script">(() => {
@@ -29509,15 +28907,13 @@ const Editor = (() => {
   const desktop = () => matchMedia("(min-width: 1001px) and (min-height: 641px)").matches;
   for (const menu of menus) {
     menu.addEventListener("toggle", () => {
-      if (menu.open && desktop()) menus.forEach(other => {
-        if (other !== menu) other.open = false;
-      });
+      if (!menu.open || !desktop()) return;
+      for (const other of menus) if (other !== menu) other.open = false;
     });
   }
   document.addEventListener("pointerdown", event => {
-    if (desktop()) menus.forEach(menu => {
-      if (menu.open && !menu.contains(event.target)) menu.open = false;
-    });
+    if (!desktop()) return;
+    for (const menu of menus) if (menu.open && !menu.contains(event.target)) menu.open = false;
   }, {
     capture: true
   });
@@ -29527,9 +28923,7 @@ const Editor = (() => {
     if (!openMenu) return;
     event.preventDefault();
     event.stopPropagation();
-    menus.forEach(menu => {
-      menu.open = false;
-    });
+    for (const menu of menus) menu.open = false;
     openMenu.querySelector("summary").focus({
       preventScroll: true
     });
@@ -29541,7 +28935,8 @@ const Editor = (() => {
   refreshRows();
   const hint = document.querySelector("[data-csv-encoding-hint]");
   const syncHint = () => {
-    if (hint) hint.textContent = root.lang.toLowerCase().startsWith("en") ? "Change the encoding with the selector at the bottom of the workspace." : "文字コードは画面下部のセレクトから変更できます。";
+    if (!hint) return;
+    hint.textContent = root.lang.toLowerCase().startsWith("en") ? "Change the encoding with the selector at the bottom of the workspace." : "文字コードは画面下部のセレクトから変更できます。";
   };
   syncHint();
   new MutationObserver(syncHint).observe(root, {

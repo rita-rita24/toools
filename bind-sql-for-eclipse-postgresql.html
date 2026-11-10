@@ -4718,26 +4718,31 @@ if (typeof exports === "object" && typeof module === "object") {
     </script>
 
     <script id="sql-engine">const BindSQLEngine = (() => {
-  const _escapeRegExp = _value => _value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const _splitKeywordBlock = _block => _block.split(/\r?\n/).map(_keyword => _keyword.trim()).filter(Boolean);
-  const _buildKeywordPatternSource = _keyword => _escapeRegExp(_keyword).replace(/\s+/g, "\\s+");
-  const CLAUSE_KEYWORDS = [ "WITH", "UNION ALL", "UNION", "SELECT", "INSERT INTO", "UPDATE", "DELETE FROM", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY", "LIMIT", "OFFSET", "RETURNING", "VALUES", "SET", "INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "FULL JOIN", "CROSS JOIN", "JOIN" ];
-  const MERGE_CLAUSE_KEYWORDS = [ "MERGE INTO", "MERGE", "USING", "WHEN NOT MATCHED BY SOURCE", "WHEN NOT MATCHED BY TARGET", "WHEN NOT MATCHED", "WHEN MATCHED", "INSERT", "DELETE", "DO NOTHING" ];
+  const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const keywordSource = keyword => escapeRegExp(keyword).replace(/\s+/g, "\\s+");
+  const isSpace = (character = "") => /[ \t\r\n\f]/.test(character);
+  const isWord = (character = "") => /[A-Za-z0-9_$\u0080-\uffff]/.test(character);
+  const isDigit = (character = "") => /[0-9]/.test(character);
+  const trimSql = sql => sql.replace(/^[ \t\r\n\f]+|[ \t\r\n\f]+$/g, "");
+  const CLAUSE_KEYWORDS = ("WITH,UNION ALL,UNION,SELECT,INSERT INTO,UPDATE,DELETE FROM,FROM,WHERE,GROUP BY,HAVING," + "ORDER BY,LIMIT,OFFSET,RETURNING,VALUES,SET,INNER JOIN,LEFT JOIN,RIGHT JOIN,FULL JOIN,CROSS JOIN,JOIN").split(",");
+  const MERGE_CLAUSE_KEYWORDS = ("MERGE INTO,MERGE,USING,WHEN NOT MATCHED BY SOURCE,WHEN NOT MATCHED BY TARGET," + "WHEN NOT MATCHED,WHEN MATCHED,INSERT,DELETE,DO NOTHING").split(",");
   const INLINE_KEYWORDS = [ "ON", "AND", "OR" ];
-  const BREAK_CLAUSE_KEYWORDS = CLAUSE_KEYWORDS.filter(_keyword => _keyword !== "JOIN");
-  const PHRASE_KEYWORDS = _splitKeywordBlock(`\n    AT TIME ZONE\n    DO NOTHING\n    FETCH FIRST\n    FETCH NEXT\n    FOR KEY SHARE\n    FOR NO KEY UPDATE\n    FOR SHARE\n    FOR UPDATE\n    FULL OUTER JOIN\n    GROUPING SETS\n    IS NOT NULL\n    IS NULL\n    LEFT OUTER JOIN\n    NATURAL JOIN\n    NOT EXISTS\n    NOT IN\n    NULLS FIRST\n    NULLS LAST\n    ON CONFLICT\n    PARTITION BY\n    RIGHT OUTER JOIN\n    UNION DISTINCT\n    USING INDEX\n    WHEN MATCHED THEN\n    WHEN MATCHED\n    WHEN NOT MATCHED BY SOURCE THEN\n    WHEN NOT MATCHED BY SOURCE\n    WHEN NOT MATCHED BY TARGET THEN\n    WHEN NOT MATCHED BY TARGET\n    WHEN NOT MATCHED THEN\n    WHEN NOT MATCHED\n    WITH RECURSIVE\n    WITHIN GROUP\n  `);
-  const POSTGRESQL_KEYWORDS = `\n    ACCESS ADD ALL ALTER ANALYSE ANALYZE AND ANY ARRAY\n    AS ASC ASYMMETRIC AUTHORIZATION BETWEEN BINARY BOTH BY CASE\n    CAST CHAR CHECK CLUSTER COLLATE COLLATION COLUMN COMMENT CONSTRAINT\n    CREATE CROSS CURRENT CURRENT_CATALOG CURRENT_DATE CURRENT_ROLE CURRENT_SCHEMA CURRENT_TIME CURRENT_TIMESTAMP\n    CURRENT_USER DECIMAL DEFAULT DEFERRABLE DELETE DESC DISTINCT DO DROP\n    ELSE END EXCEPT EXCLUSIVE EXISTS FALSE FETCH FLOAT FOR\n    FOREIGN FROM FULL GRANT GROUP HAVING ILIKE IMMEDIATE IN\n    INCREMENT INDEX INITIALLY INNER INSERT INTEGER INTERSECT INTO IS\n    ISNULL JOIN LATERAL LEADING LEFT LEVEL LIKE LIMIT LOCALTIME\n    LOCALTIMESTAMP LOCK MERGE MODE NATURAL NOT NOTNULL NOWAIT NULL\n    OF OFFSET ON ONLY OPTION OR ORDER OUTER OVER\n    OVERLAPS PARTITION PLACING PRIMARY PRIOR PRIVILEGES RECURSIVE REFERENCES RENAME\n    RETURNING REVOKE RIGHT ROW ROWS SELECT SESSION SESSION_USER SET\n    SHARE SIMILAR SMALLINT SOME START SYMMETRIC TABLE THEN TO\n    TRAILING TRIGGER TRUE UNION UNIQUE UPDATE USER USING VALIDATE\n    VALUES VARCHAR VARIADIC VIEW WHEN WHERE WINDOW WITH\n  `.trim().split(/\s+/);
+  const BREAK_CLAUSE_KEYWORDS = CLAUSE_KEYWORDS.filter(keyword => keyword !== "JOIN");
+  const PHRASE_KEYWORDS = ("AT TIME ZONE,DO NOTHING,FETCH FIRST,FETCH NEXT,FOR KEY SHARE,FOR NO KEY UPDATE,FOR SHARE," + "FOR UPDATE,FULL OUTER JOIN,GROUPING SETS,IS NOT NULL,IS NULL,LEFT OUTER JOIN,NATURAL JOIN,NOT EXISTS,NOT IN," + "NULLS FIRST,NULLS LAST,ON CONFLICT,PARTITION BY,RIGHT OUTER JOIN,UNION DISTINCT,USING INDEX,WHEN MATCHED THEN," + "WHEN MATCHED,WHEN NOT MATCHED BY SOURCE THEN,WHEN NOT MATCHED BY SOURCE,WHEN NOT MATCHED BY TARGET THEN," + "WHEN NOT MATCHED BY TARGET,WHEN NOT MATCHED THEN,WHEN NOT MATCHED,WITH RECURSIVE,WITHIN GROUP").split(",");
+  const POSTGRESQL_KEYWORDS = ("ACCESS ADD ALL ALTER ANALYSE ANALYZE AND ANY ARRAY AS ASC ASYMMETRIC AUTHORIZATION BETWEEN BINARY BOTH BY CASE " + "CAST CHAR CHECK CLUSTER COLLATE COLLATION COLUMN COMMENT CONSTRAINT CREATE CROSS CURRENT CURRENT_CATALOG " + "CURRENT_DATE CURRENT_ROLE CURRENT_SCHEMA CURRENT_TIME CURRENT_TIMESTAMP CURRENT_USER DECIMAL DEFAULT DEFERRABLE " + "DELETE DESC DISTINCT DO DROP ELSE END EXCEPT EXCLUSIVE EXISTS FALSE FETCH FLOAT FOR FOREIGN FROM FULL GRANT GROUP " + "HAVING ILIKE IMMEDIATE IN INCREMENT INDEX INITIALLY INNER INSERT INTEGER INTERSECT INTO IS ISNULL JOIN LATERAL " + "LEADING LEFT LEVEL LIKE LIMIT LOCALTIME LOCALTIMESTAMP LOCK MERGE MODE NATURAL NOT NOTNULL NOWAIT NULL OF OFFSET " + "ON ONLY OPTION OR ORDER OUTER OVER OVERLAPS PARTITION PLACING PRIMARY PRIOR PRIVILEGES RECURSIVE REFERENCES RENAME " + "RETURNING REVOKE RIGHT ROW ROWS SELECT SESSION SESSION_USER SET SHARE SIMILAR SMALLINT SOME START SYMMETRIC TABLE " + "THEN TO TRAILING TRIGGER TRUE UNION UNIQUE UPDATE USER USING VALIDATE VALUES VARCHAR VARIADIC VIEW WHEN WHERE WINDOW WITH").split(" ");
   const SQL_KEYWORD_DICTIONARY = [ ...new Set([ ...CLAUSE_KEYWORDS, ...PHRASE_KEYWORDS, ...POSTGRESQL_KEYWORDS ]) ].sort((a, b) => b.length - a.length);
-  const SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL = SQL_KEYWORD_DICTIONARY.reduce((_map, _keyword) => {
-    const _pattern = new RegExp(`^${_buildKeywordPatternSource(_keyword)}\\b`, "i");
-    (_map[_keyword[0]] ??= []).push(_pattern);
-    return _map;
-  }, Object.create(null));
-  const SQL_KEYWORD_CASE_PATTERN = new RegExp(`\\b(?:${SQL_KEYWORD_DICTIONARY.map(_keyword => _buildKeywordPatternSource(_keyword)).join("|")})\\b`, "gi");
+  const KEYWORD_PATTERNS_BY_INITIAL = Object.create(null);
+  for (const keyword of SQL_KEYWORD_DICTIONARY) {
+    (KEYWORD_PATTERNS_BY_INITIAL[keyword[0]] ??= []).push(new RegExp(`^${keywordSource(keyword)}\\b`, "i"));
+  }
+  const SQL_KEYWORD_CASE_PATTERN = new RegExp(`\\b(?:${SQL_KEYWORD_DICTIONARY.map(keywordSource).join("|")})\\b`, "gi");
   const PARAMETER_ENTRY_PATTERN = /^(?<key>:?[A-Za-z_][A-Za-z0-9_$]*|\[\d+\]|\d+)\s*(?:=>|=|:)\s*(?<value>[\s\S]*)$/;
   const BIND_HEADER_PATTERN = /^(?:bind(?:\s+variables?)?|params?|parameters?)\s*:?\s*$/i;
   const SQL_PREFIX_PATTERN = /^\s*sql\s*[:=]\s*(?<sql>.+)$/i;
-  const SQL_NUMERIC_LITERAL_PATTERN = /^[+-]?(?:(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)$/;
+  const NUMERIC_LITERAL_PATTERN = /^[+-]?(?:(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)$/;
+  const LITERAL_START_PATTERN = /^(?:'|[EBXN]'|U&'|\$)/i;
+  const COMMENT_PATTERN = /^(?:--|\/\*)/;
+  const LOG_LINE_PATTERN = /^\s*(?:==>|<==)|^\d{4}-\d{2}-\d{2}.*\b(?:TRACE|DEBUG|INFO|WARN|ERROR)\b/;
   const HIBERNATE_BIND_PATTERNS = [ /\bbinding parameter\s+\[(?<index>\d+)\]\s+as\s+\[(?<type>[^\]]+)\]\s*-\s*\[(?<value>[\s\S]*?)\]\s*$/i, /\bbinding parameter\s+\((?<index>\d+)\s*:\s*(?<type>[^)]+)\)\s*<-\s*\[(?<value>[\s\S]*?)\]\s*$/i ];
   const QUOTE_PAIRS = Object.freeze({
     "'": "'",
@@ -4754,1755 +4759,1339 @@ if (typeof exports === "object" && typeof module === "object") {
   });
   const SQL_STATEMENT_STARTS = new Set(("ABORT ALTER ANALYSE ANALYZE BEGIN CALL CHECKPOINT CLOSE CLUSTER COMMENT COMMIT COPY CREATE " + "DEALLOCATE DECLARE DELETE DISCARD DO DROP END EXECUTE EXPLAIN FETCH GRANT IMPORT INSERT " + "LISTEN LOAD LOCK MERGE MOVE NOTIFY PREPARE REASSIGN REFRESH REINDEX RELEASE RESET REVOKE " + "ROLLBACK SAVEPOINT SECURITY SELECT SET SHOW START TABLE TRUNCATE UNLISTEN UPDATE VACUUM VALUES WITH").split(" "));
   const HIBERNATE_SQL_PATTERN = new RegExp(`\\borg\\.hibernate\\.SQL\\b.*?(?:-|:)[ \\t]*(?<sql>(?:(?:${[ ...SQL_STATEMENT_STARTS ].join("|")})\\b|\\(|/\\*|--).*)$`, "i");
-  const MESSAGES = Object.freeze({
-    unresolvedNamed: (_list, _count) => `未置換の名前付きバインド (${_list}) が ${_count} 件あります。`,
-    extraNamed: (_list, _count) => `余剰の名前付きバインド (${_list}) が ${_count} 件あります。`,
-    unresolvedPositional: _count => `未置換の位置バインド (?) が ${_count} 件あります。`,
-    extraPositional: (_list, _count) => `余剰の位置バインド (${_list}) が ${_count} 件あります。`
-  });
-  const _escapeHtml = _value => _value.replace(/[&<>"']/g, _character => HTML_ESCAPE_MAP[_character]);
-  const _trimSql = _sql => _sql.replace(/^[ \t\r\n\f]+|[ \t\r\n\f]+$/g, "");
-  const _isWordCharacter = _character => /[A-Za-z0-9_$\u0080-\uffff]/.test(_character);
-  const _isPostgresqlEscapeStringQuote = (_sql, _quoteIndex) => (_sql[_quoteIndex - 1] ?? "").toLowerCase() === "e" && !_isWordCharacter(_sql[_quoteIndex - 2] ?? "");
-  const _isQuotedValue = _value => _value.startsWith("'") && _value.endsWith("'") || _value.startsWith('"') && _value.endsWith('"') || _value.startsWith("“") && _value.endsWith("”") || _value.startsWith("‘") && _value.endsWith("’");
-  const _isSqlLiteralValue = _value => /^null$/i.test(_value) || /^(true|false)$/i.test(_value) || SQL_NUMERIC_LITERAL_PATTERN.test(_value) || _isQuotedValue(_value);
-  const _toPostgresqlStringLiteral = _value => {
-    if (/[\\\r]/.test(_value)) {
-      return `E'${_value.replace(/\\/g, "\\\\").replace(/'/g, "''").replace(/\r/g, "\\r").replace(/\n/g, "\\n")}'`;
-    }
-    return `'${_value.replace(/'/g, "''")}'`;
+  const escapeHtml = value => value.replace(/[&<>"']/g, character => HTML_ESCAPE_MAP[character]);
+  const isEscapeStringQuote = (sql, quoteIndex) => (sql[quoteIndex - 1] ?? "").toLowerCase() === "e" && !isWord(sql[quoteIndex - 2]);
+  const isQuotedValue = value => Object.entries(QUOTE_PAIRS).some(([open, close]) => value.startsWith(open) && value.endsWith(close));
+  const isSqlLiteralValue = value => /^(?:null|true|false)$/i.test(value) || NUMERIC_LITERAL_PATTERN.test(value) || isQuotedValue(value);
+  const toStringLiteral = value => /[\\\r]/.test(value) ? `E'${value.replace(/\\/g, "\\\\").replace(/'/g, "''").replace(/\r/g, "\\r").replace(/\n/g, "\\n")}'` : `'${value.replace(/'/g, "''")}'`;
+  const quoteParameterValue = value => {
+    const trimmed = value.trim();
+    if (!trimmed) return "''";
+    return isSqlLiteralValue(trimmed) ? trimmed : toStringLiteral(trimmed);
   };
-  const _quoteParameterValue = _value => {
-    const _trimmed = _value.trim();
-    return !_trimmed ? "''" : _isSqlLiteralValue(_trimmed) ? _trimmed : _toPostgresqlStringLiteral(_trimmed);
+  const OPEN_BRACKETS = {
+    "(": ")",
+    "[": "]",
+    "{": "}"
   };
-  const _splitParameterEntries = _parametersText => {
-    const _entries = [];
-    let _current = "";
-    let _quoteClose = "";
-    let _quoteAllowsEscape = false;
-    let _isEscaped = false;
-    let _parenDepth = 0;
-    let _bracketDepth = 0;
-    let _braceDepth = 0;
-    for (let _index = 0; _index < _parametersText.length; _index += 1) {
-      const _character = _parametersText[_index];
-      if (_quoteClose) {
-        _current += _character;
-        if (_quoteAllowsEscape && _character === "\\" && !_isEscaped) {
-          _isEscaped = true;
+  const CLOSE_BRACKETS = {
+    ")": "(",
+    "]": "[",
+    "}": "{"
+  };
+  const splitParameterEntries = text => {
+    const entries = [];
+    const depth = {
+      "(": 0,
+      "[": 0,
+      "{": 0
+    };
+    let current = "";
+    let quoteClose = "";
+    let quoteEscapes = false;
+    let escaped = false;
+    const push = () => {
+      const entry = current.trim();
+      if (entry) entries.push(entry);
+      current = "";
+    };
+    for (let index = 0; index < text.length; index += 1) {
+      const character = text[index];
+      if (quoteClose) {
+        current += character;
+        if (quoteEscapes && character === "\\" && !escaped) {
+          escaped = true;
           continue;
         }
-        if (_character === _quoteClose && !_isEscaped) {
-          _quoteClose = "";
-          _quoteAllowsEscape = false;
-        }
-        _isEscaped = false;
+        if (character === quoteClose && !escaped) quoteClose = "";
+        escaped = false;
         continue;
       }
-      const _dollarQuoted = _readDollarQuotedSegment(_parametersText, _index);
-      if (_dollarQuoted) {
-        _current += _dollarQuoted;
-        _index += _dollarQuoted.length - 1;
+      const dollarQuoted = readDollarQuoted(text, index);
+      if (dollarQuoted) {
+        current += dollarQuoted;
+        index += dollarQuoted.length - 1;
         continue;
       }
-      const _quotePair = QUOTE_PAIRS[_character];
-      if (_quotePair && (!/[A-Za-z0-9_\u0080-\uffff]/.test(_current.at(-1) ?? "") || /(?:^|[=(:,{\[])\s*[EBXN]$/i.test(_current))) {
-        if (_character === "'") {
-          const _literal = _readSqlProtectedSegment(_parametersText, _index);
-          _current += _literal;
-          _index += _literal.length - 1;
+      const close = QUOTE_PAIRS[character];
+      if (close && (!/[A-Za-z0-9_\u0080-\uffff]/.test(current.at(-1) ?? "") || /(?:^|[=(:,{\[])\s*[EBXN]$/i.test(current))) {
+        if (character === "'") {
+          const literal = readProtected(text, index);
+          current += literal;
+          index += literal.length - 1;
           continue;
         }
-        _quoteClose = _quotePair;
-        _quoteAllowsEscape = _character === '"';
-        _current += _character;
-        _isEscaped = false;
+        quoteClose = close;
+        quoteEscapes = character === '"';
+        escaped = false;
+        current += character;
         continue;
       }
-      if (_character === "(") {
-        _parenDepth += 1;
-        _current += _character;
+      if (OPEN_BRACKETS[character]) depth[character] += 1; else if (CLOSE_BRACKETS[character]) depth[CLOSE_BRACKETS[character]] = Math.max(0, depth[CLOSE_BRACKETS[character]] - 1); else if (character === "," && !depth["("] && !depth["["] && !depth["{"]) {
+        push();
         continue;
       }
-      if (_character === ")") {
-        _parenDepth = Math.max(0, _parenDepth - 1);
-        _current += _character;
-        continue;
-      }
-      if (_character === "[") {
-        _bracketDepth += 1;
-        _current += _character;
-        continue;
-      }
-      if (_character === "]") {
-        _bracketDepth = Math.max(0, _bracketDepth - 1);
-        _current += _character;
-        continue;
-      }
-      if (_character === "{") _braceDepth += 1;
-      if (_character === "}") _braceDepth = Math.max(0, _braceDepth - 1);
-      if (_character === "," && _parenDepth === 0 && _bracketDepth === 0 && _braceDepth === 0) {
-        const _entry = _current.trim();
-        if (_entry) {
-          _entries.push(_entry);
-        }
-        _current = "";
-        continue;
-      }
-      _current += _character;
+      current += character;
     }
-    const _entry = _current.trim();
-    if (_entry) {
-      _entries.push(_entry);
-    }
-    return _entries;
+    push();
+    return entries;
   };
-  const _parseLoggedParameterValue = _value => {
-    const _match = _value.match(/^(?<value>[\s\S]*)\((?<type>[A-Za-z0-9_.$ -]+(?:\[\])*)\)\r?$/);
-    return _match?.groups ? {
-      _value: _match.groups.value,
-      _type: _match.groups.type.trim()
+  const parseLoggedParameterValue = value => {
+    const groups = value.match(/^(?<value>[\s\S]*)\((?<type>[A-Za-z0-9_.$ -]+(?:\[\])*)\)\r?$/)?.groups;
+    return groups ? {
+      value: groups.value,
+      type: groups.type.trim()
     } : {
-      _value,
-      _type: ""
+      value,
+      type: ""
     };
   };
-  const _isPostgresqlStringLikeParameterType = _type => /char|string|text|clob|date|time|timestamp|instant|uuid|json|xml/i.test(_type);
-  const _splitLogParameterEntries = _parametersText => {
-    const _entries = [];
-    const _separator = /(?:\([A-Za-z0-9_.$ -]+(?:\[\])*\)|\bnull), /g;
-    let _start = 0;
-    for (const _match of _parametersText.matchAll(_separator)) {
-      const _end = _match.index + _match[0].length - 2;
-      _entries.push(_parametersText.slice(_start, _end));
-      _start = _end + 2;
+  const splitLogParameterEntries = text => {
+    const entries = [];
+    let start = 0;
+    for (const match of text.matchAll(/(?:\([A-Za-z0-9_.$ -]+(?:\[\])*\)|\bnull), /g)) {
+      const end = match.index + match[0].length - 2;
+      entries.push(text.slice(start, end));
+      start = end + 2;
     }
-    if (_start < _parametersText.length) _entries.push(_parametersText.slice(_start));
-    return _entries;
+    if (start < text.length) entries.push(text.slice(start));
+    return entries;
   };
-  const _formatLogPositionalBindLine = (_index, _value, _stripType = false, _type = "") => {
-    const _parameter = _stripType ? _parseLoggedParameterValue(_value) : {
-      _value,
-      _type
+  const formatLogBindLine = (index, rawValue, stripType = false, rawType = "") => {
+    const {value, type} = stripType ? parseLoggedParameterValue(rawValue) : {
+      value: rawValue,
+      type: rawType
     };
-    const _string = _isPostgresqlStringLikeParameterType(_parameter._type) && (_stripType || !/^null$/i.test(_parameter._value));
-    const _literal = _string ? _toPostgresqlStringLiteral(_parameter._value) : _quoteParameterValue(_parameter._value);
-    return `${_index} = ${_literal}`;
+    const isString = /char|string|text|clob|date|time|timestamp|instant|uuid|json|xml/i.test(type) && (stripType || !/^null$/i.test(value));
+    return `${index} = ${isString ? toStringLiteral(value) : quoteParameterValue(value)}`;
   };
-  const _readDollarQuotedSegment = (_sql, _startIndex, _status = null) => {
-    if (_sql[_startIndex] !== "$" || /[A-Za-z0-9_$\u0080-\uffff]/.test(_sql[_startIndex - 1] ?? "")) {
-      return "";
-    }
-    const _slice = _sql.slice(_startIndex);
-    const _delimiter = _slice.startsWith("$$") ? "$$" : _slice.match(/^\$[A-Za-z_\u0080-\uffff][A-Za-z0-9_\u0080-\uffff]*\$/)?.[0] ?? "";
-    if (!_delimiter) {
-      return "";
-    }
-    const _contentStartIndex = _startIndex + _delimiter.length;
-    const _endIndex = _sql.indexOf(_delimiter, _contentStartIndex);
-    if (_status) _status._closed = _endIndex !== -1;
-    return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + _delimiter.length);
+  const readDollarQuoted = (sql, start, status = null) => {
+    if (sql[start] !== "$" || isWord(sql[start - 1])) return "";
+    const rest = sql.slice(start);
+    const delimiter = rest.startsWith("$$") ? "$$" : rest.match(/^\$[A-Za-z_\u0080-\uffff][A-Za-z0-9_\u0080-\uffff]*\$/)?.[0] ?? "";
+    if (!delimiter) return "";
+    const end = sql.indexOf(delimiter, start + delimiter.length);
+    if (status) status.closed = end !== -1;
+    return sql.slice(start, end === -1 ? sql.length : end + delimiter.length);
   };
-  const _readSqlProtectedSegment = (_sql, _startIndex, _status = null) => {
-    const _startCharacter = _sql[_startIndex];
-    if (/^U&['"]/.test(_sql.slice(_startIndex, _startIndex + 3).toUpperCase()) && !/[A-Za-z0-9_$\u0080-\uffff]/.test(_sql[_startIndex - 1] ?? "")) {
-      const _quoted = _readSqlProtectedSegment(_sql, _startIndex + 2, _status);
-      let _end = _startIndex + 2 + _quoted.length;
-      const _keywordStart = _skipSqlWhitespace(_sql, _end);
-      if (/^UESCAPE(?![A-Za-z0-9_$\u0080-\uffff])/i.test(_sql.slice(_keywordStart))) {
-        const _escapeStart = _skipSqlWhitespace(_sql, _keywordStart + 7);
-        if (_sql[_escapeStart] === "'") {
-          _end = _escapeStart + _readSqlProtectedSegment(_sql, _escapeStart, _status).length;
-        }
+  const skipSpace = (sql, start) => {
+    let index = start;
+    while (index < sql.length && isSpace(sql[index])) index += 1;
+    return index;
+  };
+  const readProtected = (sql, start, status = null) => {
+    const first = sql[start];
+    if (/^U&['"]/.test(sql.slice(start, start + 3).toUpperCase()) && !isWord(sql[start - 1])) {
+      let end = start + 2 + readProtected(sql, start + 2, status).length;
+      const keywordStart = skipSpace(sql, end);
+      if (/^UESCAPE(?![A-Za-z0-9_$\u0080-\uffff])/i.test(sql.slice(keywordStart))) {
+        const escapeStart = skipSpace(sql, keywordStart + 7);
+        if (sql[escapeStart] === "'") end = escapeStart + readProtected(sql, escapeStart, status).length;
       }
-      return _sql.slice(_startIndex, _end);
+      return sql.slice(start, end);
     }
-    const _dollarQuotedSegment = _readDollarQuotedSegment(_sql, _startIndex, _status);
-    if (_dollarQuotedSegment) {
-      return _dollarQuotedSegment;
+    const dollarQuoted = readDollarQuoted(sql, start, status);
+    if (dollarQuoted) return dollarQuoted;
+    if (/^[EBXN]'/i.test(sql.slice(start, start + 2)) && !isWord(sql[start - 1])) {
+      return first + readProtected(sql, start + 1, status);
     }
-    if (/^[EBXN]'/i.test(_sql.slice(_startIndex, _startIndex + 2)) && !_isWordCharacter(_sql[_startIndex - 1] ?? "")) {
-      return _startCharacter + _readSqlProtectedSegment(_sql, _startIndex + 1, _status);
-    }
-    if (_startCharacter === "'") {
-      const _allowBackslashEscape = _isPostgresqlEscapeStringQuote(_sql, _startIndex);
-      let _closed = false;
-      let _index = _startIndex + 1;
-      while (_index < _sql.length) {
-        const _character = _sql[_index];
-        if (_character === "'" && _sql[_index + 1] === "'") {
-          _index += 2;
+    if (first === "'") {
+      const backslashEscapes = isEscapeStringQuote(sql, start);
+      let closed = false;
+      let index = start + 1;
+      while (index < sql.length) {
+        const character = sql[index];
+        if (character === "'" && sql[index + 1] === "'" || backslashEscapes && character === "\\") {
+          index += 2;
           continue;
         }
-        if (_allowBackslashEscape && _character === "\\") {
-          _index += 2;
+        if (character !== "'") {
+          index += 1;
           continue;
         }
-        if (_character === "'") {
-          _index += 1;
-          _closed = true;
-          let _next = _index;
-          while (_next < _sql.length) {
-            if (/[ \t\r\n\f]/.test(_sql[_next])) {
-              _next += 1;
-              continue;
-            }
-            if (_sql.startsWith("--", _next) || _sql.startsWith("/*", _next)) {
-              _next += _readSqlProtectedSegment(_sql, _next).length;
-              continue;
-            }
-            break;
-          }
-          if (/[\r\n]/.test(_sql.slice(_index, _next)) && _sql[_next] === "'") {
-            _index = _next + 1;
-            _closed = false;
-            continue;
-          }
+        index += 1;
+        closed = true;
+        let next = index;
+        while (next < sql.length) {
+          if (isSpace(sql[next])) next += 1; else if (sql.startsWith("--", next) || sql.startsWith("/*", next)) next += readProtected(sql, next).length; else break;
+        }
+        if (!/[\r\n]/.test(sql.slice(index, next)) || sql[next] !== "'") break;
+        index = next + 1;
+        closed = false;
+      }
+      if (status) status.closed = closed;
+      return sql.slice(start, index);
+    }
+    if (first === '"') {
+      let closed = false;
+      let index = start + 1;
+      while (index < sql.length) {
+        if (sql[index] === '"' && sql[index + 1] === '"') {
+          index += 2;
+          continue;
+        }
+        index += 1;
+        if (sql[index - 1] === '"') {
+          closed = true;
           break;
         }
-        _index += 1;
       }
-      if (_status) _status._closed = _closed;
-      return _sql.slice(_startIndex, _index);
+      if (status) status.closed = closed;
+      return sql.slice(start, index);
     }
-    if (_startCharacter === '"') {
-      let _closed = false;
-      let _index = _startIndex + 1;
-      while (_index < _sql.length) {
-        const _character = _sql[_index];
-        if (_character === '"' && _sql[_index + 1] === '"') {
-          _index += 2;
-          continue;
-        }
-        if (_character === '"') {
-          _index += 1;
-          _closed = true;
-          break;
-        }
-        _index += 1;
+    if (sql.startsWith("--", start)) {
+      const end = sql.indexOf("\n", start);
+      return sql.slice(start, end === -1 ? sql.length : end + 1);
+    }
+    if (sql.startsWith("/*", start)) {
+      let depth = 1;
+      let index = start + 2;
+      while (index < sql.length && depth > 0) {
+        const pair = sql.slice(index, index + 2);
+        if (pair === "/*" || pair === "*/") {
+          depth += pair === "/*" ? 1 : -1;
+          index += 2;
+        } else index += 1;
       }
-      if (_status) _status._closed = _closed;
-      return _sql.slice(_startIndex, _index);
-    }
-    if (_startCharacter === "-" && _sql[_startIndex + 1] === "-") {
-      const _endIndex = _sql.indexOf("\n", _startIndex);
-      return _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 1);
-    }
-    if (_startCharacter === "/" && _sql[_startIndex + 1] === "*") {
-      let _depth = 1;
-      let _index = _startIndex + 2;
-      while (_index < _sql.length && _depth > 0) {
-        const _pair = _sql.slice(_index, _index + 2);
-        if (_pair === "/*") {
-          _depth += 1;
-          _index += 2;
-        } else if (_pair === "*/") {
-          _depth -= 1;
-          _index += 2;
-        } else _index += 1;
-      }
-      if (_status) _status._closed = _depth === 0;
-      return _sql.slice(_startIndex, _index);
+      if (status) status.closed = depth === 0;
+      return sql.slice(start, index);
     }
     return "";
   };
-  const _skipSqlWhitespace = (_sql, _start) => {
-    let _index = _start;
-    while (_index < _sql.length && /[ \t\r\n\f]/.test(_sql[_index])) _index += 1;
-    return _index;
+  const isClosedSegment = (sql, start) => {
+    const status = {
+      closed: true
+    };
+    readProtected(sql, start, status);
+    return status.closed;
   };
-  const _maskSqlProtectedSegments = (_sql, _protectIdentifiers = false) => {
-    const _segments = [];
-    _segments._prefix = "@@BindSQL_SEGMENT_";
-    while (_sql.includes(_segments._prefix)) _segments._prefix += "X";
-    let _masked = "";
-    let _index = 0;
-    while (_index < _sql.length) {
-      let _segment = _readSqlProtectedSegment(_sql, _index);
-      if (!_segment && _protectIdentifiers && !/[A-Za-z0-9_$\u0080-\uffff]/.test(_sql[_index - 1] ?? "")) {
-        const _identifier = /^[A-Za-z_\u0080-\uffff][A-Za-z0-9_$\u0080-\uffff]*/.exec(_sql.slice(_index))?.[0];
-        if (_identifier && /[$\u0080-\uffff]/.test(_identifier)) _segment = _identifier;
+  const maskProtected = (sql, protectIdentifiers = false) => {
+    const segments = [];
+    segments.prefix = "@@BindSQL_SEGMENT_";
+    while (sql.includes(segments.prefix)) segments.prefix += "X";
+    let masked = "";
+    let index = 0;
+    while (index < sql.length) {
+      let segment = readProtected(sql, index);
+      if (!segment && protectIdentifiers && !isWord(sql[index - 1])) {
+        const identifier = /^[A-Za-z_\u0080-\uffff][A-Za-z0-9_$\u0080-\uffff]*/.exec(sql.slice(index))?.[0];
+        if (identifier && /[$\u0080-\uffff]/.test(identifier)) segment = identifier;
       }
-      if (_segment) {
-        _masked += `${_segments._prefix}${_segments.length}@@`;
-        _segments.push(_segment);
-        _index += _segment.length;
+      if (segment) {
+        masked += `${segments.prefix}${segments.length}@@`;
+        segments.push(segment);
+        index += segment.length;
       } else {
-        _masked += _sql[_index++];
+        masked += sql[index++];
       }
     }
     return {
-      _masked,
-      _segments
+      masked,
+      segments
     };
   };
-  const _restoreSqlProtectedSegments = (_sql, _segments) => _sql.replace(new RegExp(`${_escapeRegExp(_segments._prefix)}(\\d+)@@`, "g"), (_all, _index) => _segments[Number(_index)] ?? _all);
-  const _readQuotedSegment = (_sql, _startIndex, _closeQuote, _allowEscapes = false) => {
-    let _index = _startIndex + 1;
-    while (_index < _sql.length) {
-      const _character = _sql[_index];
-      if (_allowEscapes && _character === "\\") {
-        _index += 2;
+  const segmentPattern = segments => new RegExp(`${escapeRegExp(segments.prefix)}(\\d+)@@`, "g");
+  const restoreProtected = (sql, segments) => sql.replace(segmentPattern(segments), (token, index) => segments[Number(index)] ?? token);
+  const withoutMaskedComments = (sql, segments) => segments ? sql.replace(segmentPattern(segments), (token, index) => COMMENT_PATTERN.test(segments[Number(index)] ?? "") ? " ".repeat(token.length) : token) : sql;
+  const readQuoted = (sql, start, close, backslashEscapes = false) => {
+    let index = start + 1;
+    while (index < sql.length) {
+      const character = sql[index];
+      if (backslashEscapes && character === "\\" || character === close && sql[index + 1] === close) {
+        index += 2;
         continue;
       }
-      if (_character === _closeQuote && _sql[_index + 1] === _closeQuote) {
-        _index += 2;
-        continue;
-      }
-      if (_character === _closeQuote) {
-        _index += 1;
-        break;
-      }
-      _index += 1;
+      index += 1;
+      if (character === close) break;
     }
-    return _sql.slice(_startIndex, _index);
+    return sql.slice(start, index);
   };
-  const _readHighlightProtectedSegment = (_sql, _startIndex) => {
-    const _startCharacter = _sql[_startIndex];
-    if (_startCharacter === "'" && _startIndex > 0) {
-      const _before = _sql[_startIndex - 1];
-      const _isLiteralPrefix = /[EeNnBbXx]/.test(_before) && !/[\p{L}\p{N}_]/u.test(_sql[_startIndex - 2] ?? "");
-      if (/[\p{L}\p{N}_]/u.test(_before) && !_isLiteralPrefix) {
-        return {
-          _kind: "plain",
-          _text: _startCharacter
-        };
-      }
-    }
-    const _protected = _readSqlProtectedSegment(_sql, _startIndex);
-    if (_protected) {
-      return {
-        _kind: /^(?:--|\/\*)/.test(_protected) ? "comment" : "string",
-        _text: _protected
+  const readHighlightProtected = (sql, start) => {
+    const first = sql[start];
+    if (first === "'" && start > 0) {
+      const before = sql[start - 1];
+      const literalPrefix = /[EeNnBbXx]/.test(before) && !/[\p{L}\p{N}_]/u.test(sql[start - 2] ?? "");
+      if (/[\p{L}\p{N}_]/u.test(before) && !literalPrefix) return {
+        kind: "plain",
+        text: first
       };
     }
-    const _closeQuote = QUOTE_PAIRS[_startCharacter];
-    if (_closeQuote) {
+    const segment = readProtected(sql, start);
+    if (segment) return {
+      kind: COMMENT_PATTERN.test(segment) ? "comment" : "string",
+      text: segment
+    };
+    if (QUOTE_PAIRS[first]) return {
+      kind: "string",
+      text: readQuoted(sql, start, QUOTE_PAIRS[first])
+    };
+    if (first === "`") return {
+      kind: "plain",
+      text: readQuoted(sql, start, "`", true)
+    };
+    if (first === "[") {
+      const end = sql.indexOf("]", start + 1);
       return {
-        _kind: "string",
-        _text: _readQuotedSegment(_sql, _startIndex, _closeQuote)
-      };
-    }
-    if (_startCharacter === "`") {
-      return {
-        _kind: "plain",
-        _text: _readQuotedSegment(_sql, _startIndex, "`", true)
-      };
-    }
-    if (_startCharacter === "[") {
-      const _endIndex = _sql.indexOf("]", _startIndex + 1);
-      return {
-        _kind: "plain",
-        _text: _sql.slice(_startIndex, _endIndex === -1 ? _sql.length : _endIndex + 1)
+        kind: "plain",
+        text: sql.slice(start, end === -1 ? sql.length : end + 1)
       };
     }
     return null;
   };
-  const _readNumberSegment = (_sql, _startIndex) => {
-    const _startCharacter = _sql[_startIndex];
-    const _isDigitStart = /[0-9]/.test(_startCharacter);
-    const _isDecimalStart = _startCharacter === "." && /[0-9]/.test(_sql[_startIndex + 1] ?? "");
-    if (!_isDigitStart && !_isDecimalStart) {
-      return "";
+  const readNumber = (sql, start) => {
+    if (!(isDigit(sql[start]) || sql[start] === "." && isDigit(sql[start + 1])) || isWord(sql[start - 1])) return "";
+    let index = start;
+    const hasDecimalPoint = sql[index] === ".";
+    if (hasDecimalPoint) index += 1;
+    while (isDigit(sql[index])) index += 1;
+    if (sql[index] === "." && !hasDecimalPoint) {
+      index += 1;
+      while (isDigit(sql[index])) index += 1;
     }
-    const _previousCharacter = _sql[_startIndex - 1] ?? "";
-    if (_isWordCharacter(_previousCharacter)) {
-      return "";
-    }
-    let _index = _startIndex;
-    let _hasDecimalPoint = false;
-    if (_sql[_index] === ".") {
-      _hasDecimalPoint = true;
-      _index += 1;
-    }
-    while (/[0-9]/.test(_sql[_index] ?? "")) {
-      _index += 1;
-    }
-    if (_sql[_index] === "." && !_hasDecimalPoint) {
-      _index += 1;
-      while (/[0-9]/.test(_sql[_index] ?? "")) {
-        _index += 1;
-      }
-    }
-    const _nextCharacter = _sql[_index] ?? "";
-    if (/[A-Za-z_$]/.test(_nextCharacter)) {
-      return "";
-    }
-    return _sql.slice(_startIndex, _index);
+    return /[A-Za-z_$]/.test(sql[index] ?? "") ? "" : sql.slice(start, index);
   };
-  const _readKeywordSegment = (_sql, _startIndex) => {
-    const _previousCharacter = _sql[_startIndex - 1] ?? "";
-    if (_isWordCharacter(_previousCharacter) || _previousCharacter === ":") {
-      return "";
-    }
-    const _slice = _sql.slice(_startIndex);
-    const _initialCharacter = _slice[0]?.toUpperCase() ?? "";
-    if (!_initialCharacter || !/[A-Z]/.test(_initialCharacter)) {
-      return "";
-    }
-    const _candidatePatterns = SQL_HIGHLIGHT_KEYWORD_PATTERNS_BY_INITIAL[_initialCharacter] ?? [];
-    for (const _pattern of _candidatePatterns) {
-      const _match = _slice.match(_pattern);
-      if (!_match) {
-        continue;
-      }
-      const _text = _match[0];
-      const _nextCharacter = _slice[_text.length] ?? "";
-      if (_isWordCharacter(_nextCharacter)) {
-        continue;
-      }
-      return _text;
+  const readKeyword = (sql, start) => {
+    if (isWord(sql[start - 1]) || sql[start - 1] === ":") return "";
+    const initial = sql[start]?.toUpperCase() ?? "";
+    if (!/[A-Z]/.test(initial)) return "";
+    const rest = sql.slice(start);
+    for (const pattern of KEYWORD_PATTERNS_BY_INITIAL[initial] ?? []) {
+      const text = rest.match(pattern)?.[0];
+      if (text && !isWord(rest[text.length])) return text;
     }
     return "";
   };
-  const _tokenizeSqlForHighlight = _sql => {
-    const _tokens = [];
-    let _plainBuffer = "";
-    let _index = 0;
-    const _flushPlainBuffer = () => {
-      if (!_plainBuffer) {
-        return;
-      }
-      _tokens.push({
-        _kind: "plain",
-        _text: _plainBuffer
-      });
-      _plainBuffer = "";
+  const highlightToken = (sql, index) => {
+    const segment = readHighlightProtected(sql, index);
+    if (segment?.text) return segment;
+    const number = readNumber(sql, index);
+    if (number) return {
+      kind: "number",
+      text: number
     };
-    while (_index < _sql.length) {
-      const _protectedSegment = _readHighlightProtectedSegment(_sql, _index);
-      if (_protectedSegment?._text) {
-        _flushPlainBuffer();
-        _tokens.push(_protectedSegment);
-        _index += _protectedSegment._text.length;
-        continue;
-      }
-      const _numberText = _readNumberSegment(_sql, _index);
-      if (_numberText) {
-        _flushPlainBuffer();
-        _tokens.push({
-          _kind: "number",
-          _text: _numberText
-        });
-        _index += _numberText.length;
-        continue;
-      }
-      const _keywordText = _readKeywordSegment(_sql, _index);
-      if (_keywordText) {
-        _flushPlainBuffer();
-        _tokens.push({
-          _kind: "keyword",
-          _text: _keywordText
-        });
-        _index += _keywordText.length;
-        continue;
-      }
-      _plainBuffer += _sql[_index];
-      _index += 1;
-    }
-    _flushPlainBuffer();
-    return _tokens;
+    const keyword = readKeyword(sql, index);
+    return keyword ? {
+      kind: "keyword",
+      text: keyword
+    } : {
+      kind: "plain",
+      text: sql[index]
+    };
   };
-  const _buildHighlightedSqlHtml = _sql => _tokenizeSqlForHighlight(_sql).map(_token => {
-    const _escapedText = _escapeHtml(_token._text);
-    if (_token._kind === "plain") {
-      return _escapedText;
+  const highlight = sql => {
+    let html = "";
+    for (let index = 0; index < sql.length; ) {
+      const {kind, text} = highlightToken(sql, index);
+      html += kind === "plain" ? escapeHtml(text) : `<span class="sql-token sql-token--${kind}">${escapeHtml(text)}</span>`;
+      index += text.length;
     }
-    return `<span class="sql-token sql-token--${_token._kind}">${_escapedText}</span>`;
-  }).join("");
-  const _hasUnclosedParameterQuote = _value => {
-    const _text = _value.trimStart();
-    if (/^(?:'|[EBXN]'|U&'|\$)/i.test(_text)) {
-      const _status = {
-        _closed: true
-      };
-      _readSqlProtectedSegment(_text, 0, _status);
-      return !_status._closed;
-    }
-    const _quote = _text[0];
-    if (![ '"', "“", "‘" ].includes(_quote)) return false;
-    const _close = QUOTE_PAIRS[_quote];
-    const _escape = _quote === '"';
-    for (let _index = 1; _index < _text.length; _index += 1) {
-      if (_escape && _text[_index] === "\\") {
-        _index += 1;
-        continue;
-      }
-      if (_text[_index] === _close) {
-        if (_text[_index + 1] === _close) {
-          _index += 1;
-          continue;
-        }
-        return false;
+    return html;
+  };
+  const hasUnclosedParameterQuote = value => {
+    const text = value.trimStart();
+    if (LITERAL_START_PATTERN.test(text)) return !isClosedSegment(text, 0);
+    const close = [ '"', "“", "‘" ].includes(text[0]) && QUOTE_PAIRS[text[0]];
+    if (!close) return false;
+    const backslashEscapes = text[0] === '"';
+    for (let index = 1; index < text.length; index += 1) {
+      if (backslashEscapes && text[index] === "\\") index += 1; else if (text[index] === close) {
+        if (text[index + 1] !== close) return false;
+        index += 1;
       }
     }
     return true;
   };
-  const _normalizeBindValue = _rawValue => {
-    const _value = _rawValue.trim();
-    if (!_value) return "''";
-    if (_value.startsWith('"') && _value.endsWith('"')) {
+  const normalizeBindValue = rawValue => {
+    const value = rawValue.trim();
+    if (!value) return "''";
+    if (value.startsWith('"') && value.endsWith('"')) {
       try {
-        return _toPostgresqlStringLiteral(JSON.parse(_value));
-      } catch {}
-      return _toPostgresqlStringLiteral(_value.slice(1, -1).replace(/\\"|""/g, '"'));
+        return toStringLiteral(JSON.parse(value));
+      } catch {
+        return toStringLiteral(value.slice(1, -1).replace(/\\"|""/g, '"'));
+      }
     }
-    if (_value.startsWith("“") && _value.endsWith("”") || _value.startsWith("‘") && _value.endsWith("’")) {
-      return _toPostgresqlStringLiteral(_value.slice(1, -1));
+    if (value.startsWith("“") && value.endsWith("”") || value.startsWith("‘") && value.endsWith("’")) {
+      return toStringLiteral(value.slice(1, -1));
     }
-    if (/^(null|true|false)$/i.test(_value)) return _value.toUpperCase();
-    if (SQL_NUMERIC_LITERAL_PATTERN.test(_value)) return _value;
-    if (/^(?:'|[EBXN]'|U&'|\$)/i.test(_value) && !_hasUnclosedParameterQuote(_value) && _readSqlProtectedSegment(_value, 0).length === _value.length) return _value;
-    return _toPostgresqlStringLiteral(_value);
-  };
-  const _isParameterLiteralContinuation = (_value, _line) => {
-    const _text = _value.trim();
-    if (!/^(?:'|[EBXN]'|U&')/i.test(_text) || !/^(?:'|UESCAPE\b)/i.test(_line.trimStart())) return false;
-    const _combined = _text + "\n" + _line.trimEnd();
-    return _readSqlProtectedSegment(_combined, 0).length === _combined.length;
-  };
-  const _isBindDefinitionLine = (_line, _allowBareName = false) => {
-    const _entry = _line.match(PARAMETER_ENTRY_PATTERN);
-    return Boolean(_entry && (_allowBareName || /^[:\[\d]/.test(_entry.groups.key)));
-  };
-  const _sqlAwaitsExpression = _sql => {
-    let _previous = "", _last = "";
-    for (const _token of _sqlLexemes(_sql)) {
-      if (/^protected:(?:--|\/\*)/.test(_token)) continue;
-      _previous = _last;
-      _last = _token;
+    if (/^(?:null|true|false)$/i.test(value)) return value.toUpperCase();
+    if (NUMERIC_LITERAL_PATTERN.test(value)) return value;
+    if (LITERAL_START_PATTERN.test(value) && !hasUnclosedParameterQuote(value) && readProtected(value, 0).length === value.length) {
+      return value;
     }
-    if (_last.startsWith("word:") && ![ "symbol:.", "symbol::" ].includes(_previous)) {
-      if (_last === "word:all" && _previous === "word:limit") return false;
-      if (_last === "word:by") return /^word:(?:order|group|partition)$/.test(_previous);
-      return /^(?:select|where|and|or|on|having|when|then|else|returning|not|as|in|is|like|ilike|similar|from|using|join|all|distinct|leading|both|trailing|limit|offset)$/.test(_last.slice(5));
-    }
-    if (_last === "symbol:*" && /^(?:symbol:[.,]|word:(?:select|all|distinct|returning))$/.test(_previous)) return false;
-    return /^symbol:(?:[(,]|[+\-*\/<>=~!@#%^&|`]+)$/.test(_last);
+    return toStringLiteral(value);
   };
-  const _isImplicitBindDefinitionLine = (_line, _namedPlaceholders) => {
-    if (_isBindDefinitionLine(_line)) return true;
-    const _name = _line.match(PARAMETER_ENTRY_PATTERN)?.groups?.key;
-    return _namedPlaceholders.has(_name);
+  const isParameterLiteralContinuation = (value, line) => {
+    const text = value.trim();
+    if (!/^(?:'|[EBXN]'|U&')/i.test(text) || !/^(?:'|UESCAPE\b)/i.test(line.trimStart())) return false;
+    const combined = `${text}\n${line.trimEnd()}`;
+    return readProtected(combined, 0).length === combined.length;
   };
-  const _startsImplicitBindSection = (_lines, _lineIndex, _sqlLines) => {
-    const _sql = _sqlLines.join("\n");
-    if (!_trimSql(_sql) || _sqlAwaitsExpression(_sql)) return false;
-    const _store = _maskSqlProtectedSegments(_sql);
-    const _names = new Set(_namedPlaceholders(_store._masked, _store._segments).map(_match => _match._name));
-    for (let _index = _lineIndex; _index < _lines.length; _index += 1) {
-      const _line = _lines[_index].trim();
-      if (_line && !_isImplicitBindDefinitionLine(_line, _names)) return false;
+  const isBindDefinitionLine = (line, allowBareName = false) => {
+    const key = line.match(PARAMETER_ENTRY_PATTERN)?.groups.key;
+    return key !== undefined && (allowBareName || /^[:\[\d]/.test(key));
+  };
+  const sqlAwaitsExpression = sql => {
+    let previous = "";
+    let last = "";
+    for (const token of sqlLexemes(sql)) {
+      if (/^protected:(?:--|\/\*)/.test(token)) continue;
+      previous = last;
+      last = token;
     }
-    if (_names.size) return true;
-    let _found = false;
-    _replacePositionalBindPlaceholders(_store._masked, () => {
-      _found = true;
+    if (last.startsWith("word:") && ![ "symbol:.", "symbol::" ].includes(previous)) {
+      if (last === "word:all" && previous === "word:limit") return false;
+      if (last === "word:by") return /^word:(?:order|group|partition)$/.test(previous);
+      return /^(?:select|where|and|or|on|having|when|then|else|returning|not|as|in|is|like|ilike|similar|from|using|join|all|distinct|leading|both|trailing|limit|offset)$/.test(last.slice(5));
+    }
+    if (last === "symbol:*" && /^(?:symbol:[.,]|word:(?:select|all|distinct|returning))$/.test(previous)) return false;
+    return /^symbol:(?:[(,]|[+\-*\/<>=~!@#%^&|`]+)$/.test(last);
+  };
+  const startsImplicitBindSection = (lines, lineIndex, sqlLines) => {
+    const sql = sqlLines.join("\n");
+    if (!trimSql(sql) || sqlAwaitsExpression(sql)) return false;
+    const {masked, segments} = maskProtected(sql);
+    const names = new Set(namedPlaceholders(masked, segments).map(match => match.name));
+    for (const line of lines.slice(lineIndex)) {
+      const trimmed = line.trim();
+      if (trimmed && !isBindDefinitionLine(trimmed) && !names.has(trimmed.match(PARAMETER_ENTRY_PATTERN)?.groups.key)) {
+        return false;
+      }
+    }
+    if (names.size) return true;
+    let found = false;
+    replacePositionalPlaceholders(masked, () => {
+      found = true;
       return "?";
-    }, _store._segments);
-    return _found;
+    }, segments);
+    return found;
   };
-  const _buildLogInputResult = (_sqlText, _bindLines) => {
-    const _trimmedSql = _trimSql(_sqlText);
-    if (!_trimmedSql) {
-      return null;
-    }
-    return {
-      _sqlText: _trimmedSql,
-      _bindLines: _bindLines.filter(Boolean)
-    };
-  };
-  const _parseHibernateSqlLine = _line => {
-    const _showSqlMatch = _line.match(/\bHibernate:\s*(?<sql>.+)$/i);
-    if (_showSqlMatch?.groups?.sql) {
-      return _showSqlMatch.groups.sql;
-    }
-    const _loggerMatch = _line.match(HIBERNATE_SQL_PATTERN);
-    return _loggerMatch?.groups?.sql ?? "";
-  };
-  const _parseHibernateBindLine = _line => {
-    for (const _pattern of HIBERNATE_BIND_PATTERNS) {
-      const _match = _line.match(_pattern);
-      if (_match?.groups?.index && _match.groups.value !== undefined) {
-        return _formatLogPositionalBindLine(Number(_match.groups.index), _match.groups.value, false, _match.groups.type ?? "");
+  const parseHibernateBindLine = line => {
+    for (const pattern of HIBERNATE_BIND_PATTERNS) {
+      const groups = line.match(pattern)?.groups;
+      if (groups?.index && groups.value !== undefined) {
+        return formatLogBindLine(Number(groups.index), groups.value, false, groups.type ?? "");
       }
     }
     return "";
   };
-  const _parseSpringJdbcParameterLine = _line => {
-    const _prefixMatch = /\bcolumn index\s+(?<index>\d+)\s*,\s*parameter value\s+\[/i.exec(_line);
-    if (!_prefixMatch?.groups?.index) {
-      return null;
-    }
-    const _tail = _line.slice(_prefixMatch.index + _prefixMatch[0].length);
-    const _typedMatch = _tail.match(/^(?<value>[\s\S]*)\]\s*,\s*value class\s+\[(?<type>[^\]]*)\](?:\s*,[\s\S]*)?$/i);
-    if (_typedMatch?.groups) {
-      return {
-        _index: Number(_prefixMatch.groups.index),
-        _value: _typedMatch.groups.value,
-        _type: _typedMatch.groups.type
-      };
-    }
-    const _valueMatch = _tail.match(/^(?<value>[\s\S]*)\](?:\s*,\s*SQL\s+type\b[\s\S]*)?$/i);
-    if (!_valueMatch?.groups) {
-      return null;
-    }
-    return {
-      _index: Number(_prefixMatch.groups.index),
-      _value: _valueMatch.groups.value,
-      _type: ""
+  const parseSpringJdbcParameterLine = line => {
+    const prefix = /\bcolumn index\s+(?<index>\d+)\s*,\s*parameter value\s+\[/i.exec(line);
+    if (!prefix?.groups.index) return null;
+    const tail = line.slice(prefix.index + prefix[0].length);
+    const index = Number(prefix.groups.index);
+    const typed = tail.match(/^(?<value>[\s\S]*)\]\s*,\s*value class\s+\[(?<type>[^\]]*)\](?:\s*,[\s\S]*)?$/i)?.groups;
+    if (typed) return {
+      index,
+      value: typed.value,
+      type: typed.type
     };
+    const plain = tail.match(/^(?<value>[\s\S]*)\](?:\s*,\s*SQL\s+type\b[\s\S]*)?$/i)?.groups;
+    return plain ? {
+      index,
+      value: plain.value,
+      type: ""
+    } : null;
   };
-  const _hasOpenSqlRegion = _sql => {
-    for (let _index = 0; _index < _sql.length; ) {
-      const _status = {
-        _closed: true
+  const hasOpenSqlRegion = sql => {
+    for (let index = 0; index < sql.length; ) {
+      const status = {
+        closed: true
       };
-      const _segment = _readSqlProtectedSegment(_sql, _index, _status);
-      if (!_status._closed) return true;
-      _index += _segment.length || 1;
+      const segment = readProtected(sql, index, status);
+      if (!status.closed) return true;
+      index += segment.length || 1;
     }
     return false;
   };
   const LOG_RECORD_PATTERNS = [ [ "mybatis-sql", /(?:==>\s*|^\s*)Preparing:/i ], [ "mybatis-bind", /(?:==>\s*|^\s*)Parameters:/i ], [ "hibernate-sql", /\b(?:Hibernate:|org\.hibernate\.SQL\b)/i ], [ "hibernate-bind", /\bbinding parameter\s*[[(]/i ], [ "spring-sql", /\bExecuting prepared SQL statement\s*\[/i ], [ "spring-bind", /\bcolumn index\s+\d+\s*,\s*parameter value\s*\[/i ] ];
-  const _logRecord = _line => {
-    let _record = null;
-    for (const [_kind, _pattern] of LOG_RECORD_PATTERNS) {
-      const _match = _pattern.exec(_line);
-      if (_match && (!_record || _match.index < _record._match.index)) _record = {
-        _kind,
-        _match
+  const logRecord = line => {
+    let record = null;
+    for (const [kind, pattern] of LOG_RECORD_PATTERNS) {
+      const match = pattern.exec(line);
+      if (match && (!record || match.index < record.match.index)) record = {
+        kind,
+        match
       };
     }
-    return _record;
+    return record;
   };
-  const _parseSupportedLogInput = (_inputText, _logIndex) => {
-    let _current = null;
-    const _records = [];
-    let _pendingBind = null;
-    const _incompleteBinds = [];
-    let _offset = 0;
-    let _skipUntil = 0;
-    const _finishBind = () => {
-      if (!_pendingBind) return true;
-      const {_kind, _text} = _pendingBind;
-      let _binds;
-      if (_kind === "mybatis") {
-        const _entries = _splitLogParameterEntries(_text);
-        if (!_entries.length) return false;
-        if (_entries.some(_entry => _entry !== "null" && !_parseLoggedParameterValue(_entry)._type)) return false;
-        _binds = _entries.map((_entry, _index) => _formatLogPositionalBindLine(_index + 1, _entry, true));
-      } else if (_kind === "hibernate") {
-        const _bind = _parseHibernateBindLine(_text);
-        if (!_bind) return false;
-        _binds = [ _bind ];
-      } else {
-        const _parameter = _parseSpringJdbcParameterLine(_text);
-        if (!_parameter) return false;
-        _binds = [ _formatLogPositionalBindLine(_parameter._index, _parameter._value, false, _parameter._type) ];
-      }
-      for (const _bind of _binds) _current._bindLines.push(_bind);
-      _pendingBind = null;
-      return true;
+  const logBindLines = ({kind, text}) => {
+    if (kind === "mybatis") {
+      const entries = splitLogParameterEntries(text);
+      if (!entries.length || entries.some(entry => entry !== "null" && !parseLoggedParameterValue(entry).type)) return null;
+      return entries.map((entry, index) => formatLogBindLine(index + 1, entry, true));
+    }
+    if (kind === "hibernate") {
+      const bind = parseHibernateBindLine(text);
+      return bind ? [ bind ] : null;
+    }
+    const parameter = parseSpringJdbcParameterLine(text);
+    return parameter && [ formatLogBindLine(parameter.index, parameter.value, false, parameter.type) ];
+  };
+  const parseSupportedLogInput = (inputText, logIndex) => {
+    const records = [];
+    const incompleteBinds = [];
+    let current = null;
+    let pendingBind = null;
+    let offset = 0;
+    let skipUntil = 0;
+    const finishBind = () => {
+      const binds = logBindLines(pendingBind);
+      if (!binds) return;
+      current.bindLines.push(...binds);
+      pendingBind = null;
     };
-    const _rejectIncompleteBind = () => {
-      if (!_pendingBind) return;
-      if (_pendingBind._kind !== "mybatis" || _pendingBind._text !== "") {
-        _incompleteBinds.push(_pendingBind._kind === "mybatis" ? _pendingBind._prefix + " " + _pendingBind._text : _pendingBind._text);
+    const rejectIncompleteBind = () => {
+      if (!pendingBind) return;
+      if (pendingBind.kind !== "mybatis" || pendingBind.text !== "") {
+        incompleteBinds.push(pendingBind.kind === "mybatis" ? `${pendingBind.prefix} ${pendingBind.text}` : pendingBind.text);
       }
-      _pendingBind = null;
+      pendingBind = null;
     };
-    for (const _line of _inputText.split("\n")) {
-      const _lineOffset = _offset;
-      _offset += _line.length + 1;
-      if (_lineOffset < _skipUntil) continue;
-      const _record = _logRecord(_line);
-      if (_pendingBind) {
-        if (_record || /^\s*(?:==>|<==)/.test(_line) || /^\d{4}-\d{2}-\d{2}.*\b(?:TRACE|DEBUG|INFO|WARN|ERROR)\b/.test(_line)) {
-          _rejectIncompleteBind();
+    for (const line of inputText.split("\n")) {
+      const lineOffset = offset;
+      offset += line.length + 1;
+      if (lineOffset < skipUntil) continue;
+      const record = logRecord(line);
+      if (pendingBind) {
+        if (record || LOG_LINE_PATTERN.test(line)) {
+          rejectIncompleteBind();
         } else {
-          _pendingBind._text += "\n" + _line;
-          _finishBind();
+          pendingBind.text += `\n${line}`;
+          finishBind();
           continue;
         }
       }
-      if (_record && _current?._collecting && _hasOpenSqlRegion(_current._sqlLines.join("\n"))) {
-        _current._sqlLines.push(_line);
+      if (record && current?.collecting && hasOpenSqlRegion(current.sqlLines.join("\n"))) {
+        current.sqlLines.push(line);
         continue;
       }
-      if (_record?._kind.endsWith("-sql")) {
-        const _kind = _record._kind.split("-")[0];
-        let _sql = "";
-        if (_kind === "mybatis") _sql = _line.slice(_record._match.index + _record._match[0].length).replace(/^[ \t\r\f]+/, "");
-        if (_kind === "hibernate") _sql = _parseHibernateSqlLine(_line);
-        if (_kind === "spring") {
-          const _start = _lineOffset + _record._match.index + _record._match[0].length;
-          const _block = _readBracketedSql(_inputText, _start);
-          if (!_block) return null;
-          _sql = _block._sql;
-          _skipUntil = _block._end;
+      const recordEnd = record && record.match.index + record.match[0].length;
+      if (record?.kind.endsWith("-sql")) {
+        const kind = record.kind.split("-")[0];
+        let sql = "";
+        if (kind === "mybatis") sql = line.slice(recordEnd).replace(/^[ \t\r\f]+/, "");
+        if (kind === "hibernate") sql = line.match(/\bHibernate:\s*(?<sql>.+)$/i)?.groups.sql || (line.match(HIBERNATE_SQL_PATTERN)?.groups.sql ?? "");
+        if (kind === "spring") {
+          const block = readBracketedSql(inputText, lineOffset + recordEnd);
+          if (!block) return null;
+          sql = block.sql;
+          skipUntil = block.end;
         }
-        _current = {
-          _kind,
-          _sourceOffset: _lineOffset,
-          _sqlLines: [ _sql ],
-          _bindLines: [],
-          _collecting: _kind !== "spring"
+        current = {
+          kind,
+          sourceOffset: lineOffset,
+          sqlLines: [ sql ],
+          bindLines: [],
+          collecting: kind !== "spring"
         };
-        _records.push(_current);
+        records.push(current);
         continue;
       }
-      if (_record?._kind.endsWith("-bind")) {
-        if (!_current || !_record._kind.startsWith(_current._kind)) continue;
-        _current._collecting = false;
-        const _text = _current._kind === "mybatis" ? _line.slice(_record._match.index + _record._match[0].length).replace(/^ /, "").replace(/\r$/, "") : _line.slice(_record._match.index);
-        _pendingBind = {
-          _kind: _current._kind,
-          _text,
-          _prefix: _record._match[0]
+      if (record?.kind.endsWith("-bind")) {
+        if (!current || !record.kind.startsWith(current.kind)) continue;
+        current.collecting = false;
+        const text = current.kind === "mybatis" ? line.slice(recordEnd).replace(/^ /, "").replace(/\r$/, "") : line.slice(record.match.index);
+        pendingBind = {
+          kind: current.kind,
+          text,
+          prefix: record.match[0]
         };
-        _finishBind();
+        finishBind();
         continue;
       }
-      if (_current?._collecting) {
-        if (/^\s*(?:==>|<==)/.test(_line) || /^\d{4}-\d{2}-\d{2}.*\b(?:TRACE|DEBUG|INFO|WARN|ERROR)\b/.test(_line)) {
-          _current._collecting = false;
-        } else {
-          _current._sqlLines.push(_line);
-        }
+      if (current?.collecting) {
+        if (LOG_LINE_PATTERN.test(line)) current.collecting = false; else current.sqlLines.push(line);
       }
     }
-    _rejectIncompleteBind();
-    if (!_current) return null;
-    const _selectedIndex = Number.isInteger(_logIndex) && _logIndex >= 0 && _logIndex < _records.length ? _logIndex : _records.length - 1;
-    const _selected = _records[_selectedIndex];
-    const _result = _buildLogInputResult(_selected._sqlLines.join("\n"), _selected._bindLines.concat(_incompleteBinds));
-    return _result && {
-      ..._result,
-      _sourceOffset: _selected._sourceOffset,
-      _logCount: _records.length,
-      _selectedLogIndex: _selectedIndex,
-      _logOptions: _records.map(_record => _record._sqlLines.join(" ").replace(/\s+/g, " ").slice(0, 100))
+    rejectIncompleteBind();
+    if (!current) return null;
+    const selectedIndex = Number.isInteger(logIndex) && logIndex >= 0 && logIndex < records.length ? logIndex : records.length - 1;
+    const selected = records[selectedIndex];
+    const sqlText = trimSql(selected.sqlLines.join("\n"));
+    return sqlText && {
+      sqlText,
+      bindLines: selected.bindLines.concat(incompleteBinds).filter(Boolean),
+      sourceOffset: selected.sourceOffset,
+      logCount: records.length,
+      selectedLogIndex: selectedIndex,
+      logOptions: records.map(record => record.sqlLines.join(" ").replace(/\s+/g, " ").slice(0, 100))
     };
   };
-  const _readBracketedSql = (_input, _start) => {
-    let _depth = 1;
-    for (let _index = _start; _index < _input.length; _index += 1) {
-      const _segment = _readSqlProtectedSegment(_input, _index);
-      if (_segment) {
-        _index += _segment.length - 1;
+  const readBracketedSql = (input, start) => {
+    let depth = 1;
+    for (let index = start; index < input.length; index += 1) {
+      const segment = readProtected(input, index);
+      if (segment) {
+        index += segment.length - 1;
         continue;
       }
-      if (_input[_index] === "[") _depth += 1;
-      if (_input[_index] === "]" && --_depth === 0) return {
-        _sql: _input.slice(_start, _index),
-        _end: _index + 1
+      if (input[index] === "[") depth += 1;
+      if (input[index] === "]" && --depth === 0) return {
+        sql: input.slice(start, index),
+        end: index + 1
       };
     }
     return null;
   };
-  const _parseSqlParameterBlock = _input => {
-    const _start = /^\s*sql\s*=\s*\[/i.exec(_input);
-    if (!_start) return null;
-    const _block = _readBracketedSql(_input, _start[0].length);
-    if (!_block) return null;
-    const _parameters = /^\s*(?:parameters?|params?)\s*=\s*\[([\s\S]*)\]\s*$/i.exec(_input.slice(_block._end));
-    return _parameters ? {
-      _sqlText: _trimSql(_block._sql),
-      _bindLines: _splitParameterEntries(_parameters[1])
-    } : null;
-  };
-  const _hasFollowingBindDefinitions = (_lines, _start) => {
-    let _found = false;
-    for (let _index = _start; _index < _lines.length; _index += 1) {
-      const _line = _lines[_index].trim();
-      if (!_line) continue;
-      if (!_isBindDefinitionLine(_line, true)) return false;
-      _found = true;
-    }
-    return _found;
-  };
-  const _splitInputText = (_inputText, _logIndex) => {
-    let _codeStart = 0;
-    while (_codeStart < _inputText.length) {
-      if (/[ \t\r\n\f]/.test(_inputText[_codeStart])) {
-        _codeStart += 1;
-        continue;
-      }
-      if (_inputText.startsWith("--", _codeStart) || _inputText.startsWith("/*", _codeStart)) {
-        _codeStart += _readSqlProtectedSegment(_inputText, _codeStart).length;
-        continue;
-      }
-      break;
-    }
-    const _firstCode = _inputText.slice(_codeStart);
-    const _firstWord = /^[A-Za-z]+/.exec(_firstCode)?.[0].toUpperCase();
-    const _startsWithSql = SQL_STATEMENT_STARTS.has(_firstWord) || /^(?:SQL\s*[:=]|[('"$])/i.test(_firstCode);
-    const _logInput = _startsWithSql ? null : _parseSupportedLogInput(_inputText, _logIndex);
-    if (_logInput) {
-      return _logInput;
-    }
-    const _parameterBlock = _parseSqlParameterBlock(_inputText);
-    if (_parameterBlock) return _parameterBlock;
-    const _sqlLines = [];
-    const _bindLines = [];
-    let _bindSectionStarted = false;
-    const _protectedLines = new Set;
-    let _sourceLine = 0;
-    for (let _index = 0; _index < _inputText.length; ) {
-      const _segment = _readSqlProtectedSegment(_inputText, _index);
-      if (_segment) {
-        for (let _offset = 0; _offset < _segment.length; _offset += 1) {
-          if (_segment[_offset] === "\n") {
-            _sourceLine += 1;
-            if (_offset + 1 < _segment.length) _protectedLines.add(_sourceLine);
-          }
-        }
-        _index += _segment.length;
-      } else {
-        if (_inputText[_index] === "\n") _sourceLine += 1;
-        _index += 1;
-      }
-    }
-    const _lines = _inputText.split("\n");
-    let _implicitBindStart = _lines.length;
-    for (let _index = _lines.length - 1; _index >= 0; _index -= 1) {
-      const _trimmed = _lines[_index].trim();
-      if (_trimmed && !_isBindDefinitionLine(_trimmed, true)) break;
-      _implicitBindStart = _index;
-    }
-    for (let _lineIndex = 0; _lineIndex < _lines.length; _lineIndex += 1) {
-      const _line = _lines[_lineIndex];
-      const _trimmed = _line.trim();
-      if (_bindSectionStarted) {
-        const _last = _bindLines.at(-1);
-        const _value = _last?.match(PARAMETER_ENTRY_PATTERN)?.groups?.value;
-        if (_value !== undefined && (_hasUnclosedParameterQuote(_value) || _isParameterLiteralContinuation(_value, _line))) {
-          _bindLines[_bindLines.length - 1] += "\n" + _line;
-        } else if (_trimmed && !BIND_HEADER_PATTERN.test(_trimmed)) {
-          _bindLines.push(_line);
-        }
-        continue;
-      }
-      if (_protectedLines.has(_lineIndex)) {
-        _sqlLines.push(_line);
-        continue;
-      }
-      if (!_trimmed) {
-        _sqlLines.push(_line);
-        continue;
-      }
-      if (BIND_HEADER_PATTERN.test(_trimmed) && (_trimmed.endsWith(":") || _hasFollowingBindDefinitions(_lines, _lineIndex + 1))) {
-        _bindSectionStarted = true;
-        continue;
-      }
-      const _treatAsBindDefinition = _lineIndex >= _implicitBindStart && _startsImplicitBindSection(_lines, _lineIndex, _sqlLines);
-      const _sqlPrefixMatch = _sqlLines.every(_value => !_value.trim()) ? _line.match(SQL_PREFIX_PATTERN) : null;
-      if (_sqlPrefixMatch?.groups?.sql) {
-        _sqlLines.push(_trimSql(_sqlPrefixMatch.groups.sql));
-        continue;
-      }
-      if (_treatAsBindDefinition) {
-        _bindLines.push(_trimmed);
-        _bindSectionStarted = true;
-        continue;
-      }
-      _sqlLines.push(_line);
-    }
-    return {
-      _sqlText: _trimSql(_sqlLines.join("\n")),
-      _bindLines
+  const parseSqlParameterBlock = input => {
+    const start = /^\s*sql\s*=\s*\[/i.exec(input);
+    const block = start && readBracketedSql(input, start[0].length);
+    if (!block) return null;
+    const parameters = /^\s*(?:parameters?|params?)\s*=\s*\[([\s\S]*)\]\s*$/i.exec(input.slice(block.end));
+    return parameters && {
+      sqlText: trimSql(block.sql),
+      bindLines: splitParameterEntries(parameters[1])
     };
   };
-  const _parseBindVariables = _bindLines => {
-    const _named = new Map;
-    const _positional = new Map;
-    const _issues = [];
-    const _diagnostics = [];
-    const _lineOccurrences = new Map;
-    const _addIssue = (_message, _line) => {
-      _issues.push(_message);
-      _diagnostics.push({
-        message: _message,
-        lineText: _line,
-        occurrence: _lineOccurrences.get(_line)
+  const hasFollowingBindDefinitions = (lines, start) => {
+    const rest = lines.slice(start).map(line => line.trim()).filter(Boolean);
+    return rest.length > 0 && rest.every(line => isBindDefinitionLine(line, true));
+  };
+  const protectedLineNumbers = text => {
+    const lines = new Set;
+    let line = 0;
+    for (let index = 0; index < text.length; ) {
+      const segment = readProtected(text, index);
+      if (!segment) {
+        if (text[index] === "\n") line += 1;
+        index += 1;
+        continue;
+      }
+      for (let offset = 0; offset < segment.length; offset += 1) {
+        if (segment[offset] !== "\n") continue;
+        line += 1;
+        if (offset + 1 < segment.length) lines.add(line);
+      }
+      index += segment.length;
+    }
+    return lines;
+  };
+  const splitInputText = (inputText, logIndex) => {
+    let codeStart = 0;
+    while (codeStart < inputText.length) {
+      if (isSpace(inputText[codeStart])) codeStart += 1; else if (inputText.startsWith("--", codeStart) || inputText.startsWith("/*", codeStart)) {
+        codeStart += readProtected(inputText, codeStart).length;
+      } else break;
+    }
+    const firstCode = inputText.slice(codeStart);
+    const firstWord = /^[A-Za-z]+/.exec(firstCode)?.[0].toUpperCase();
+    const startsWithSql = SQL_STATEMENT_STARTS.has(firstWord) || /^(?:SQL\s*[:=]|[('"$])/i.test(firstCode);
+    const parsed = !startsWithSql && parseSupportedLogInput(inputText, logIndex) || parseSqlParameterBlock(inputText);
+    if (parsed) return parsed;
+    const sqlLines = [];
+    const bindLines = [];
+    let bindSectionStarted = false;
+    const protectedLines = protectedLineNumbers(inputText);
+    const lines = inputText.split("\n");
+    let implicitBindStart = lines.length;
+    while (implicitBindStart > 0) {
+      const trimmed = lines[implicitBindStart - 1].trim();
+      if (trimmed && !isBindDefinitionLine(trimmed, true)) break;
+      implicitBindStart -= 1;
+    }
+    lines.forEach((line, lineIndex) => {
+      const trimmed = line.trim();
+      if (bindSectionStarted) {
+        const value = bindLines.at(-1)?.match(PARAMETER_ENTRY_PATTERN)?.groups.value;
+        if (value !== undefined && (hasUnclosedParameterQuote(value) || isParameterLiteralContinuation(value, line))) {
+          bindLines[bindLines.length - 1] += `\n${line}`;
+        } else if (trimmed && !BIND_HEADER_PATTERN.test(trimmed)) {
+          bindLines.push(line);
+        }
+        return;
+      }
+      if (protectedLines.has(lineIndex) || !trimmed) {
+        sqlLines.push(line);
+        return;
+      }
+      if (BIND_HEADER_PATTERN.test(trimmed) && (trimmed.endsWith(":") || hasFollowingBindDefinitions(lines, lineIndex + 1))) {
+        bindSectionStarted = true;
+        return;
+      }
+      const treatAsBind = lineIndex >= implicitBindStart && startsImplicitBindSection(lines, lineIndex, sqlLines);
+      const prefixedSql = sqlLines.every(value => !value.trim()) ? line.match(SQL_PREFIX_PATTERN)?.groups.sql : null;
+      if (prefixedSql) sqlLines.push(trimSql(prefixedSql)); else if (treatAsBind) {
+        bindLines.push(trimmed);
+        bindSectionStarted = true;
+      } else sqlLines.push(line);
+    });
+    return {
+      sqlText: trimSql(sqlLines.join("\n")),
+      bindLines
+    };
+  };
+  const parseBindVariables = bindLines => {
+    const named = new Map;
+    const positional = new Map;
+    const issues = [];
+    const diagnostics = [];
+    const lineOccurrences = new Map;
+    const addIssue = (message, line) => {
+      issues.push(message);
+      diagnostics.push({
+        message,
+        lineText: line,
+        occurrence: lineOccurrences.get(line)
       });
     };
-    for (const _line of _bindLines) {
-      const _trimmed = _line.trim();
-      if (!_trimmed || _trimmed.startsWith("--") || _trimmed.startsWith("#")) {
+    for (const line of bindLines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("--") || trimmed.startsWith("#")) continue;
+      lineOccurrences.set(trimmed, (lineOccurrences.get(trimmed) ?? 0) + 1);
+      const groups = trimmed.match(PARAMETER_ENTRY_PATTERN)?.groups;
+      if (!groups) {
+        addIssue(`バインドの書式を確認してください。「1 = 42」または「name = "田中"」の形式で指定します。入力: ${trimmed.replace(/\s+/g, " ")}`, trimmed);
         continue;
       }
-      _lineOccurrences.set(_trimmed, (_lineOccurrences.get(_trimmed) ?? 0) + 1);
-      const _entry = _trimmed.match(PARAMETER_ENTRY_PATTERN);
-      if (!_entry?.groups) {
-        _addIssue(`バインドの書式を確認してください。「1 = 42」または「name = "田中"」の形式で指定します。入力: ${_trimmed.replace(/\s+/g, " ")}`, _trimmed);
+      const {key, value} = groups;
+      if (hasUnclosedParameterQuote(value)) {
+        addIssue(`バインド ${key} の引用符が閉じていません。文字列の末尾に対応する引用符を追加してください。`, trimmed);
         continue;
       }
-      if (_hasUnclosedParameterQuote(_entry.groups.value)) {
-        _addIssue(`バインド ${_entry.groups.key} の引用符が閉じていません。文字列の末尾に対応する引用符を追加してください。`, _trimmed);
-        continue;
-      }
-      const {key, value} = _entry.groups;
       if (/^[\[\d]/.test(key)) {
-        const _index = Number(key.replace(/[\[\]]/g, ""));
-        if (_index < 1 || !Number.isSafeInteger(_index)) {
-          _addIssue(`位置バインドの番号は1から始まる整数で指定してください。入力: ${key}`, _trimmed);
-          continue;
-        }
-        if (_positional.has(_index)) {
-          _addIssue(`位置バインド [${_index}] が重複しています。同じ番号の定義を1つにしてください。`, _trimmed);
-          continue;
-        }
-        _positional.set(_index, _normalizeBindValue(value));
-      } else {
-        const _name = key.replace(/^:/, "");
-        if (_named.has(_name)) {
-          _addIssue(`名前付きバインド :${_name} が重複しています。同じ名前の定義を1つにしてください。`, _trimmed);
-          continue;
-        }
-        _named.set(_name, _normalizeBindValue(value));
+        const index = Number(key.replace(/[\[\]]/g, ""));
+        if (index < 1 || !Number.isSafeInteger(index)) addIssue(`位置バインドの番号は1から始まる整数で指定してください。入力: ${key}`, trimmed); else if (positional.has(index)) addIssue(`位置バインド [${index}] が重複しています。同じ番号の定義を1つにしてください。`, trimmed); else positional.set(index, normalizeBindValue(value));
+        continue;
       }
+      const name = key.replace(/^:/, "");
+      if (named.has(name)) addIssue(`名前付きバインド :${name} が重複しています。同じ名前の定義を1つにしてください。`, trimmed); else named.set(name, normalizeBindValue(value));
     }
     return {
-      _named,
-      _positional,
-      _issues,
-      _diagnostics
+      named,
+      positional,
+      issues,
+      diagnostics
     };
   };
-  const _withoutMaskedComments = (_sql, _segments) => _segments ? _sql.replace(new RegExp(`${_escapeRegExp(_segments._prefix)}(\\d+)@@`, "g"), (_token, _index) => /^(?:--|\/\*)/.test(_segments[Number(_index)] ?? "") ? " ".repeat(_token.length) : _token) : _sql;
-  const _namedPlaceholders = (_sql, _segments) => {
-    _sql = _withoutMaskedComments(_sql, _segments);
-    const _matches = [];
-    const _brackets = [];
-    let _parenDepth = 0;
-    for (let _index = 0; _index < _sql.length; _index += 1) {
-      const _character = _sql[_index];
-      if (_character === "(") _parenDepth += 1;
-      if (_character === ")") _parenDepth -= 1;
-      if (_character === "[") {
-        const _previous = _sql[_findPreviousNonSpaceIndex(_sql, _index)];
-        const _array = _readPreviousUnqualifiedWord(_sql, _index).toUpperCase() === "ARRAY" || Boolean(_brackets.at(-1)?._array) && (_previous === "[" || _previous === ",");
-        _brackets.push({
-          _parenDepth,
-          _array
+  const namedPlaceholders = (maskedSql, segments) => {
+    const sql = withoutMaskedComments(maskedSql, segments);
+    const matches = [];
+    const brackets = [];
+    let parenDepth = 0;
+    for (let index = 0; index < sql.length; index += 1) {
+      const character = sql[index];
+      if (character === "(") parenDepth += 1;
+      if (character === ")") parenDepth -= 1;
+      if (character === "[") {
+        const previous = sql[findPreviousNonSpace(sql, index)];
+        const array = readPreviousUnqualifiedWord(sql, index).toUpperCase() === "ARRAY" || Boolean(brackets.at(-1)?.array) && (previous === "[" || previous === ",");
+        brackets.push({
+          parenDepth,
+          array
         });
       }
-      if (_character === "]") _brackets.pop();
-      if (_character !== ":" || /[:A-Za-z0-9_$]/.test(_sql[_index - 1] ?? "")) continue;
-      const _bracket = _brackets.at(-1);
-      if (_bracket && !_bracket._array && _bracket._parenDepth === _parenDepth) continue;
-      const _match = /^:([A-Za-z_][A-Za-z0-9_$]*)/.exec(_sql.slice(_index));
-      if (_match) {
-        _matches.push({
-          _index,
-          _length: _match[0].length,
-          _name: _match[1]
+      if (character === "]") brackets.pop();
+      if (character !== ":" || /[:A-Za-z0-9_$]/.test(sql[index - 1] ?? "")) continue;
+      const bracket = brackets.at(-1);
+      if (bracket && !bracket.array && bracket.parenDepth === parenDepth) continue;
+      const match = /^:([A-Za-z_][A-Za-z0-9_$]*)/.exec(sql.slice(index));
+      if (match) {
+        matches.push({
+          index,
+          length: match[0].length,
+          name: match[1]
         });
-        _index += _match[0].length - 1;
+        index += match[0].length - 1;
       }
     }
-    return _matches;
+    return matches;
   };
-  const _formatNamedBindList = _names => _names.map(_name => `:${_name}`).join(", ");
-  const _formatPositionalBindList = _indexes => _indexes.map(_index => `[${_index}]`).join(", ");
-  const POSTGRESQL_QUESTION_OPERATOR_PREVIOUS_KEYWORDS = new Set([ "ALL", "AS", "DISTINCT", "VARIADIC", "AND", "BETWEEN", "BOTH", "ASYMMETRIC", "SYMMETRIC", "BY", "CASE", "ELSE", "ESCAPE", "FROM", "FETCH", "FIRST", "FOR", "HAVING", "ILIKE", "IN", "IS", "JOIN", "LEADING", "LIKE", "LIMIT", "NEXT", "NOT", "OFFSET", "ON", "OR", "PLACING", "ROW", "ROWS", "RETURNING", "SELECT", "SET", "SIMILAR", "THEN", "TO", "TRAILING", "USING", "VALUES", "WHEN", "WHERE" ]);
-  const _findPreviousNonSpaceIndex = (_sql, _index) => {
-    let _previousIndex = _index - 1;
-    while (_previousIndex >= 0 && /[ \t\r\n\f]/.test(_sql[_previousIndex] ?? "")) {
-      _previousIndex -= 1;
-    }
-    return _previousIndex;
+  const QUESTION_OPERATOR_PREVIOUS_KEYWORDS = new Set(("ALL AS DISTINCT VARIADIC AND BETWEEN BOTH ASYMMETRIC SYMMETRIC BY CASE ELSE ESCAPE FROM FETCH FIRST FOR HAVING " + "ILIKE IN IS JOIN LEADING LIKE LIMIT NEXT NOT OFFSET ON OR PLACING ROW ROWS RETURNING SELECT SET SIMILAR THEN TO " + "TRAILING USING VALUES WHEN WHERE").split(" "));
+  const findPreviousNonSpace = (sql, index) => {
+    let previous = index - 1;
+    while (previous >= 0 && isSpace(sql[previous])) previous -= 1;
+    return previous;
   };
-  const _findNextNonSpaceIndex = (_sql, _index) => {
-    let _nextIndex = _index + 1;
-    while (_nextIndex < _sql.length && /[ \t\r\n\f]/.test(_sql[_nextIndex] ?? "")) {
-      _nextIndex += 1;
-    }
-    return _nextIndex;
+  const findNextNonSpace = (sql, index) => {
+    let next = index + 1;
+    while (next < sql.length && isSpace(sql[next])) next += 1;
+    return next;
   };
-  const _readPreviousWord = (_sql, _index) => {
-    let _wordEndIndex = _findPreviousNonSpaceIndex(_sql, _index);
-    if (!/[A-Za-z0-9_$\u0080-\uffff]/.test(_sql[_wordEndIndex] ?? "")) {
-      return "";
-    }
-    let _wordStartIndex = _wordEndIndex;
-    while (_wordStartIndex > 0 && /[A-Za-z0-9_$\u0080-\uffff]/.test(_sql[_wordStartIndex - 1] ?? "")) {
-      _wordStartIndex -= 1;
-    }
-    return _sql.slice(_wordStartIndex, _wordEndIndex + 1);
+  const readPreviousWord = (sql, index) => {
+    const end = findPreviousNonSpace(sql, index);
+    if (!isWord(sql[end])) return "";
+    let start = end;
+    while (start > 0 && isWord(sql[start - 1])) start -= 1;
+    return sql.slice(start, end + 1);
   };
-  const _readPreviousUnqualifiedWord = (_sql, _index) => {
-    const _word = _readPreviousWord(_sql, _index);
-    const _start = _findPreviousNonSpaceIndex(_sql, _index) - _word.length + 1;
-    return _sql[_findPreviousNonSpaceIndex(_sql, _start)] === "." ? "" : _word;
+  const readPreviousUnqualifiedWord = (sql, index) => {
+    const word = readPreviousWord(sql, index);
+    const start = findPreviousNonSpace(sql, index) - word.length + 1;
+    return sql[findPreviousNonSpace(sql, start)] === "." ? "" : word;
   };
-  const _hasExpressionBeforeQuestionOperator = (_sql, _index, _questionKinds) => {
-    const _previousIndex = _findPreviousNonSpaceIndex(_sql, _index);
-    const _previousCharacter = _sql[_previousIndex] ?? "";
-    if (_previousCharacter === "?") return !_questionKinds.get(_previousIndex);
-    if (!/[A-Za-z0-9_$\u0080-\uffff)\]"@]/.test(_previousCharacter)) {
-      return false;
+  const hasExpressionBeforeQuestionOperator = (sql, index, questionKinds) => {
+    const previousIndex = findPreviousNonSpace(sql, index);
+    const previousCharacter = sql[previousIndex] ?? "";
+    if (previousCharacter === "?") return !questionKinds.get(previousIndex);
+    if (!/[A-Za-z0-9_$\u0080-\uffff)\]"@]/.test(previousCharacter)) return false;
+    const previousWord = readPreviousUnqualifiedWord(sql, index).toUpperCase();
+    if (previousWord === "ZONE" && /\bAT\s+TIME\s+ZONE\s*$/i.test(sql.slice(0, index))) return false;
+    const wordStart = previousIndex - previousWord.length + 1;
+    const beforeWord = readPreviousUnqualifiedWord(sql, wordStart).toUpperCase();
+    if ([ "FIRST", "NEXT" ].includes(previousWord)) return beforeWord !== "FETCH";
+    if (previousWord === "BY") return ![ "ORDER", "GROUP", "PARTITION" ].includes(beforeWord);
+    if ([ "ROW", "SET", "VALUES" ].includes(previousWord)) return true;
+    if ([ "BETWEEN", "ROWS" ].includes(previousWord)) {
+      const beforeIndex = findPreviousNonSpace(sql, wordStart);
+      const beforeCharacter = sql[beforeIndex] ?? "";
+      if (previousWord === "ROWS" && beforeCharacter === "(" && /^(OVER|AS)$/i.test(readPreviousUnqualifiedWord(sql, beforeIndex))) return false;
+      if (/[,(=+\-*\/<>&|~!%^]/.test(beforeCharacter) || /^(SELECT|WHERE|AND|OR|ON|HAVING|WHEN|THEN|ELSE|RETURNING|BY|DISTINCT|ALL)$/.test(beforeWord)) return true;
     }
-    const _previousWord = _readPreviousUnqualifiedWord(_sql, _index).toUpperCase();
-    if (_previousWord === "ZONE" && /\bAT\s+TIME\s+ZONE\s*$/i.test(_sql.slice(0, _index))) return false;
-    const _wordStart = _previousIndex - _previousWord.length + 1;
-    const _beforeWord = _readPreviousUnqualifiedWord(_sql, _wordStart).toUpperCase();
-    if ([ "FIRST", "NEXT" ].includes(_previousWord)) return _beforeWord !== "FETCH";
-    if (_previousWord === "BY") return ![ "ORDER", "GROUP", "PARTITION" ].includes(_beforeWord);
-    if ([ "ROW", "SET", "VALUES" ].includes(_previousWord)) return true;
-    if ([ "BETWEEN", "ROWS" ].includes(_previousWord)) {
-      const _beforeIndex = _findPreviousNonSpaceIndex(_sql, _wordStart);
-      const _beforeCharacter = _sql[_beforeIndex] ?? "";
-      if (_previousWord === "ROWS" && _beforeCharacter === "(" && /^(OVER|AS)$/i.test(_readPreviousUnqualifiedWord(_sql, _beforeIndex))) return false;
-      if (/[,(=+\-*\/<>&|~!%^]/.test(_beforeCharacter) || /^(SELECT|WHERE|AND|OR|ON|HAVING|WHEN|THEN|ELSE|RETURNING|BY|DISTINCT|ALL)$/.test(_beforeWord)) return true;
-    }
-    return !_previousWord || !POSTGRESQL_QUESTION_OPERATOR_PREVIOUS_KEYWORDS.has(_previousWord);
+    return !previousWord || !QUESTION_OPERATOR_PREVIOUS_KEYWORDS.has(previousWord);
   };
-  const _isPostgresqlQuestionMarkOperator = (_sql, _index, _questionKinds) => {
-    if (_sql[_index - 1] === "@" || _sql[_index - 1] === "?" || _sql[_index + 1] === "?") return true;
-    const _immediateNextCharacter = _sql[_index + 1] ?? "";
-    if (_immediateNextCharacter === "|" || _immediateNextCharacter === "&") {
-      return true;
-    }
-    if (!_hasExpressionBeforeQuestionOperator(_sql, _index, _questionKinds)) {
-      return false;
-    }
-    const _nextIndex = _findNextNonSpaceIndex(_sql, _index);
-    const _nextCharacter = _sql[_nextIndex] ?? "";
-    return /[A-Za-z0-9_$\u0080-\uffff'"(@?+\-*\/<>=~!#%^&|`]/.test(_nextCharacter);
+  const isQuestionOperator = (sql, index, questionKinds) => {
+    if (sql[index - 1] === "@" || sql[index - 1] === "?" || /^[?|&]$/.test(sql[index + 1] ?? "")) return true;
+    if (!hasExpressionBeforeQuestionOperator(sql, index, questionKinds)) return false;
+    return /[A-Za-z0-9_$\u0080-\uffff'"(@?+\-*\/<>=~!#%^&|`]/.test(sql[findNextNonSpace(sql, index)] ?? "");
   };
-  const _replacePositionalBindPlaceholders = (_sql, _replace, _segments) => {
-    const _context = _withoutMaskedComments(_sql, _segments);
-    const _questionKinds = new Map;
-    const _operatorContexts = [];
-    let _result = "";
-    for (let _index = 0; _index < _sql.length; _index += 1) {
-      if (_context[_index] === "(") _operatorContexts.push(_readPreviousWord(_context, _index).toUpperCase() === "OPERATOR");
-      if (_context[_index] === ")") _operatorContexts.pop();
-      if (_sql[_index] === "?") {
-        const _operator = Boolean(_operatorContexts.at(-1)) || _isPostgresqlQuestionMarkOperator(_context, _index, _questionKinds);
-        _questionKinds.set(_index, _operator);
-        if (!_operator) {
-          _result += _replace();
+  const replacePositionalPlaceholders = (sql, replace, segments) => {
+    const context = withoutMaskedComments(sql, segments);
+    const questionKinds = new Map;
+    const operatorContexts = [];
+    let result = "";
+    for (let index = 0; index < sql.length; index += 1) {
+      if (context[index] === "(") operatorContexts.push(readPreviousWord(context, index).toUpperCase() === "OPERATOR");
+      if (context[index] === ")") operatorContexts.pop();
+      if (sql[index] === "?") {
+        const operator = Boolean(operatorContexts.at(-1)) || isQuestionOperator(context, index, questionKinds);
+        questionKinds.set(index, operator);
+        if (!operator) {
+          result += replace();
           continue;
         }
       }
-      _result += _sql[_index];
+      result += sql[index];
     }
-    return _result;
+    return result;
   };
-  const _mergeSqlAndBinds = (_sql, _binds) => {
-    const _protectedStore = _maskSqlProtectedSegments(_sql);
-    let _workingSql = _protectedStore._masked;
-    const _issues = [ ..._binds._issues ?? [] ];
-    const _matches = _namedPlaceholders(_workingSql, _protectedStore._segments);
-    const _requiredNamedNames = new Set(_matches.map(_match => _match._name));
-    const _protectMergedValue = _value => {
-      const _token = `${_protectedStore._segments._prefix}${_protectedStore._segments.length}@@`;
-      _protectedStore._segments.push(_value);
-      return ` ${_token} `;
+  const mergeSqlAndBinds = (sql, binds) => {
+    const {masked, segments} = maskProtected(sql);
+    const issues = [ ...binds.issues ];
+    const matches = namedPlaceholders(masked, segments);
+    const requiredNames = new Set(matches.map(match => match.name));
+    const protectValue = value => {
+      const token = `${segments.prefix}${segments.length}@@`;
+      segments.push(value);
+      return ` ${token} `;
     };
-    const _pieces = [];
-    let _cursor = 0;
-    for (const _match of _matches) {
-      _pieces.push(_workingSql.slice(_cursor, _match._index));
-      _pieces.push(_binds._named.has(_match._name) ? _protectMergedValue(_binds._named.get(_match._name)) : _workingSql.slice(_match._index, _match._index + _match._length));
-      _cursor = _match._index + _match._length;
+    let working = "";
+    let cursor = 0;
+    for (const {index, length, name} of matches) {
+      working += masked.slice(cursor, index) + (binds.named.has(name) ? protectValue(binds.named.get(name)) : masked.slice(index, index + length));
+      cursor = index + length;
     }
-    _pieces.push(_workingSql.slice(_cursor));
-    _workingSql = _pieces.join("");
-    let _placeholderIndex = 0;
-    const _usedPositionalIndexes = new Set;
-    let _missingPositionalCount = 0;
-    _workingSql = _replacePositionalBindPlaceholders(_workingSql, () => {
-      _placeholderIndex += 1;
-      if (!_binds._positional.has(_placeholderIndex)) {
-        _missingPositionalCount += 1;
+    working += masked.slice(cursor);
+    let placeholderIndex = 0;
+    let missingPositionalCount = 0;
+    const usedIndexes = new Set;
+    working = replacePositionalPlaceholders(working, () => {
+      placeholderIndex += 1;
+      if (!binds.positional.has(placeholderIndex)) {
+        missingPositionalCount += 1;
         return "?";
       }
-      const _value = _binds._positional.get(_placeholderIndex);
-      _usedPositionalIndexes.add(_placeholderIndex);
-      return _protectMergedValue(_value);
-    }, _protectedStore._segments);
-    const _missingNamedNames = [ ..._requiredNamedNames ].filter(_name => !_binds._named.has(_name));
-    const _extraNamedNames = [ ..._binds._named.keys() ].filter(_name => !_requiredNamedNames.has(_name));
-    const _extraPositionalIndexes = [ ..._binds._positional.keys() ].filter(_index => !_usedPositionalIndexes.has(_index)).sort((_left, _right) => _left - _right);
-    if (_missingNamedNames.length > 0) {
-      _issues.push(MESSAGES.unresolvedNamed(_formatNamedBindList(_missingNamedNames), _missingNamedNames.length));
-    }
-    if (_extraNamedNames.length > 0) {
-      _issues.push(MESSAGES.extraNamed(_formatNamedBindList(_extraNamedNames), _extraNamedNames.length));
-    }
-    if (_missingPositionalCount > 0) {
-      _issues.push(MESSAGES.unresolvedPositional(_missingPositionalCount));
-    }
-    if (_extraPositionalIndexes.length > 0) {
-      _issues.push(MESSAGES.extraPositional(_formatPositionalBindList(_extraPositionalIndexes), _extraPositionalIndexes.length));
+      usedIndexes.add(placeholderIndex);
+      return protectValue(binds.positional.get(placeholderIndex));
+    }, segments);
+    const missingNames = [ ...requiredNames ].filter(name => !binds.named.has(name));
+    const extraNames = [ ...binds.named.keys() ].filter(name => !requiredNames.has(name));
+    const extraIndexes = [ ...binds.positional.keys() ].filter(index => !usedIndexes.has(index)).sort((a, b) => a - b);
+    const namedList = names => names.map(name => `:${name}`).join(", ");
+    if (missingNames.length) issues.push(`未置換の名前付きバインド (${namedList(missingNames)}) が ${missingNames.length} 件あります。`);
+    if (extraNames.length) issues.push(`余剰の名前付きバインド (${namedList(extraNames)}) が ${extraNames.length} 件あります。`);
+    if (missingPositionalCount) issues.push(`未置換の位置バインド (?) が ${missingPositionalCount} 件あります。`);
+    if (extraIndexes.length) {
+      issues.push(`余剰の位置バインド (${extraIndexes.map(index => `[${index}]`).join(", ")}) が ${extraIndexes.length} 件あります。`);
     }
     return {
-      _sql: _restoreSqlProtectedSegments(_workingSql, _protectedStore._segments),
-      _issues
+      sql: restoreProtected(working, segments),
+      issues
     };
   };
-  const _upperCaseKeywords = _sql => _sql.replace(SQL_KEYWORD_CASE_PATTERN, (_match, _offset, _source) => {
-    const _previousCharacter = _source[_offset - 1] ?? "";
-    if (_previousCharacter === ":" || _previousCharacter === "." || _previousCharacter === "[" || _previousCharacter === "`") {
-      return _match;
+  const upperCaseKeywords = sql => sql.replace(SQL_KEYWORD_CASE_PATTERN, (match, offset, source) => [ ":", ".", "[", "`" ].includes(source[offset - 1]) ? match : match.toUpperCase());
+  const addSpaceAroundOperators = sql => sql.replace(/@@BindSQL_SEGMENT_X*\d+@@|::|:=|(?:(?!@@BindSQL_SEGMENT_)[+\-*\/<>=~!@#%^&|`?])+/g, (operator, offset) => {
+    if (operator.startsWith("@@BindSQL_SEGMENT_")) return operator;
+    if (/^[+-]$/.test(operator) && /(?:\d+(?:\.\d*)?|\.\d+)[eE]$/.test(sql.slice(0, offset)) && /^\d/.test(sql.slice(offset + 1))) {
+      return operator;
     }
-    return _match.toUpperCase();
-  });
-  const _addSpaceAroundOperators = _sql => _sql.replace(/@@BindSQL_SEGMENT_X*\d+@@|::|:=|(?:(?!@@BindSQL_SEGMENT_)[+\-*\/<>=~!@#%^&|`?])+/g, (_operator, _offset) => {
-    if (_operator.startsWith("@@BindSQL_SEGMENT_")) return _operator;
-    if (/^[+-]$/.test(_operator) && /(?:\d+(?:\.\d*)?|\.\d+)[eE]$/.test(_sql.slice(0, _offset)) && /^\d/.test(_sql.slice(_offset + 1))) return _operator;
-    return ` ${_operator} `;
+    return ` ${operator} `;
   }).replace(/\s*,\s*/g, ", ").replace(/\s+/g, " ").trim();
-  const _breakBeforeKeyword = (_sql, _keyword, _shouldSkip = _shouldSkipKeywordBreak) => {
-    const _pattern = new RegExp(`\\s+${_keyword.replace(/\s+/g, "\\s+")}\\b`, "g");
-    return _sql.replace(_pattern, (_match, _offset, _source) => {
-      const _keywordOffset = _offset + (_match.match(/\S/)?.index ?? 0);
-      if (_shouldSkip(_source, _keywordOffset, _keyword)) {
-        return _match;
-      }
-      return `\n${_keyword}`;
-    });
+  const breakBeforeKeyword = (sql, keyword, shouldSkip = shouldSkipKeywordBreak) => sql.replace(new RegExp(`\\s+${keyword.replace(/\s+/g, "\\s+")}\\b`, "g"), (match, offset, source) => shouldSkip(source, offset + (match.match(/\S/)?.index ?? 0), keyword) ? match : `\n${keyword}`);
+  const parenScan = {
+    source: "",
+    offset: 0,
+    contexts: []
   };
-  const _parenScan = {
-    _source: "",
-    _offset: 0,
-    _contexts: []
-  };
-  const _getOpenParenContexts = (_source, _offset) => {
-    if (_parenScan._source !== _source || _offset < _parenScan._offset) {
-      _parenScan._source = _source;
-      _parenScan._offset = 0;
-      _parenScan._contexts = [];
-    }
-    for (let _index = _parenScan._offset; _index < _offset; _index += 1) {
-      if (_source[_index] === "(") {
-        let _end = _index;
-        const _words = [];
-        for (let _word = 0; _word < 2; _word += 1) {
-          while (_end > 0 && /\s/.test(_source[_end - 1])) _end -= 1;
-          let _start = _end;
-          while (_start > 0 && _isWordCharacter(_source[_start - 1])) _start -= 1;
-          if (_start === _end) break;
-          _words.push(_source.slice(_start, _end).toUpperCase());
-          _end = _start;
-        }
-        _parenScan._contexts.push(_words[0] === "GROUP" && _words[1] === "WITHIN" ? "WITHIN GROUP" : _words[0] ?? "");
-      } else if (_source[_index] === ")") {
-        _parenScan._contexts.pop();
-      }
-    }
-    _parenScan._offset = _offset;
-    return _parenScan._contexts;
-  };
-  const _isInsideExpressionParentheses = (_source, _offset) => _getOpenParenContexts(_source, _offset).some(_prefix => /^(EXTRACT|OVER|POSITION|SUBSTRING|TRIM|WITHIN GROUP)$/.test(_prefix));
-  const _shouldSkipKeywordBreak = (_source, _keywordOffset, _keyword) => {
-    const _beforeKeyword = _source.slice(0, _keywordOffset);
-    const _normalizedKeyword = _keyword.toUpperCase();
-    if (_isInsideExpressionParentheses(_source, _keywordOffset)) {
-      return true;
-    }
-    if (_normalizedKeyword === "FROM" && /\b(?:DELETE|DISTINCT|IS\s+DISTINCT)\s*$/i.test(_beforeKeyword)) {
-      return true;
-    }
-    if (_normalizedKeyword === "UPDATE" && /\bDO\s*$/i.test(_beforeKeyword)) {
-      return true;
-    }
-    return false;
-  };
-  const _hasOpenCaseBeforeOffset = (_source, _offset) => {
-    const _tokens = _source.slice(0, _offset).match(/\b(?:CASE|END)\b/g) ?? [];
-    let _caseDepth = 0;
-    for (const _token of _tokens) {
-      if (_token === "CASE") {
-        _caseDepth += 1;
-        continue;
-      }
-      _caseDepth = Math.max(0, _caseDepth - 1);
-    }
-    return _caseDepth > 0;
-  };
-  const _shouldSkipMergeKeywordBreak = (_source, _offset, _keyword) => _keyword.startsWith("WHEN") && _hasOpenCaseBeforeOffset(_source, _offset);
-  const _breakBareJoin = _sql => _sql.replace(/\s+JOIN\b/g, (_match, _offset, _source) => {
-    const _left = _source.slice(Math.max(0, _offset - 8), _offset);
-    if (/\b(INNER|LEFT|RIGHT|FULL|CROSS)$/i.test(_left)) {
-      return _match;
-    }
-    return "\nJOIN";
+  const resetParenScan = () => Object.assign(parenScan, {
+    source: "",
+    offset: 0,
+    contexts: []
   });
-  const _stripClausePrefix = (_line, _keyword) => {
-    const _pattern = new RegExp(`^${_keyword.replace(/\s+/g, "\\s+")}\\b\\s*`);
-    return _line.replace(_pattern, "").trim();
-  };
-  const _formatClause = (_line, _keyword, _indent = "") => {
-    const _remainder = _stripClausePrefix(_line, _keyword);
-    return _remainder ? [ `${_indent}${_keyword}`, `${_indent}  ${_remainder}` ] : [ `${_indent}${_keyword}` ];
-  };
-  const _getEffectiveParenDepth = (_line, _parenDepth) => {
-    const _leadingCloseCount = _line.trim().match(/^\)+/)?.[0].length ?? 0;
-    return Math.max(0, _parenDepth - _leadingCloseCount);
-  };
-  const _getNextParenDepth = (_line, _parenDepth) => {
-    const _effectiveDepth = _getEffectiveParenDepth(_line, _parenDepth);
-    const _leadingCloseCount = _line.trim().match(/^\)+/)?.[0].length ?? 0;
-    const _openCount = (_line.match(/\(/g) ?? []).length;
-    const _closeCount = Math.max(0, (_line.match(/\)/g) ?? []).length - _leadingCloseCount);
-    return Math.max(0, _effectiveDepth + _openCount - _closeCount);
-  };
-  const _splitSubqueryParentheses = _sql => {
-    let _result = "";
-    const _parenStack = [];
-    for (let _index = 0; _index < _sql.length; _index += 1) {
-      const _character = _sql[_index];
-      if (_character === "(") {
-        let _nextIndex = _index + 1;
-        while (/\s/.test(_sql[_nextIndex] ?? "")) {
-          _nextIndex += 1;
-        }
-        const _isSubquery = /^(?:SELECT|WITH)\b/.test(_sql.slice(_nextIndex));
-        _parenStack.push(_isSubquery);
-        _result += _character;
-        if (_isSubquery) {
-          _result += "\n";
-          _index = _nextIndex - 1;
-        }
-        continue;
-      }
-      if (_character === ")") {
-        const _isSubquery = _parenStack.pop() === true;
-        if (_isSubquery && !_result.endsWith("\n")) {
-          _result += "\n";
-        }
-        _result += _character;
-        continue;
-      }
-      _result += _character;
-    }
-    return _result;
-  };
-  const _isMergeStartLine = _line => /^MERGE(?:\s+INTO)?\b/.test(_line);
-  const _isMergeWhenLine = _line => /^WHEN\s+(?:NOT\s+)?MATCHED(?:\s+BY\s+(?:SOURCE|TARGET))?\b/.test(_line);
-  const _formatMergeWhenLine = _line => {
-    const _match = _line.match(/^(WHEN\s+(?:NOT\s+)?MATCHED(?:\s+BY\s+(?:SOURCE|TARGET))?(?:\s+AND\s+.+?)?)\s+THEN(?:\s+(.+))?$/);
-    if (!_match) {
-      return [ _line ];
-    }
-    const _condition = _match[1].trim();
-    const _action = (_match[2] ?? "").trim();
-    if (!_action) {
-      return [ `${_condition} THEN` ];
-    }
-    return [ `${_condition} THEN`, `  ${_action}` ];
-  };
-  const _combineMergeWhenConditionLines = _lines => {
-    const _mergedLines = [];
-    for (let _index = 0; _index < _lines.length; _index += 1) {
-      let _line = _lines[_index];
-      if (_isMergeWhenLine(_line) && !/\bTHEN\b/.test(_line)) {
-        while (/^(AND|OR)\b/.test(_lines[_index + 1] ?? "")) {
-          _index += 1;
-          _line = `${_line} ${_lines[_index]}`;
-          if (/\bTHEN\b/.test(_line)) {
-            break;
-          }
-        }
-      }
-      _mergedLines.push(_line);
-    }
-    return _mergedLines;
-  };
-  const _splitTopLevelCommaSeparated = _text => {
-    const _items = [];
-    let _current = "";
-    let _parenDepth = 0;
-    for (const _character of _text) {
-      if (_character === "(") {
-        _parenDepth += 1;
-        _current += _character;
-        continue;
-      }
-      if (_character === ")") {
-        _parenDepth = Math.max(0, _parenDepth - 1);
-        _current += _character;
-        continue;
-      }
-      if (_character === "," && _parenDepth === 0) {
-        const _entry = _current.trim();
-        if (_entry) {
-          _items.push(_entry);
-        }
-        _current = "";
-        continue;
-      }
-      _current += _character;
-    }
-    const _tail = _current.trim();
-    if (_tail) {
-      _items.push(_tail);
-    }
-    return _items;
-  };
-  const _formatCaseExpressionLines = _text => {
-    if (!/\bCASE\b/.test(_text)) {
-      return [ _text.trim() ];
-    }
-    const _isSimpleCase = /^\s*CASE\s+(?!WHEN\b)\S+/i.test(_text);
-    const _normalized = _text.replace(/\s+\bWHEN\b/g, "\nWHEN").replace(/\s+\bTHEN\b/g, "\nTHEN").replace(/\s+\bELSE\b/g, "\nELSE").replace(/\s+\bEND\b/g, "\nEND");
-    const _lines = _normalized.split("\n").map(_line => _line.trim()).filter(Boolean);
-    if (_isSimpleCase) {
-      const _mergedLines = [];
-      for (let _index = 0; _index < _lines.length; _index += 1) {
-        const _current = _lines[_index];
-        const _next = _lines[_index + 1] ?? "";
-        if (/^WHEN\b/.test(_current) && /^THEN\b/.test(_next)) {
-          _mergedLines.push(`${_current} ${_next}`);
-          _index += 1;
-          continue;
-        }
-        _mergedLines.push(_current);
-      }
-      return _mergedLines.map(_line => /^(WHEN|ELSE)\b/.test(_line) ? `  ${_line}` : _line);
-    }
-    return _lines.map(_line => /^(WHEN|THEN|ELSE)\b/.test(_line) ? `  ${_line}` : _line);
-  };
-  const _formatCommaSeparatedRemainder = (_remainder, _indent = "  ") => {
-    if (!_remainder) {
-      return [];
-    }
-    const _items = _splitTopLevelCommaSeparated(_remainder);
-    if (_items.length <= 1) {
-      return [ `${_indent}${_remainder}` ];
-    }
-    const _lines = [];
-    _items.forEach((_item, _index) => {
-      const _prefix = _index === 0 ? "" : ", ";
-      _lines.push(`${_indent}${_prefix}${_item}`);
+  const openParenContexts = (source, offset) => {
+    if (parenScan.source !== source || offset < parenScan.offset) Object.assign(parenScan, {
+      source,
+      offset: 0,
+      contexts: []
     });
-    return _lines;
-  };
-  const _formatSelectRemainder = _remainder => {
-    if (!_remainder) {
-      return [];
-    }
-    const _columns = _splitTopLevelCommaSeparated(_remainder);
-    if (_columns.length <= 1) {
-      return [ `  ${_remainder}` ];
-    }
-    const _lines = [];
-    _columns.forEach((_column, _index) => {
-      const _columnLines = _formatCaseExpressionLines(_column);
-      const _prefix = _index === 0 ? "  " : "  , ";
-      _lines.push(`${_prefix}${_columnLines[0]}`);
-      for (let _lineIndex = 1; _lineIndex < _columnLines.length; _lineIndex += 1) {
-        _lines.push(`    ${_columnLines[_lineIndex]}`);
+    for (let index = parenScan.offset; index < offset; index += 1) {
+      if (source[index] === ")") parenScan.contexts.pop();
+      if (source[index] !== "(") continue;
+      let end = index;
+      const words = [];
+      while (words.length < 2) {
+        while (end > 0 && /\s/.test(source[end - 1])) end -= 1;
+        let start = end;
+        while (start > 0 && isWord(source[start - 1])) start -= 1;
+        if (start === end) break;
+        words.push(source.slice(start, end).toUpperCase());
+        end = start;
       }
+      parenScan.contexts.push(words[0] === "GROUP" && words[1] === "WITHIN" ? "WITHIN GROUP" : words[0] ?? "");
+    }
+    parenScan.offset = offset;
+    return parenScan.contexts;
+  };
+  const shouldSkipKeywordBreak = (source, keywordOffset, keyword) => {
+    if (openParenContexts(source, keywordOffset).some(prefix => /^(EXTRACT|OVER|POSITION|SUBSTRING|TRIM|WITHIN GROUP)$/.test(prefix))) {
+      return true;
+    }
+    const before = source.slice(0, keywordOffset);
+    const normalized = keyword.toUpperCase();
+    return normalized === "FROM" && /\b(?:DELETE|DISTINCT|IS\s+DISTINCT)\s*$/i.test(before) || normalized === "UPDATE" && /\bDO\s*$/i.test(before);
+  };
+  const hasOpenCaseBefore = (source, offset) => {
+    let depth = 0;
+    for (const token of source.slice(0, offset).match(/\b(?:CASE|END)\b/g) ?? []) {
+      depth = token === "CASE" ? depth + 1 : Math.max(0, depth - 1);
+    }
+    return depth > 0;
+  };
+  const shouldSkipMergeKeywordBreak = (source, offset, keyword) => keyword.startsWith("WHEN") && hasOpenCaseBefore(source, offset);
+  const breakBareJoin = sql => sql.replace(/\s+JOIN\b/g, (match, offset, source) => /\b(INNER|LEFT|RIGHT|FULL|CROSS)$/i.test(source.slice(Math.max(0, offset - 8), offset)) ? match : "\nJOIN");
+  const stripClausePrefix = (line, keyword) => line.replace(new RegExp(`^${keyword.replace(/\s+/g, "\\s+")}\\b\\s*`), "").trim();
+  const formatClause = (line, keyword, indent = "") => {
+    const remainder = stripClausePrefix(line, keyword);
+    return remainder ? [ `${indent}${keyword}`, `${indent}  ${remainder}` ] : [ `${indent}${keyword}` ];
+  };
+  const leadingCloseCount = line => line.trim().match(/^\)+/)?.[0].length ?? 0;
+  const effectiveParenDepth = (line, depth) => Math.max(0, depth - leadingCloseCount(line));
+  const nextParenDepth = (line, depth) => {
+    const opens = (line.match(/\(/g) ?? []).length;
+    const closes = Math.max(0, (line.match(/\)/g) ?? []).length - leadingCloseCount(line));
+    return Math.max(0, effectiveParenDepth(line, depth) + opens - closes);
+  };
+  const splitSubqueryParentheses = sql => {
+    let result = "";
+    const stack = [];
+    for (let index = 0; index < sql.length; index += 1) {
+      const character = sql[index];
+      if (character === "(") {
+        const next = skipWhitespace(sql, index + 1);
+        const isSubquery = /^(?:SELECT|WITH)\b/.test(sql.slice(next));
+        stack.push(isSubquery);
+        result += character;
+        if (isSubquery) {
+          result += "\n";
+          index = next - 1;
+        }
+        continue;
+      }
+      if (character === ")" && stack.pop() === true && !result.endsWith("\n")) result += "\n";
+      result += character;
+    }
+    return result;
+  };
+  const skipWhitespace = (sql, start) => {
+    let index = start;
+    while (/\s/.test(sql[index] ?? "")) index += 1;
+    return index;
+  };
+  const MERGE_WHEN_PATTERN = /^WHEN\s+(?:NOT\s+)?MATCHED(?:\s+BY\s+(?:SOURCE|TARGET))?\b/;
+  const isMergeWhenLine = line => MERGE_WHEN_PATTERN.test(line);
+  const formatMergeWhenLine = line => {
+    const match = line.match(/^(WHEN\s+(?:NOT\s+)?MATCHED(?:\s+BY\s+(?:SOURCE|TARGET))?(?:\s+AND\s+.+?)?)\s+THEN(?:\s+(.+))?$/);
+    if (!match) return [ line ];
+    const action = (match[2] ?? "").trim();
+    const condition = `${match[1].trim()} THEN`;
+    return action ? [ condition, `  ${action}` ] : [ condition ];
+  };
+  const combineMergeWhenConditionLines = lines => {
+    const merged = [];
+    for (let index = 0; index < lines.length; index += 1) {
+      let line = lines[index];
+      if (isMergeWhenLine(line) && !/\bTHEN\b/.test(line)) {
+        while (/^(AND|OR)\b/.test(lines[index + 1] ?? "")) {
+          index += 1;
+          line = `${line} ${lines[index]}`;
+          if (/\bTHEN\b/.test(line)) break;
+        }
+      }
+      merged.push(line);
+    }
+    return merged;
+  };
+  const splitTopLevelCommaSeparated = text => {
+    const items = [];
+    let current = "";
+    let depth = 0;
+    const push = () => {
+      const item = current.trim();
+      if (item) items.push(item);
+      current = "";
+    };
+    for (const character of text) {
+      if (character === "(") depth += 1;
+      if (character === ")") depth = Math.max(0, depth - 1);
+      if (character === "," && depth === 0) push(); else current += character;
+    }
+    push();
+    return items;
+  };
+  const formatCaseExpressionLines = text => {
+    if (!/\bCASE\b/.test(text)) return [ text.trim() ];
+    const lines = text.replace(/\s+\b(WHEN|THEN|ELSE|END)\b/g, "\n$1").split("\n").map(line => line.trim()).filter(Boolean);
+    if (!/^\s*CASE\s+(?!WHEN\b)\S+/i.test(text)) {
+      return lines.map(line => /^(WHEN|THEN|ELSE)\b/.test(line) ? `  ${line}` : line);
+    }
+    const merged = [];
+    for (let index = 0; index < lines.length; index += 1) {
+      if (/^WHEN\b/.test(lines[index]) && /^THEN\b/.test(lines[index + 1] ?? "")) {
+        merged.push(`${lines[index]} ${lines[index + 1]}`);
+        index += 1;
+      } else merged.push(lines[index]);
+    }
+    return merged.map(line => /^(WHEN|ELSE)\b/.test(line) ? `  ${line}` : line);
+  };
+  const formatCommaSeparatedRemainder = (remainder, indent = "  ") => {
+    if (!remainder) return [];
+    const items = splitTopLevelCommaSeparated(remainder);
+    if (items.length <= 1) return [ `${indent}${remainder}` ];
+    return items.map((item, index) => `${indent}${index ? ", " : ""}${item}`);
+  };
+  const formatSelectRemainder = remainder => {
+    if (!remainder) return [];
+    const columns = splitTopLevelCommaSeparated(remainder);
+    if (columns.length <= 1) return [ `  ${remainder}` ];
+    return columns.flatMap((column, index) => {
+      const [first, ...rest] = formatCaseExpressionLines(column);
+      return [ `${index ? "  , " : "  "}${first}`, ...rest.map(line => `    ${line}`) ];
     });
-    return _lines;
   };
-  const _formatStructuredLines = _sql => {
-    const _splitLines = _sql.split("\n").map(_line => _line.trim()).filter(Boolean);
-    const _rawLines = _splitLines.some(_isMergeWhenLine) ? _combineMergeWhenConditionLines(_splitLines) : _splitLines;
-    const _formattedLines = [];
-    let _context = "";
-    let _parenDepth = 0;
-    let _isInsideMergeStatement = false;
-    let _mergeSection = "";
-    for (const _line of _rawLines) {
-      const _isTopLevel = _getEffectiveParenDepth(_line, _parenDepth) === 0;
-      _parenDepth = _getNextParenDepth(_line, _parenDepth);
-      if (_isTopLevel && _isMergeStartLine(_line)) {
-        _context = "MERGE";
-        _isInsideMergeStatement = true;
-        _mergeSection = "INTO";
-        const _mergeKeyword = /^MERGE\s+INTO\b/.test(_line) ? "MERGE INTO" : "MERGE";
-        _formattedLines.push(..._formatClause(_line, _mergeKeyword));
-        continue;
-      }
-      if (_isTopLevel && /^USING\b/.test(_line)) {
-        _context = _isInsideMergeStatement ? "MERGE_USING" : "USING";
-        if (_isInsideMergeStatement) {
-          _mergeSection = "USING";
-        }
-        _formattedLines.push(..._formatClause(_line, "USING"));
-        continue;
-      }
-      if (/^DELETE FROM\b/.test(_line)) {
-        _context = "DELETE FROM";
-        _formattedLines.push(..._formatClause(_line, "DELETE FROM"));
-        continue;
-      }
-      if (/^WITH\b/.test(_line)) {
-        _context = "WITH";
-        _formattedLines.push(_line);
-        continue;
-      }
-      if (/^SELECT\b/.test(_line)) {
-        _context = "SELECT";
-        _formattedLines.push("SELECT");
-        _formattedLines.push(..._formatSelectRemainder(_stripClausePrefix(_line, "SELECT")));
-        continue;
-      }
-      if (_isInsideMergeStatement && _isTopLevel && _mergeSection === "WHEN" && /^(UPDATE|INSERT|DELETE|DO NOTHING)\b/.test(_line)) {
-        _context = "MERGE_ACTION";
-        _mergeSection = "ACTION";
-        _formattedLines.push(`  ${_line}`);
-        continue;
-      }
-      if (/^(INSERT INTO|UPDATE|UNION ALL|UNION)\b/.test(_line)) {
-        _context = "";
-        _formattedLines.push(_line);
-        continue;
-      }
-      if (/^FROM\b/.test(_line)) {
-        _context = "FROM";
-        _formattedLines.push("FROM");
-        const _remainder = _stripClausePrefix(_line, "FROM");
-        if (_remainder) {
-          if (/^\(SELECT\b/.test(_remainder)) {
-            _formattedLines.push("  (");
-            _formattedLines.push(`  ${_remainder.slice(1).trim()}`);
-            continue;
-          }
-          _formattedLines.push(`  ${_remainder}`);
-        }
-        continue;
-      }
-      if (/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\b/.test(_line)) {
-        _context = "ON";
-        const _joinSubqueryMatch = _line.match(/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\s+\((SELECT.+)$/);
-        if (_joinSubqueryMatch) {
-          _formattedLines.push(`  ${_joinSubqueryMatch[1]} (`);
-          _formattedLines.push(`    ${_joinSubqueryMatch[2]}`);
-          continue;
-        }
-        _formattedLines.push(`  ${_line}`);
-        continue;
-      }
-      if (/^ON\b/.test(_line)) {
-        if (/^ON CONFLICT\b/.test(_line)) {
-          _context = "ON CONFLICT";
-          _formattedLines.push(..._formatClause(_line, "ON CONFLICT"));
-          continue;
-        }
-        if (_isInsideMergeStatement && _isTopLevel && _mergeSection === "USING") {
-          _context = "MERGE_ON";
-          _mergeSection = "ON";
-          _formattedLines.push(..._formatClause(_line, "ON"));
-          continue;
-        }
-        _context = "ON";
-        _formattedLines.push(`    ${_line}`);
-        continue;
-      }
-      if (_isInsideMergeStatement && _isTopLevel && _isMergeWhenLine(_line)) {
-        _context = "MERGE_WHEN";
-        _mergeSection = "WHEN";
-        _formattedLines.push(..._formatMergeWhenLine(_line));
-        continue;
-      }
-      if (/^WHERE\b/.test(_line)) {
-        if (_isInsideMergeStatement && _isTopLevel && /^(ACTION|SET|VALUES)$/.test(_mergeSection)) {
-          _context = "MERGE_WHERE";
-          _mergeSection = "WHERE";
-          _formattedLines.push(..._formatClause(_line, "WHERE", "  "));
-          continue;
-        }
-        _context = "WHERE";
-        _formattedLines.push(..._formatClause(_line, "WHERE"));
-        continue;
-      }
-      const _listClause = /^(GROUP BY|ORDER BY|RETURNING)\b/.exec(_line)?.[0];
-      if (_listClause) {
-        _context = _listClause;
-        _formattedLines.push(_listClause);
-        _formattedLines.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, _listClause)));
-        continue;
-      }
-      if (/^HAVING\b/.test(_line)) {
-        _context = "HAVING";
-        _formattedLines.push(..._formatClause(_line, "HAVING"));
-        continue;
-      }
-      if (/^SET\b/.test(_line)) {
-        if (_isInsideMergeStatement && _isTopLevel && /^(WHEN|ACTION|SET)$/.test(_mergeSection)) {
-          _context = "MERGE_SET";
-          _mergeSection = "SET";
-          _formattedLines.push("  SET");
-          _formattedLines.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "SET"), "    "));
-          continue;
-        }
-        _context = "SET";
-        _formattedLines.push("SET");
-        _formattedLines.push(..._formatCommaSeparatedRemainder(_stripClausePrefix(_line, "SET")));
-        continue;
-      }
-      if (/^VALUES\b/.test(_line)) {
-        if (_isInsideMergeStatement && _isTopLevel && /^(WHEN|ACTION|VALUES)$/.test(_mergeSection)) {
-          _context = "MERGE_VALUES";
-          _mergeSection = "VALUES";
-          _formattedLines.push(..._formatClause(_line, "VALUES", "  "));
-          continue;
-        }
-        _context = "VALUES";
-        _formattedLines.push(..._formatClause(_line, "VALUES"));
-        continue;
-      }
-      if (/^(LIMIT|OFFSET)\b/.test(_line)) {
-        _context = "";
-        _formattedLines.push(_line);
-        continue;
-      }
-      if (/^\),/.test(_line)) {
-        _formattedLines.push(_line);
-        continue;
-      }
-      if (/^(AND|OR)\b/.test(_line)) {
-        const _indent = _context === "ON" || _context === "MERGE_WHERE" ? "    " : "  ";
-        _formattedLines.push(`${_indent}${_line}`);
-        continue;
-      }
-      if (/^(WHEN|THEN|ELSE|END)\b/.test(_line)) {
-        _formattedLines.push(`    ${_line}`);
-        continue;
-      }
-      const _indent = _context === "ON" ? "    " : _context ? "  " : "";
-      _formattedLines.push(`${_indent}${_line}`);
-    }
-    return _formattedLines;
-  };
-  const _applyParenthesisIndent = _lines => {
-    const _result = [];
-    const _parenIndentStack = [];
-    for (const _line of _lines) {
-      const _trimmed = _line.trim();
-      if (!_trimmed) {
-        continue;
-      }
-      const _baseIndentSize = _line.match(/^\s*/)?.[0].length ?? 0;
-      const _leadingCloseCount = _trimmed.match(/^\)+/)?.[0].length ?? 0;
-      let _closingIndentSize = null;
-      for (let _index = 0; _index < _leadingCloseCount; _index += 1) {
-        const _poppedIndentSize = _parenIndentStack.pop();
-        if (typeof _poppedIndentSize === "number") {
-          _closingIndentSize = _poppedIndentSize;
-        }
-      }
-      const _parenIndentSize = _parenIndentStack.length > 0 ? _parenIndentStack[_parenIndentStack.length - 1] + 2 : 0;
-      const _indentSize = _closingIndentSize ?? _baseIndentSize + _parenIndentSize;
-      _result.push(`${" ".repeat(_indentSize)}${_trimmed}`);
-      const _openCount = (_trimmed.match(/\(/g) ?? []).length;
-      const _closeCount = Math.max(0, (_trimmed.match(/\)/g) ?? []).length - _leadingCloseCount);
-      for (let _index = 0; _index < _openCount; _index += 1) {
-        _parenIndentStack.push(_indentSize);
-      }
-      for (let _index = 0; _index < _closeCount; _index += 1) {
-        _parenIndentStack.pop();
+  const formatStructuredLines = sql => {
+    const splitLines = sql.split("\n").map(line => line.trim()).filter(Boolean);
+    const lines = splitLines.some(isMergeWhenLine) ? combineMergeWhenConditionLines(splitLines) : splitLines;
+    const formatted = [];
+    let context = "";
+    let parenDepth = 0;
+    let insideMerge = false;
+    let mergeSection = "";
+    for (const line of lines) {
+      const isTopLevel = effectiveParenDepth(line, parenDepth) === 0;
+      parenDepth = nextParenDepth(line, parenDepth);
+      const inMerge = pattern => insideMerge && isTopLevel && pattern.test(mergeSection);
+      if (isTopLevel && /^MERGE(?:\s+INTO)?\b/.test(line)) {
+        context = "MERGE";
+        insideMerge = true;
+        mergeSection = "INTO";
+        formatted.push(...formatClause(line, /^MERGE\s+INTO\b/.test(line) ? "MERGE INTO" : "MERGE"));
+      } else if (isTopLevel && /^USING\b/.test(line)) {
+        context = insideMerge ? "MERGE_USING" : "USING";
+        if (insideMerge) mergeSection = "USING";
+        formatted.push(...formatClause(line, "USING"));
+      } else if (/^DELETE FROM\b/.test(line)) {
+        context = "DELETE FROM";
+        formatted.push(...formatClause(line, "DELETE FROM"));
+      } else if (/^WITH\b/.test(line)) {
+        context = "WITH";
+        formatted.push(line);
+      } else if (/^SELECT\b/.test(line)) {
+        context = "SELECT";
+        formatted.push("SELECT", ...formatSelectRemainder(stripClausePrefix(line, "SELECT")));
+      } else if (inMerge(/^WHEN$/) && /^(UPDATE|INSERT|DELETE|DO NOTHING)\b/.test(line)) {
+        context = "MERGE_ACTION";
+        mergeSection = "ACTION";
+        formatted.push(`  ${line}`);
+      } else if (/^(INSERT INTO|UPDATE|UNION ALL|UNION)\b/.test(line)) {
+        context = "";
+        formatted.push(line);
+      } else if (/^FROM\b/.test(line)) {
+        context = "FROM";
+        formatted.push("FROM");
+        const remainder = stripClausePrefix(line, "FROM");
+        if (/^\(SELECT\b/.test(remainder)) formatted.push("  (", `  ${remainder.slice(1).trim()}`); else if (remainder) formatted.push(`  ${remainder}`);
+      } else if (/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\b/.test(line)) {
+        context = "ON";
+        const subquery = line.match(/^(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN|CROSS JOIN|JOIN)\s+\((SELECT.+)$/);
+        if (subquery) formatted.push(`  ${subquery[1]} (`, `    ${subquery[2]}`); else formatted.push(`  ${line}`);
+      } else if (/^ON CONFLICT\b/.test(line)) {
+        context = "ON CONFLICT";
+        formatted.push(...formatClause(line, "ON CONFLICT"));
+      } else if (/^ON\b/.test(line) && inMerge(/^USING$/)) {
+        context = "MERGE_ON";
+        mergeSection = "ON";
+        formatted.push(...formatClause(line, "ON"));
+      } else if (/^ON\b/.test(line)) {
+        context = "ON";
+        formatted.push(`    ${line}`);
+      } else if (insideMerge && isTopLevel && isMergeWhenLine(line)) {
+        context = "MERGE_WHEN";
+        mergeSection = "WHEN";
+        formatted.push(...formatMergeWhenLine(line));
+      } else if (/^WHERE\b/.test(line) && inMerge(/^(ACTION|SET|VALUES)$/)) {
+        context = "MERGE_WHERE";
+        mergeSection = "WHERE";
+        formatted.push(...formatClause(line, "WHERE", "  "));
+      } else if (/^WHERE\b/.test(line)) {
+        context = "WHERE";
+        formatted.push(...formatClause(line, "WHERE"));
+      } else if (/^(GROUP BY|ORDER BY|RETURNING)\b/.test(line)) {
+        context = /^(GROUP BY|ORDER BY|RETURNING)\b/.exec(line)[0];
+        formatted.push(context, ...formatCommaSeparatedRemainder(stripClausePrefix(line, context)));
+      } else if (/^HAVING\b/.test(line)) {
+        context = "HAVING";
+        formatted.push(...formatClause(line, "HAVING"));
+      } else if (/^SET\b/.test(line) && inMerge(/^(WHEN|ACTION|SET)$/)) {
+        context = "MERGE_SET";
+        mergeSection = "SET";
+        formatted.push("  SET", ...formatCommaSeparatedRemainder(stripClausePrefix(line, "SET"), "    "));
+      } else if (/^SET\b/.test(line)) {
+        context = "SET";
+        formatted.push("SET", ...formatCommaSeparatedRemainder(stripClausePrefix(line, "SET")));
+      } else if (/^VALUES\b/.test(line) && inMerge(/^(WHEN|ACTION|VALUES)$/)) {
+        context = "MERGE_VALUES";
+        mergeSection = "VALUES";
+        formatted.push(...formatClause(line, "VALUES", "  "));
+      } else if (/^VALUES\b/.test(line)) {
+        context = "VALUES";
+        formatted.push(...formatClause(line, "VALUES"));
+      } else if (/^(LIMIT|OFFSET)\b/.test(line)) {
+        context = "";
+        formatted.push(line);
+      } else if (/^\),/.test(line)) {
+        formatted.push(line);
+      } else if (/^(AND|OR)\b/.test(line)) {
+        formatted.push(`${context === "ON" || context === "MERGE_WHERE" ? "    " : "  "}${line}`);
+      } else if (/^(WHEN|THEN|ELSE|END)\b/.test(line)) {
+        formatted.push(`    ${line}`);
+      } else {
+        formatted.push(`${context === "ON" ? "    " : context ? "  " : ""}${line}`);
       }
     }
-    return _result;
+    return formatted;
   };
-  function* _sqlLexemes(_sql, _withLocations = false) {
-    const _emit = (_value, _start, _end) => _withLocations ? {
-      value: _value,
-      start: _start,
-      end: _end
-    } : _value;
-    let _index = 0;
-    let _previousLiteral = false;
-    while (_index < _sql.length) {
-      let _newline = false;
-      while (_index < _sql.length && /[ \t\r\n\f]/.test(_sql[_index])) {
-        if (/[\r\n]/.test(_sql[_index])) _newline = true;
-        _index += 1;
+  const applyParenthesisIndent = lines => {
+    const result = [];
+    const stack = [];
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      const closes = leadingCloseCount(trimmed);
+      let closingIndent = null;
+      for (let count = 0; count < closes; count += 1) closingIndent = stack.pop() ?? closingIndent;
+      const indent = closingIndent ?? line.match(/^\s*/)[0].length + (stack.length ? stack.at(-1) + 2 : 0);
+      result.push(`${" ".repeat(indent)}${trimmed}`);
+      const opens = (trimmed.match(/\(/g) ?? []).length;
+      const otherCloses = Math.max(0, (trimmed.match(/\)/g) ?? []).length - closes);
+      for (let count = 0; count < opens; count += 1) stack.push(indent);
+      for (let count = 0; count < otherCloses; count += 1) stack.pop();
+    }
+    return result;
+  };
+  const compactSingleItemClauses = lines => {
+    const result = [];
+    for (let index = 0; index < lines.length; index += 1) {
+      const line = lines[index];
+      const next = lines[index + 1];
+      const after = lines[index + 2];
+      const keyword = line.match(/^(\s*)(?:SELECT(?:\s+DISTINCT)?|FROM|WHERE|SET|ORDER BY|GROUP BY|HAVING|UPDATE|DELETE FROM|INSERT INTO|USING)$/);
+      if (keyword && next !== undefined) {
+        const childIndent = `${keyword[1]}  `;
+        const body = next.startsWith(childIndent) ? next.slice(childIndent.length) : "";
+        const continues = after !== undefined && after.startsWith(childIndent) && !/^(?:AND|OR)\b/.test(after.slice(childIndent.length));
+        if (body && !/^\s/.test(body) && !body.startsWith(", ") && !continues && !/\(\s*$/.test(body) && line.length + 1 + body.length <= 100) {
+          result.push(`${line} ${body}`);
+          index += 1;
+          continue;
+        }
       }
-      if (_index === _sql.length) return;
-      const _protected = _readSqlProtectedSegment(_sql, _index);
-      if (_protected) {
-        const _literal = /^(?:'|[EBXN]'|U&'|\$)/i.test(_protected);
-        if (_previousLiteral && _literal) yield _emit(_newline ? "continuation" : "separate-literal", _index, _index);
-        yield _emit(`protected:${_protected}`, _index, _index + _protected.length);
-        _previousLiteral = _literal;
-        _index += _protected.length;
+      result.push(line);
+    }
+    return result;
+  };
+  function* sqlLexemes(sql, withLocations = false) {
+    const emit = (value, start, end) => withLocations ? {
+      value,
+      start,
+      end
+    } : value;
+    let index = 0;
+    let previousLiteral = false;
+    while (index < sql.length) {
+      let newline = false;
+      while (index < sql.length && isSpace(sql[index])) {
+        if (/[\r\n]/.test(sql[index])) newline = true;
+        index += 1;
+      }
+      if (index === sql.length) return;
+      const segment = readProtected(sql, index);
+      if (segment) {
+        const literal = LITERAL_START_PATTERN.test(segment);
+        if (previousLiteral && literal) yield emit(newline ? "continuation" : "separate-literal", index, index);
+        yield emit(`protected:${segment}`, index, index + segment.length);
+        previousLiteral = literal;
+        index += segment.length;
         continue;
       }
-      _previousLiteral = false;
-      const _tail = _sql.slice(_index);
-      const _word = /^[A-Za-z_\u0080-\uffff][A-Za-z0-9_$\u0080-\uffff]*/.exec(_tail)?.[0];
-      const _number = /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/.exec(_tail)?.[0];
-      const _operator = /^(?:(?!\/\*|--)[+\-*\/<>=~!@#%^&|`?])+/.exec(_tail)?.[0];
-      const _token = _word ?? _number ?? _operator ?? _sql[_index];
-      const _value = _word ? `word:${_token.replace(/[A-Z]/g, _letter => _letter.toLowerCase())}` : _number ? `number:${_token.toLowerCase()}` : `symbol:${_token}`;
-      yield _emit(_value, _index, _index + _token.length);
-      _index += _token.length;
+      previousLiteral = false;
+      const rest = sql.slice(index);
+      const word = /^[A-Za-z_\u0080-\uffff][A-Za-z0-9_$\u0080-\uffff]*/.exec(rest)?.[0];
+      const number = !word && /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/.exec(rest)?.[0];
+      const token = word ?? (number || /^(?:(?!\/\*|--)[+\-*\/<>=~!@#%^&|`?])+/.exec(rest)?.[0] || sql[index]);
+      const value = word ? `word:${token.replace(/[A-Z]/g, letter => letter.toLowerCase())}` : number ? `number:${token.toLowerCase()}` : `symbol:${token}`;
+      yield emit(value, index, index + token.length);
+      index += token.length;
     }
   }
-  const _sameSqlLexemes = (_left, _right) => {
-    const _before = _sqlLexemes(_left);
-    const _after = _sqlLexemes(_right);
+  const sameSqlLexemes = (left, right) => {
+    const before = sqlLexemes(left);
+    const after = sqlLexemes(right);
     while (true) {
-      const _a = _before.next(), _b = _after.next();
-      if (_a.done || _b.done) return _a.done === _b.done;
-      if (_a.value !== _b.value) return false;
+      const a = before.next();
+      const b = after.next();
+      if (a.done || b.done) return a.done === b.done;
+      if (a.value !== b.value) return false;
     }
   };
-  const _formatSql = _sql => {
-    _parenScan._source = "";
-    _parenScan._offset = 0;
-    _parenScan._contexts = [];
-    const _protectedStore = _maskSqlProtectedSegments(_sql, true);
-    let _formatted = _protectedStore._masked.replace(/\s+/g, " ").trim();
-    if (!_formatted) {
-      return _trimSql(_sql);
+  const formatSql = sql => {
+    resetParenScan();
+    const {masked, segments} = maskProtected(sql, true);
+    let formatted = masked.replace(/\s+/g, " ").trim();
+    if (!formatted) return trimSql(sql);
+    formatted = upperCaseKeywords(addSpaceAroundOperators(formatted)).replace(/\bAS(?=@@BindSQL_SEGMENT_)/g, "AS ");
+    if (/\bMERGE\b/.test(formatted)) {
+      for (const keyword of MERGE_CLAUSE_KEYWORDS) formatted = breakBeforeKeyword(formatted, keyword, shouldSkipMergeKeywordBreak);
     }
-    _formatted = _addSpaceAroundOperators(_formatted);
-    _formatted = _upperCaseKeywords(_formatted);
-    _formatted = _formatted.replace(/\bAS(?=@@BindSQL_SEGMENT_)/g, "AS ");
-    if (/\bMERGE\b/.test(_formatted)) {
-      for (const _keyword of MERGE_CLAUSE_KEYWORDS) {
-        _formatted = _breakBeforeKeyword(_formatted, _keyword, _shouldSkipMergeKeywordBreak);
-      }
-    }
-    if (/\bDELETE\s+FROM\b/.test(_formatted)) {
-      _formatted = _breakBeforeKeyword(_formatted, "USING");
-    }
-    for (const _keyword of BREAK_CLAUSE_KEYWORDS) {
-      _formatted = _breakBeforeKeyword(_formatted, _keyword);
-    }
-    _formatted = _breakBareJoin(_formatted);
-    for (const _keyword of INLINE_KEYWORDS) {
-      _formatted = _breakBeforeKeyword(_formatted, _keyword);
-    }
-    _formatted = _formatted.replace(/\b(AND|OR|ON)\(/g, "$1 (");
-    _formatted = _splitSubqueryParentheses(_formatted);
-    const _structuredLines = _formatStructuredLines(_formatted);
-    const _indentedLines = _applyParenthesisIndent(_structuredLines);
-    const _compactLines = [];
-    for (let _index = 0; _index < _indentedLines.length; _index += 1) {
-      const _line = _indentedLines[_index];
-      const _next = _indentedLines[_index + 1];
-      const _after = _indentedLines[_index + 2];
-      const _keyword = _line.match(/^(\s*)(?:SELECT(?:\s+DISTINCT)?|FROM|WHERE|SET|ORDER BY|GROUP BY|HAVING|UPDATE|DELETE FROM|INSERT INTO|USING)$/);
-      if (_keyword && _next !== undefined) {
-        const _childIndent = `${_keyword[1]}  `;
-        const _body = _next.startsWith(_childIndent) ? _next.slice(_childIndent.length) : "";
-        const _continues = _after !== undefined && _after.startsWith(_childIndent) && !/^(?:AND|OR)\b/.test(_after.slice(_childIndent.length));
-        if (_body && !/^\s/.test(_body) && !_body.startsWith(", ") && !_continues && !/\(\s*$/.test(_body) && _line.length + 1 + _body.length <= 100) {
-          _compactLines.push(`${_line} ${_body}`);
-          _index += 1;
-          continue;
-        }
-      }
-      _compactLines.push(_line);
-    }
-    const _normalizedOutput = _compactLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
-    const _candidate = _restoreSqlProtectedSegments(_normalizedOutput, _protectedStore._segments);
-    _parenScan._source = "";
-    _parenScan._contexts = [];
-    return _sameSqlLexemes(_sql, _candidate) ? _candidate : _trimSql(_sql);
+    if (/\bDELETE\s+FROM\b/.test(formatted)) formatted = breakBeforeKeyword(formatted, "USING");
+    for (const keyword of BREAK_CLAUSE_KEYWORDS) formatted = breakBeforeKeyword(formatted, keyword);
+    formatted = breakBareJoin(formatted);
+    for (const keyword of INLINE_KEYWORDS) formatted = breakBeforeKeyword(formatted, keyword);
+    formatted = splitSubqueryParentheses(formatted.replace(/\b(AND|OR|ON)\(/g, "$1 ("));
+    const lines = compactSingleItemClauses(applyParenthesisIndent(formatStructuredLines(formatted)));
+    const candidate = restoreProtected(lines.join("\n").replace(/\n{3,}/g, "\n\n").trim(), segments);
+    resetParenScan();
+    return sameSqlLexemes(sql, candidate) ? candidate : trimSql(sql);
   };
-  const _inputLocations = (_input, _sql, _binds, _base) => {
-    if (_base < 0) return [];
-    const _before = [ ..._sqlLexemes(_input._sqlText, true) ];
-    const _after = [ ..._sqlLexemes(_sql, true) ];
-    const _locations = [];
-    let _a = 0, _b = 0, _position = 0;
-    while (_a < _before.length && _b < _after.length) {
-      const _original = _before[_a];
-      let _count = 1, _advance = 1;
-      if (_original.value !== _after[_b].value) {
-        let _literal;
-        if (_original.value === "symbol:?") _literal = _binds._positional.get(++_position);
-        if (_original.value === "symbol::" && _before[_a + 1]?.value.startsWith("word:")) {
-          _literal = _binds._named.get(_input._sqlText.slice(_before[_a + 1].start, _before[_a + 1].end));
-          _advance = 2;
+  const mapInputLocations = (input, sql, binds, base) => {
+    if (base < 0) return [];
+    const before = [ ...sqlLexemes(input.sqlText, true) ];
+    const after = [ ...sqlLexemes(sql, true) ];
+    const locations = [];
+    let a = 0;
+    let b = 0;
+    let position = 0;
+    while (a < before.length && b < after.length) {
+      const original = before[a];
+      let count = 1;
+      let advance = 1;
+      if (original.value !== after[b].value) {
+        let literal;
+        if (original.value === "symbol:?") literal = binds.positional.get(++position);
+        if (original.value === "symbol::" && before[a + 1]?.value.startsWith("word:")) {
+          literal = binds.named.get(input.sqlText.slice(before[a + 1].start, before[a + 1].end));
+          advance = 2;
         }
-        if (_literal === undefined) return [];
-        const _tokens = [ ..._sqlLexemes(_literal) ];
-        if (!_tokens.length || !_tokens.every((_token, _index) => _after[_b + _index]?.value === _token)) return [];
-        _count = _tokens.length;
+        if (literal === undefined) return [];
+        const tokens = [ ...sqlLexemes(literal) ];
+        if (!tokens.length || !tokens.every((token, index) => after[b + index]?.value === token)) return [];
+        count = tokens.length;
       }
-      for (let _i = 0; _i < _count; _i++) {
-        _locations.push({
-          outputStart: _after[_b + _i].start,
-          outputEnd: _after[_b + _i].end,
-          inputStart: _base + _original.start,
-          inputEnd: _base + _before[_a + _advance - 1].end
+      for (let index = 0; index < count; index += 1) {
+        locations.push({
+          outputStart: after[b + index].start,
+          outputEnd: after[b + index].end,
+          inputStart: base + original.start,
+          inputEnd: base + before[a + advance - 1].end
         });
       }
-      _a += _advance;
-      _b += _count;
+      a += advance;
+      b += count;
     }
-    return _a === _before.length && _b === _after.length ? _locations : [];
+    return a === before.length && b === after.length ? locations : [];
+  };
+  const findDefinitionOffset = (rawText, from, {lineText, occurrence}) => {
+    let found = 0;
+    while (from < rawText.length) {
+      const candidate = rawText.indexOf(lineText, from);
+      if (candidate < 0) break;
+      from = candidate + lineText.length;
+      const lineStart = rawText.lastIndexOf("\n", candidate - 1) + 1;
+      const nextLine = rawText.indexOf("\n", from);
+      if (rawText.slice(lineStart, candidate).trim() || rawText.slice(from, nextLine < 0 ? rawText.length : nextLine).trim()) continue;
+      if (++found === occurrence) return candidate;
+    }
+    return -1;
+  };
+  const bindingType = value => {
+    if (value === "NULL") return "NULL";
+    if (/^(TRUE|FALSE)$/.test(value)) return "真偽値";
+    return NUMERIC_LITERAL_PATTERN.test(value) ? "数値" : "文字列・リテラル";
   };
   return Object.freeze({
-    convert(_rawText, {logIndex} = {}) {
-      const _input = _splitInputText(_rawText, logIndex);
-      const _binds = _parseBindVariables(_input._bindLines);
-      const _merged = _mergeSqlAndBinds(_input._sqlText, _binds);
-      const _sql = _formatSql(_merged._sql);
-      const _base = _rawText.indexOf(_input._sqlText, _input._sourceOffset ?? 0);
-      const _bindings = [ ..._binds._positional ].map(([key, value]) => ({
+    convert(rawText, {logIndex} = {}) {
+      const input = splitInputText(rawText, logIndex);
+      const binds = parseBindVariables(input.bindLines);
+      const merged = mergeSqlAndBinds(input.sqlText, binds);
+      const sql = formatSql(merged.sql);
+      const base = rawText.indexOf(input.sqlText, input.sourceOffset ?? 0);
+      const bindings = [ ...[ ...binds.positional ].map(([key, value]) => ({
         key: `[${key}]`,
         value
-      })).concat([ ..._binds._named ].map(([key, value]) => ({
+      })), ...[ ...binds.named ].map(([key, value]) => ({
         key: `:${key}`,
         value
-      }))).map(_binding => ({
-        ..._binding,
-        type: _binding.value === "NULL" ? "NULL" : /^(TRUE|FALSE)$/.test(_binding.value) ? "真偽値" : SQL_NUMERIC_LITERAL_PATTERN.test(_binding.value) ? "数値" : "文字列・リテラル"
+      })) ].map(binding => ({
+        ...binding,
+        type: bindingType(binding.value)
       }));
+      const definitionsFrom = base >= 0 ? base + input.sqlText.length : input.sourceOffset ?? 0;
       return {
-        sql: _sql,
-        issues: _merged._issues,
-        diagnostics: _merged._issues.map(_message => {
-          const _detail = _binds._diagnostics.find(_item => _item.message === _message);
-          let _offset = _base;
-          if (_detail) {
-            let _from = _base >= 0 ? _base + _input._sqlText.length : _input._sourceOffset ?? 0;
-            _offset = -1;
-            let _found = 0;
-            while (_from < _rawText.length) {
-              const _candidate = _rawText.indexOf(_detail.lineText, _from);
-              if (_candidate < 0) break;
-              _from = _candidate + _detail.lineText.length;
-              const _lineStart = _rawText.lastIndexOf("\n", _candidate - 1) + 1;
-              const _nextLine = _rawText.indexOf("\n", _from);
-              if (_rawText.slice(_lineStart, _candidate).trim() || _rawText.slice(_from, _nextLine < 0 ? _rawText.length : _nextLine).trim()) continue;
-              if (++_found === _detail.occurrence) {
-                _offset = _candidate;
-                break;
-              }
-            }
-          }
+        sql,
+        issues: merged.issues,
+        diagnostics: merged.issues.map(message => {
+          const detail = binds.diagnostics.find(item => item.message === message);
+          const offset = detail ? findDefinitionOffset(rawText, definitionsFrom, detail) : base;
           return {
-            message: _message,
-            inputOffset: _offset >= 0 ? _offset : undefined
+            message,
+            inputOffset: offset >= 0 ? offset : undefined
           };
         }),
-        bindings: _bindings,
-        logCount: _input._logCount ?? 0,
-        selectedLogIndex: _input._selectedLogIndex ?? null,
-        logOptions: _input._logOptions ?? [],
-        inputLocations: _merged._issues.length ? [] : _inputLocations(_input, _sql, _binds, _base)
+        bindings,
+        logCount: input.logCount ?? 0,
+        selectedLogIndex: input.selectedLogIndex ?? null,
+        logOptions: input.logOptions ?? [],
+        inputLocations: merged.issues.length ? [] : mapInputLocations(input, sql, binds, base)
       };
     },
-    highlight: _buildHighlightedSqlHtml
+    highlight
   });
 })();</script>
     <script id="sql-validation-ui">(() => {
-  const panel = document.querySelector('[data-role="validation"]');
-  const status = document.getElementById("validation-status");
-  const list = document.querySelector('[data-role="validation-issues"]');
-  const output = document.querySelector('[data-role="output"]');
-  const input = document.querySelector('[data-role="raw-input"]');
+  const $ = selector => document.querySelector(selector);
+  const panel = $('[data-role="validation"]');
+  const status = $("#validation-status");
+  const list = $('[data-role="validation-issues"]');
+  const output = $('[data-role="output"]');
+  const input = $('[data-role="raw-input"]');
   const MAX_VISIBLE_ISSUES = 50;
   const DEBOUNCE_MS = 300;
   const VALIDATION_TIMEOUT_MS = 1e4;
+  const STATUS_MESSAGES = {
+    error: issues => `エラー${issues.length}件`,
+    checked: () => "構文・列数チェック済み",
+    empty: () => "チェック対象のSQLがありません"
+  };
   let worker = null;
   let parserBinary = null;
   let revision = 0;
@@ -6512,34 +6101,58 @@ if (typeof exports === "object" && typeof module === "object") {
   let inFlight = false;
   let inputLocations = [];
   let sourceText = "";
-  function inputLocationButton(offset, end = offset + 1) {
+  const scrollToLine = (element, line) => {
+    element.scrollTop = Math.max(0, (line - 1) * parseFloat(getComputedStyle(element).lineHeight) - element.clientHeight / 2);
+  };
+  const locationButton = (text, onClick) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "validation__location";
+    button.textContent = text;
+    button.addEventListener("click", onClick);
+    return button;
+  };
+  const inputLocationButton = (offset, end = offset + 1) => {
     const line = sourceText.slice(0, offset).split("\n").length;
-    button.textContent = `入力${line}行目を修正`;
-    button.addEventListener("click", () => {
+    return locationButton(`入力${line}行目を修正`, () => {
       if (input.value !== sourceText) return;
       input.focus();
       input.setSelectionRange(offset, Math.min(sourceText.length, end));
-      input.scrollTop = Math.max(0, (line - 1) * parseFloat(getComputedStyle(input).lineHeight) - input.clientHeight / 2);
+      scrollToLine(input, line);
       input.scrollLeft = 0;
       input.scrollIntoView({
         block: "nearest"
       });
     });
+  };
+  const outputLocationButton = issueOffset => {
+    const offset = Math.max(0, Math.min(currentSql.length, issueOffset));
+    const before = currentSql.slice(0, offset);
+    const line = before.split("\n").length;
+    const column = [ ...before.slice(before.lastIndexOf("\n") + 1) ].length + 1;
+    const button = locationButton(`${line}行 ${column}列`, () => {
+      output.focus();
+      const code = currentSql.codePointAt(offset);
+      output.setSelectionRange(offset, offset + (code === undefined ? 0 : code > 65535 ? 2 : 1));
+      scrollToLine(output, line);
+      output.scrollIntoView({
+        block: "nearest"
+      });
+    });
+    button.setAttribute("aria-label", `出力SQLの${line}行${column}列へ移動`);
     return button;
-  }
-  function clearTimers() {
+  };
+  const issueMessage = message => message === "syntax error at end of input" ? "SQLが途中で終わっています。句・式・括弧などの続きを確認してください。" : message.replace(/^syntax error at or near "(.*)"$/, "「$1」付近のSQLの書式を確認してください。");
+  const clearTimers = () => {
     window.clearTimeout(debounce);
     window.clearTimeout(timeout);
-  }
-  function stopWorker() {
+  };
+  const stopWorker = () => {
     worker?.terminate();
     worker = null;
     inFlight = false;
-  }
-  function show(state, message, issues = []) {
+  };
+  const show = (state, message, issues = []) => {
     panel.hidden = !message;
     panel.dataset.status = state;
     status.textContent = message;
@@ -6549,39 +6162,12 @@ if (typeof exports === "object" && typeof module === "object") {
     list.hidden = !issues.length;
     for (const issue of issues.slice(0, MAX_VISIBLE_ISSUES)) {
       const item = document.createElement("li");
-      if (Number.isInteger(issue.offset)) {
-        const offset = Math.max(0, Math.min(currentSql.length, issue.offset));
-        const before = currentSql.slice(0, offset);
-        const line = before.split("\n").length;
-        const column = [ ...before.slice(before.lastIndexOf("\n") + 1) ].length + 1;
-        const location = document.createElement("button");
-        location.type = "button";
-        location.className = "validation__location";
-        location.textContent = `${line}行 ${column}列`;
-        location.setAttribute("aria-label", `出力SQLの${line}行${column}列へ移動`);
-        location.addEventListener("click", () => {
-          output.focus();
-          const code = currentSql.codePointAt(offset);
-          const characterLength = code === undefined ? 0 : code > 65535 ? 2 : 1;
-          output.setSelectionRange(offset, offset + characterLength);
-          const style = getComputedStyle(output);
-          output.scrollTop = Math.max(0, (line - 1) * parseFloat(style.lineHeight) - output.clientHeight / 2);
-          output.scrollIntoView({
-            block: "nearest"
-          });
-        });
-        item.append(location, document.createTextNode("："));
-      }
-      const message = issue.message === "syntax error at end of input" ? "SQLが途中で終わっています。句・式・括弧などの続きを確認してください。" : issue.message.replace(/^syntax error at or near "(.*)"$/, "「$1」付近のSQLの書式を確認してください。");
-      item.append(document.createTextNode(message));
-      let mapped = null;
-      if (Number.isInteger(issue.offset) && inputLocations.length) {
-        mapped = inputLocations.find(location => location.outputEnd > issue.offset) ?? inputLocations.at(-1);
-      }
+      const hasOffset = Number.isInteger(issue.offset);
+      if (hasOffset) item.append(outputLocationButton(issue.offset), "：");
+      item.append(issueMessage(issue.message));
+      const mapped = hasOffset && inputLocations.length ? inputLocations.find(location => location.outputEnd > issue.offset) ?? inputLocations.at(-1) : null;
       const inputOffset = Number.isInteger(issue.inputOffset) ? issue.inputOffset : mapped?.inputStart;
-      if (Number.isInteger(inputOffset)) {
-        item.append(document.createTextNode(" "), inputLocationButton(inputOffset, mapped?.inputEnd));
-      }
+      if (Number.isInteger(inputOffset)) item.append(" ", inputLocationButton(inputOffset, mapped?.inputEnd));
       list.append(item);
     }
     if (issues.length > MAX_VISIBLE_ISSUES) {
@@ -6590,43 +6176,28 @@ if (typeof exports === "object" && typeof module === "object") {
       list.append(more);
     }
     window.dispatchEvent(new Event("bindsql-validation-change"));
-  }
-  function fail(id, message = "チェックできませんでした。「再チェック」で再試行できます。") {
+  };
+  const fail = (id, message = "チェックできませんでした。「再チェック」で再試行できます。") => {
     if (id !== revision) return;
-    revision++;
+    revision += 1;
     clearTimers();
     stopWorker();
     show("unavailable", message);
-  }
-  function receive(event) {
+  };
+  const isValidResult = ({status, issues}) => {
+    if ([ "checked", "empty" ].includes(status)) return Array.isArray(issues) && !issues.length;
+    return status === "error" && Array.isArray(issues) && issues.length > 0 && issues.every(issue => issue && typeof issue.message === "string");
+  };
+  const receive = ({data: result}) => {
     if (!inFlight) return;
-    const result = event.data;
-    if (!result || typeof result !== "object" || !Number.isInteger(result.id)) {
-      fail(revision);
-      return;
-    }
+    if (!result || typeof result !== "object" || !Number.isInteger(result.id)) return fail(revision);
     if (result.id !== revision) return;
-    if ([ "checked", "empty" ].includes(result.status) && (!Array.isArray(result.issues) || result.issues.length)) {
-      fail(result.id);
-      return;
-    }
-    if (result.status === "error" && (!Array.isArray(result.issues) || !result.issues.length || result.issues.some(issue => !issue || typeof issue.message !== "string"))) {
-      fail(result.id);
-      return;
-    }
+    if (!isValidResult(result)) return fail(result.id);
     inFlight = false;
     window.clearTimeout(timeout);
-    if (result.status === "error") {
-      show("error", `エラー${result.issues.length}件`, result.issues);
-    } else if (result.status === "checked") {
-      show("checked", "構文・列数チェック済み");
-    } else if (result.status === "empty") {
-      show("empty", "チェック対象のSQLがありません");
-    } else {
-      fail(result.id);
-    }
-  }
-  function startWorker() {
+    show(result.status, STATUS_MESSAGES[result.status](result.issues), result.status === "error" ? result.issues : []);
+  };
+  const startWorker = () => {
     const source = document.getElementById("postgresql-validator-worker").textContent;
     const url = URL.createObjectURL(new Blob([ source ], {
       type: "text/javascript"
@@ -6652,14 +6223,14 @@ if (typeof exports === "object" && typeof module === "object") {
       parserBinary = Uint8Array.from(atob(base64), character => character.charCodeAt(0));
     }
     return parserBinary.slice();
-  }
-  function reset(message = "") {
-    revision++;
+  };
+  const reset = (message = "") => {
+    revision += 1;
     clearTimers();
     currentSql = "";
     stopWorker();
     show("idle", message);
-  }
+  };
   window.BindSQLValidation = Object.freeze({
     get status() {
       return panel.dataset.status;
@@ -6703,45 +6274,46 @@ if (typeof exports === "object" && typeof module === "object") {
   window.addEventListener("pagehide", () => reset());
 })();</script>
     <script id="bindsql-app">(() => {
-  const qs = selector => document.querySelector(selector);
+  const $ = selector => document.querySelector(selector);
+  const role = name => $(`[data-role="${name}"]`);
+  const action = name => $(`[data-action="${name}"]`);
   const FLASH_DURATION_MS = 1500;
   const COPY_SUCCESS_DURATION_MS = 2e3;
   const INPUT_DEBOUNCE_MS = 180;
+  const CONVERSION_TIMEOUT_MS = 1e4;
   const LARGE_INPUT_LENGTH = 1e5;
+  const MAX_LISTED_BINDINGS = 50;
   const THEME_STORAGE_KEY = "bindsql-theme-preference";
-  const THEME_LIGHT = "light";
-  const THEME_DARK = "dark";
+  const WRAP_STORAGE_KEY = "arttools.bind.wrap.v1";
+  const COPIED = "コピーしました";
+  const COPY_FAILED = "コピーに失敗しました。「SQLを選択して手動コピー」を押し、Ctrl+C（Macは⌘C）でコピーしてください。";
   const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
-  const MESSAGES = Object.freeze({
-    copy: "コピー",
-    copied: "コピーしました",
-    copyEmpty: "コピーできるSQLがありません",
-    copyFailed: "コピーに失敗しました。「SQLを選択して手動コピー」を押し、Ctrl+C（Macは⌘C）でコピーしてください。"
-  });
-  const $rawInput = qs('[data-role="raw-input"]');
-  const $rawHighlight = qs('[data-role="raw-highlight"]');
-  const $output = qs('[data-role="output"]');
-  const $flash = qs('[data-role="flash"]');
-  const $copyLabel = qs("[data-copy-label]");
-  const $copyStatus = qs("[data-copy-status]");
-  const $copyButton = qs('[data-action="copy"]');
-  const $clearButton = qs('[data-action="clear"]');
-  const $lightModeToggle = qs('[data-role="mode-toggle"]');
-  const $undoButton = qs('[data-action="undo-clear"]');
-  const $recheckButton = qs('[data-action="recheck"]');
-  const $reconvertButton = qs('[data-action="reconvert"]');
-  const $copyHint = qs('[data-role="copy-hint"]');
-  const $outputFeedback = qs('[data-role="output-feedback"]');
-  const $validationPanel = qs('[data-role="validation"]');
-  const $manualCopy = qs('[data-role="manual-copy"]');
-  const $copyError = qs('[data-role="copy-error"]');
-  const $logTools = qs('[data-role="log-tools"]');
-  const $logSelect = qs('[data-role="log-select"]');
-  const $logSummary = qs('[data-role="log-summary"]');
-  const $bindingsPanel = qs('[data-role="bindings-panel"]');
-  const $bindingsSummary = qs('[data-role="bindings-summary"]');
-  const $bindingsList = qs('[data-role="bindings-list"]');
-  const $inputFeedback = qs('[data-role="input-feedback"]');
+  const validation = window.BindSQLValidation;
+  const rawInput = role("raw-input");
+  const rawHighlight = role("raw-highlight");
+  const output = role("output");
+  const flash = role("flash");
+  const copyLabel = $("[data-copy-label]");
+  const copyStatus = $("[data-copy-status]");
+  const copyButton = action("copy");
+  const clearButton = action("clear");
+  const undoButton = action("undo-clear");
+  const recheckButton = action("recheck");
+  const reconvertButton = action("reconvert");
+  const modeToggle = role("mode-toggle");
+  const wrapToggle = role("wrap-toggle");
+  const copyHint = role("copy-hint");
+  const outputFeedback = role("output-feedback");
+  const validationPanel = role("validation");
+  const manualCopy = role("manual-copy");
+  const copyError = role("copy-error");
+  const logTools = role("log-tools");
+  const logSelect = role("log-select");
+  const logSummary = role("log-summary");
+  const bindingsPanel = role("bindings-panel");
+  const bindingsSummary = role("bindings-summary");
+  const bindingsList = role("bindings-list");
+  const inputFeedback = role("input-feedback");
   const state = {
     lastSql: "",
     lastRenderedText: null,
@@ -6761,298 +6333,271 @@ if (typeof exports === "object" && typeof module === "object") {
     conversionId: 0,
     conversionWorker: null
   };
+  const readStorage = key => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+  const writeStorage = (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {}
+  };
   const syncInputHighlightScroll = () => {
-    $rawHighlight.scrollTop = $rawInput.scrollTop;
-    $rawHighlight.scrollLeft = $rawInput.scrollLeft;
+    rawHighlight.scrollTop = rawInput.scrollTop;
+    rawHighlight.scrollLeft = rawInput.scrollLeft;
   };
   const syncInputHighlight = rawText => {
-    const highlightSource = !rawText || rawText.endsWith("\n") ? rawText + " " : rawText;
-    if (rawText.length >= LARGE_INPUT_LENGTH) {
-      $rawHighlight.textContent = highlightSource;
-    } else {
-      $rawHighlight.innerHTML = BindSQLEngine.highlight(highlightSource);
-    }
+    const source = !rawText || rawText.endsWith("\n") ? `${rawText} ` : rawText;
+    if (rawText.length >= LARGE_INPUT_LENGTH) rawHighlight.textContent = source; else rawHighlight.innerHTML = BindSQLEngine.highlight(source);
     syncInputHighlightScroll();
-  };
-  const renderOutputText = text => {
-    if ($output.value !== text) $output.value = text;
-  };
-  const isSupportedTheme = theme => theme === THEME_LIGHT || theme === THEME_DARK;
-  const readStoredTheme = () => {
-    try {
-      const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-      return isSupportedTheme(storedTheme) ? storedTheme : "";
-    } catch {
-      return "";
-    }
-  };
-  const storeTheme = theme => {
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {}
   };
   const applyColorScheme = theme => {
     document.documentElement.dataset.mode = theme;
-    $lightModeToggle.checked = theme === THEME_LIGHT;
+    modeToggle.checked = theme === "light";
   };
-  const resolveInitialTheme = () => {
-    const storedTheme = readStoredTheme();
-    if (storedTheme) {
-      state.hasManualTheme = true;
-      return storedTheme;
-    }
-    state.hasManualTheme = false;
-    return systemTheme.matches ? THEME_DARK : THEME_LIGHT;
-  };
-  const handleModeToggleInput = () => {
-    const nextTheme = $lightModeToggle.checked ? THEME_LIGHT : THEME_DARK;
-    state.hasManualTheme = true;
-    storeTheme(nextTheme);
-    applyColorScheme(nextTheme);
-  };
-  const handleSystemThemeChange = event => {
-    if (state.hasManualTheme) {
-      return;
-    }
-    applyColorScheme(event.matches ? THEME_DARK : THEME_LIGHT);
+  const initialTheme = () => {
+    const stored = readStorage(THEME_STORAGE_KEY);
+    state.hasManualTheme = stored === "light" || stored === "dark";
+    if (state.hasManualTheme) return stored;
+    return systemTheme.matches ? "dark" : "light";
   };
   const clearFlash = () => {
     window.clearTimeout(state.flashTimer);
-    $flash.classList.remove("is-visible");
-    $flash.textContent = "";
+    flash.classList.remove("is-visible");
+    flash.textContent = "";
   };
   const showFlash = message => {
-    $flash.textContent = message;
-    $flash.classList.add("is-visible");
+    flash.textContent = message;
+    flash.classList.add("is-visible");
     window.clearTimeout(state.flashTimer);
     state.flashTimer = window.setTimeout(clearFlash, FLASH_DURATION_MS);
   };
+  const copyLabelText = () => state.copyBusy ? "コピー中…" : "コピー";
   const setCopyFeedback = copied => {
-    $copyButton.dataset.copied = String(copied);
-    $copyLabel.textContent = copied ? MESSAGES.copied : copyLabelText();
-    $copyStatus.textContent = copied ? MESSAGES.copied : "";
+    copyButton.dataset.copied = String(copied);
+    copyLabel.textContent = copied ? COPIED : copyLabelText();
+    copyStatus.textContent = copied ? COPIED : "";
   };
   const resetCopyState = () => {
     window.clearTimeout(state.copyLabelTimer);
     state.copyRequestId += 1;
     setCopyFeedback(false);
   };
-  const showCopySuccessState = () => {
+  const showCopySuccess = () => {
     window.clearTimeout(state.copyLabelTimer);
     setCopyFeedback(true);
-    state.copyLabelTimer = window.setTimeout(() => {
-      setCopyFeedback(false);
-    }, COPY_SUCCESS_DURATION_MS);
+    state.copyLabelTimer = window.setTimeout(() => setCopyFeedback(false), COPY_SUCCESS_DURATION_MS);
   };
   const copyWithFallback = text => {
-    const $temporary = document.createElement("textarea");
-    const $previousFocus = document.activeElement;
-    const {selectionStart, selectionEnd, selectionDirection, scrollTop, scrollLeft} = $previousFocus ?? {};
-    $temporary.value = text;
-    $temporary.readOnly = true;
-    Object.assign($temporary.style, {
+    const temporary = document.createElement("textarea");
+    const previousFocus = document.activeElement;
+    const {selectionStart, selectionEnd, selectionDirection, scrollTop, scrollLeft} = previousFocus ?? {};
+    temporary.value = text;
+    temporary.readOnly = true;
+    Object.assign(temporary.style, {
       position: "fixed",
       inset: "0",
       opacity: "0"
     });
-    document.body.append($temporary);
+    document.body.append(temporary);
     try {
-      $temporary.select();
+      temporary.select();
       return document.execCommand("copy");
     } catch {
       return false;
     } finally {
-      $temporary.remove();
-      $previousFocus?.focus({
+      temporary.remove();
+      previousFocus?.focus({
         preventScroll: true
       });
-      if (typeof selectionStart === "number" && typeof $previousFocus?.setSelectionRange === "function") {
-        $previousFocus.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
-        $previousFocus.scrollTop = scrollTop;
-        $previousFocus.scrollLeft = scrollLeft;
+      if (typeof selectionStart === "number" && typeof previousFocus?.setSelectionRange === "function") {
+        previousFocus.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+        previousFocus.scrollTop = scrollTop;
+        previousFocus.scrollLeft = scrollLeft;
       }
     }
   };
   const copyResult = async () => {
     if (state.copyBusy) return;
     if (!state.lastSql) {
-      showFlash(MESSAGES.copyEmpty);
+      showFlash("コピーできるSQLがありません");
       return;
     }
     resetCopyState();
     state.copyError = "";
     const requestId = state.copyRequestId;
     const copiedSql = state.lastSql;
-    const isCurrent = () => requestId === state.copyRequestId && $copyButton.isConnected && state.lastSql === copiedSql;
+    const isCurrent = () => requestId === state.copyRequestId && copyButton.isConnected && state.lastSql === copiedSql;
     state.copyBusy = true;
     syncActionAvailability();
-    $copyButton.setAttribute("aria-busy", "true");
+    copyButton.setAttribute("aria-busy", "true");
     try {
       try {
         await navigator.clipboard.writeText(copiedSql);
       } catch {
         if (!isCurrent()) return;
         if (!copyWithFallback(copiedSql)) {
-          state.copyError = MESSAGES.copyFailed;
+          state.copyError = COPY_FAILED;
           return;
         }
       }
-      if (isCurrent()) showCopySuccessState();
+      if (isCurrent()) showCopySuccess();
     } finally {
       state.copyBusy = false;
-      $copyButton.removeAttribute("aria-busy");
+      copyButton.removeAttribute("aria-busy");
       syncActionAvailability();
     }
   };
-  const copyLabelText = () => {
-    if (state.copyBusy) return "コピー中…";
-    return MESSAGES.copy;
+  const copyHintText = () => {
+    if (state.conversionPending) return output.value ? "表示中のSQLは前の結果です。変換後にコピーできます。" : "変換後にコピーできます。";
+    if (state.conversionError) return "変換できていないためコピーできません。";
+    if (state.lastSql && validation.status === "error") return "エラーがあります。内容を確認してからコピーしてください。";
+    if (state.lastSql && validation.status === "unavailable") return "未チェックのままコピーできます。";
+    return "";
   };
   const syncActionAvailability = () => {
-    $copyButton.disabled = !state.lastSql || state.copyBusy;
-    $clearButton.disabled = !$rawInput.value;
-    $undoButton.disabled = !state.clearHistory || Boolean($rawInput.value);
-    $undoButton.hidden = $undoButton.disabled;
-    $recheckButton.disabled = !state.lastSql || state.conversionPending || window.BindSQLValidation.status === "checking";
-    $recheckButton.hidden = window.BindSQLValidation.status !== "unavailable";
-    if ($copyButton.dataset.copied !== "true") $copyLabel.textContent = copyLabelText();
-    $output.setAttribute("aria-busy", String(state.conversionPending));
-    $inputFeedback.hidden = $bindingsPanel.hidden && $reconvertButton.hidden;
-    $manualCopy.hidden = !state.copyError;
-    if ($copyError.textContent !== state.copyError) $copyError.textContent = state.copyError;
-    $copyHint.textContent = state.conversionPending ? $output.value ? "表示中のSQLは前の結果です。変換後にコピーできます。" : "変換後にコピーできます。" : state.conversionError ? "変換できていないためコピーできません。" : state.lastSql && window.BindSQLValidation.status === "error" ? "エラーがあります。内容を確認してからコピーしてください。" : state.lastSql && window.BindSQLValidation.status === "unavailable" ? "未チェックのままコピーできます。" : "";
-    $copyHint.hidden = !$copyHint.textContent;
-    $outputFeedback.hidden = $copyHint.hidden && $manualCopy.hidden && $validationPanel.hidden && $recheckButton.hidden;
+    copyButton.disabled = !state.lastSql || state.copyBusy;
+    clearButton.disabled = !rawInput.value;
+    undoButton.disabled = !state.clearHistory || Boolean(rawInput.value);
+    undoButton.hidden = undoButton.disabled;
+    recheckButton.disabled = !state.lastSql || state.conversionPending || validation.status === "checking";
+    recheckButton.hidden = validation.status !== "unavailable";
+    if (copyButton.dataset.copied !== "true") copyLabel.textContent = copyLabelText();
+    output.setAttribute("aria-busy", String(state.conversionPending));
+    inputFeedback.hidden = bindingsPanel.hidden && reconvertButton.hidden;
+    manualCopy.hidden = !state.copyError;
+    if (copyError.textContent !== state.copyError) copyError.textContent = state.copyError;
+    copyHint.textContent = copyHintText();
+    copyHint.hidden = !copyHint.textContent;
+    outputFeedback.hidden = copyHint.hidden && manualCopy.hidden && validationPanel.hidden && recheckButton.hidden;
   };
-  const showInputDetails = result => {
-    $logTools.hidden = result.logCount < 2;
-    $logSelect.replaceChildren();
-    result.logOptions.forEach((sql, index) => {
-      const option = document.createElement("option");
-      option.value = String(index);
-      option.textContent = `${index + 1}: ${sql}`;
-      $logSelect.append(option);
-    });
-    state.logIndex = result.selectedLogIndex;
-    $logSelect.value = String(result.selectedLogIndex ?? "");
-    $logSummary.textContent = `対象のSQL（${result.logCount}件中、${(result.selectedLogIndex ?? 0) + 1}件目）`;
-    $bindingsPanel.hidden = !result.bindings.length;
-    $bindingsSummary.textContent = `バインド値（${result.bindings.length}件）`;
-    $bindingsList.replaceChildren();
-    for (const binding of result.bindings.slice(0, 50)) {
-      const item = document.createElement("li");
-      const value = document.createElement("code");
-      value.textContent = binding.value.length > 500 ? binding.value.slice(0, 500) + "…（表示を省略）" : binding.value;
-      item.append(document.createTextNode(`${binding.key} → ${binding.type}: `), value);
-      if (binding.type === "数値" && /^[+-]?0\d/.test(binding.value)) {
-        item.append(document.createTextNode(" — 先頭に0があります。文字列のコードなら引用符で囲んでください。"));
-        $bindingsPanel.open = true;
-      }
-      $bindingsList.append(item);
+  const listItem = (...content) => {
+    const item = document.createElement("li");
+    item.append(...content);
+    return item;
+  };
+  const bindingItem = ({key, type, value}) => {
+    const code = document.createElement("code");
+    code.textContent = value.length > 500 ? `${value.slice(0, 500)}…（表示を省略）` : value;
+    const item = listItem(`${key} → ${type}: `, code);
+    if (type === "数値" && /^[+-]?0\d/.test(value)) {
+      item.append(" — 先頭に0があります。文字列のコードなら引用符で囲んでください。");
+      bindingsPanel.open = true;
     }
-    if (result.bindings.length > 50) {
-      const more = document.createElement("li");
-      more.textContent = `ほか${result.bindings.length - 50}件。値の全体は出力SQLで確認できます。`;
-      $bindingsList.append(more);
+    return item;
+  };
+  const showInputDetails = ({logCount, logOptions, selectedLogIndex, bindings}) => {
+    logTools.hidden = logCount < 2;
+    logSelect.replaceChildren(...logOptions.map((sql, index) => new Option(`${index + 1}: ${sql}`, String(index))));
+    state.logIndex = selectedLogIndex;
+    logSelect.value = String(selectedLogIndex ?? "");
+    logSummary.textContent = `対象のSQL（${logCount}件中、${(selectedLogIndex ?? 0) + 1}件目）`;
+    bindingsPanel.hidden = !bindings.length;
+    bindingsSummary.textContent = `バインド値（${bindings.length}件）`;
+    bindingsList.replaceChildren(...bindings.slice(0, MAX_LISTED_BINDINGS).map(bindingItem));
+    if (bindings.length > MAX_LISTED_BINDINGS) {
+      bindingsList.append(listItem(`ほか${bindings.length - MAX_LISTED_BINDINGS}件。値の全体は出力SQLで確認できます。`));
     }
   };
   const stopConversion = () => {
     window.clearTimeout(state.renderTimer);
     window.clearTimeout(state.conversionTimer);
-    state.conversionId++;
+    state.conversionId += 1;
     state.conversionWorker?.terminate();
     state.conversionWorker = null;
   };
   const beginConversion = () => {
     stopConversion();
-    state.lastSql = "";
-    state.conversionPending = true;
-    state.conversionError = false;
-    state.copyError = "";
-    $reconvertButton.hidden = true;
-    $logTools.hidden = true;
-    $bindingsPanel.hidden = true;
+    Object.assign(state, {
+      lastSql: "",
+      conversionPending: true,
+      conversionError: false,
+      copyError: ""
+    });
+    reconvertButton.hidden = true;
+    logTools.hidden = true;
+    bindingsPanel.hidden = true;
     resetCopyState();
     clearFlash();
-    window.BindSQLValidation.setInputLocations([], $rawInput.value);
-    window.BindSQLValidation.reset("入力を反映中…");
+    validation.setInputLocations([], rawInput.value);
+    validation.reset("入力を反映中…");
     syncActionAvailability();
   };
   const applyResult = (result, rawText) => {
     state.conversionPending = false;
     state.conversionError = result.issues.length > 0;
     showInputDetails(result);
-    renderOutputText(result.sql);
-    window.BindSQLValidation.setInputLocations(result.inputLocations, rawText);
+    if (output.value !== result.sql) output.value = result.sql;
+    validation.setInputLocations(result.inputLocations, rawText);
     if (result.issues.length) {
-      window.BindSQLValidation.conversionIssues(result.diagnostics);
+      validation.conversionIssues(result.diagnostics);
     } else {
       state.lastSql = result.sql;
-      window.BindSQLValidation.schedule(result.sql);
+      validation.schedule(result.sql);
     }
     syncActionAvailability();
   };
   const failConversion = error => {
     stopConversion();
-    state.lastRenderedText = null;
-    state.lastSql = "";
-    state.conversionPending = false;
-    state.conversionError = true;
-    $output.value = "";
-    $reconvertButton.hidden = false;
-    window.BindSQLValidation.conversionIssues([ {
+    Object.assign(state, {
+      lastRenderedText: null,
+      lastSql: "",
+      conversionPending: false,
+      conversionError: true
+    });
+    output.value = "";
+    reconvertButton.hidden = false;
+    validation.conversionIssues([ {
       message: `変換できませんでした。「再変換」で再試行できます。大きい入力は対象のSQLに絞ってください。詳細: ${String(error?.message ?? error)}`
     } ]);
     syncActionAvailability();
   };
+  const convertInWorker = rawText => {
+    const source = document.getElementById("sql-engine").textContent;
+    const handler = ";\nself.onmessage = ({ data }) => {\n  try {\n    self.postMessage({ id: data.id, result: BindSQLEngine.convert(data.text, data.options) });\n  } catch (error) {\n    self.postMessage({ id: data.id, error: String(error.message || error) });\n  }\n};";
+    const url = URL.createObjectURL(new Blob([ source, handler ], {
+      type: "text/javascript"
+    }));
+    let worker;
+    try {
+      worker = new Worker(url);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+    state.conversionWorker = worker;
+    const id = state.conversionId;
+    worker.onmessage = ({data}) => {
+      if (id !== state.conversionId || worker !== state.conversionWorker || rawText !== rawInput.value) return;
+      window.clearTimeout(state.conversionTimer);
+      worker.terminate();
+      state.conversionWorker = null;
+      if (!data || data.id !== id || data.error || !data.result) failConversion(data?.error ?? "変換結果を取得できませんでした。"); else applyResult(data.result, rawText);
+    };
+    worker.onerror = worker.onmessageerror = () => {
+      if (id === state.conversionId) failConversion("バックグラウンド処理を開始できませんでした。");
+    };
+    state.conversionTimer = window.setTimeout(() => {
+      if (id === state.conversionId) failConversion("変換が時間内に完了しませんでした。");
+    }, CONVERSION_TIMEOUT_MS);
+    worker.postMessage({
+      id,
+      text: rawText,
+      options: {
+        logIndex: state.logIndex
+      }
+    });
+  };
   const render = (force = false) => {
-    const rawText = $rawInput.value;
-    if (!force && state.lastRenderedText === rawText && window.BindSQLValidation.status !== "unavailable") return;
+    const rawText = rawInput.value;
+    if (!force && state.lastRenderedText === rawText && validation.status !== "unavailable") return;
     beginConversion();
     state.lastRenderedText = rawText;
     try {
       syncInputHighlight(rawText);
-      if (rawText.length >= LARGE_INPUT_LENGTH) {
-        const source = document.getElementById("sql-engine").textContent;
-        const handler = "\nself.onmessage = ({data}) => { try { self.postMessage({id: data.id, result: BindSQLEngine.convert(data.text, data.options)}); } catch (error) { self.postMessage({id: data.id, error: String(error.message || error)}); } };";
-        const url = URL.createObjectURL(new Blob([ source, handler ], {
-          type: "text/javascript"
-        }));
-        let worker;
-        try {
-          worker = new Worker(url);
-        } finally {
-          URL.revokeObjectURL(url);
-        }
-        state.conversionWorker = worker;
-        const id = state.conversionId;
-        worker.onmessage = ({data}) => {
-          if (id !== state.conversionId || worker !== state.conversionWorker || rawText !== $rawInput.value) return;
-          window.clearTimeout(state.conversionTimer);
-          worker.terminate();
-          state.conversionWorker = null;
-          if (!data || data.id !== id || data.error || !data.result) {
-            failConversion(data?.error ?? "変換結果を取得できませんでした。");
-            return;
-          }
-          applyResult(data.result, rawText);
-        };
-        worker.onerror = worker.onmessageerror = () => {
-          if (id === state.conversionId) failConversion("バックグラウンド処理を開始できませんでした。");
-        };
-        state.conversionTimer = window.setTimeout(() => {
-          if (id === state.conversionId) failConversion("変換が時間内に完了しませんでした。");
-        }, 1e4);
-        worker.postMessage({
-          id,
-          text: rawText,
-          options: {
-            logIndex: state.logIndex
-          }
-        });
-        return;
-      }
-      applyResult(BindSQLEngine.convert(rawText, {
+      if (rawText.length >= LARGE_INPUT_LENGTH) convertInWorker(rawText); else applyResult(BindSQLEngine.convert(rawText, {
         logIndex: state.logIndex
       }), rawText);
     } catch (error) {
@@ -7061,115 +6606,110 @@ if (typeof exports === "object" && typeof module === "object") {
       syncActionAvailability();
     }
   };
-  const handleInputEvent = ({isComposing, inputType}) => {
-    state.clearHistory = null;
-    if ([ "insertFromPaste", "insertFromDrop" ].includes(inputType)) state.logIndex = null;
-    if (isComposing || state.isComposing) {
-      if (!state.isComposing) startComposition();
-      syncInputHighlight($rawInput.value);
-      syncActionAvailability();
-      return;
-    }
-    beginConversion();
-    syncInputHighlight($rawInput.value);
-    if (!$rawInput.value) {
-      render(true);
-      return;
-    }
-    state.renderTimer = window.setTimeout(() => render(true), INPUT_DEBOUNCE_MS);
-  };
   const startComposition = () => {
     state.isComposing = true;
     beginConversion();
   };
-  const bindEvents = () => {
-    $lightModeToggle.addEventListener("input", handleModeToggleInput);
-    $rawInput.addEventListener("input", handleInputEvent);
-    $rawInput.addEventListener("compositionstart", startComposition);
-    $rawInput.addEventListener("compositionend", () => {
-      state.isComposing = false;
-      render(true);
-    });
-    $clearButton.addEventListener("click", () => {
-      if (!$rawInput.value) return;
-      state.clearHistory = {
-        text: $rawInput.value,
-        start: $rawInput.selectionStart,
-        end: $rawInput.selectionEnd,
-        scrollTop: $rawInput.scrollTop,
-        scrollLeft: $rawInput.scrollLeft,
-        logIndex: state.logIndex
-      };
-      $rawInput.value = "";
-      state.logIndex = null;
-      state.isComposing = false;
-      render(true);
-      $rawInput.focus();
-    });
-    $undoButton.addEventListener("click", () => {
-      if (!state.clearHistory || $rawInput.value) return;
-      const previous = state.clearHistory;
-      state.clearHistory = null;
-      $rawInput.value = previous.text;
-      state.logIndex = previous.logIndex;
-      render(true);
-      $rawInput.focus();
-      $rawInput.setSelectionRange(previous.start, previous.end);
-      $rawInput.scrollTop = previous.scrollTop;
-      $rawInput.scrollLeft = previous.scrollLeft;
-      syncInputHighlightScroll();
-    });
-    $logSelect.addEventListener("change", () => {
-      state.logIndex = Number($logSelect.value);
-      render(true);
-    });
-    const recheck = () => {
-      if ($recheckButton.disabled) return;
-      $output.focus({
-        preventScroll: true
-      });
-      window.BindSQLValidation.schedule(state.lastSql, true);
+  rawInput.addEventListener("input", ({isComposing, inputType}) => {
+    state.clearHistory = null;
+    if ([ "insertFromPaste", "insertFromDrop" ].includes(inputType)) state.logIndex = null;
+    if (isComposing || state.isComposing) {
+      if (!state.isComposing) startComposition();
+      syncInputHighlight(rawInput.value);
+      syncActionAvailability();
+      return;
+    }
+    beginConversion();
+    syncInputHighlight(rawInput.value);
+    if (rawInput.value) state.renderTimer = window.setTimeout(() => render(true), INPUT_DEBOUNCE_MS); else render(true);
+  });
+  rawInput.addEventListener("compositionstart", startComposition);
+  rawInput.addEventListener("compositionend", () => {
+    state.isComposing = false;
+    render(true);
+  });
+  rawInput.addEventListener("scroll", syncInputHighlightScroll);
+  clearButton.addEventListener("click", () => {
+    if (!rawInput.value) return;
+    const {value: text, selectionStart: start, selectionEnd: end, scrollTop, scrollLeft} = rawInput;
+    state.clearHistory = {
+      text,
+      start,
+      end,
+      scrollTop,
+      scrollLeft,
+      logIndex: state.logIndex
     };
-    $recheckButton.addEventListener("click", recheck);
-    $reconvertButton.addEventListener("click", () => render(true));
-    const $wrapToggle = qs('[data-role="wrap-toggle"]');
-    try {
-      $wrapToggle.checked = localStorage.getItem("arttools.bind.wrap.v1") === "on";
-    } catch {}
-    $output.setAttribute("wrap", $wrapToggle.checked ? "soft" : "off");
-    $wrapToggle.addEventListener("change", event => {
-      $output.setAttribute("wrap", event.target.checked ? "soft" : "off");
-      try {
-        localStorage.setItem("arttools.bind.wrap.v1", event.target.checked ? "on" : "off");
-      } catch {}
+    rawInput.value = "";
+    state.logIndex = null;
+    state.isComposing = false;
+    render(true);
+    rawInput.focus();
+  });
+  undoButton.addEventListener("click", () => {
+    const previous = state.clearHistory;
+    if (!previous || rawInput.value) return;
+    state.clearHistory = null;
+    rawInput.value = previous.text;
+    state.logIndex = previous.logIndex;
+    render(true);
+    rawInput.focus();
+    rawInput.setSelectionRange(previous.start, previous.end);
+    rawInput.scrollTop = previous.scrollTop;
+    rawInput.scrollLeft = previous.scrollLeft;
+    syncInputHighlightScroll();
+  });
+  logSelect.addEventListener("change", () => {
+    state.logIndex = Number(logSelect.value);
+    render(true);
+  });
+  recheckButton.addEventListener("click", () => {
+    if (recheckButton.disabled) return;
+    output.focus({
+      preventScroll: true
     });
-    window.addEventListener("bindsql-validation-change", syncActionAvailability);
-    $copyButton.addEventListener("click", copyResult);
-    qs('[data-action="select-output"]').addEventListener("click", () => {
-      if (!state.lastSql || state.conversionPending) return;
-      $output.focus();
-      $output.select();
-      $output.scrollIntoView({
-        block: "nearest"
-      });
+    validation.schedule(state.lastSql, true);
+  });
+  reconvertButton.addEventListener("click", () => render(true));
+  copyButton.addEventListener("click", copyResult);
+  action("select-output").addEventListener("click", () => {
+    if (!state.lastSql || state.conversionPending) return;
+    output.focus();
+    output.select();
+    output.scrollIntoView({
+      block: "nearest"
     });
-    window.addEventListener("pagehide", () => {
-      stopConversion();
-      state.lastRenderedText = null;
-      state.lastSql = "";
-      resetCopyState();
-      clearFlash();
-    });
-    window.addEventListener("pageshow", event => {
-      if (!event.persisted) return;
-      state.isComposing = false;
-      render(true);
-    });
-    $rawInput.addEventListener("scroll", syncInputHighlightScroll);
-    systemTheme.addEventListener("change", handleSystemThemeChange);
-  };
-  applyColorScheme(resolveInitialTheme());
-  bindEvents();
+  });
+  const applyWrap = () => output.setAttribute("wrap", wrapToggle.checked ? "soft" : "off");
+  wrapToggle.checked = readStorage(WRAP_STORAGE_KEY) === "on";
+  applyWrap();
+  wrapToggle.addEventListener("change", () => {
+    applyWrap();
+    writeStorage(WRAP_STORAGE_KEY, wrapToggle.checked ? "on" : "off");
+  });
+  modeToggle.addEventListener("input", () => {
+    const theme = modeToggle.checked ? "light" : "dark";
+    state.hasManualTheme = true;
+    writeStorage(THEME_STORAGE_KEY, theme);
+    applyColorScheme(theme);
+  });
+  systemTheme.addEventListener("change", event => {
+    if (!state.hasManualTheme) applyColorScheme(event.matches ? "dark" : "light");
+  });
+  window.addEventListener("bindsql-validation-change", syncActionAvailability);
+  window.addEventListener("pagehide", () => {
+    stopConversion();
+    state.lastRenderedText = null;
+    state.lastSql = "";
+    resetCopyState();
+    clearFlash();
+  });
+  window.addEventListener("pageshow", event => {
+    if (!event.persisted) return;
+    state.isComposing = false;
+    render(true);
+  });
+  applyColorScheme(initialTheme());
   render();
 })();</script>
   
@@ -7200,14 +6740,24 @@ WHERE id = ?;
     
   <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.bind.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
-  let preferences = {}, faviconTheme = "";
-  const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
+  const root = document.documentElement;
+  const body = document.body;
+  const storageKey = `arttools.ui.bind.v1`;
+  const legacySharedKey = "arttools.shared-ui.v1";
+  const settingsDialog = document.getElementById("art-settings");
+  const helpDialog = document.getElementById("art-help");
+  const saveNote = document.getElementById("art-save-note");
+  let preferences = {};
+  let faviconTheme = "";
+  const validTheme = value => value === "light" || value === "dark";
+  const editorSizes = [ 10, 14, 18 ];
+  const validSize = value => editorSizes.includes(value);
+  const migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
     try {
       const value = JSON.parse(raw);
-      if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
+      if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+      const editorSize = migrateSize(typeof value.editorSize === "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -7225,29 +6775,37 @@ WHERE id = ?;
   }
   function syncTheme() {
     const theme = originalTheme();
-    root.dataset.uiTheme !== theme && (root.dataset.uiTheme = theme), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (root.dataset.uiTheme !== theme) root.dataset.uiTheme = theme;
+    document.querySelectorAll("[data-art-theme]").forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.artTheme === theme));
-    }), syncFavicon();
+    });
+    syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg"), theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
+    const original = document.querySelector(".art-mark svg");
+    const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
       layer.setAttribute("display", layer.dataset.iconAppearance === theme ? "inline" : "none");
-    }), original.setAttribute("data-icon-theme", theme);
-    const icon = original.cloneNode(!0), favicon = document.getElementById("art-favicon");
-    favicon.type = "image/svg+xml", favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon)), 
+    });
+    original.setAttribute("data-icon-theme", theme);
+    const icon = original.cloneNode(true);
+    const favicon = document.getElementById("art-favicon");
+    favicon.type = "image/svg+xml";
+    favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon));
     faviconTheme = theme;
   }
   function applyTheme(theme) {
-    validTheme(theme) && originalTheme() !== theme && document.querySelector('[data-role="mode-toggle"]').click(), 
+    if (validTheme(theme) && originalTheme() !== theme) document.querySelector('[data-role="mode-toggle"]').click();
     syncTheme();
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px"), document.querySelectorAll("[data-art-size]").forEach(button => {
+    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
-    }), document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
+    });
+    document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
       detail: {
         size: nextSize
       }
@@ -7255,62 +6813,93 @@ WHERE id = ?;
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
-      saveNote.hidden = !0, saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+      saveNote.textContent = "";
+      saveNote.hidden = true;
+      saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。";
+      saveNote.hidden = false;
       saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (dialog.open) return;
+    if (dialog === settingsDialog) document.dispatchEvent(new Event("arttools:settings-open"));
+    dialog.showModal();
+    dialog.scrollTop = 0;
+    button.setAttribute("aria-expanded", "true");
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
-    button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
+    button.addEventListener("click", () => openDialog(dialog, button));
+    dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
-      button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
-        preventScroll: !0
+      button.setAttribute("aria-expanded", "false");
+      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
+      destination.focus({
+        preventScroll: true
       });
     });
-    let backdropStart = !1;
+    let backdropStart = false;
     const outside = event => {
       const rect = dialog.getBoundingClientRect();
       return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
     };
     dialog.addEventListener("pointerdown", event => {
       backdropStart = event.target === dialog && outside(event);
-    }), dialog.addEventListener("click", event => {
-      backdropStart && event.target === dialog && outside(event) && dialog.close(), backdropStart = !1;
+    });
+    dialog.addEventListener("click", event => {
+      if (backdropStart && event.target === dialog && outside(event)) dialog.close();
+      backdropStart = false;
     });
   }
   body.addEventListener("keydown", event => {
     const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
-    if (!dialog || (event.stopPropagation(), event.isComposing || event.keyCode === 229)) return;
+    if (!dialog) {
+      return;
+    }
+    event.stopPropagation();
+    if (event.isComposing || event.keyCode === 229) return;
     if (event.key === "Escape") {
-      event.preventDefault(), dialog.close();
+      event.preventDefault();
+      dialog.close();
       return;
     }
     if (event.key !== "Tab") return;
     const controls = [ ...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, a[href], [tabindex="0"]') ].filter(control => {
-      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return !1;
-      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return !1;
-      return !0;
-    }), first = controls[0], last = controls[controls.length - 1];
+      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return false;
+      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return false;
+      }
+      return true;
+    });
+    const first = controls[0];
+    const last = controls[controls.length - 1];
     if (!first) {
       event.preventDefault();
       return;
     }
-    event.shiftKey && document.activeElement === first ? (event.preventDefault(), last.focus()) : !event.shiftKey && document.activeElement === last && (event.preventDefault(), 
-    first.focus());
-  }), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
+      preferences.theme = button.dataset.artTheme;
+      save();
+      applyTheme(preferences.theme);
     });
-  }), document.querySelectorAll("[data-art-size]").forEach(button => {
+  });
+  document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.editorSize = Number(button.dataset.artSize), applySize(preferences.editorSize), 
+      preferences.editorSize = Number(button.dataset.artSize);
+      applySize(preferences.editorSize);
       save();
     });
   });
@@ -7318,82 +6907,114 @@ WHERE id = ?;
     let raw = localStorage.getItem(storageKey);
     if (raw === null) {
       const legacy = localStorage.getItem(legacySharedKey);
-      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+      if (legacy !== null) {
+        raw = JSON.stringify(readPreferences(legacy));
+        localStorage.setItem(storageKey, raw);
+      }
     }
-    if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
+    preferences = readPreferences(raw);
+    if (validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
-      stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
-        ...stored,
-        editorSize: preferences.editorSize
-      }));
+      if (stored.editorSize !== preferences.editorSize) {
+        localStorage.setItem(storageKey, JSON.stringify({
+          ...stored,
+          editorSize: preferences.editorSize
+        }));
+      }
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。";
+    saveNote.hidden = false;
     saveNote.dataset.error = "true";
   }
-  applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
-    validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();
-  }).observe(root, {
-    attributes: !0,
+  applyTheme(preferences.theme);
+  applySize(preferences.editorSize);
+  const observer = new MutationObserver(() => {
+    if (validTheme(preferences.theme) && originalTheme() !== preferences.theme) applyTheme(preferences.theme); else syncTheme();
+  });
+  observer.observe(root, {
+    attributes: true,
     attributeFilter: [ "data-mode" ]
   });
   const focusPrimaryInput = () => {
     const target = document.querySelector("[data-art-autofocus]");
     if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
-    let finished = !1;
+    const deadline = performance.now() + 3e3;
+    const userEvents = [ "pointerdown", "keydown" ];
+    let finished = false;
     const finish = () => {
-      finished = !0;
-      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+      finished = true;
+      for (const type of userEvents) window.removeEventListener(type, finish, true);
     };
-    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    for (const type of userEvents) window.addEventListener(type, finish, true);
     const attempt = () => {
-      if (!finished) {
-        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
-          preventScroll: !0
-        }), document.activeElement === target)) return finish();
-        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      if (finished) return;
+      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
+      if (target.getClientRects().length) {
+        target.focus({
+          preventScroll: true
+        });
+        if (document.activeElement === target) return finish();
       }
+      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
     };
     attempt();
   };
-  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
-    once: !0
+  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
+    once: true
   });
-  {
-    const field = document.querySelector("[data-art-persist]"), inputKey = "arttools.input.bind.v1", maxStoredCharacters = 2e6;
-    let saveTimer = 0, lastSaved = null;
-    const saveInput = () => {
-      if (window.clearTimeout(saveTimer), !(!field || field.value === lastSaved)) try {
-        if (field.value.length > maxStoredCharacters) throw new RangeError("input too large");
-        field.value ? localStorage.setItem(inputKey, field.value) : localStorage.removeItem(inputKey), 
-        lastSaved = field.value;
-      } catch {
-        saveNote && (saveNote.dataset.error = "true", saveNote.textContent = "入力内容をこのブラウザーへ保存できませんでした。ページを閉じる前に結果をコピーしてください。");
+  const field = document.querySelector("[data-art-persist]");
+  const inputKey = `arttools.input.bind.v1`;
+  const maxStoredCharacters = 2e6;
+  let saveTimer = 0;
+  let lastSaved = null;
+  const saveInput = () => {
+    window.clearTimeout(saveTimer);
+    if (!field || field.value === lastSaved) return;
+    try {
+      if (field.value.length > maxStoredCharacters) throw new RangeError("input too large");
+      if (field.value) localStorage.setItem(inputKey, field.value); else localStorage.removeItem(inputKey);
+      lastSaved = field.value;
+    } catch {
+      if (saveNote) {
+        saveNote.dataset.error = "true";
+        saveNote.textContent = "入力内容をこのブラウザーへ保存できませんでした。ページを閉じる前に結果をコピーしてください。";
       }
-    }, restoreInput = () => {
-      if (!field || field.value) return;
-      let stored = null;
-      try {
-        stored = localStorage.getItem(inputKey);
-      } catch {
-        return;
-      }
-      lastSaved = stored ?? "", stored && (field.value = stored, field.dispatchEvent(new Event("input", {
-        bubbles: !0
-      })));
-    };
-    field && (document.readyState === "complete" ? restoreInput() : window.addEventListener("load", restoreInput, {
-      once: !0
-    }), field.addEventListener("input", () => {
-      window.clearTimeout(saveTimer), saveTimer = window.setTimeout(saveInput, 400);
-    }), window.addEventListener("pagehide", saveInput), document.addEventListener("visibilitychange", () => {
-      document.visibilityState === "hidden" && saveInput();
+    }
+  };
+  const restoreInput = () => {
+    if (!field || field.value) return;
+    let stored = null;
+    try {
+      stored = localStorage.getItem(inputKey);
+    } catch {
+      return;
+    }
+    lastSaved = stored ?? "";
+    if (!stored) return;
+    field.value = stored;
+    field.dispatchEvent(new Event("input", {
+      bubbles: true
     }));
+  };
+  if (field) {
+    if (document.readyState === "complete") restoreInput(); else window.addEventListener("load", restoreInput, {
+      once: true
+    });
+    field.addEventListener("input", () => {
+      window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(saveInput, 400);
+    });
+    window.addEventListener("pagehide", saveInput);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") saveInput();
+    });
   }
   window.addEventListener("storage", event => {
-    event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
-    applyTheme(preferences.theme), applySize(preferences.editorSize));
+    if (event.key !== storageKey && event.key !== null) return;
+    preferences = readPreferences(event.newValue);
+    applyTheme(preferences.theme);
+    applySize(preferences.editorSize);
   });
 })();</script>
   </body>

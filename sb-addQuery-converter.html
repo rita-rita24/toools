@@ -11,17 +11,20 @@
   const COPY_FEEDBACK_MS = 2e3;
   const root = document.documentElement;
   const systemTheme = matchMedia("(prefers-color-scheme: dark)");
-  let selectedTheme = readTheme();
-  function readTheme() {
+  const readTheme = () => {
     try {
       const value = localStorage.getItem(STORAGE_KEY);
       return value === "light" || value === "dark" ? value : null;
     } catch {
       return null;
     }
-  }
+  };
+  let selectedTheme = readTheme();
   const resolveTheme = () => selectedTheme ?? (systemTheme.matches ? "dark" : "light");
-  root.dataset.mode = resolveTheme();
+  const applyTheme = theme => {
+    root.dataset.mode = theme;
+  };
+  applyTheme(resolveTheme());
   function normalizeNewlines(text) {
     return text.replace(/\r\n?/gu, "\n");
   }
@@ -29,7 +32,7 @@
     return value.replace(/[\\"]/gu, "\\$&");
   }
   function unescapeJavaString(value) {
-    const JAVA_ESCAPES = {
+    const escapes = {
       b: "\b",
       t: "\t",
       n: "\n",
@@ -40,104 +43,79 @@
     return value.replace(/\\(?:u+([0-9a-fA-F]{4})|([0-3][0-7]{0,2}|[4-7][0-7]?)|(.))/gsu, (match, unicode, octal, char) => {
       if (unicode) return String.fromCharCode(parseInt(unicode, 16));
       if (octal) return String.fromCharCode(parseInt(octal, 8));
-      return Object.hasOwn(JAVA_ESCAPES, char) ? JAVA_ESCAPES[char] : char;
+      return Object.hasOwn(escapes, char) ? escapes[char] : char;
     });
   }
+  const PARAM_COMMENT = /^\s*\/\*\s*((?:(?!\*\/).)+?)\s*\*\//u;
   function plainToQuery(text) {
     if (text === "") return "";
-    const state = {
-      quote: "",
-      block: false
-    };
+    let quote = "";
+    let block = false;
     return normalizeNewlines(text).split("\n").map(line => {
-      if (!state.quote && !state.block && /^\s*sb\.addQuery\s*\(/.test(line)) return line;
+      if (!quote && !block && /^\s*sb\.addQuery\s*\(/.test(line)) return line;
       const args = [];
       for (let i = 0; i < line.length; i += 1) {
         const ch = line[i];
-        if (state.block) {
-          if (ch === "*" && line[i + 1] === "/") {
-            state.block = false;
+        if (block) {
+          if (line.startsWith("*/", i)) {
+            block = false;
             i += 1;
           }
-          continue;
-        }
-        if (state.quote) {
-          if (ch === state.quote) state.quote = "";
-          continue;
-        }
-        if (ch === "?") {
+        } else if (quote) {
+          if (ch === quote) quote = "";
+        } else if (line.startsWith("/*", i)) {
+          block = true;
+          i += 1;
+        } else if (ch === "'" || ch === '"') {
+          quote = ch;
+        } else if (ch === "?") {
           const param = PARAM_COMMENT.exec(line.slice(i + 1));
           if (param) {
             args.push(param[1]);
             line = line.slice(0, i + 1) + line.slice(i + 1 + param[0].length);
           }
-          continue;
-        }
-        if (ch === "/" && line[i + 1] === "*") {
-          state.block = true;
-          i += 1;
-          continue;
-        }
-        if (ch === "'" || ch === '"') {
-          state.quote = ch;
-          continue;
-        }
-        if (ch === "-" && line[i + 1] === "-") {
+        } else if (line.startsWith("--", i)) {
           const comment = line.slice(i + 2).replace(/\*\//g, "* /").trim();
           line = `${line.slice(0, i)}/* ${comment} */`;
           break;
         }
       }
-      const tail = args.length ? `, ${args.join(", ")}` : "";
+      const tail = args.map(arg => `, ${arg}`).join("");
       return `sb.addQuery(" ${escapeJavaString(line)} "${tail});`;
     }).join("\n");
   }
-  const PARAM_COMMENT = /^\s*\/\*\s*((?:(?!\*\/).)+?)\s*\*\//u;
   function parseJavaArgs(rest) {
+    const closing = /^\)\s*;\s*$/u;
+    const head = /^\s*([,)])/u.exec(rest);
+    if (!head) return null;
+    if (head[1] === ")") return closing.test(rest.trimStart()) ? [] : null;
     const args = [];
     let depth = 0;
     let quote = "";
-    let current = null;
-    for (let i = 0; i < rest.length; i += 1) {
+    let current = "";
+    for (let i = head[0].length; i < rest.length; i += 1) {
       const ch = rest[i];
+      current += ch;
       if (quote) {
-        current += ch;
         if (ch === "\\") {
           current += rest[i + 1] ?? "";
           i += 1;
-        } else if (ch === quote) quote = "";
-        continue;
-      }
-      if (current === null) {
-        if (/\s/u.test(ch)) continue;
-        if (ch === ",") {
-          current = "";
-          continue;
+        } else if (ch === quote) {
+          quote = "";
         }
-        if (ch === ")") return /^\)\s*;\s*$/u.test(rest.slice(i)) ? args : null;
-        return null;
-      }
-      if (ch === '"' || ch === "'") {
+      } else if (ch === '"' || ch === "'") {
         quote = ch;
-        current += ch;
-        continue;
-      }
-      if (ch === "(" || ch === "[" || ch === "{") depth += 1;
-      if (ch === ")" || ch === "]" || ch === "}") {
-        if (depth === 0) {
-          if (ch !== ")" || !current.trim()) return null;
-          args.push(current.trim());
-          return /^\)\s*;\s*$/u.test(rest.slice(i)) ? args : null;
-        }
+      } else if ("([{".includes(ch)) {
+        depth += 1;
+      } else if (")]}".includes(ch) && depth > 0) {
         depth -= 1;
-      }
-      if (ch === "," && depth === 0) {
-        if (!current.trim()) return null;
-        args.push(current.trim());
+      } else if (depth === 0 && ")]},".includes(ch)) {
+        const arg = current.slice(0, -1).trim();
+        if (!arg || ch === "]" || ch === "}") return null;
+        args.push(arg);
+        if (ch === ")") return closing.test(rest.slice(i)) ? args : null;
         current = "";
-        continue;
       }
-      current += ch;
     }
     return null;
   }
@@ -151,32 +129,23 @@
       const ch = sql[i];
       out += ch;
       if (block) {
-        if (ch === "*" && sql[i + 1] === "/") {
+        if (sql.startsWith("*/", i)) {
           block = false;
           out += "/";
           i += 1;
         }
-        continue;
-      }
-      if (quote) {
+      } else if (quote) {
         if (ch === quote) quote = "";
-        continue;
-      }
-      if (ch === "/" && sql[i + 1] === "*") {
+      } else if (sql.startsWith("/*", i)) {
         block = true;
         out += "*";
         i += 1;
-        continue;
-      }
-      if (ch === "-" && sql[i + 1] === "-") {
+      } else if (sql.startsWith("--", i)) {
         out += sql.slice(i + 1);
         break;
-      }
-      if (ch === "'" || ch === '"') {
+      } else if (ch === "'" || ch === '"') {
         quote = ch;
-        continue;
-      }
-      if (ch === "?") {
+      } else if (ch === "?") {
         if (index >= args.length) return null;
         out += ` /* ${args[index]} */`;
         index += 1;
@@ -186,79 +155,64 @@
   }
   function queryLineToPlain(line) {
     const match = /^\s*sb\.addQuery\(\s*"((?:[^"\\]|\\.)*)"/su.exec(line);
-    if (!match) return line;
-    const args = parseJavaArgs(line.slice(match[0].length));
+    const args = match && parseJavaArgs(line.slice(match[0].length));
     if (!args) return line;
     const inner = unescapeJavaString(match[1]).replace(/^ | $/gu, "");
-    if (!args.length) return inner;
-    return embedParams(inner, args) ?? line;
+    return args.length ? embedParams(inner, args) ?? line : inner;
   }
   function queryToPlain(text) {
     return normalizeNewlines(text).split("\n").map(queryLineToPlain).join("\n");
   }
-  function initialize() {
+  const initialize = () => {
     const app = document.querySelector("#gm-app");
     const plainText = app.querySelector("#gm-plain-text");
     const queryText = app.querySelector("#gm-query-text");
     const clearButton = app.querySelector("#gm-clear-button");
     const undoClearButton = app.querySelector("#gm-undo-clear-button");
     const unconvertedStatus = app.querySelector("#gm-unconverted-status");
-    let cleared = null;
     const copyButton = app.querySelector("#gm-copy-button");
     const copyLabel = copyButton.querySelector("[data-copy-label]");
     const copySuccess = copyButton.querySelector("[data-copy-success]");
     const copyStatus = app.querySelector("#gm-copy-status");
     const themeButton = app.querySelector("#gm-theme-button");
+    let cleared = null;
     let copyTimer;
     let pendingCopy = null;
     let revision = 0;
-    let active = true;
-    const isActive = () => active && app.isConnected;
-    function applyTheme(theme) {
-      root.dataset.mode = theme;
-    }
-    function setCopied(copied) {
+    const setCopied = copied => {
       copyButton.dataset.copied = String(copied);
       copyLabel.ariaHidden = copied ? "true" : null;
       copySuccess.ariaHidden = copied ? null : "true";
-    }
-    function resetCopyFeedback() {
+    };
+    const resetCopyFeedback = () => {
       clearTimeout(copyTimer);
       setCopied(false);
       copyStatus.textContent = "";
       copyStatus.className = "gm-sr";
-    }
-    function updateCopyAvailability() {
+    };
+    const setCopyBusy = busy => {
+      for (const name of [ "aria-busy", "aria-disabled" ]) {
+        if (busy) copyButton.setAttribute(name, "true"); else copyButton.removeAttribute(name);
+      }
+    };
+    const invalidateFeedback = () => {
+      revision += 1;
+      resetCopyFeedback();
+    };
+    const updateControls = () => {
       copyButton.disabled = queryText.value === "";
       const empty = plainText.value === "" && queryText.value === "";
       if (!empty) cleared = null;
       clearButton.disabled = empty;
       undoClearButton.hidden = !(empty && cleared);
       clearButton.hidden = !undoClearButton.hidden;
-      const unconverted = [];
-      normalizeNewlines(queryText.value).split("\n").forEach((line, index) => {
-        if (/^\s*sb\.addQuery\s*\(/.test(line) && queryLineToPlain(line) === line) unconverted.push(index + 1);
-      });
+      const unconverted = normalizeNewlines(queryText.value).split("\n").flatMap((line, index) => /^\s*sb\.addQuery\s*\(/.test(line) && queryLineToPlain(line) === line ? [ index + 1 ] : []);
       unconvertedStatus.hidden = unconverted.length === 0;
       unconvertedStatus.textContent = unconverted.length ? `未変換 ${unconverted.length}行（${unconverted[0]}行目${unconverted.length > 1 ? "ほか" : ""}・原文のまま）` : "";
-    }
-    function setCopyBusy(busy) {
-      if (busy) {
-        copyButton.setAttribute("aria-busy", "true");
-        copyButton.setAttribute("aria-disabled", "true");
-      } else {
-        copyButton.removeAttribute("aria-busy");
-        copyButton.removeAttribute("aria-disabled");
-      }
-    }
-    function invalidateFeedback() {
-      revision += 1;
-      resetCopyFeedback();
-    }
-    function bindEditor(source, target, convert) {
+    };
+    const bindEditor = (source, target, convert) => {
       let composing = false;
       const synchronize = () => {
-        if (!isActive()) return;
         const nextValue = convert(source.value);
         if (target.value !== nextValue) target.value = nextValue;
       };
@@ -269,18 +223,17 @@
         composing = false;
         invalidateFeedback();
         synchronize();
-        updateCopyAvailability();
+        updateControls();
       });
       source.addEventListener("input", event => {
         invalidateFeedback();
         if (!composing && !event.isComposing) synchronize();
-        updateCopyAvailability();
+        updateControls();
       });
-    }
+    };
     bindEditor(plainText, queryText, plainToQuery);
     bindEditor(queryText, plainText, queryToPlain);
     clearButton.addEventListener("click", () => {
-      if (!isActive()) return;
       if (plainText.value || queryText.value) cleared = {
         plain: plainText.value,
         query: queryText.value
@@ -290,54 +243,47 @@
       if (plainText.value && !document.execCommand("insertText", false, "")) plainText.value = "";
       queryText.value = "";
       invalidateFeedback();
-      updateCopyAvailability();
+      updateControls();
       plainText.focus();
     });
     undoClearButton.addEventListener("click", () => {
-      if (!isActive() || !cleared || plainText.value || queryText.value) return;
-      const previous = cleared;
-      plainText.value = previous.plain;
-      queryText.value = previous.query;
+      if (!cleared || plainText.value || queryText.value) return;
+      plainText.value = cleared.plain;
+      queryText.value = cleared.query;
       cleared = null;
       invalidateFeedback();
-      updateCopyAvailability();
+      updateControls();
       plainText.focus();
     });
     copyButton.addEventListener("click", async () => {
-      if (!isActive() || pendingCopy) return;
-      updateCopyAvailability();
-      if (copyButton.disabled) return;
+      if (pendingCopy || queryText.value === "") return;
       resetCopyFeedback();
-      const text = queryText.value;
       const request = {
         revision
       };
       pendingCopy = request;
       setCopyBusy(true);
-      const isCurrent = () => isActive() && pendingCopy === request && revision === request.revision;
       try {
-        if (!navigator.clipboard?.writeText) throw new Error("Clipboard API unavailable");
-        await navigator.clipboard.writeText(text);
-        if (!isCurrent()) return;
+        await navigator.clipboard.writeText(queryText.value);
+        if (pendingCopy !== request || revision !== request.revision) return;
         setCopied(true);
         copyStatus.textContent = "コピーしました。";
         copyTimer = setTimeout(() => {
-          if (isActive() && revision === request.revision) resetCopyFeedback();
+          if (revision === request.revision) resetCopyFeedback();
         }, COPY_FEEDBACK_MS);
       } catch {
-        if (isCurrent()) {
+        if (pendingCopy === request && revision === request.revision) {
           copyStatus.className = "gm-copy-error gm-error-text";
           copyStatus.textContent = "コピーできませんでした。対象の文字を選択してコピーしてください。";
         }
       } finally {
         if (pendingCopy === request) {
           pendingCopy = null;
-          if (isActive()) setCopyBusy(false);
+          setCopyBusy(false);
         }
       }
     });
     themeButton.addEventListener("click", () => {
-      if (!isActive()) return;
       selectedTheme = root.dataset.mode === "dark" ? "light" : "dark";
       applyTheme(selectedTheme);
       try {
@@ -345,11 +291,10 @@
       } catch {}
     });
     systemTheme.addEventListener("change", () => {
-      if (selectedTheme === null && isActive()) applyTheme(resolveTheme());
+      if (selectedTheme === null) applyTheme(resolveTheme());
     });
     window.addEventListener("storage", event => {
       if (event.key !== STORAGE_KEY && event.key !== null) return;
-      if (!isActive()) return;
       try {
         if (event.storageArea !== localStorage) return;
       } catch {
@@ -359,21 +304,17 @@
       applyTheme(resolveTheme());
     });
     window.addEventListener("pagehide", () => {
-      active = false;
       pendingCopy = null;
-      revision += 1;
-      resetCopyFeedback();
+      invalidateFeedback();
       setCopyBusy(false);
     });
     window.addEventListener("pageshow", () => {
-      active = true;
       applyTheme(resolveTheme());
-      updateCopyAvailability();
+      updateControls();
     });
     applyTheme(resolveTheme());
-    if (plainText.value && !queryText.value) queryText.value = plainToQuery(plainText.value); else if (queryText.value && !plainText.value) plainText.value = queryToPlain(queryText.value);
-    updateCopyAvailability();
-  }
+    updateControls();
+  };
   document.addEventListener("DOMContentLoaded", initialize, {
     once: true
   });
@@ -1628,14 +1569,24 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
     
   <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.sbquery.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
-  let preferences = {}, faviconTheme = "";
-  const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
+  const root = document.documentElement;
+  const body = document.body;
+  const storageKey = `arttools.ui.sbquery.v1`;
+  const legacySharedKey = "arttools.shared-ui.v1";
+  const settingsDialog = document.getElementById("art-settings");
+  const helpDialog = document.getElementById("art-help");
+  const saveNote = document.getElementById("art-save-note");
+  let preferences = {};
+  let faviconTheme = "";
+  const validTheme = value => value === "light" || value === "dark";
+  const editorSizes = [ 10, 14, 18 ];
+  const validSize = value => editorSizes.includes(value);
+  const migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
     try {
       const value = JSON.parse(raw);
-      if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
+      if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+      const editorSize = migrateSize(typeof value.editorSize === "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -1653,29 +1604,37 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
   }
   function syncTheme() {
     const theme = originalTheme();
-    root.dataset.uiTheme !== theme && (root.dataset.uiTheme = theme), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (root.dataset.uiTheme !== theme) root.dataset.uiTheme = theme;
+    document.querySelectorAll("[data-art-theme]").forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.artTheme === theme));
-    }), syncFavicon();
+    });
+    syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg"), theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
+    const original = document.querySelector(".art-mark svg");
+    const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
       layer.setAttribute("display", layer.dataset.iconAppearance === theme ? "inline" : "none");
-    }), original.setAttribute("data-icon-theme", theme);
-    const icon = original.cloneNode(!0), favicon = document.getElementById("art-favicon");
-    favicon.type = "image/svg+xml", favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon)), 
+    });
+    original.setAttribute("data-icon-theme", theme);
+    const icon = original.cloneNode(true);
+    const favicon = document.getElementById("art-favicon");
+    favicon.type = "image/svg+xml";
+    favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon));
     faviconTheme = theme;
   }
   function applyTheme(theme) {
-    validTheme(theme) && originalTheme() !== theme && document.querySelector("#gm-theme-button").click(), 
+    if (validTheme(theme) && originalTheme() !== theme) document.querySelector("#gm-theme-button").click();
     syncTheme();
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px"), document.querySelectorAll("[data-art-size]").forEach(button => {
+    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
-    }), document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
+    });
+    document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
       detail: {
         size: nextSize
       }
@@ -1683,62 +1642,93 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
-      saveNote.hidden = !0, saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+      saveNote.textContent = "";
+      saveNote.hidden = true;
+      saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。";
+      saveNote.hidden = false;
       saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (dialog.open) return;
+    if (dialog === settingsDialog) document.dispatchEvent(new Event("arttools:settings-open"));
+    dialog.showModal();
+    dialog.scrollTop = 0;
+    button.setAttribute("aria-expanded", "true");
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
-    button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
+    button.addEventListener("click", () => openDialog(dialog, button));
+    dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
-      button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
-        preventScroll: !0
+      button.setAttribute("aria-expanded", "false");
+      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
+      destination.focus({
+        preventScroll: true
       });
     });
-    let backdropStart = !1;
+    let backdropStart = false;
     const outside = event => {
       const rect = dialog.getBoundingClientRect();
       return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
     };
     dialog.addEventListener("pointerdown", event => {
       backdropStart = event.target === dialog && outside(event);
-    }), dialog.addEventListener("click", event => {
-      backdropStart && event.target === dialog && outside(event) && dialog.close(), backdropStart = !1;
+    });
+    dialog.addEventListener("click", event => {
+      if (backdropStart && event.target === dialog && outside(event)) dialog.close();
+      backdropStart = false;
     });
   }
   body.addEventListener("keydown", event => {
     const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
-    if (!dialog || (event.stopPropagation(), event.isComposing || event.keyCode === 229)) return;
+    if (!dialog) {
+      return;
+    }
+    event.stopPropagation();
+    if (event.isComposing || event.keyCode === 229) return;
     if (event.key === "Escape") {
-      event.preventDefault(), dialog.close();
+      event.preventDefault();
+      dialog.close();
       return;
     }
     if (event.key !== "Tab") return;
     const controls = [ ...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, a[href], [tabindex="0"]') ].filter(control => {
-      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return !1;
-      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return !1;
-      return !0;
-    }), first = controls[0], last = controls[controls.length - 1];
+      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return false;
+      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return false;
+      }
+      return true;
+    });
+    const first = controls[0];
+    const last = controls[controls.length - 1];
     if (!first) {
       event.preventDefault();
       return;
     }
-    event.shiftKey && document.activeElement === first ? (event.preventDefault(), last.focus()) : !event.shiftKey && document.activeElement === last && (event.preventDefault(), 
-    first.focus());
-  }), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
+      preferences.theme = button.dataset.artTheme;
+      save();
+      applyTheme(preferences.theme);
     });
-  }), document.querySelectorAll("[data-art-size]").forEach(button => {
+  });
+  document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.editorSize = Number(button.dataset.artSize), applySize(preferences.editorSize), 
+      preferences.editorSize = Number(button.dataset.artSize);
+      applySize(preferences.editorSize);
       save();
     });
   });
@@ -1746,82 +1736,114 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
     let raw = localStorage.getItem(storageKey);
     if (raw === null) {
       const legacy = localStorage.getItem(legacySharedKey);
-      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+      if (legacy !== null) {
+        raw = JSON.stringify(readPreferences(legacy));
+        localStorage.setItem(storageKey, raw);
+      }
     }
-    if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
+    preferences = readPreferences(raw);
+    if (validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
-      stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
-        ...stored,
-        editorSize: preferences.editorSize
-      }));
+      if (stored.editorSize !== preferences.editorSize) {
+        localStorage.setItem(storageKey, JSON.stringify({
+          ...stored,
+          editorSize: preferences.editorSize
+        }));
+      }
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。";
+    saveNote.hidden = false;
     saveNote.dataset.error = "true";
   }
-  applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
-    validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();
-  }).observe(root, {
-    attributes: !0,
+  applyTheme(preferences.theme);
+  applySize(preferences.editorSize);
+  const observer = new MutationObserver(() => {
+    if (validTheme(preferences.theme) && originalTheme() !== preferences.theme) applyTheme(preferences.theme); else syncTheme();
+  });
+  observer.observe(root, {
+    attributes: true,
     attributeFilter: [ "data-mode" ]
   });
   const focusPrimaryInput = () => {
     const target = document.querySelector("[data-art-autofocus]");
     if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
-    let finished = !1;
+    const deadline = performance.now() + 3e3;
+    const userEvents = [ "pointerdown", "keydown" ];
+    let finished = false;
     const finish = () => {
-      finished = !0;
-      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+      finished = true;
+      for (const type of userEvents) window.removeEventListener(type, finish, true);
     };
-    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    for (const type of userEvents) window.addEventListener(type, finish, true);
     const attempt = () => {
-      if (!finished) {
-        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
-          preventScroll: !0
-        }), document.activeElement === target)) return finish();
-        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      if (finished) return;
+      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
+      if (target.getClientRects().length) {
+        target.focus({
+          preventScroll: true
+        });
+        if (document.activeElement === target) return finish();
       }
+      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
     };
     attempt();
   };
-  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
-    once: !0
+  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
+    once: true
   });
-  {
-    const field = document.querySelector("[data-art-persist]"), inputKey = "arttools.input.sbquery.v1", maxStoredCharacters = 2e6;
-    let saveTimer = 0, lastSaved = null;
-    const saveInput = () => {
-      if (window.clearTimeout(saveTimer), !(!field || field.value === lastSaved)) try {
-        if (field.value.length > maxStoredCharacters) throw new RangeError("input too large");
-        field.value ? localStorage.setItem(inputKey, field.value) : localStorage.removeItem(inputKey), 
-        lastSaved = field.value;
-      } catch {
-        saveNote && (saveNote.dataset.error = "true", saveNote.textContent = "入力内容をこのブラウザーへ保存できませんでした。ページを閉じる前に結果をコピーしてください。");
+  const field = document.querySelector("[data-art-persist]");
+  const inputKey = `arttools.input.sbquery.v1`;
+  const maxStoredCharacters = 2e6;
+  let saveTimer = 0;
+  let lastSaved = null;
+  const saveInput = () => {
+    window.clearTimeout(saveTimer);
+    if (!field || field.value === lastSaved) return;
+    try {
+      if (field.value.length > maxStoredCharacters) throw new RangeError("input too large");
+      if (field.value) localStorage.setItem(inputKey, field.value); else localStorage.removeItem(inputKey);
+      lastSaved = field.value;
+    } catch {
+      if (saveNote) {
+        saveNote.dataset.error = "true";
+        saveNote.textContent = "入力内容をこのブラウザーへ保存できませんでした。ページを閉じる前に結果をコピーしてください。";
       }
-    }, restoreInput = () => {
-      if (!field || field.value) return;
-      let stored = null;
-      try {
-        stored = localStorage.getItem(inputKey);
-      } catch {
-        return;
-      }
-      lastSaved = stored ?? "", stored && (field.value = stored, field.dispatchEvent(new Event("input", {
-        bubbles: !0
-      })));
-    };
-    field && (document.readyState === "complete" ? restoreInput() : window.addEventListener("load", restoreInput, {
-      once: !0
-    }), field.addEventListener("input", () => {
-      window.clearTimeout(saveTimer), saveTimer = window.setTimeout(saveInput, 400);
-    }), window.addEventListener("pagehide", saveInput), document.addEventListener("visibilitychange", () => {
-      document.visibilityState === "hidden" && saveInput();
+    }
+  };
+  const restoreInput = () => {
+    if (!field || field.value) return;
+    let stored = null;
+    try {
+      stored = localStorage.getItem(inputKey);
+    } catch {
+      return;
+    }
+    lastSaved = stored ?? "";
+    if (!stored) return;
+    field.value = stored;
+    field.dispatchEvent(new Event("input", {
+      bubbles: true
     }));
+  };
+  if (field) {
+    if (document.readyState === "complete") restoreInput(); else window.addEventListener("load", restoreInput, {
+      once: true
+    });
+    field.addEventListener("input", () => {
+      window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(saveInput, 400);
+    });
+    window.addEventListener("pagehide", saveInput);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") saveInput();
+    });
   }
   window.addEventListener("storage", event => {
-    event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
-    applyTheme(preferences.theme), applySize(preferences.editorSize));
+    if (event.key !== storageKey && event.key !== null) return;
+    preferences = readPreferences(event.newValue);
+    applyTheme(preferences.theme);
+    applySize(preferences.editorSize);
   });
 })();</script>
   </body>

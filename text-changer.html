@@ -1551,681 +1551,588 @@ body.art-app[data-tool=text] :is(.copy-btn):not(:has(svg, .material-symbols-outl
     </main>
     <script>const STORAGE_KEY = "textChanger_settings";
 
-const COPY_RESET_MS = 2e3;
+const SETTINGS_FIELDS = [ "input", "pgTableName", "numberOffset", "theme" ];
 
-const SAVE_DELAY_MS = 500;
-
-const MAX_SAVE_WAIT_MS = 2e3;
-
-const PG_IDENTIFIER_MAX_BYTES = 63;
+const PG_NAME_MAX_BYTES = 63;
 
 const INTEGER_PATTERN = /^[+-]?\d+$/;
 
-const UTF8_ENCODER = new TextEncoder;
-
-const SETTINGS_FIELDS = [ "input", "pgTableName", "numberOffset", "theme" ];
-
-const PG_TABLE_NAME_PLACEHOLDER = "???";
-
-const LIGHT_THEME = "light";
-
-const DARK_THEME = "dark";
-
-const DEFAULT_THEME = LIGHT_THEME;
-
-const qs = (sel, root = document) => root.querySelector(sel);
-
-const qsa = (sel, root = document) => [ ...root.querySelectorAll(sel) ];
-
-const $inputArea = qs("#input-area");
-
-const $clearButton = qs("#input-clear");
-
-const $undoClearButton = qs("#input-undo-clear");
-
-let _clearedInput = null;
-
-const $lightModeToggle = qs("#lightModeToggle");
-
-const $pgTableNameInput = qs("#pg-table-name");
-
-const $numberOffsetInput = qs("#number-offset");
-
-const $outputA5m2 = qs("#output-a5m2");
-
-const $outputTsv = qs("#output-tsv");
-
-const $outputSqlIn = qs("#output-sql-in");
-
-const $outputPgSql = qs("#output-pg-sql");
-
-const $outputNumberAdjust = qs("#output-number-adjust");
-
-const $main = qs("#app-main");
-
-const $saveStatus = qs("#save-status");
-
-const $inputControls = [ $inputArea, $pgTableNameInput, $numberOffsetInput ];
-
-const COPY_CONTROL_MAP = new Map(qsa(".copy-btn").map($button => [ $button, {
-  $target: qs($button.dataset.copyTarget),
-  $icon: qs("use", $button),
-  $label: qs(".copy-label", $button),
-  $feedback: qs(".card-feedback", $button.closest(".output-card")),
-  _message: "",
-  _copyError: "",
-  _value: "",
-  _resetTimeout: undefined
-} ]));
-
-let _saveTimeout;
-
-let _maxSaveTimeout;
-
-let _lastSavedSettings = {};
-
-let _lastConversion = {};
-
-let _lastPgPreparation = {};
-
-let _activeCopyRequest;
-
-let $compositionTarget = null;
-
-function _getThemeFromToggle() {
-  return $lightModeToggle.checked ? LIGHT_THEME : DARK_THEME;
-}
-
-function _getStoredTheme(theme) {
-  return theme === LIGHT_THEME || theme === DARK_THEME ? theme : DEFAULT_THEME;
-}
-
-function _applyTheme(theme) {
-  const _theme = _getStoredTheme(theme);
-  document.documentElement.style.colorScheme = _theme;
-  document.body.dataset.mode = _theme;
-  $lightModeToggle.checked = _theme === LIGHT_THEME;
-}
-
-function _getLines(text) {
-  if (text.includes('"')) {
-    const _records = _parseTsvRecords(text);
-    if (_records) return _records.map(_row => _row.join("\t").trim()).filter(Boolean);
-  }
-  return text.split(/\r\n|[\r\n]/).map(line => line.trim()).filter(Boolean);
-}
-
-function _convertA5m2(lines) {
-  if (lines.length === 0 || lines.some(value => /[,\r\n]/.test(value) || !_isValidSqlText(value))) return "";
-  return `--*Captions ${lines.join(",")}`;
-}
-
-function _convertTsv(lines) {
-  return lines.map(value => /["\t\r\n]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value).join("\t");
-}
-
-function _convertSqlIn(lines) {
-  if (lines.length === 0 || lines.some(value => !_isValidSqlText(value))) return "";
-  const _quoted = lines.map(value => `'${_escapePgStringLiteral(value)}'`).join(",");
-  return `in (${_quoted});`;
-}
-
-function _parseTsvRecords(text, _acceptRecord = null) {
-  const _text = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
-  const _records = [];
-  let _row = [];
-  let _cell = "";
-  let _cellStart = 0;
-  let _quoted = false;
-  let _closedQuote = false;
-  let _recordStarted = false;
-  for (let _index = 0; _index <= _text.length; _index += 1) {
-    const _char = _text[_index];
-    if (_quoted) {
-      if (_char === undefined) return null;
-      if (_char === '"') {
-        _cell += _text.slice(_cellStart, _index);
-        if (_text[_index + 1] === '"') {
-          _cell += '"';
-          _index += 1;
-        } else {
-          _quoted = false;
-          _closedQuote = true;
-        }
-        _cellStart = _index + 1;
-      }
-      continue;
-    }
-    if (_char === "\t" || _char === "\n" || _char === undefined) {
-      _cell += _text.slice(_cellStart, _index);
-      _row.push(_cell);
-      if (_char === "\t") {
-        _recordStarted = true;
-      } else {
-        if (_recordStarted || _cell.trim().length > 0) {
-          if (_acceptRecord && !_acceptRecord(_row)) return null;
-          _records.push(_row);
-        }
-        _row = [];
-        _recordStarted = false;
-      }
-      _cell = "";
-      _cellStart = _index + 1;
-      _closedQuote = false;
-    } else if (_closedQuote) {
-      return null;
-    } else if (_char === '"' && _index === _cellStart) {
-      _quoted = true;
-      _recordStarted = true;
-      _cellStart = _index + 1;
-    }
-  }
-  return _records;
-}
-
-function _isValidSqlText(value) {
-  return value.isWellFormed() && !value.includes("\0");
-}
-
-function _isValidPgIdentifier(value) {
-  return value.length > 0 && value.length <= PG_IDENTIFIER_MAX_BYTES && _isValidSqlText(value) && UTF8_ENCODER.encode(value).length <= PG_IDENTIFIER_MAX_BYTES;
-}
-
-function _parseTabularInput(text) {
-  const _empty = (_error = "") => ({
-    headers: [],
-    rows: [],
-    _error
-  });
-  if (!_isValidSqlText(text)) return _empty("入力に使用できない文字があります。NUL文字や不正なUnicodeを除去してください。");
-  if (!text.trim()) return _empty();
-  let _headers;
-  let _error = "";
-  let _recordNumber = 0;
-  const _records = _parseTsvRecords(text, _row => {
-    _recordNumber += 1;
-    if (_headers) {
-      if (_row.length !== _headers.length) {
-        _error = `データ${_recordNumber - 1}件目の列数が${_row.length}列です。ヘッダーと同じ${_headers.length}列にしてください。`;
-        return false;
-      }
-      return true;
-    }
-    _headers = _row.map(cell => cell.trim());
-    if (!_headers.every(header => _isValidPgIdentifier(header))) {
-      _error = "カラム名を確認してください。空欄・使用できない文字・UTF-8で63バイトを超える名前は使えません。";
-    } else if (new Set(_headers).size !== _headers.length) {
-      _error = "カラム名が重複しています。先頭行のカラム名をそれぞれ異なる名前にしてください。";
-    }
-    return !_error;
-  });
-  if (!_records) return _empty(_error || "引用符が正しく閉じられていません。Excelの表をコピーし直すか、引用セルの形式を確認してください。");
-  if (_records.length < 2) return _empty("ヘッダーだけでは生成できません。先頭行にカラム名、次の行からデータを入力してください。");
-  return {
-    headers: _headers,
-    rows: _records.slice(1)
-  };
-}
-
-function _escapePgIdentifier(value) {
-  return String(value).replaceAll('"', '""');
-}
-
-function _escapePgStringLiteral(value) {
-  return value.replaceAll("'", "''");
-}
-
-function _normalizePgValue(value) {
-  const _trimmed = value.trim();
-  if (_trimmed === "") return "";
-  return /^(?:NULL|<<\s*NULL\s*>>|<\s*NULL\s*>|«\s*NULL\s*»)$/i.test(_trimmed) ? null : value;
-}
-
-function _formatPgValue(value) {
-  if (value === null) {
-    return "NULL";
-  }
-  const _escaped = _escapePgStringLiteral(value);
-  return value.includes("\\") ? `E'${_escaped.replaceAll("\\", "\\\\")}'` : `'${_escaped}'`;
-}
-
-function _getResolvedPgTableName(value) {
-  const _tableName = String(value || "").trim();
-  if (!_tableName) return PG_TABLE_NAME_PLACEHOLDER;
-  const _partPattern = /\s*("(?:[^"\0]|""){0,63}"|[A-Za-z_\u0080-\uFFFF][A-Za-z0-9_$\u0080-\uFFFF]{0,62})\s*(\.|$)/gy;
-  const _parts = [];
-  let _position = 0;
-  while (_position < _tableName.length) {
-    const _match = _partPattern.exec(_tableName);
-    if (!_match) return "";
-    const _part = _match[1];
-    const _name = _part.startsWith('"') ? _part.slice(1, -1).replaceAll('""', '"') : _part.replace(/[A-Z]/g, letter => letter.toLowerCase());
-    if (!_isValidPgIdentifier(_name)) return "";
-    _parts.push(`"${_escapePgIdentifier(_name)}"`);
-    _position = _partPattern.lastIndex;
-    if (_match[2] === "." && (_position === _tableName.length || _parts.length === 3)) return "";
-  }
-  return _parts.join(".");
-}
-
-function _preparePostgreSQLBlock(text) {
-  const _table = _parseTabularInput(text);
-  _lastPgPreparation._error = _table._error || "";
-  if (_table.headers.length === 0 || _table.rows.length === 0) {
-    return null;
-  }
-  const _quotedColumns = _table.headers.map(column => `"${_escapePgIdentifier(column)}"`);
-  const _columnList = _quotedColumns.join(", ");
-  const _rowConditions = new Set;
-  const _valueRows = _table.rows.map(row => {
-    const _conditions = [];
-    const _values = row.map((value, index) => {
-      const _value = _normalizePgValue(value);
-      const _formatted = _formatPgValue(_value === "" ? " " : _value);
-      if (_value !== null && _value !== "") {
-        _conditions.push(`${_quotedColumns[index]} = ${_formatted}`);
-      }
-      return _formatted;
-    });
-    if (_conditions.length > 0) _rowConditions.add(_conditions.join(" AND "));
-    return `  (${_values.join(", ")})`;
-  });
-  const _whereClause = _rowConditions.size > 0 ? [ ..._rowConditions ].map(_condition => `(${_condition})`).join("\n   OR ") : "1 = 0";
-  return {
-    columnList: _columnList,
-    whereClause: _whereClause,
-    valuesList: _valueRows.join(",\n")
-  };
-}
-
-function _convertPostgreSQLBlock(text, tableName) {
-  if (_lastPgPreparation.input !== text) _lastPgPreparation = {
-    input: text
-  };
-  const _tableName = _getResolvedPgTableName(tableName);
-  if (!_tableName) return "";
-  if (_lastPgPreparation.parts === undefined) {
-    _lastPgPreparation.parts = _preparePostgreSQLBlock(text);
-  }
-  const _parts = _lastPgPreparation.parts;
-  if (!_parts) return "";
-  const {columnList: _columnList, whereClause: _whereClause, valuesList: _valuesList} = _parts;
-  const _selectStatement = `SELECT * FROM ${_tableName}\nWHERE ${_whereClause}\n;`;
-  const _deleteStatement = `DELETE FROM ${_tableName}\nWHERE ${_whereClause}\n;`;
-  const _insertStatement = `INSERT INTO ${_tableName} (${_columnList}) VALUES\n${_valuesList}\n;`;
-  return [ "-- SELECT文（事前チェック）", _selectStatement, "", "-- INSERT文", "BEGIN;", _insertStatement, "COMMIT;", "", "-- DELETE文", "BEGIN;", _deleteStatement, "COMMIT;" ].join("\n");
-}
-
-function _parseNumberOffset(value) {
-  const _trimmed = String(value ?? "").trim();
-  return INTEGER_PATTERN.test(_trimmed) ? BigInt(_trimmed) : 0n;
-}
-
-function _convertNumberAdjustment(text, offsetValue) {
-  if (!text) return "";
-  const _offset = _parseNumberOffset(offsetValue);
-  if (_offset === 0n) return text;
-  return text.replace(/\d+/g, match => {
-    const _next = BigInt(match) + _offset;
-    const _digits = (_next < 0n ? -_next : _next).toString();
-    const _padded = _next >= 0n && match.length > 1 && match.startsWith("0") ? _digits.padStart(match.length, "0") : _digits;
-    return (_next < 0n ? "-" : "") + _padded;
-  });
-}
-
-function _setInvalidState($control, _invalid) {
-  const _value = String(_invalid);
-  if ($control.getAttribute("aria-invalid") !== _value) $control.setAttribute("aria-invalid", _value);
-}
-
-function _convertAll() {
-  const _input = $inputArea.value;
-  const _tableName = $pgTableNameInput.value;
-  const _offset = $numberOffsetInput.value;
-  if (_tableName !== _lastConversion.tableName) {
-    _setInvalidState($pgTableNameInput, _getResolvedPgTableName(_tableName) === "");
-  }
-  const _offsetInvalid = _offset.trim() !== "" && !INTEGER_PATTERN.test(_offset.trim());
-  _setInvalidState($numberOffsetInput, _offsetInvalid);
-  const _inputChanged = _input !== _lastConversion.input;
-  const _results = new Map;
-  const _messages = new Map;
-  if (_inputChanged) {
-    $clearButton.disabled = _input.length === 0;
-    if (_input) _clearedInput = null;
-    $undoClearButton.hidden = !$clearButton.disabled || _clearedInput === null;
-    $clearButton.hidden = !$undoClearButton.hidden;
-    const _lines = _getLines(_input);
-    _results.set($outputA5m2, _convertA5m2(_lines));
-    _results.set($outputTsv, _convertTsv(_lines));
-    _results.set($outputSqlIn, _convertSqlIn(_lines));
-    const _invalidText = _lines.some(_line => !_isValidSqlText(_line));
-    const _textError = "入力に使用できない文字があります。NUL文字や不正なUnicodeを除去してください。";
-    _messages.set($outputA5m2, _invalidText ? _textError : _lines.some(_line => _line.includes(",")) ? "値にカンマが含まれています。A5M2では列の区切りになるため、カンマを除去してください。" : _lines.some(_line => /[\r\n]/.test(_line)) ? "セル内に改行があります。A5M2のCaptionは1行のため、改行を除去してください。" : "");
-    _messages.set($outputSqlIn, _invalidText ? _textError : "");
-  }
-  if (_inputChanged || _tableName !== _lastConversion.tableName) {
-    _results.set($outputPgSql, _convertPostgreSQLBlock(_input, _tableName));
-    _messages.set($outputPgSql, _getResolvedPgTableName(_tableName) === "" ? "テーブル名の形式が不正です。例：public.orders。各名前はUTF-8で63バイト以内にしてください。" : _lastPgPreparation._error || "");
-  }
-  if (_inputChanged || _offset !== _lastConversion.offset) {
-    _results.set($outputNumberAdjust, _offsetInvalid ? "" : _convertNumberAdjustment(_input, _offset));
-    _messages.set($outputNumberAdjust, _offsetInvalid ? "増減値は整数で入力してください（例：1、-2）。小数・指数表記は使えません。" : "");
-  }
-  _lastConversion = {
-    input: _input,
-    tableName: _tableName,
-    offset: _offset
-  };
-  for (const [$button, _control] of COPY_CONTROL_MAP) {
-    const {$target} = _control;
-    _control._value = _results.get($target) ?? _control._value;
-    _control._message = _messages.get($target) ?? _control._message;
-    const _changed = $target.value !== _control._value;
-    if (_changed) $target.value = _control._value;
-    const _disabled = !_control._value;
-    if ($button.disabled !== _disabled) $button.disabled = _disabled;
-    if (_disabled || _changed) {
-      if (_activeCopyRequest?.$button === $button) _activeCopyRequest = undefined;
-      _resetCopyState($button);
-    }
-    _renderFeedback(_control);
-  }
-}
-
-function _renderFeedback(_control) {
-  const _text = [ _control._message, _control._copyError ].filter(Boolean).join(" ");
-  if (_control.$feedback.textContent !== _text) _control.$feedback.textContent = _text;
-}
-
-function _saveSettings() {
-  clearTimeout(_saveTimeout);
-  clearTimeout(_maxSaveTimeout);
-  _maxSaveTimeout = undefined;
-  const _settings = _getCurrentSettings();
-  const _changedFields = SETTINGS_FIELDS.filter(_field => _settings[_field] !== _lastSavedSettings[_field]);
-  if (_changedFields.length === 0) return;
-  try {
-    const _merged = _readStoredSettings();
-    _changedFields.forEach(_field => {
-      _merged[_field] = _settings[_field];
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(_merged));
-    _lastSavedSettings = _settings;
-    _setSaveStatus("");
-  } catch {
-    _setSaveStatus("保存できません。再読み込みで入力が失われる可能性があります。必要な結果をコピーしてください。", true);
-  }
-}
-
-function _setSaveStatus(_message, _error = false) {
-  if ($saveStatus.textContent !== _message) $saveStatus.textContent = _message;
-  $saveStatus.dataset.state = _error ? "error" : "normal";
-}
-
-function _getCurrentSettings() {
-  return {
-    input: $inputArea.value,
-    pgTableName: $pgTableNameInput.value,
-    numberOffset: $numberOffsetInput.value,
-    theme: _getThemeFromToggle()
-  };
-}
-
-function _readStoredSettings() {
-  const _raw = localStorage.getItem(STORAGE_KEY);
-  let _data;
-  try {
-    _data = JSON.parse(_raw);
-  } catch {
-    return {};
-  }
-  if (!_data || typeof _data !== "object" || Array.isArray(_data)) return {};
-  const _settings = Object.fromEntries(SETTINGS_FIELDS.filter(_field => typeof _data[_field] === "string").map(_field => [ _field, _data[_field] ]));
-  if ("theme" in _settings) _settings.theme = _getStoredTheme(_settings.theme);
-  return _settings;
-}
-
-function _loadSettings() {
-  let _settings = {};
-  try {
-    _settings = _readStoredSettings();
-  } catch {
-    _setSaveStatus("保存機能を利用できません。必要な結果をコピーしてからページを閉じてください。", true);
-  }
-  if (_settings.input !== undefined) $inputArea.value = _settings.input;
-  $pgTableNameInput.value = _settings.pgTableName ?? "";
-  $numberOffsetInput.value = _settings.numberOffset ?? "";
-  _applyTheme(_settings.theme);
-  _lastSavedSettings = _getCurrentSettings();
-}
-
-function _autoSave() {
-  const _settings = _getCurrentSettings();
-  if (!SETTINGS_FIELDS.some(_field => _settings[_field] !== _lastSavedSettings[_field])) return;
-  clearTimeout(_saveTimeout);
-  _saveTimeout = setTimeout(_saveSettings, SAVE_DELAY_MS);
-  if (_maxSaveTimeout === undefined) _maxSaveTimeout = setTimeout(_saveSettings, MAX_SAVE_WAIT_MS);
-}
-
-function _restorePage() {
-  $compositionTarget = null;
-  _applyTheme(_getThemeFromToggle());
-  _convertAll();
-  _autoSave();
-}
-
-function _handleInput(event) {
-  if (!$inputControls.includes(event.target)) return;
-  if (event.target === $compositionTarget && (event.type === "change" || event.isComposing === false)) {
-    $compositionTarget = null;
-  }
-  if (event.isComposing && !$compositionTarget) $compositionTarget = event.target;
-  if (!$compositionTarget && !event.isComposing) _scheduleConvertAll();
-  _autoSave();
-}
+const NULL_PATTERN = /^(?:NULL|<<\s*NULL\s*>>|<\s*NULL\s*>|«\s*NULL\s*»)$/i;
 
 const LARGE_INPUT_CHARACTERS = 3e4;
 
-let _pendingConvertTimer;
+const TEXT_ERROR = "入力に使用できない文字があります。NUL文字や不正なUnicodeを除去してください。";
 
-function _scheduleConvertAll() {
-  clearTimeout(_pendingConvertTimer);
-  _pendingConvertTimer = undefined;
-  if ($inputArea.value.length < LARGE_INPUT_CHARACTERS) {
-    _convertAll();
-    return;
+const encoder = new TextEncoder;
+
+const $ = (selector, root = document) => root.querySelector(selector);
+
+const main = $("#app-main");
+
+const inputArea = $("#input-area");
+
+const clearButton = $("#input-clear");
+
+const undoClearButton = $("#input-undo-clear");
+
+const themeToggle = $("#lightModeToggle");
+
+const tableNameInput = $("#pg-table-name");
+
+const offsetInput = $("#number-offset");
+
+const saveStatus = $("#save-status");
+
+const inputControls = [ inputArea, tableNameInput, offsetInput ];
+
+const copyControls = new Map([ ...document.querySelectorAll(".copy-btn") ].map(button => [ button, {
+  target: $(button.dataset.copyTarget),
+  icon: $("use", button),
+  label: $(".copy-label", button),
+  feedback: $(".card-feedback", button.closest(".output-card")),
+  value: "",
+  message: "",
+  copyError: "",
+  resetTimer: undefined
+} ]));
+
+let clearedInput = null;
+
+let lastSaved = {};
+
+let lastConversion = {};
+
+let pgCache = {};
+
+let activeCopy;
+
+let composing = null;
+
+let saveTimer;
+
+let maxSaveTimer;
+
+let convertTimer;
+
+const setText = (node, text) => {
+  if (node.textContent !== text) node.textContent = text;
+};
+
+const currentTheme = () => themeToggle.checked ? "light" : "dark";
+
+const validTheme = theme => theme === "dark" ? "dark" : "light";
+
+function applyTheme(theme) {
+  const value = validTheme(theme);
+  document.documentElement.style.colorScheme = value;
+  document.body.dataset.mode = value;
+  themeToggle.checked = value === "light";
+}
+
+const isValidText = value => value.isWellFormed() && !value.includes("\0");
+
+const isValidPgName = value => value.length > 0 && value.length <= PG_NAME_MAX_BYTES && isValidText(value) && encoder.encode(value).length <= PG_NAME_MAX_BYTES;
+
+const quoteIdentifier = name => `"${name.replaceAll('"', '""')}"`;
+
+const escapeLiteral = value => value.replaceAll("'", "''");
+
+function parseTsvRecords(source, acceptRecord) {
+  const text = source.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const records = [];
+  let row = [];
+  let cell = "";
+  let cellStart = 0;
+  let quoted = false;
+  let closedQuote = false;
+  let recordStarted = false;
+  for (let index = 0; index <= text.length; index += 1) {
+    const char = text[index];
+    if (quoted) {
+      if (char === undefined) return null;
+      if (char === '"') {
+        cell += text.slice(cellStart, index);
+        if (text[index + 1] === '"') {
+          cell += '"';
+          index += 1;
+        } else {
+          quoted = false;
+          closedQuote = true;
+        }
+        cellStart = index + 1;
+      }
+    } else if (char === "\t" || char === "\n" || char === undefined) {
+      cell += text.slice(cellStart, index);
+      row.push(cell);
+      if (char === "\t") {
+        recordStarted = true;
+      } else {
+        if (recordStarted || cell.trim()) {
+          if (acceptRecord && !acceptRecord(row)) return null;
+          records.push(row);
+        }
+        row = [];
+        recordStarted = false;
+      }
+      cell = "";
+      cellStart = index + 1;
+      closedQuote = false;
+    } else if (closedQuote) {
+      return null;
+    } else if (char === '"' && index === cellStart) {
+      quoted = true;
+      recordStarted = true;
+      cellStart = index + 1;
+    }
   }
-  _pendingConvertTimer = setTimeout(_flushPendingConvert, 120);
+  return records;
 }
 
-function _flushPendingConvert() {
-  if (_pendingConvertTimer === undefined) return;
-  clearTimeout(_pendingConvertTimer);
-  _pendingConvertTimer = undefined;
-  _convertAll();
+function getLines(text) {
+  const records = text.includes('"') && parseTsvRecords(text);
+  if (records) return records.map(row => row.join("\t").trim()).filter(Boolean);
+  return text.split(/\r\n|[\r\n]/).map(line => line.trim()).filter(Boolean);
 }
 
-function _finishComposition(event) {
-  if (!$compositionTarget || event.target !== $compositionTarget) return;
-  $compositionTarget = null;
-  _convertAll();
-  _autoSave();
+function convertA5m2(lines) {
+  if (!lines.length || lines.some(value => /[,\r\n]/.test(value) || !isValidText(value))) return "";
+  return `--*Captions ${lines.join(",")}`;
 }
 
-function _suspendPage() {
-  _activeCopyRequest = undefined;
-  for (const $button of COPY_CONTROL_MAP.keys()) _resetCopyState($button);
-  _saveSettings();
+const convertTsv = lines => lines.map(value => /["\t\r\n]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value).join("\t");
+
+function convertSqlIn(lines) {
+  if (!lines.length || lines.some(value => !isValidText(value))) return "";
+  return `in (${lines.map(value => `'${escapeLiteral(value)}'`).join(",")});`;
 }
 
-function _setCopyState($button, _copied) {
-  const {$icon, $label, $feedback} = COPY_CONTROL_MAP.get($button);
-  const _iconHref = _copied ? "#icon-check" : "#icon-copy";
-  const _labelText = _copied ? "コピーしました" : "コピー";
-  if ($icon.getAttribute("href") !== _iconHref) $icon.setAttribute("href", _iconHref);
-  if ($label.textContent !== _labelText) $label.textContent = _labelText;
-  if ($button.classList.contains("copied") !== _copied) $button.classList.toggle("copied", _copied);
-  $button.setAttribute("aria-describedby", _copied ? `${$feedback.id} ${$label.id}` : $feedback.id);
+function parseTable(text) {
+  if (!isValidText(text)) return {
+    error: TEXT_ERROR
+  };
+  if (!text.trim()) return {
+    error: ""
+  };
+  let headers;
+  let error = "";
+  let recordNumber = 0;
+  const records = parseTsvRecords(text, row => {
+    recordNumber += 1;
+    if (headers) {
+      if (row.length === headers.length) return true;
+      error = `データ${recordNumber - 1}件目の列数が${row.length}列です。ヘッダーと同じ${headers.length}列にしてください。`;
+      return false;
+    }
+    headers = row.map(cell => cell.trim());
+    if (!headers.every(isValidPgName)) {
+      error = "カラム名を確認してください。空欄・使用できない文字・UTF-8で63バイトを超える名前は使えません。";
+    } else if (new Set(headers).size !== headers.length) {
+      error = "カラム名が重複しています。先頭行のカラム名をそれぞれ異なる名前にしてください。";
+    }
+    return !error;
+  });
+  if (!records) return {
+    error: error || "引用符が正しく閉じられていません。Excelの表をコピーし直すか、引用セルの形式を確認してください。"
+  };
+  if (records.length < 2) return {
+    error: "ヘッダーだけでは生成できません。先頭行にカラム名、次の行からデータを入力してください。"
+  };
+  return {
+    headers,
+    rows: records.slice(1)
+  };
 }
 
-function _resetCopyState($button) {
-  const _control = COPY_CONTROL_MAP.get($button);
-  clearTimeout(_control._resetTimeout);
-  _control._resetTimeout = undefined;
-  _control._copyError = "";
-  _renderFeedback(_control);
-  _setCopyState($button, false);
+function formatPgValue(value) {
+  if (value === null) return "NULL";
+  const escaped = escapeLiteral(value);
+  return value.includes("\\") ? `E'${escaped.replaceAll("\\", "\\\\")}'` : `'${escaped}'`;
 }
 
-function _showCopiedState($button) {
-  if ($button.disabled) return;
-  const _control = COPY_CONTROL_MAP.get($button);
-  clearTimeout(_control._resetTimeout);
-  _setCopyState($button, true);
-  _control._resetTimeout = setTimeout(() => _resetCopyState($button), COPY_RESET_MS);
+function preparePostgreSQL(text) {
+  const {headers, rows, error = ""} = parseTable(text);
+  if (!rows) return {
+    error,
+    parts: null
+  };
+  const columns = headers.map(quoteIdentifier);
+  const conditions = new Set;
+  const values = rows.map(row => {
+    const rowConditions = [];
+    const literals = row.map((cell, index) => {
+      const value = cell.trim() ? NULL_PATTERN.test(cell.trim()) ? null : cell : "";
+      const literal = formatPgValue(value === "" ? " " : value);
+      if (value) rowConditions.push(`${columns[index]} = ${literal}`);
+      return literal;
+    });
+    if (rowConditions.length) conditions.add(rowConditions.join(" AND "));
+    return `  (${literals.join(", ")})`;
+  });
+  const where = conditions.size ? [ ...conditions ].map(condition => `(${condition})`).join("\n   OR ") : "1 = 0";
+  return {
+    error,
+    parts: {
+      columns: columns.join(", "),
+      where,
+      values: values.join(",\n")
+    }
+  };
 }
 
-function _fallbackCopy($target, text) {
-  if ($target.value !== text) return false;
-  const $active = document.activeElement;
-  const _activeSelection = typeof $active?.selectionStart === "number" ? [ $active.selectionStart, $active.selectionEnd, $active.selectionDirection ] : null;
-  const _activeScroll = $active ? [ $active.scrollLeft, $active.scrollTop ] : null;
-  const _selection = [ $target.selectionStart, $target.selectionEnd, $target.selectionDirection ];
-  const _scroll = [ $target.scrollLeft, $target.scrollTop ];
-  const _viewport = [ window.scrollX, window.scrollY ];
-  const _documentSelection = window.getSelection();
-  const _selectionEndpoints = _documentSelection?.rangeCount === 1 ? [ _documentSelection.anchorNode, _documentSelection.anchorOffset, _documentSelection.focusNode, _documentSelection.focusOffset ] : null;
-  const _ranges = _documentSelection ? Array.from({
-    length: _documentSelection.rangeCount
-  }, (_, index) => _documentSelection.getRangeAt(index).cloneRange()) : [];
+function resolveTableName(value) {
+  const name = value.trim();
+  if (!name) return "???";
+  const partPattern = /\s*("(?:[^"\0]|""){0,63}"|[A-Za-z_\u0080-￿][A-Za-z0-9_$\u0080-￿]{0,62})\s*(\.|$)/gy;
+  const parts = [];
+  while (partPattern.lastIndex < name.length) {
+    const match = partPattern.exec(name);
+    if (!match) return "";
+    const [, part, separator] = match;
+    const unquoted = part.startsWith('"') ? part.slice(1, -1).replaceAll('""', '"') : part.replace(/[A-Z]/g, letter => letter.toLowerCase());
+    if (!isValidPgName(unquoted)) return "";
+    parts.push(quoteIdentifier(unquoted));
+    if (separator === "." && (partPattern.lastIndex === name.length || parts.length === 3)) return "";
+  }
+  return parts.join(".");
+}
+
+function convertPostgreSQL(text, tableName) {
+  if (pgCache.input !== text) pgCache = {
+    input: text
+  };
+  const table = resolveTableName(tableName);
+  if (!table) return "";
+  if (!("parts" in pgCache)) Object.assign(pgCache, preparePostgreSQL(text));
+  if (!pgCache.parts) return "";
+  const {columns, where, values} = pgCache.parts;
+  return [ "-- SELECT文（事前チェック）", `SELECT * FROM ${table}\nWHERE ${where}\n;`, "", "-- INSERT文", "BEGIN;", `INSERT INTO ${table} (${columns}) VALUES\n${values}\n;`, "COMMIT;", "", "-- DELETE文", "BEGIN;", `DELETE FROM ${table}\nWHERE ${where}\n;`, "COMMIT;" ].join("\n");
+}
+
+function adjustNumbers(text, offsetValue) {
+  const offset = BigInt(offsetValue.trim() || 0);
+  if (!text || offset === 0n) return text;
+  return text.replace(/\d+/g, digits => {
+    const next = BigInt(digits) + offset;
+    if (next < 0n) return `-${-next}`;
+    return digits.length > 1 && digits.startsWith("0") ? String(next).padStart(digits.length, "0") : String(next);
+  });
+}
+
+function convertAll() {
+  const input = inputArea.value;
+  const tableName = tableNameInput.value;
+  const offset = offsetInput.value;
+  const tableValid = resolveTableName(tableName) !== "";
+  const offsetInvalid = offset.trim() !== "" && !INTEGER_PATTERN.test(offset.trim());
+  tableNameInput.setAttribute("aria-invalid", String(!tableValid));
+  offsetInput.setAttribute("aria-invalid", String(offsetInvalid));
+  const inputChanged = input !== lastConversion.input;
+  const results = {};
+  const messages = {};
+  if (inputChanged) {
+    if (input) clearedInput = null;
+    clearButton.disabled = !input;
+    undoClearButton.hidden = Boolean(input) || clearedInput === null;
+    clearButton.hidden = !undoClearButton.hidden;
+    const lines = getLines(input);
+    const invalidText = lines.some(line => !isValidText(line));
+    results["output-a5m2"] = convertA5m2(lines);
+    results["output-tsv"] = convertTsv(lines);
+    results["output-sql-in"] = convertSqlIn(lines);
+    if (invalidText) messages["output-a5m2"] = TEXT_ERROR; else if (lines.some(line => line.includes(","))) messages["output-a5m2"] = "値にカンマが含まれています。A5M2では列の区切りになるため、カンマを除去してください。"; else if (lines.some(line => /[\r\n]/.test(line))) messages["output-a5m2"] = "セル内に改行があります。A5M2のCaptionは1行のため、改行を除去してください。"; else messages["output-a5m2"] = "";
+    messages["output-sql-in"] = invalidText ? TEXT_ERROR : "";
+  }
+  if (inputChanged || tableName !== lastConversion.tableName) {
+    results["output-pg-sql"] = convertPostgreSQL(input, tableName);
+    messages["output-pg-sql"] = tableValid ? pgCache.error || "" : "テーブル名の形式が不正です。例：public.orders。各名前はUTF-8で63バイト以内にしてください。";
+  }
+  if (inputChanged || offset !== lastConversion.offset) {
+    results["output-number-adjust"] = offsetInvalid ? "" : adjustNumbers(input, offset);
+    messages["output-number-adjust"] = offsetInvalid ? "増減値は整数で入力してください（例：1、-2）。小数・指数表記は使えません。" : "";
+  }
+  lastConversion = {
+    input,
+    tableName,
+    offset
+  };
+  for (const [button, control] of copyControls) {
+    const {id} = control.target;
+    control.value = results[id] ?? control.value;
+    control.message = messages[id] ?? control.message;
+    const changed = control.target.value !== control.value;
+    if (changed) control.target.value = control.value;
+    button.disabled = !control.value;
+    if (button.disabled || changed) {
+      if (activeCopy?.button === button) activeCopy = undefined;
+      resetCopyState(button);
+    }
+    renderFeedback(control);
+  }
+}
+
+function scheduleConvert() {
+  clearTimeout(convertTimer);
+  if (inputArea.value.length < LARGE_INPUT_CHARACTERS) convertAll(); else convertTimer = setTimeout(convertAll, 120);
+}
+
+const currentSettings = () => ({
+  input: inputArea.value,
+  pgTableName: tableNameInput.value,
+  numberOffset: offsetInput.value,
+  theme: currentTheme()
+});
+
+const changedFields = settings => SETTINGS_FIELDS.filter(field => settings[field] !== lastSaved[field]);
+
+function setSaveStatus(message, error = false) {
+  setText(saveStatus, message);
+  saveStatus.dataset.state = error ? "error" : "normal";
+}
+
+function readStored() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  let data;
   try {
-    $target.focus({
+    data = JSON.parse(raw);
+  } catch {
+    return {};
+  }
+  if (!data || typeof data !== "object" || Array.isArray(data)) return {};
+  const settings = Object.fromEntries(SETTINGS_FIELDS.filter(field => typeof data[field] === "string").map(field => [ field, data[field] ]));
+  if ("theme" in settings) settings.theme = validTheme(settings.theme);
+  return settings;
+}
+
+function saveSettings() {
+  clearTimeout(saveTimer);
+  clearTimeout(maxSaveTimer);
+  maxSaveTimer = undefined;
+  const settings = currentSettings();
+  const changed = changedFields(settings);
+  if (!changed.length) return;
+  try {
+    const merged = readStored();
+    for (const field of changed) merged[field] = settings[field];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    lastSaved = settings;
+    setSaveStatus("");
+  } catch {
+    setSaveStatus("保存できません。再読み込みで入力が失われる可能性があります。必要な結果をコピーしてください。", true);
+  }
+}
+
+function autoSave() {
+  if (!changedFields(currentSettings()).length) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveSettings, 500);
+  maxSaveTimer ??= setTimeout(saveSettings, 2e3);
+}
+
+function loadSettings() {
+  let settings = {};
+  try {
+    settings = readStored();
+  } catch {
+    setSaveStatus("保存機能を利用できません。必要な結果をコピーしてからページを閉じてください。", true);
+  }
+  if (settings.input !== undefined) inputArea.value = settings.input;
+  tableNameInput.value = settings.pgTableName ?? "";
+  offsetInput.value = settings.numberOffset ?? "";
+  applyTheme(settings.theme);
+  lastSaved = currentSettings();
+}
+
+function renderFeedback(control) {
+  setText(control.feedback, [ control.message, control.copyError ].filter(Boolean).join(" "));
+}
+
+function setCopied(button, copied) {
+  const {icon, label, feedback} = copyControls.get(button);
+  icon.setAttribute("href", copied ? "#icon-check" : "#icon-copy");
+  setText(label, copied ? "コピーしました" : "コピー");
+  button.classList.toggle("copied", copied);
+  button.setAttribute("aria-describedby", copied ? `${feedback.id} ${label.id}` : feedback.id);
+}
+
+function resetCopyState(button) {
+  const control = copyControls.get(button);
+  clearTimeout(control.resetTimer);
+  control.resetTimer = undefined;
+  control.copyError = "";
+  renderFeedback(control);
+  setCopied(button, false);
+}
+
+function showCopied(button) {
+  if (button.disabled) return;
+  const control = copyControls.get(button);
+  clearTimeout(control.resetTimer);
+  setCopied(button, true);
+  control.resetTimer = setTimeout(() => resetCopyState(button), 2e3);
+}
+
+function fallbackCopy(target, text) {
+  if (target.value !== text) return false;
+  const active = document.activeElement;
+  const activeSelection = typeof active?.selectionStart === "number" ? [ active.selectionStart, active.selectionEnd, active.selectionDirection ] : null;
+  const activeScroll = active ? [ active.scrollLeft, active.scrollTop ] : null;
+  const selection = [ target.selectionStart, target.selectionEnd, target.selectionDirection ];
+  const scroll = [ target.scrollLeft, target.scrollTop ];
+  const viewport = [ window.scrollX, window.scrollY ];
+  const documentSelection = window.getSelection();
+  const endpoints = documentSelection?.rangeCount === 1 ? [ documentSelection.anchorNode, documentSelection.anchorOffset, documentSelection.focusNode, documentSelection.focusOffset ] : null;
+  const ranges = Array.from({
+    length: documentSelection?.rangeCount ?? 0
+  }, (_, index) => documentSelection.getRangeAt(index).cloneRange());
+  try {
+    target.focus({
       preventScroll: true
     });
-    $target.select();
+    target.select();
     return document.execCommand("copy") === true;
   } catch {
     return false;
   } finally {
-    $target.setSelectionRange(..._selection);
-    $target.scrollLeft = _scroll[0];
-    $target.scrollTop = _scroll[1];
-    if ($active !== $target) {
-      $target.blur();
-      if ($active?.isConnected) $active.focus({
+    target.setSelectionRange(...selection);
+    [target.scrollLeft, target.scrollTop] = scroll;
+    if (active !== target) {
+      target.blur();
+      if (active?.isConnected) active.focus({
         preventScroll: true
       });
-      if (_activeSelection && $active?.isConnected) {
-        $active.setSelectionRange(..._activeSelection);
-        $active.scrollLeft = _activeScroll[0];
-        $active.scrollTop = _activeScroll[1];
-      } else if (_documentSelection) {
-        _documentSelection.removeAllRanges();
-        if (_selectionEndpoints && typeof _documentSelection.setBaseAndExtent === "function") {
-          _documentSelection.setBaseAndExtent(..._selectionEndpoints);
-        } else {
-          _ranges.forEach(_range => _documentSelection.addRange(_range));
-        }
+      if (activeSelection && active?.isConnected) {
+        active.setSelectionRange(...activeSelection);
+        [active.scrollLeft, active.scrollTop] = activeScroll;
+      } else if (documentSelection) {
+        documentSelection.removeAllRanges();
+        if (endpoints) documentSelection.setBaseAndExtent(...endpoints); else ranges.forEach(range => documentSelection.addRange(range));
       }
     }
-    window.scrollTo(..._viewport);
+    window.scrollTo(...viewport);
   }
 }
 
-async function _copyResult($button) {
-  clearTimeout(_pendingConvertTimer);
-  _pendingConvertTimer = undefined;
-  _convertAll();
-  _autoSave();
-  if ($button.disabled) return;
-  const {$target} = COPY_CONTROL_MAP.get($button);
-  const _text = $target.value;
-  const _request = {
-    $button
+async function copyResult(button) {
+  clearTimeout(convertTimer);
+  convertAll();
+  autoSave();
+  if (button.disabled) return;
+  const control = copyControls.get(button);
+  const {target} = control;
+  const text = target.value;
+  const request = {
+    button
   };
-  _activeCopyRequest = _request;
-  for (const $copyButton of COPY_CONTROL_MAP.keys()) _resetCopyState($copyButton);
-  const _isCurrent = () => {
-    if (_activeCopyRequest !== _request) return false;
-    _convertAll();
-    _autoSave();
-    return _activeCopyRequest === _request && !$button.disabled && $target.value === _text;
+  activeCopy = request;
+  for (const other of copyControls.keys()) resetCopyState(other);
+  const isCurrent = () => {
+    if (activeCopy !== request) return false;
+    convertAll();
+    autoSave();
+    return activeCopy === request && !button.disabled && target.value === text;
   };
-  let _copied = false;
+  let copied = false;
   try {
-    if (typeof navigator.clipboard?.writeText === "function") {
-      await navigator.clipboard.writeText(_text);
-      _copied = true;
-    } else if (_isCurrent()) {
-      _copied = _fallbackCopy($target, _text);
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    } else if (isCurrent()) {
+      copied = fallbackCopy(target, text);
     }
   } catch {
-    if (_isCurrent()) _copied = _fallbackCopy($target, _text);
+    if (isCurrent()) copied = fallbackCopy(target, text);
   } finally {
-    if (_isCurrent()) {
-      if (_copied) _showCopiedState($button); else {
-        const _control = COPY_CONTROL_MAP.get($button);
-        _control._copyError = "コピーできませんでした。結果欄を選択し、Ctrl+C（Macは⌘C）でコピーしてください。";
-        _renderFeedback(_control);
+    if (isCurrent()) {
+      if (copied) {
+        showCopied(button);
+      } else {
+        control.copyError = "コピーできませんでした。結果欄を選択し、Ctrl+C（Macは⌘C）でコピーしてください。";
+        renderFeedback(control);
       }
     }
-    if (_activeCopyRequest === _request) _activeCopyRequest = undefined;
+    if (activeCopy === request) activeCopy = undefined;
   }
 }
 
-function _init() {
-  $main.addEventListener("input", _handleInput, {
-    capture: true
-  });
-  $main.addEventListener("change", _handleInput);
-  $main.addEventListener("compositionstart", event => {
-    if ($inputControls.includes(event.target)) $compositionTarget = event.target;
-  });
-  $main.addEventListener("compositionend", _finishComposition);
-  $main.addEventListener("focusout", _finishComposition);
-  $lightModeToggle.addEventListener("change", () => {
-    _applyTheme(_getThemeFromToggle());
-    _saveSettings();
-  });
-  window.addEventListener("pagehide", _suspendPage);
-  window.addEventListener("pageshow", _restorePage);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") {
-      _suspendPage();
-    } else if (document.visibilityState === "visible") {
-      _restorePage();
-    }
-  });
-  $main.addEventListener("click", event => {
-    if (event.target.closest("#input-undo-clear") && _clearedInput !== null && !$inputArea.value) {
-      $compositionTarget = null;
-      $inputArea.value = _clearedInput;
-      _convertAll();
-      _saveSettings();
-      $inputArea.focus({
-        preventScroll: true
-      });
-      return;
-    }
-    if (event.target.closest("#input-clear") && !$clearButton.disabled) {
-      $compositionTarget = null;
-      _clearedInput = $inputArea.value;
-      $inputArea.value = "";
-      _convertAll();
-      _saveSettings();
-      $inputArea.focus({
-        preventScroll: true
-      });
-      return;
-    }
-    const $button = event.target.closest(".copy-btn");
-    if ($button) _copyResult($button);
-  });
-  _loadSettings();
+function handleInput(event) {
+  const {target} = event;
+  if (!inputControls.includes(target)) return;
+  if (target === composing && (event.type === "change" || event.isComposing === false)) composing = null;
+  if (event.isComposing && !composing) composing = target;
+  if (!composing && !event.isComposing) scheduleConvert();
+  autoSave();
 }
 
-_init();</script>
+function finishComposition(event) {
+  if (event.target !== composing) return;
+  composing = null;
+  convertAll();
+  autoSave();
+}
+
+function suspendPage() {
+  activeCopy = undefined;
+  for (const button of copyControls.keys()) resetCopyState(button);
+  saveSettings();
+}
+
+function restorePage() {
+  composing = null;
+  applyTheme(currentTheme());
+  convertAll();
+  autoSave();
+}
+
+function replaceInput(value) {
+  composing = null;
+  inputArea.value = value;
+  convertAll();
+  saveSettings();
+  inputArea.focus({
+    preventScroll: true
+  });
+}
+
+main.addEventListener("input", handleInput, {
+  capture: true
+});
+
+main.addEventListener("change", handleInput);
+
+main.addEventListener("compositionstart", event => {
+  if (inputControls.includes(event.target)) composing = event.target;
+});
+
+main.addEventListener("compositionend", finishComposition);
+
+main.addEventListener("focusout", finishComposition);
+
+main.addEventListener("click", event => {
+  if (event.target.closest("#input-undo-clear") && clearedInput !== null && !inputArea.value) {
+    replaceInput(clearedInput);
+  } else if (event.target.closest("#input-clear") && !clearButton.disabled) {
+    clearedInput = inputArea.value;
+    replaceInput("");
+  } else {
+    const button = event.target.closest(".copy-btn");
+    if (button) copyResult(button);
+  }
+});
+
+themeToggle.addEventListener("change", () => {
+  applyTheme(currentTheme());
+  saveSettings();
+});
+
+window.addEventListener("pagehide", suspendPage);
+
+window.addEventListener("pageshow", restorePage);
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") suspendPage(); else if (document.visibilityState === "visible") restorePage();
+});
+
+loadSettings();</script>
   
     <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
       <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
@@ -2254,14 +2161,24 @@ cherry</pre>
     
   <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.text.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
-  let preferences = {}, faviconTheme = "";
-  const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
+  const root = document.documentElement;
+  const body = document.body;
+  const storageKey = `arttools.ui.text.v1`;
+  const legacySharedKey = "arttools.shared-ui.v1";
+  const settingsDialog = document.getElementById("art-settings");
+  const helpDialog = document.getElementById("art-help");
+  const saveNote = document.getElementById("art-save-note");
+  let preferences = {};
+  let faviconTheme = "";
+  const validTheme = value => value === "light" || value === "dark";
+  const editorSizes = [ 10, 14, 18 ];
+  const validSize = value => editorSizes.includes(value);
+  const migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
     try {
       const value = JSON.parse(raw);
-      if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
+      if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+      const editorSize = migrateSize(typeof value.editorSize === "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -2279,29 +2196,37 @@ cherry</pre>
   }
   function syncTheme() {
     const theme = originalTheme();
-    root.dataset.uiTheme !== theme && (root.dataset.uiTheme = theme), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (root.dataset.uiTheme !== theme) root.dataset.uiTheme = theme;
+    document.querySelectorAll("[data-art-theme]").forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.artTheme === theme));
-    }), syncFavicon();
+    });
+    syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg"), theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
+    const original = document.querySelector(".art-mark svg");
+    const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
       layer.setAttribute("display", layer.dataset.iconAppearance === theme ? "inline" : "none");
-    }), original.setAttribute("data-icon-theme", theme);
-    const icon = original.cloneNode(!0), favicon = document.getElementById("art-favicon");
-    favicon.type = "image/svg+xml", favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon)), 
+    });
+    original.setAttribute("data-icon-theme", theme);
+    const icon = original.cloneNode(true);
+    const favicon = document.getElementById("art-favicon");
+    favicon.type = "image/svg+xml";
+    favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon));
     faviconTheme = theme;
   }
   function applyTheme(theme) {
-    validTheme(theme) && originalTheme() !== theme && document.querySelector("#lightModeToggle").click(), 
+    if (validTheme(theme) && originalTheme() !== theme) document.querySelector("#lightModeToggle").click();
     syncTheme();
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px"), document.querySelectorAll("[data-art-size]").forEach(button => {
+    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
-    }), document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
+    });
+    document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
       detail: {
         size: nextSize
       }
@@ -2309,62 +2234,93 @@ cherry</pre>
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
-      saveNote.hidden = !0, saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+      saveNote.textContent = "";
+      saveNote.hidden = true;
+      saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。";
+      saveNote.hidden = false;
       saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (dialog.open) return;
+    if (dialog === settingsDialog) document.dispatchEvent(new Event("arttools:settings-open"));
+    dialog.showModal();
+    dialog.scrollTop = 0;
+    button.setAttribute("aria-expanded", "true");
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
-    button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
+    button.addEventListener("click", () => openDialog(dialog, button));
+    dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
-      button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
-        preventScroll: !0
+      button.setAttribute("aria-expanded", "false");
+      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
+      destination.focus({
+        preventScroll: true
       });
     });
-    let backdropStart = !1;
+    let backdropStart = false;
     const outside = event => {
       const rect = dialog.getBoundingClientRect();
       return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
     };
     dialog.addEventListener("pointerdown", event => {
       backdropStart = event.target === dialog && outside(event);
-    }), dialog.addEventListener("click", event => {
-      backdropStart && event.target === dialog && outside(event) && dialog.close(), backdropStart = !1;
+    });
+    dialog.addEventListener("click", event => {
+      if (backdropStart && event.target === dialog && outside(event)) dialog.close();
+      backdropStart = false;
     });
   }
   body.addEventListener("keydown", event => {
     const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
-    if (!dialog || (event.stopPropagation(), event.isComposing || event.keyCode === 229)) return;
+    if (!dialog) {
+      return;
+    }
+    event.stopPropagation();
+    if (event.isComposing || event.keyCode === 229) return;
     if (event.key === "Escape") {
-      event.preventDefault(), dialog.close();
+      event.preventDefault();
+      dialog.close();
       return;
     }
     if (event.key !== "Tab") return;
     const controls = [ ...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, a[href], [tabindex="0"]') ].filter(control => {
-      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return !1;
-      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return !1;
-      return !0;
-    }), first = controls[0], last = controls[controls.length - 1];
+      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return false;
+      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return false;
+      }
+      return true;
+    });
+    const first = controls[0];
+    const last = controls[controls.length - 1];
     if (!first) {
       event.preventDefault();
       return;
     }
-    event.shiftKey && document.activeElement === first ? (event.preventDefault(), last.focus()) : !event.shiftKey && document.activeElement === last && (event.preventDefault(), 
-    first.focus());
-  }), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
+      preferences.theme = button.dataset.artTheme;
+      save();
+      applyTheme(preferences.theme);
     });
-  }), document.querySelectorAll("[data-art-size]").forEach(button => {
+  });
+  document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.editorSize = Number(button.dataset.artSize), applySize(preferences.editorSize), 
+      preferences.editorSize = Number(button.dataset.artSize);
+      applySize(preferences.editorSize);
       save();
     });
   });
@@ -2372,50 +2328,67 @@ cherry</pre>
     let raw = localStorage.getItem(storageKey);
     if (raw === null) {
       const legacy = localStorage.getItem(legacySharedKey);
-      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+      if (legacy !== null) {
+        raw = JSON.stringify(readPreferences(legacy));
+        localStorage.setItem(storageKey, raw);
+      }
     }
-    if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
+    preferences = readPreferences(raw);
+    if (validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
-      stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
-        ...stored,
-        editorSize: preferences.editorSize
-      }));
+      if (stored.editorSize !== preferences.editorSize) {
+        localStorage.setItem(storageKey, JSON.stringify({
+          ...stored,
+          editorSize: preferences.editorSize
+        }));
+      }
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。";
+    saveNote.hidden = false;
     saveNote.dataset.error = "true";
   }
-  applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
-    validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();
-  }).observe(body, {
-    attributes: !0,
+  applyTheme(preferences.theme);
+  applySize(preferences.editorSize);
+  const observer = new MutationObserver(() => {
+    if (validTheme(preferences.theme) && originalTheme() !== preferences.theme) applyTheme(preferences.theme); else syncTheme();
+  });
+  observer.observe(body, {
+    attributes: true,
     attributeFilter: [ "data-mode" ]
   });
   const focusPrimaryInput = () => {
     const target = document.querySelector("[data-art-autofocus]");
     if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
-    let finished = !1;
+    const deadline = performance.now() + 3e3;
+    const userEvents = [ "pointerdown", "keydown" ];
+    let finished = false;
     const finish = () => {
-      finished = !0;
-      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+      finished = true;
+      for (const type of userEvents) window.removeEventListener(type, finish, true);
     };
-    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    for (const type of userEvents) window.addEventListener(type, finish, true);
     const attempt = () => {
-      if (!finished) {
-        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
-          preventScroll: !0
-        }), document.activeElement === target)) return finish();
-        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      if (finished) return;
+      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
+      if (target.getClientRects().length) {
+        target.focus({
+          preventScroll: true
+        });
+        if (document.activeElement === target) return finish();
       }
+      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
     };
     attempt();
   };
-  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
-    once: !0
-  }), window.addEventListener("storage", event => {
-    event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
-    applyTheme(preferences.theme), applySize(preferences.editorSize));
+  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
+    once: true
+  });
+  window.addEventListener("storage", event => {
+    if (event.key !== storageKey && event.key !== null) return;
+    preferences = readPreferences(event.newValue);
+    applyTheme(preferences.theme);
+    applySize(preferences.editorSize);
   });
 })();</script>
   </body>

@@ -7,15 +7,15 @@
     <title>Code Review Checker</title>
     <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22review%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-review-light-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%234f46e5%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-review-light-light)%22%2F%3E%3Cpath%20d%3D%22M64%2024%2098%2036v26c0%2023-14%2037-34%2044-20-7-34-21-34-44V36Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22m49%2064%2011%2011%2020-23%22%20fill%3D%22none%22%20stroke%3D%22%234f46e5%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-review-dark-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%236366f1%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-review-dark-light)%22%2F%3E%3Crect%20x%3D%224.75%22%20y%3D%224.75%22%20width%3D%22118.5%22%20height%3D%22118.5%22%20rx%3D%2227.25%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.2%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M64%2024%2098%2036v26c0%2023-14%2037-34%2044-20-7-34-21-34-44V36Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22m49%2064%2011%2011%2020-23%22%20fill%3D%22none%22%20stroke%3D%22%236366f1%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
     <script>(() => {
-  let initialTheme = "light";
+  let theme = "light";
   try {
-    initialTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   } catch {}
   try {
-    const savedTheme = localStorage.getItem("code-review-checker-theme");
-    if (savedTheme === "dark" || savedTheme === "light") initialTheme = savedTheme;
+    const saved = localStorage.getItem("code-review-checker-theme");
+    if (saved === "dark" || saved === "light") theme = saved;
   } catch {}
-  document.documentElement.dataset.theme = initialTheme;
+  document.documentElement.dataset.theme = theme;
 })();</script>
     <style id="app-styles">:root {
   color-scheme: light;
@@ -14691,17 +14691,62 @@ const acorn = reviewParsers.acorn;</script>
   const BOOLEAN_PREFIXES = [ "is", "has", "can", "should", "needs", "contains", "exists", "supports" ];
   const METHOD_TYPE_SUFFIXES = [ "String", "Str", "Int", "Bool", "Boolean", "Array", "List", "Obj", "Object" ];
   const HUNGARIAN_PREFIXES = [ "str", "int", "bool", "arr", "lst", "obj" ];
-  const ABBREVIATIONS = {
+  const ABBREVIATION_PATTERNS = Object.entries({
     usr: "user",
     cnt: "count",
     msg: "message",
     cfg: "config"
-  };
-  const ABBREVIATION_PATTERNS = Object.entries(ABBREVIATIONS).map(([abbr, full]) => ({
+  }).map(([abbr, full]) => ({
     abbr,
     full,
     pattern: new RegExp(`(^${abbr}(?=[A-Z_]|$)|_${abbr}(?=_|$))`)
   }));
+  const ISSUES = {
+    println: {
+      level: "warn",
+      title: "System.out.println が残っています",
+      suggestion: "デバッグ出力の消し忘れでないか確認してください。必要ならプロジェクトのロガーを使用します。"
+    },
+    printStackTrace: {
+      level: "warn",
+      title: "printStackTrace() が残っています",
+      suggestion: "例外の扱い方やプロジェクトのログ方針に合わせて処理してください。"
+    },
+    broadCatch: {
+      level: "info",
+      title: "Exception を広く catch しています",
+      suggestion: "必要に応じて、より具体的な例外型を扱えないか確認してください。"
+    },
+    javaEmptyCatch: {
+      level: "fix",
+      title: "空の catch ブロックがあります",
+      suggestion: "例外を握りつぶす意図が明確でない場合は、適切な処理・ログ・再throwを検討してください。"
+    },
+    javaStringComparison: {
+      level: "fix",
+      title: "Stringの比較に == / != が使われています",
+      message: "Javaの == / != は文字列内容ではなく参照を比較します。",
+      suggestion: "equals / Objects.equals など、意図に合う比較を使用してください。"
+    }
+  };
+  const classNameIssue = (name, line) => ({
+    level: "fix",
+    line,
+    title: `クラス名「${name}」は PascalCase にしてください`,
+    suggestion: "例: UserService / OrderController"
+  });
+  const upperSnakeIssue = (kind, name, line) => ({
+    level: "fix",
+    line,
+    title: `${kind}「${name}」は UPPER_SNAKE_CASE にしてください`,
+    suggestion: `例: ${toUpperSnake(name)}`
+  });
+  const collectionNameIssue = (name, line) => ({
+    level: "warn",
+    line,
+    title: `コレクション変数「${name}」は複数形が分かる名前にしてください`,
+    suggestion: "例: users / userList / orderIds"
+  });
   function addIssue(issues, issue) {
     const line = Math.max(1, issue.line || 1);
     issues.push({
@@ -14713,18 +14758,10 @@ const acorn = reviewParsers.acorn;</script>
       endLine: Math.max(line, issue.endLine || line)
     });
   }
-  function isLowerCamel(name) {
-    return /^[a-z][A-Za-z0-9]*$/.test(name);
-  }
-  function isPascal(name) {
-    return /^[A-Z][A-Za-z0-9]*$/.test(name);
-  }
-  function isUpperSnake(name) {
-    return /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/.test(name);
-  }
-  function startsWithBooleanPrefix(name) {
-    return BOOLEAN_PREFIXES.some(prefix => name.startsWith(prefix) && name.length > prefix.length && /[A-Z]/.test(name[prefix.length]));
-  }
+  const isLowerCamel = name => /^[a-z][A-Za-z0-9]*$/.test(name);
+  const isPascal = name => /^[A-Z][A-Za-z0-9]*$/.test(name);
+  const isUpperSnake = name => /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/.test(name);
+  const startsWithBooleanPrefix = name => BOOLEAN_PREFIXES.some(prefix => name.startsWith(prefix) && /[A-Z]/.test(name[prefix.length] ?? ""));
   function toUpperSnake(name) {
     return name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/[-\s]+/g, "_").replace(/__+/g, "_").toUpperCase();
   }
@@ -14740,30 +14777,19 @@ const acorn = reviewParsers.acorn;</script>
     parts.push(source.slice(offset));
     return parts.join("");
   }
-  function lexSource(source, lang) {
-    const normalized = source.replace(/\r\n?/g, "\n");
-    return lang === "javascript" ? lexJavaScript(normalized) : lexJava(normalized);
-  }
   function groupLineComments(comments) {
     const grouped = [];
-    const sorted = comments.toSorted((a, b) => a.startLine - b.startLine);
-    for (const comment of sorted) {
-      if (comment.type !== "line") {
-        grouped.push(comment);
-        continue;
-      }
+    for (const comment of comments.toSorted((a, b) => a.startLine - b.startLine)) {
       const last = grouped.at(-1);
-      if (last && last.type === "line-group" && last.endLine + 1 === comment.startLine) {
+      if (comment.type !== "line") grouped.push(comment); else if (last?.type === "line-group" && last.endLine + 1 === comment.startLine) {
         last.endLine = comment.endLine;
-        last.text += "\n" + comment.text;
-      } else {
-        grouped.push({
-          type: "line-group",
-          startLine: comment.startLine,
-          endLine: comment.endLine,
-          text: comment.text
-        });
-      }
+        last.text += `\n${comment.text}`;
+      } else grouped.push({
+        type: "line-group",
+        startLine: comment.startLine,
+        endLine: comment.endLine,
+        text: comment.text
+      });
     }
     return grouped;
   }
@@ -14771,17 +14797,13 @@ const acorn = reviewParsers.acorn;</script>
     const clean = text.replace(/^\/\*+/, "").replace(/\*+\/$/, "").split("\n").map(line => line.replace(/^\s*\/\/\s?/, "").replace(/^\s*\*\s?/, "").trim()).filter(line => !/^(?:@\w+|\w+\s*[:：])/.test(line)).join("\n").trim();
     if (!clean || /^@\w+/.test(clean) || /^\w+\s*[:：]/.test(clean)) return false;
     if (lang === "java" && /^(?:@param|@return|@throws|@see|@since|@author)\b/m.test(clean)) return false;
-    const commonPatterns = [ /\b(?:if|for|while|switch|catch)\s*\(|\b(?:try|else|finally|do)\s*\{|\b(?:return|throw)\b[^;\n]{0,256};|\b(?:class|function)\s+[A-Za-z_$][\w$]*\s*[{(]/, /\b[A-Za-z_$][\w$]*\s*=\s*[^=]/, /\b[A-Za-z_$][\w$]*\s*\([^()\n]{0,256}\)\s*;?/, /[;{}]/ ];
-    const javaPatterns = [ /\b(?:String|boolean|int|long|double|List|Set|Map)(?:<[^>\n]{1,256}>)?\s+[A-Za-z_$][\w$]*\s*[=;]/ ];
-    const jsPatterns = [ /\b(?:const|let|var)\s+[A-Za-z_$][\w$]*\s*[=;]/, /=>/ ];
-    const patterns = commonPatterns.concat(lang === "java" ? javaPatterns : jsPatterns);
+    const patterns = [ /\b(?:if|for|while|switch|catch)\s*\(|\b(?:try|else|finally|do)\s*\{|\b(?:return|throw)\b[^;\n]{0,256};|\b(?:class|function)\s+[A-Za-z_$][\w$]*\s*[{(]/, /\b[A-Za-z_$][\w$]*\s*=\s*[^=]/, /\b[A-Za-z_$][\w$]*\s*\([^()\n]{0,256}\)\s*;?/, /[;{}]/, ...lang === "java" ? [ /\b(?:String|boolean|int|long|double|List|Set|Map)(?:<[^>\n]{1,256}>)?\s+[A-Za-z_$][\w$]*\s*[=;]/ ] : [ /\b(?:const|let|var)\s+[A-Za-z_$][\w$]*\s*[=;]/, /=>/ ] ];
     return patterns.some(pattern => pattern.test(clean));
   }
   function analyzeComments(lex, lang, issues) {
     const taskMarker = /(?:^|[^\p{L}\p{N}\p{M}_$])(?:TODO|FIXME)(?![\p{L}\p{N}\p{M}_$])/iu;
     for (const comment of lex.comments) {
-      const lines = (comment.text || "").split("\n");
-      lines.forEach((text, index) => {
+      comment.text.split("\n").forEach((text, index) => {
         if (!taskMarker.test(text)) return;
         addIssue(issues, {
           level: "info",
@@ -14792,157 +14814,105 @@ const acorn = reviewParsers.acorn;</script>
         });
       });
     }
-    const grouped = groupLineComments(lex.comments);
-    for (const comment of grouped) {
-      const text = comment.text || "";
-      if (looksLikeCommentedCode(text, lang)) {
-        addIssue(issues, {
-          level: "info",
-          line: comment.startLine,
-          endLine: comment.endLine,
-          title: "コメントアウトされたコードの可能性があります",
-          message: "コメント内のコードは通常ルールではチェックしていません。",
-          suggestion: "不要なコードなら削除し、履歴はバージョン管理に任せるのがおすすめです。"
-        });
-      }
+    for (const comment of groupLineComments(lex.comments)) {
+      if (!looksLikeCommentedCode(comment.text, lang)) continue;
+      addIssue(issues, {
+        level: "info",
+        line: comment.startLine,
+        endLine: comment.endLine,
+        title: "コメントアウトされたコードの可能性があります",
+        message: "コメント内のコードは通常ルールではチェックしていません。",
+        suggestion: "不要なコードなら削除し、履歴はバージョン管理に任せるのがおすすめです。"
+      });
     }
   }
-  function analyzeCommon(lex, issues) {
-    const {lines} = lex;
+  function analyzeLongLines(lines, issues) {
     lines.forEach((line, index) => {
-      if (line.replace(/\t/g, "  ").length > LONG_LINE_LIMIT) {
-        addIssue(issues, {
-          level: "info",
-          line: index + 1,
-          title: `1行が${LONG_LINE_LIMIT}文字を超えています`,
-          message: "横スクロールやレビュー時の読みづらさにつながります。",
-          suggestion: "式や引数を適切な位置で改行してください。"
-        });
-      }
+      if (line.replace(/\t/g, "  ").length <= LONG_LINE_LIMIT) return;
+      addIssue(issues, {
+        level: "info",
+        line: index + 1,
+        title: `1行が${LONG_LINE_LIMIT}文字を超えています`,
+        message: "横スクロールやレビュー時の読みづらさにつながります。",
+        suggestion: "式や引数を適切な位置で改行してください。"
+      });
     });
   }
   function checkVariableName(name, type, line, context, issues, options = {}) {
     if (!name || name === "✖" || options.constant) return;
+    const add = (level, title, details) => addIssue(issues, {
+      level,
+      line,
+      title,
+      ...details
+    });
     if (AMBIGUOUS_NAMES.has(name)) {
-      addIssue(issues, {
-        level: "info",
-        line,
-        title: `変数名「${name}」は意味が広すぎます`,
+      add("info", `変数名「${name}」は意味が広すぎます`, {
         message: "変数名だけで中身や役割が分かる名前を検討してください。",
         suggestion: "例: userProfile / activeUsers / validationResult"
       });
     }
     if (/flag$/i.test(name)) {
-      addIssue(issues, {
-        level: "warn",
-        line,
-        title: `「${name}」では true / false の意味が分かりにくいです`,
+      add("warn", `「${name}」では true / false の意味が分かりにくいです`, {
         suggestion: "is / has / can / should など、状態を質問として読める名前を使ってください。"
       });
     }
     if (name.length === 1 && !ALLOWED_SHORT_NAMES.has(name)) {
-      addIssue(issues, {
-        level: "warn",
-        line,
-        title: `1文字の変数名「${name}」は避けてください`,
+      add("warn", `1文字の変数名「${name}」は避けてください`, {
         suggestion: "役割が分かる具体的な名前にしてください。"
       });
+    } else if (name.length === 1 && !/\bfor\s*\(|=>|\bcatch\s*\(/.test(context)) {
+      add("info", `短い変数名「${name}」を確認してください`, {
+        message: "ループ変数や短いコールバック以外では、具体名の方が読みやすくなります。"
+      });
     }
-    if (name.length === 1 && ALLOWED_SHORT_NAMES.has(name)) {
-      const allowedContext = /\bfor\s*\(|=>|\bcatch\s*\(/.test(context);
-      if (!allowedContext) {
-        addIssue(issues, {
-          level: "info",
-          line,
-          title: `短い変数名「${name}」を確認してください`,
-          message: "ループ変数や短いコールバック以外では、具体名の方が読みやすくなります。"
-        });
-      }
-    }
-    if (!isLowerCamel(name) && name.length > 1 && !/^_/.test(name)) {
-      addIssue(issues, {
-        level: "warn",
-        line,
-        title: `変数名「${name}」は lowerCamelCase にしてください`,
+    if (name.length > 1 && !isLowerCamel(name) && !name.startsWith("_")) {
+      add("warn", `変数名「${name}」は lowerCamelCase にしてください`, {
         suggestion: "例: userName / retryCount / activeUsers"
       });
     }
-    for (const prefix of HUNGARIAN_PREFIXES) {
-      if (name.startsWith(prefix) && /[A-Z]/.test(name[prefix.length] || "")) {
-        addIssue(issues, {
-          level: "info",
-          line,
-          title: `型を表す接頭辞「${prefix}」は変数名に不要です`,
-          suggestion: "型ではなく、値の意味や役割を名前にしてください。"
-        });
-        break;
-      }
+    const prefix = HUNGARIAN_PREFIXES.find(value => name.startsWith(value) && /[A-Z]/.test(name[value.length] ?? ""));
+    if (prefix) {
+      add("info", `型を表す接頭辞「${prefix}」は変数名に不要です`, {
+        suggestion: "型ではなく、値の意味や役割を名前にしてください。"
+      });
     }
-    for (const {abbr, full, pattern} of ABBREVIATION_PATTERNS) {
-      if (pattern.test(name)) {
-        addIssue(issues, {
-          level: "info",
-          line,
-          title: `略語「${abbr}」を避けてください`,
-          suggestion: `「${full}」のように意味が分かる単語を使ってください。`
-        });
-        break;
-      }
+    const abbreviation = ABBREVIATION_PATTERNS.find(({pattern}) => pattern.test(name));
+    if (abbreviation) {
+      add("info", `略語「${abbreviation.abbr}」を避けてください`, {
+        suggestion: `「${abbreviation.full}」のように意味が分かる単語を使ってください。`
+      });
     }
-    const booleanType = /^(?:boolean|Boolean)$/i.test(type || "");
-    const booleanInitializer = /\b(?:true|false)\b|===|!==|==|!=|\binstanceof\b/.test(options.initializer || "");
+    const booleanType = /^boolean$/i.test(type ?? "");
+    const booleanInitializer = /\b(?:true|false)\b|===|!==|==|!=|\binstanceof\b/.test(options.initializer ?? "");
     if ((booleanType || booleanInitializer) && !startsWithBooleanPrefix(name)) {
-      addIssue(issues, {
-        level: "warn",
-        line,
-        title: `Boolean変数「${name}」は状態が分かる名前にしてください`,
+      add("warn", `Boolean変数「${name}」は状態が分かる名前にしてください`, {
         suggestion: "例: isActive / hasPermission / canEdit / shouldRetry"
       });
     }
     if (/^(?:isNot|hasNo|cannot|cant|shouldNot)[A-Z]/.test(name)) {
-      addIssue(issues, {
-        level: "info",
-        line,
-        title: `否定形のBoolean名「${name}」は読み間違いに注意してください`,
+      add("info", `否定形のBoolean名「${name}」は読み間違いに注意してください`, {
         suggestion: "肯定形の状態名に置き換えられないか検討してください。"
       });
     }
   }
   function checkMethodName(name, line, returnType, issues) {
     if (!name || name === "✖") return;
-    if (!isLowerCamel(name)) {
-      addIssue(issues, {
-        level: "fix",
-        line,
-        title: `メソッド名「${name}」は lowerCamelCase にしてください`,
-        suggestion: "例: getUser / saveOrder / calculateTotal"
-      });
-    }
+    const add = (level, title, suggestion) => addIssue(issues, {
+      level,
+      line,
+      title,
+      suggestion
+    });
+    if (!isLowerCamel(name)) add("fix", `メソッド名「${name}」は lowerCamelCase にしてください`, "例: getUser / saveOrder / calculateTotal");
     if (AMBIGUOUS_METHOD_NAMES.has(name)) {
-      addIssue(issues, {
-        level: "info",
-        line,
-        title: `メソッド名「${name}」は処理内容が伝わりにくい可能性があります`,
-        suggestion: "何を処理するのかまで名前に含めてください。例: processOrder / handleLoginError"
-      });
+      add("info", `メソッド名「${name}」は処理内容が伝わりにくい可能性があります`, "何を処理するのかまで名前に含めてください。例: processOrder / handleLoginError");
     }
-    if (/^(?:boolean|Boolean)$/i.test(returnType || "") && !startsWithBooleanPrefix(name)) {
-      addIssue(issues, {
-        level: "warn",
-        line,
-        title: `Booleanを返すメソッド「${name}」の名前を確認してください`,
-        suggestion: "is / has / can / should などから始めると意図が明確です。"
-      });
+    if (/^boolean$/i.test(returnType) && !startsWithBooleanPrefix(name)) {
+      add("warn", `Booleanを返すメソッド「${name}」の名前を確認してください`, "is / has / can / should などから始めると意図が明確です。");
     }
     const suffix = METHOD_TYPE_SUFFIXES.find(value => name.endsWith(value));
-    if (suffix) {
-      addIssue(issues, {
-        level: "info",
-        line,
-        title: `メソッド名に型情報「${suffix}」が含まれています`,
-        suggestion: "型ではなく、返す値や処理の意味を名前にしてください。"
-      });
-    }
+    if (suffix) add("info", `メソッド名に型情報「${suffix}」が含まれています`, "型ではなく、返す値や処理の意味を名前にしてください。");
   }
   function sourceLineOffsets(lines) {
     const offsets = [ 0 ];
@@ -14958,20 +14928,12 @@ const acorn = reviewParsers.acorn;</script>
     }
     return low + 1;
   }
-  function dedupeIssues(issues) {
-    const seen = new Set;
-    return issues.filter(issue => {
-      const key = [ issue.line, issue.endLine, issue.title ].join("|");
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }
   function reviewSource(source, lang) {
-    const lex = lexSource(source, lang);
+    const normalized = source.replace(/\r\n?/g, "\n");
+    const lex = lang === "javascript" ? lexJavaScript(normalized) : lexJava(normalized);
     const issues = [];
     analyzeComments(lex, lang, issues);
-    analyzeCommon(lex, issues);
+    analyzeLongLines(lex.lines, issues);
     if (lang === "java") {
       const model = lex.java ? createJavaModel(lex) : null;
       analyzeJavaNaming(lex, issues, model);
@@ -14981,14 +14943,20 @@ const acorn = reviewParsers.acorn;</script>
       analyzeJavaScriptNaming(lex, issues, model);
       analyzeJavaScript(lex, issues, model);
     }
+    const seen = new Set;
+    const unique = issues.filter(issue => {
+      const key = [ issue.line, issue.endLine, issue.title ].join("|");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     const rank = {
       fix: 0,
       warn: 1,
       info: 2
     };
-    const sorted = dedupeIssues(issues).sort((a, b) => a.line - b.line || rank[a.level] - rank[b.level] || a.title.localeCompare(b.title, "ja"));
     return {
-      issues: sorted,
+      issues: unique.sort((a, b) => a.line - b.line || rank[a.level] - rank[b.level] || a.title.localeCompare(b.title, "ja")),
       lex
     };
   }
@@ -15017,13 +14985,15 @@ const acorn = reviewParsers.acorn;</script>
       }); else if (current.type === "RestElement") pending.push({
         pattern: current.argument,
         initializer: null
-      }); else if (current.type === "ArrayPattern") for (const element of current.elements) pending.push({
+      }); else if (current.type === "ArrayPattern") pending.push(...current.elements.map(element => ({
         pattern: element,
         initializer: null
-      }); else if (current.type === "ObjectPattern") for (const property of current.properties) pending.push({
-        pattern: property.type === "RestElement" ? property.argument : property.value,
-        initializer: null
-      });
+      }))); else if (current.type === "ObjectPattern") {
+        pending.push(...current.properties.map(property => ({
+          pattern: property.type === "RestElement" ? property.argument : property.value,
+          initializer: null
+        })));
+      }
     }
     return result;
   }
@@ -15069,12 +15039,12 @@ const acorn = reviewParsers.acorn;</script>
       scopes.set(node, scope);
       if (functionTypes.has(node.type)) {
         if (node.id) bind(node.id, node.type === "FunctionDeclaration" ? outer : scope, node, "function");
-        for (const parameter of node.params) for (const {id, initializer} of patternBindings(parameter)) bind(id, scope, initializer, "parameter", true);
+        for (const {id, initializer} of node.params.flatMap(parameter => patternBindings(parameter))) bind(id, scope, initializer, "parameter", true);
       } else if (node.type === "CatchClause" && node.param) {
         for (const {id} of patternBindings(node.param)) bind(id, scope, null, "parameter", true);
       } else if (node.type === "VariableDeclarator") {
         let target = scope;
-        if (parent.kind === "var") while (target.parent && !target.function) target = target.parent;
+        while (parent.kind === "var" && target.parent && !target.function) target = target.parent;
         for (const {id, initializer} of patternBindings(node.id)) {
           bind(id, target, initializer || (node.id.type === "Identifier" ? node.init : null), parent.kind, false, Boolean(initializer));
         }
@@ -15102,9 +15072,7 @@ const acorn = reviewParsers.acorn;</script>
       writeTargets.push(target);
       for (const {id} of patternBindings(target)) {
         const binding = lookup(id.name, node, true);
-        if (binding) {
-          if (node.type !== "UnaryExpression") binding.mutated = true;
-        } else globalWrites.add(id.name);
+        if (!binding) globalWrites.add(id.name); else if (node.type !== "UnaryExpression") binding.mutated = true;
       }
     }
     const globalObjects = new Set([ "globalThis", "window", "self", "global" ]);
@@ -15244,6 +15212,9 @@ const acorn = reviewParsers.acorn;</script>
     const token = tokenAfter(parsed, node.left.end, "==/!=/===/!==");
     return token && token.end <= node.right.start && token.value === node.operator ? token : null;
   }
+  function rethrowUnlessSyntaxError(error) {
+    if (!(error instanceof SyntaxError) && !(error instanceof RangeError)) throw error;
+  }
   function parseJavaScript(source) {
     const options = {
       ecmaVersion: "latest",
@@ -15272,7 +15243,7 @@ const acorn = reviewParsers.acorn;</script>
         });
         break;
       } catch (error) {
-        if (!(error instanceof SyntaxError) && !(error instanceof RangeError)) throw error;
+        rethrowUnlessSyntaxError(error);
       }
     }
     const complete = Boolean(ast);
@@ -15292,40 +15263,29 @@ const acorn = reviewParsers.acorn;</script>
           if (token.type.label === "eof") break;
         }
       } catch (error) {
-        if (!(error instanceof SyntaxError) && !(error instanceof RangeError)) throw error;
+        rethrowUnlessSyntaxError(error);
         unreadStart = tokens.at(-1)?.end ?? 0;
       }
-    }
-    if (!ast) {
       try {
         ast = reviewParsers.acornLoose.parse(source.slice(0, unreadStart), options);
       } catch (error) {
-        if (!(error instanceof SyntaxError) && !(error instanceof RangeError)) throw error;
+        rethrowUnlessSyntaxError(error);
       }
     }
     const nodes = [];
-    if (ast) {
-      const pending = [ {
-        node: ast,
-        parent: null
-      } ];
-      while (pending.length) {
-        const entry = pending.pop();
-        nodes.push(entry);
-        for (const value of Object.values(entry.node)) {
-          if (Array.isArray(value)) {
-            for (const child of value) {
-              if (child && typeof child.type === "string") pending.push({
-                node: child,
-                parent: entry.node
-              });
-            }
-          } else if (value && typeof value.type === "string") {
-            pending.push({
-              node: value,
-              parent: entry.node
-            });
-          }
+    const pending = ast ? [ {
+      node: ast,
+      parent: null
+    } ] : [];
+    while (pending.length) {
+      const entry = pending.pop();
+      nodes.push(entry);
+      for (const value of Object.values(entry.node)) {
+        for (const child of Array.isArray(value) ? value : [ value ]) {
+          if (typeof child?.type === "string") pending.push({
+            node: child,
+            parent: entry.node
+          });
         }
       }
     }
@@ -15358,16 +15318,13 @@ const acorn = reviewParsers.acorn;</script>
   }
   function lexJavaScript(source) {
     const parsed = parseJavaScript(source);
-    const lines = source.split("\n");
     const masked = [ ...parsed.comments ];
     const templateDepths = [];
     for (const token of parsed.tokens) {
       const label = token.type.label;
-      if ([ "string", "regexp", "template", "invalidTemplate", "`", "${" ].includes(label)) {
-        masked.push(token);
-      }
+      if ([ "string", "regexp", "template", "invalidTemplate", "`", "${" ].includes(label)) masked.push(token);
       if (label === "${") templateDepths.push(0); else if (label === "{" && templateDepths.length) templateDepths[templateDepths.length - 1]++; else if (label === "}" && templateDepths.length) {
-        if (templateDepths[templateDepths.length - 1] === 0) {
+        if (templateDepths.at(-1) === 0) {
           templateDepths.pop();
           masked.push(token);
         } else templateDepths[templateDepths.length - 1]--;
@@ -15379,8 +15336,8 @@ const acorn = reviewParsers.acorn;</script>
     });
     return {
       source,
-      lines,
       parsed,
+      lines: source.split("\n"),
       complete: parsed.complete,
       noComments: maskSource(source, [ ...parsed.comments ]).split("\n"),
       structural: maskSource(source, masked).split("\n"),
@@ -15396,7 +15353,7 @@ const acorn = reviewParsers.acorn;</script>
     if (!lex.parsed.ast) return;
     for (const binding of model.bindings) {
       const parent = model.parents.get(binding.id);
-      if ([ "class", "function", "import" ].includes(binding.kind) || parent && parent.type === "VariableDeclarator" && parent.id === binding.id) continue;
+      if ([ "class", "function", "import" ].includes(binding.kind) || parent?.type === "VariableDeclarator" && parent.id === binding.id) continue;
       const line = binding.id.loc.start.line;
       const context = binding.parameter ? "=>" : lex.noComments[line - 1];
       const type = !binding.defaultOnly && !binding.parameter ? model.typeOf(binding.initializer) : "";
@@ -15405,19 +15362,14 @@ const acorn = reviewParsers.acorn;</script>
     for (const {node, parent} of lex.parsed.nodes) {
       const line = node.loc.start.line;
       if ([ "ClassDeclaration", "ClassExpression" ].includes(node.type) && node.id && node.id.name !== "✖" && !isPascal(node.id.name)) {
-        addIssue(issues, {
-          level: "fix",
-          line: node.id.loc.start.line,
-          title: `クラス名「${node.id.name}」は PascalCase にしてください`,
-          suggestion: "例: UserService / OrderController"
-        });
+        addIssue(issues, classNameIssue(node.id.name, node.id.loc.start.line));
       }
       if (node.type === "VariableDeclarator" && node.id.type === "Identifier") {
-        const name = node.id.name;
+        const {name} = node.id;
         const initializer = node.init;
         const isConst = parent.kind === "const";
         const topLevel = [ "Program", "ExportNamedDeclaration" ].includes(model.parents.get(parent)?.type);
-        const primitive = initializer && initializer.type === "Literal" && !initializer.regex;
+        const primitive = initializer?.type === "Literal" && !initializer.regex;
         const constantCandidate = isConst && topLevel && primitive && /(?:max|min|default|limit|timeout|interval|duration|retry|size|count|version|prefix|suffix)/i.test(name);
         checkVariableName(name, model.typeOf(initializer), line, lex.noComments[line - 1], issues, {
           constant: constantCandidate || isConst && isUpperSnake(name)
@@ -15430,7 +15382,7 @@ const acorn = reviewParsers.acorn;</script>
             suggestion: `定数として扱う値なら ${toUpperSnake(name)} のような UPPER_SNAKE_CASE を検討してください。`
           });
         }
-        if (initializer && initializer.type === "ArrayExpression" && !/(?:s|List|Array)$/.test(name)) {
+        if (initializer?.type === "ArrayExpression" && !/(?:s|List|Array)$/.test(name)) {
           addIssue(issues, {
             level: "info",
             line,
@@ -15438,9 +15390,7 @@ const acorn = reviewParsers.acorn;</script>
             suggestion: "例: users / items / userIds"
           });
         }
-        if (initializer && [ "FunctionExpression", "ArrowFunctionExpression" ].includes(initializer.type)) {
-          checkMethodName(name, line, "", issues);
-        }
+        if ([ "FunctionExpression", "ArrowFunctionExpression" ].includes(initializer?.type)) checkMethodName(name, line, "", issues);
       }
       if (node.type === "FunctionDeclaration" && node.id) checkMethodName(node.id.name, node.id.loc.start.line, "", issues);
       if ((node.type === "MethodDefinition" || node.type === "Property" && node.method) && !node.computed && node.key.type === "Identifier") {
@@ -15460,73 +15410,67 @@ const acorn = reviewParsers.acorn;</script>
       });
     }
   }
+  const isNullLiteral = node => node.type === "Literal" && node.value === null;
   function analyzeJsEquality(lex, issues) {
     for (const {node} of lex.parsed.nodes) {
-      if (node.type !== "BinaryExpression" || ![ "==", "!=" ].includes(node.operator) || node.left.start === node.left.end || node.right.start === node.right.end) continue;
-      if ([ node.left, node.right ].some(operand => operand.type === "Literal" && operand.value === null)) continue;
+      if (node.type !== "BinaryExpression" || ![ "==", "!=" ].includes(node.operator)) continue;
+      if (node.left.start === node.left.end || node.right.start === node.right.end || isNullLiteral(node.left) || isNullLiteral(node.right)) continue;
       addIssue(issues, {
         level: "fix",
-        line: (comparisonToken(lex.parsed, node) || node).loc.start.line,
-        title: `${node.operator} ではなく ${node.operator === "==" ? "===" : "!=="} を使用してください`,
+        line: (comparisonToken(lex.parsed, node) ?? node).loc.start.line,
+        title: `${node.operator} ではなく ${node.operator}= を使用してください`,
         message: "== null / != null は例外として許可しています。"
       });
     }
   }
   function analyzeJsValueComparison(lex, issues, model) {
     const unwrap = node => node.type === "ChainExpression" ? node.expression : node;
-    const isValue = node => staticMemberName(node) === "value";
+    const isStringValue = node => staticMemberName(node) === "value" && model.isStringValueReceiver(node.object);
     const definitelyNonString = node => [ "number", "numeric", "boolean", "bigint", "null", "object" ].includes(model.typeOf(node));
     for (const {node} of lex.parsed.nodes) {
       if (node.type !== "BinaryExpression" || ![ "===", "!==" ].includes(node.operator)) continue;
       const left = unwrap(node.left);
       const right = unwrap(node.right);
-      if (!(isValue(left) && model.isStringValueReceiver(left.object) && definitelyNonString(right) || isValue(right) && model.isStringValueReceiver(right.object) && definitelyNonString(left))) continue;
+      if (!(isStringValue(left) && definitelyNonString(right) || isStringValue(right) && definitelyNonString(left))) continue;
       addIssue(issues, {
         level: "fix",
-        line: (comparisonToken(lex.parsed, node) || node).loc.start.line,
+        line: (comparisonToken(lex.parsed, node) ?? node).loc.start.line,
         title: ".value の比較相手はシングルクォート文字列にしてください",
         suggestion: "例: input.value === '1' / '1' !== select.value"
       });
     }
   }
+  const badKeywordGap = gap => gap !== " " && !/\/\*|\/\//.test(gap);
   function analyzeJsSpacing(lex, issues) {
+    const {tokens} = lex.parsed;
     const keywordStarts = controlKeywordStarts(lex.parsed);
-    for (let index = 0; index < lex.parsed.tokens.length; index++) {
-      const token = lex.parsed.tokens[index];
-      const next = lex.parsed.tokens[index + 1];
-      if (!keywordStarts.has(token.start) || !next || next.type.label !== "(") continue;
-      if (/\/\*|\/\//.test(lex.source.slice(token.end, next.start))) continue;
-      if (lex.source.slice(token.end, next.start) !== " ") {
-        const keyword = token.type.label;
-        addIssue(issues, {
-          level: "fix",
-          line: token.loc.start.line,
-          title: `${keyword} の後ろは半角スペース1個にしてください`,
-          suggestion: `例: ${keyword} (...)`
-        });
-      }
-    }
+    tokens.forEach((token, index) => {
+      const next = tokens[index + 1];
+      if (!keywordStarts.has(token.start) || next?.type.label !== "(" || !badKeywordGap(lex.source.slice(token.end, next.start))) return;
+      const keyword = token.type.label;
+      addIssue(issues, {
+        level: "fix",
+        line: token.loc.start.line,
+        title: `${keyword} の後ろは半角スペース1個にしてください`,
+        suggestion: `例: ${keyword} (...)`
+      });
+    });
     for (const {node} of lex.parsed.nodes) {
       if (![ "BlockStatement", "ClassBody", "SwitchStatement" ].includes(node.type)) continue;
       const opening = node.type === "SwitchStatement" ? tokenAfter(lex.parsed, node.discriminant.end, "{") : node;
       if (!opening || opening.start >= node.end || lex.source[opening.start] !== "{") continue;
-      const offset = opening.start;
-      const line = opening.loc.start.line;
-      const before = lex.source.slice(lex.source.lastIndexOf("\n", offset - 1) + 1, offset);
-      if (before.trim() && !/\S $/.test(before)) {
-        addIssue(issues, {
-          level: "fix",
-          line,
-          title: "{ の前は半角スペース1個にしてください",
-          suggestion: "例: if (condition) { / function run() {"
-        });
-      }
+      const before = lex.source.slice(lex.source.lastIndexOf("\n", opening.start - 1) + 1, opening.start);
+      if (!before.trim() || /\S $/.test(before)) continue;
+      addIssue(issues, {
+        level: "fix",
+        line: opening.loc.start.line,
+        title: "{ の前は半角スペース1個にしてください",
+        suggestion: "例: if (condition) { / function run() {"
+      });
     }
   }
   function lineLooksLikeContinuation(line, previous) {
-    const current = line.trim();
-    const prev = (previous || "").trim();
-    return /^(?:\.|\)|\]|&&|\|\||\?|:)/.test(current) || /(?:\(|\[|,|\.|\+|-|\*|\/|&&|\|\||\?|:|=|=>)$/.test(prev);
+    return /^(?:\.|\)|\]|&&|\|\||\?|:)/.test(line.trim()) || /(?:\(|\[|,|\.|\+|-|\*|\/|&&|\|\||\?|:|=|=>)$/.test(previous.trim());
   }
   function analyzeJsIndentation(lex, issues) {
     if (!lex.complete) return;
@@ -15539,7 +15483,7 @@ const acorn = reviewParsers.acorn;</script>
         const opening = tokenAfter(lex.parsed, node.discriminant.end, "{");
         if (opening) switchOpenings.add(opening.start);
       }
-      const bodies = node.type === "IfStatement" ? [ node.consequent, node.alternate && node.alternate.type !== "IfStatement" ? node.alternate : null ] : [ "ForStatement", "ForInStatement", "ForOfStatement", "WhileStatement", "DoWhileStatement", "WithStatement" ].includes(node.type) ? [ node.body ] : [];
+      const bodies = node.type === "IfStatement" ? [ node.consequent, node.alternate?.type !== "IfStatement" ? node.alternate : null ] : [ "ForStatement", "ForInStatement", "ForOfStatement", "WhileStatement", "DoWhileStatement", "WithStatement" ].includes(node.type) ? [ node.body ] : [];
       for (const body of bodies) {
         if (!body || body.type === "BlockStatement" || body.loc.start.line <= node.loc.start.line) continue;
         unbraced[body.loc.start.line]++;
@@ -15548,63 +15492,62 @@ const acorn = reviewParsers.acorn;</script>
     }
     for (let line = 1; line < unbraced.length; line++) unbraced[line] += unbraced[line - 1];
     let depth = 0;
-    const switchStack = [];
-    let previousCode = "";
     let continuationDepth = 0;
-    for (let index = 0; index < lex.structural.length; index++) {
-      const structuralLine = lex.structural[index];
+    let previousCode = "";
+    const switchStack = [];
+    const isCaseLine = text => /^(?:case\b.*:|default\s*:)/.test(text);
+    lex.structural.forEach((structuralLine, index) => {
       const original = lex.lines[index];
       const trimmed = structuralLine.trim() || (literalLines.has(index + 1) ? "literal" : "");
-      if (!trimmed) continue;
+      if (!trimmed) return;
+      const line = index + 1;
       if (/^\s*\t+/.test(original) || /^ +\t/.test(original)) {
         addIssue(issues, {
           level: "fix",
-          line: index + 1,
+          line,
           title: "インデントにタブが使われています",
           suggestion: "JavaScriptのインデントは半角スペース2個に統一してください。"
         });
       } else {
         const leading = original.match(/^ */)[0].length;
-        const invalidIndentUnit = leading % 2 !== 0;
-        if (invalidIndentUnit) {
+        const closesFirst = (trimmed.match(/^(?:}\s*)+/)?.[0] ?? "").replace(/\s/g, "").length;
+        const baseDepth = Math.max(0, depth - closesFirst);
+        const isCase = isCaseLine(trimmed);
+        const caseExtra = switchStack.filter(entry => entry.activeCase && !entry.caseBlock && baseDepth >= entry.bodyDepth && !(isCase && baseDepth === entry.bodyDepth)).length;
+        const expected = (baseDepth + caseExtra + unbraced[line]) * 2;
+        const continuation = continuationDepth > 0 || lineLooksLikeContinuation(structuralLine, previousCode);
+        if (leading % 2 !== 0) {
           addIssue(issues, {
             level: "fix",
-            line: index + 1,
+            line,
             title: "インデントは半角スペース2個単位にしてください",
             message: `現在は先頭に ${leading} 個のスペースがあります。`
           });
-        }
-        const closesFirst = (trimmed.match(/^(?:}\s*)+/) || [ "" ])[0].replace(/\s/g, "").length;
-        const baseDepth = Math.max(0, depth - closesFirst);
-        const isCase = /^(?:case\b.*:|default\s*:)/.test(trimmed);
-        const caseExtra = switchStack.filter(entry => entry.activeCase && !entry.caseBlock && baseDepth >= entry.bodyDepth && !(isCase && baseDepth === entry.bodyDepth)).length;
-        const expected = (baseDepth + caseExtra + unbraced[index + 1]) * 2;
-        const continuation = continuationDepth > 0 || lineLooksLikeContinuation(structuralLine, previousCode);
-        if (!invalidIndentUnit && !continuation && leading !== expected) {
+        } else if (!continuation && leading !== expected) {
           addIssue(issues, {
             level: "warn",
-            line: index + 1,
+            line,
             title: `インデントを ${expected} スペースに揃えてください`,
             message: `現在は ${leading} スペースです。`,
             suggestion: "ブロックごとに半角スペース2個でインデントしてください。"
           });
-        } else if (!invalidIndentUnit && continuation && leading < expected) {
+        } else if (continuation && leading < expected) {
           addIssue(issues, {
             level: "warn",
-            line: index + 1,
+            line,
             title: "継続行のインデントが浅すぎます",
             suggestion: `少なくとも ${expected} スペース以上を目安にしてください。`
           });
         }
       }
       const topSwitch = switchStack.at(-1);
-      if (topSwitch && depth === topSwitch.bodyDepth && /^(?:case\b.*:|default\s*:)/.test(trimmed)) {
+      if (topSwitch && depth === topSwitch.bodyDepth && isCaseLine(trimmed)) {
         topSwitch.activeCase = true;
         topSwitch.caseBlock = /:\s*\{/.test(trimmed);
       }
-      for (let col = 0; col < structuralLine.length; col++) {
-        const ch = structuralLine[col];
-        if (switchOpenings.has(offsets[index] + col)) switchStack.push({
+      for (let column = 0; column < structuralLine.length; column++) {
+        const ch = structuralLine[column];
+        if (switchOpenings.has(offsets[index] + column)) switchStack.push({
           bodyDepth: depth + 1,
           activeCase: false
         });
@@ -15618,34 +15561,29 @@ const acorn = reviewParsers.acorn;</script>
         }
       }
       previousCode = structuralLine;
-    }
+    });
   }
   function analyzeJsSemicolons(lex, issues) {
-    const expressionEnds = new Set(lex.parsed.nodes.filter(({node}) => {
-      if (node.type !== "VariableDeclaration") return false;
-      const initializer = node.declarations.at(-1).init;
-      return initializer && [ "FunctionExpression", "ArrowFunctionExpression", "ObjectExpression" ].includes(initializer.type) && lex.source[node.end - 1] === "}";
-    }).map(({node}) => node.end));
+    const expressionEnds = new Set(lex.parsed.nodes.filter(({node}) => node.type === "VariableDeclaration" && [ "FunctionExpression", "ArrowFunctionExpression", "ObjectExpression" ].includes(node.declarations.at(-1).init?.type) && lex.source[node.end - 1] === "}").map(({node}) => node.end));
     for (const {offset, loc} of lex.parsed.semicolons) {
+      const expressionEnd = expressionEnds.has(offset);
       addIssue(issues, {
         level: "fix",
         line: loc.line,
-        title: expressionEnds.has(offset) ? "関数式・アロー関数・オブジェクト代入の末尾にセミコロンを付けてください" : "文末にセミコロンを付けてください",
-        suggestion: expressionEnds.has(offset) ? "代入式の終端は }; とします。" : "この現場ではセミコロンを原則付与します。"
+        title: expressionEnd ? "関数式・アロー関数・オブジェクト代入の末尾にセミコロンを付けてください" : "文末にセミコロンを付けてください",
+        suggestion: expressionEnd ? "代入式の終端は }; とします。" : "この現場ではセミコロンを原則付与します。"
       });
     }
     for (const {node} of lex.parsed.nodes) {
-      if (node.type !== "FunctionDeclaration") continue;
-      if (lex.source[node.end - 1] !== "}") continue;
+      if (node.type !== "FunctionDeclaration" || lex.source[node.end - 1] !== "}") continue;
       const after = tokenAfter(lex.parsed, node.end);
-      if (after && after.type.label === ";") {
-        addIssue(issues, {
-          level: "fix",
-          line: after.loc.start.line,
-          title: "関数宣言の末尾にはセミコロンを付けません",
-          suggestion: "閉じ波括弧の後ろの ; を削除してください。"
-        });
-      }
+      if (after?.type.label !== ";") continue;
+      addIssue(issues, {
+        level: "fix",
+        line: after.loc.start.line,
+        title: "関数宣言の末尾にはセミコロンを付けません",
+        suggestion: "閉じ波括弧の後ろの ; を削除してください。"
+      });
     }
   }
   function analyzeJavaScript(lex, issues, model) {
@@ -15665,17 +15603,13 @@ const acorn = reviewParsers.acorn;</script>
           suggestion: "再代入しない場合は const、再代入が必要な場合は let を使用してください。"
         });
       }
-      if (node.type === "CallExpression" && node.callee.type === "MemberExpression") {
-        const callee = node.callee;
-        const property = staticMemberName(callee);
-        if (callee.object.type === "Identifier" && callee.object.name === "console" && property === "log" && model.isGlobalMember("console", "log", node)) {
-          addIssue(issues, {
-            level: "warn",
-            line,
-            title: "console.log が残っています",
-            suggestion: "デバッグ出力の消し忘れでないか確認してください。"
-          });
-        }
+      if (node.type === "CallExpression" && node.callee.type === "MemberExpression" && node.callee.object.type === "Identifier" && node.callee.object.name === "console" && staticMemberName(node.callee) === "log" && model.isGlobalMember("console", "log", node)) {
+        addIssue(issues, {
+          level: "warn",
+          line,
+          title: "console.log が残っています",
+          suggestion: "デバッグ出力の消し忘れでないか確認してください。"
+        });
       }
       if (node.type === "DebuggerStatement") {
         addIssue(issues, {
@@ -15700,122 +15634,77 @@ const acorn = reviewParsers.acorn;</script>
     const noComments = [];
     const structural = [];
     const comments = [];
-    let state = "code";
-    let blockCommentStartLine = -1;
-    let blockCommentText = "";
-    let stringQuote = "";
-    let textBlock = false;
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      const line = lines[lineIndex];
+    const blank = text => text.replace(/[^\t]/g, " ");
+    let blockComment = null;
+    let closing = "";
+    lines.forEach((line, lineIndex) => {
       let nc = "";
       let st = "";
-      let i = 0;
-      while (i < line.length) {
+      const emit = (code, masked) => {
+        nc += code;
+        st += masked;
+      };
+      for (let i = 0; i < line.length; ) {
         const ch = line[i];
-        const next = line[i + 1] || "";
-        if (state === "blockComment") {
-          if (ch === "*" && next === "/") {
-            blockCommentText += "*/";
-            nc += "  ";
-            st += "  ";
+        if (blockComment) {
+          if (line.startsWith("*/", i)) {
+            blockComment.text += "*/";
+            blockComment.endLine = lineIndex + 1;
+            comments.push(blockComment);
+            blockComment = null;
+            emit("  ", "  ");
             i += 2;
-            state = "code";
-            comments.push({
-              type: "block",
-              startLine: blockCommentStartLine + 1,
-              endLine: lineIndex + 1,
-              text: blockCommentText
-            });
-            blockCommentText = "";
-            blockCommentStartLine = -1;
           } else {
-            blockCommentText += ch;
-            nc += ch === "\t" ? "\t" : " ";
-            st += ch === "\t" ? "\t" : " ";
+            blockComment.text += ch;
+            emit(blank(ch), blank(ch));
             i++;
           }
-          continue;
-        }
-        if (state === "string") {
+        } else if (closing) {
           if (ch === "\\") {
             const escaped = line.slice(i, i + 2);
-            nc += escaped;
-            st += textBlock ? " ".repeat(escaped.length) : escaped.replace(/[^\t]/g, " ");
+            emit(escaped, closing === '"""' ? " ".repeat(escaped.length) : blank(escaped));
             i += escaped.length;
-            continue;
-          }
-          const closing = textBlock ? '"""' : stringQuote;
-          if (line.startsWith(closing, i)) {
-            nc += closing;
-            st += " ".repeat(closing.length);
+          } else if (line.startsWith(closing, i)) {
+            emit(closing, " ".repeat(closing.length));
             i += closing.length;
-            state = "code";
-            textBlock = false;
-            stringQuote = "";
+            closing = "";
           } else {
-            nc += ch;
-            st += ch === "\t" ? "\t" : " ";
+            emit(ch, blank(ch));
             i++;
           }
-          continue;
-        }
-        if (ch === "/" && next === "/") {
+        } else if (line.startsWith("//", i)) {
           comments.push({
             type: "line",
             startLine: lineIndex + 1,
             endLine: lineIndex + 1,
             text: line.slice(i)
           });
-          nc += " ".repeat(line.length - i);
-          st += " ".repeat(line.length - i);
+          emit(" ".repeat(line.length - i), " ".repeat(line.length - i));
           break;
-        }
-        if (ch === "/" && next === "*") {
-          state = "blockComment";
-          blockCommentStartLine = lineIndex;
-          blockCommentText = "/*";
-          nc += "  ";
-          st += "  ";
+        } else if (line.startsWith("/*", i)) {
+          blockComment = {
+            type: "block",
+            startLine: lineIndex + 1,
+            text: "/*"
+          };
+          emit("  ", "  ");
           i += 2;
-          continue;
+        } else {
+          const quote = line.startsWith('"""', i) ? '"""' : ch === "'" || ch === '"' ? ch : "";
+          if (quote) closing = quote;
+          emit(quote || ch, quote ? " ".repeat(quote.length) : ch);
+          i += quote.length || 1;
         }
-        if (line.startsWith('"""', i)) {
-          state = "string";
-          stringQuote = '"';
-          textBlock = true;
-          nc += '"""';
-          st += "   ";
-          i += 3;
-          continue;
-        }
-        if (ch === "'" || ch === '"') {
-          state = "string";
-          stringQuote = ch;
-          nc += ch;
-          st += " ";
-          i++;
-          continue;
-        }
-        nc += ch;
-        st += ch;
-        i++;
       }
-      if (state === "blockComment") blockCommentText += "\n";
-      if (state === "string" && !textBlock) {
-        state = "code";
-        stringQuote = "";
-      }
+      if (blockComment) blockComment.text += "\n";
+      if (closing !== '"""') closing = "";
       noComments.push(nc);
       structural.push(st);
-    }
-    if (state === "blockComment" && blockCommentStartLine >= 0) {
-      comments.push({
-        type: "block",
-        startLine: blockCommentStartLine + 1,
-        endLine: lines.length,
-        text: blockCommentText
-      });
-    }
+    });
+    if (blockComment) comments.push({
+      ...blockComment,
+      endLine: lines.length
+    });
     const empty = !source.trim();
     const java = empty ? null : reviewParsers.parseJava(source);
     return {
@@ -15828,9 +15717,8 @@ const acorn = reviewParsers.acorn;</script>
       complete: empty || Boolean(java)
     };
   }
-  function javaChild(node, name) {
-    return node?.children?.[name]?.[0];
-  }
+  const javaChild = (node, name) => node?.children?.[name]?.[0];
+  const javaChildNodes = node => Object.values(node.children ?? {}).flat().filter(child => child.name);
   function createJavaModel(lex) {
     const parsed = lex.java;
     const offsets = sourceLineOffsets(lex.lines);
@@ -15850,7 +15738,7 @@ const acorn = reviewParsers.acorn;</script>
         if (current.name === "annotation") ranges.push({
           start: position(current) - start,
           end: end(current) - start
-        }); else for (const child of Object.values(current.children).flat()) if (child.name) pending.push(child);
+        }); else pending.push(...javaChildNodes(current));
       }
       return maskSource(codeSource.slice(start, end(node)), ranges).replace(/\s+/g, "");
     };
@@ -15912,7 +15800,7 @@ const acorn = reviewParsers.acorn;</script>
       }
       scopes.set(node, scope);
       entries.push(node);
-      const children = Object.values(node.children).flat().filter(child => child.name).sort((a, b) => b.location.startOffset - a.location.startOffset);
+      const children = javaChildNodes(node).sort((a, b) => b.location.startOffset - a.location.startOffset);
       for (const child of children) pending.push({
         node: child,
         parent: node,
@@ -16086,13 +15974,15 @@ const acorn = reviewParsers.acorn;</script>
       let result = makeFlow(node);
       flowCache.set(node, result);
       if (depth > 80) return result;
-      const children = Object.values(node.children || {}).flat().filter(child => child.name);
+      const children = javaChildNodes(node);
       if (patternNodes.has(node)) result.yes.add(patternNodes.get(node)); else if (node.name === "binaryExpression") {
         const parts = Object.values(node.children).flat().sort((a, b) => position(a) - position(b));
-        const values = [], operators = [];
+        const values = [];
+        const operators = [];
         const reduce = () => {
           const operator = operators.pop();
-          const right = values.pop() || makeFlow(node), left = values.pop() || makeFlow(node);
+          const right = values.pop() ?? makeFlow(node);
+          const left = values.pop() ?? makeFlow(node);
           const value = {
             yes: new Set,
             no: new Set,
@@ -16131,9 +16021,9 @@ const acorn = reviewParsers.acorn;</script>
           result.no = operators.length % 2 ? inner.yes : inner.no;
         }
       } else if ([ "expression", "conditionalExpression", "primary", "primaryPrefix", "parenthesisExpression", "pattern" ].includes(node.name) && children.length === 1 && !node.children.QuestionMark) {
-        const inner = flow(children[0], depth + 1);
-        result.yes = inner.yes;
-        result.no = inner.no;
+        const {yes, no} = flow(children[0], depth + 1);
+        result.yes = yes;
+        result.no = no;
       }
       flowCache.set(node, result);
       return result;
@@ -16141,11 +16031,11 @@ const acorn = reviewParsers.acorn;</script>
     const exits = (node, depth = 0) => {
       if (!node || depth > 80) return false;
       if ([ "returnStatement", "throwStatement" ].includes(node.name)) return true;
-      const children = Object.values(node.children || {}).flat().filter(child => child.name);
+      const children = javaChildNodes(node);
       if (node.name === "blockStatements") return exits(children.at(-1), depth + 1);
       return [ "statement", "statementWithoutTrailingSubstatement", "block", "blockStatement" ].includes(node.name) && children.length === 1 && exits(children[0], depth + 1);
     };
-    if (patternNodes.size) for (const node of entries) {
+    for (const node of patternNodes.size ? entries : []) {
       if (node.name === "expression") flow(node);
       if (![ "ifStatement", "whileStatement", "basicForStatement" ].includes(node.name)) continue;
       const condition = flow(javaChild(node, "expression"));
@@ -16157,7 +16047,8 @@ const acorn = reviewParsers.acorn;</script>
       if (node.name !== "ifStatement") continue;
       const following = union(exits(yes) ? condition.no : new Set, exits(no) ? condition.yes : new Set);
       const outer = scopes.get(node).parent;
-      if (outer?.node) for (const binding of following) {
+      if (!outer?.node) continue;
+      for (const binding of following) {
         binding.ranges.push([ end(node), end(outer.node) ]);
         registerPattern(outer, binding);
       }
@@ -16169,7 +16060,7 @@ const acorn = reviewParsers.acorn;</script>
       typeCache.set(node, "unknown");
       const scope = scopes.get(node) || root;
       let type = "unknown";
-      const children = Object.values(node.children || {}).flat().filter(child => child.name);
+      const children = javaChildNodes(node);
       if (node.name === "binaryExpression" && node.children.AssignmentOperator) {
         type = infer(javaChild(node, "unaryExpression"), depth + 1);
       } else if (node.name === "binaryExpression" && (node.children.BinaryOperator || node.children.Instanceof || node.children.shiftOperator)) {
@@ -16255,10 +16146,7 @@ const acorn = reviewParsers.acorn;</script>
                 }
               } else {
                 const binding = receiver ? fields(owner, name) : lookup(name, scope, position(node));
-                if (binding) {
-                  const declared = binding.type;
-                  type = declared === "var" ? infer(binding.initializer, depth + 1) : normalizeType(declared, binding.scope);
-                }
+                if (binding) type = binding.type === "var" ? infer(binding.initializer, depth + 1) : normalizeType(binding.type, binding.scope);
               }
             }
           }
@@ -16294,30 +16182,27 @@ const acorn = reviewParsers.acorn;</script>
     const lineOf = node => lineAtOffset(model.offsets, model.position(node));
     for (const {op, left, right} of model.comparisons) {
       if (left === "null" || right === "null" || left !== "string" && right !== "string") continue;
-      addJavaStringComparisonIssue(issues, lineOf(op));
+      addIssue(issues, {
+        ...ISSUES.javaStringComparison,
+        line: lineOf(op)
+      });
     }
     for (const node of model.entries) {
       const scope = model.scopes.get(node);
       if (node.name === "catchClause") {
-        const parameter = javaChild(node, "catchFormalParameter");
-        const types = (javaChild(parameter, "catchType")?.children.unannClassType || []).map(model.typeCode);
+        const catchType = javaChild(javaChild(node, "catchFormalParameter"), "catchType");
+        const types = (catchType?.children.unannClassType ?? []).map(model.typeCode);
         if (types.some(type => type === "java.lang.Exception" || type === "Exception" && !model.resolveType(type, scope))) {
           addIssue(issues, {
-            level: "info",
-            line: lineOf(node),
-            title: "Exception を広く catch しています",
-            suggestion: "必要に応じて、より具体的な例外型を扱えないか確認してください。"
+            ...ISSUES.broadCatch,
+            line: lineOf(node)
           });
         }
         const block = javaChild(node, "block");
-        if (block && !javaChild(block, "blockStatements")) {
-          addIssue(issues, {
-            level: "fix",
-            line: lineOf(node),
-            title: "空の catch ブロックがあります",
-            suggestion: "例外を握りつぶす意図が明確でない場合は、適切な処理・ログ・再throwを検討してください。"
-          });
-        }
+        if (block && !javaChild(block, "blockStatements")) addIssue(issues, {
+          ...ISSUES.javaEmptyCatch,
+          line: lineOf(node)
+        });
       }
       if (node.name !== "methodInvocationSuffix") continue;
       const index = lineAtOffset(model.tokenOffsets, model.position(node)) - 1;
@@ -16325,10 +16210,8 @@ const acorn = reviewParsers.acorn;</script>
       if (!name) continue;
       if (name.image === "printStackTrace" && model.tokens[index - 2]?.image === ".") {
         addIssue(issues, {
-          level: "warn",
-          line: lineOf(name),
-          title: "printStackTrace() が残っています",
-          suggestion: "例外の扱い方やプロジェクトのログ方針に合わせて処理してください。"
+          ...ISSUES.printStackTrace,
+          line: lineOf(name)
         });
       }
       if (name.image !== "println") continue;
@@ -16337,58 +16220,36 @@ const acorn = reviewParsers.acorn;</script>
       const first = lineAtOffset(model.tokenOffsets, model.position(primary)) - 1;
       if (index - first !== 5 && index - first !== 9) continue;
       const receiver = model.tokens.slice(first, index).map(token => token.image).join("");
-      const standard = receiver === "java.lang.System.out.println" || receiver === "System.out.println" && !model.resolveType("System", scope) && !model.lookup("System", scope, model.position(node));
-      if (standard) addIssue(issues, {
-        level: "warn",
-        line: lineOf(name),
-        title: "System.out.println が残っています",
-        suggestion: "デバッグ出力の消し忘れでないか確認してください。必要ならプロジェクトのロガーを使用します。"
-      });
+      if (receiver === "java.lang.System.out.println" || receiver === "System.out.println" && !model.resolveType("System", scope) && !model.lookup("System", scope, model.position(node))) {
+        addIssue(issues, {
+          ...ISSUES.println,
+          line: lineOf(name)
+        });
+      }
     }
   }
   function analyzeJavaTreeNaming(lex, issues, model) {
+    const lineOf = node => lineAtOffset(model.offsets, model.position(node));
     for (const binding of model.declarations) {
       const line = lineAtOffset(model.offsets, binding.start);
-      if (binding.constant && !isUpperSnake(binding.name)) {
-        addIssue(issues, {
-          level: "fix",
-          line,
-          title: `Java定数「${binding.name}」は UPPER_SNAKE_CASE にしてください`,
-          suggestion: `例: ${toUpperSnake(binding.name)}`
-        });
-      }
+      if (binding.constant && !isUpperSnake(binding.name)) addIssue(issues, upperSnakeIssue("Java定数", binding.name, line));
       const type = binding.type === "var" ? model.infer(binding.initializer) : model.normalizeType(binding.type, binding.scope);
       checkVariableName(binding.name, type === "boolean" ? type : "", line, lex.noComments[line - 1], issues, {
         constant: binding.constant
       });
       if (/^(?:[\w.]+\.)?(?:List|Set|Collection|ArrayList|HashSet|LinkedList|Iterable|Stream)(?:<|$)/.test(type) && !/(?:s|List|Set|Collection)$/.test(binding.name)) {
-        addIssue(issues, {
-          level: "warn",
-          line,
-          title: `コレクション変数「${binding.name}」は複数形が分かる名前にしてください`,
-          suggestion: "例: users / userList / orderIds"
-        });
+        addIssue(issues, collectionNameIssue(binding.name, line));
       }
     }
-    for (const {id, returnType, scope} of model.methods) checkMethodName(id.image, lineAtOffset(model.offsets, model.position(id)), model.normalizeType(returnType, scope) === "boolean" ? "boolean" : "", issues);
-    for (const scope of model.classes) {
-      const name = scope.name;
-      if (!isPascal(name)) addIssue(issues, {
-        level: "fix",
-        line: lineAtOffset(model.offsets, model.position(scope.id)),
-        title: `クラス名「${name}」は PascalCase にしてください`,
-        suggestion: "例: UserService / OrderController"
-      });
+    for (const {id, returnType, scope} of model.methods) {
+      checkMethodName(id.image, lineOf(id), model.normalizeType(returnType, scope) === "boolean" ? "boolean" : "", issues);
+    }
+    for (const {name, id} of model.classes) {
+      if (!isPascal(name)) addIssue(issues, classNameIssue(name, lineOf(id)));
     }
     for (const node of model.entries) {
-      if (node.name !== "enumConstant") continue;
-      const id = javaChild(node, "Identifier");
-      if (id && !isUpperSnake(id.image)) addIssue(issues, {
-        level: "fix",
-        line: lineAtOffset(model.offsets, model.position(id)),
-        title: `enum定数「${id.image}」は UPPER_SNAKE_CASE にしてください`,
-        suggestion: `例: ${toUpperSnake(id.image)}`
-      });
+      const id = node.name === "enumConstant" && javaChild(node, "Identifier");
+      if (id && !isUpperSnake(id.image)) addIssue(issues, upperSnakeIssue("enum定数", id.image, lineOf(id)));
     }
   }
   function analyzeJavaNaming(lex, issues, model) {
@@ -16396,83 +16257,42 @@ const acorn = reviewParsers.acorn;</script>
       analyzeJavaTreeNaming(lex, issues, model);
       return;
     }
-    const {structural, noComments} = lex;
     let enumDepth = null;
     let depth = 0;
-    structural.forEach((line, index) => {
-      const original = noComments[index];
+    lex.structural.forEach((line, index) => {
       const lineNo = index + 1;
-      const classMatch = line.match(/\bclass\s+([A-Za-z_$][\w$]*)/);
-      if (classMatch && !isPascal(classMatch[1])) {
-        addIssue(issues, {
-          level: "fix",
-          line: lineNo,
-          title: `クラス名「${classMatch[1]}」は PascalCase にしてください`,
-          suggestion: "例: UserService / OrderController"
-        });
-      }
-      const constantMatch = line.match(/\b(?:static\s+final|final\s+static)\s+[A-Za-z_$][\w$.]*(?:\s*<[^;={}<>]+>)?(?:\s*\[\s*\])*\s+([A-Za-z_$][\w$]*)\s*(?:=|;)/);
-      if (constantMatch && !isUpperSnake(constantMatch[1])) {
-        addIssue(issues, {
-          level: "fix",
-          line: lineNo,
-          title: `Java定数「${constantMatch[1]}」は UPPER_SNAKE_CASE にしてください`,
-          suggestion: `例: ${toUpperSnake(constantMatch[1])}`
-        });
-      }
+      const className = line.match(/\bclass\s+([A-Za-z_$][\w$]*)/)?.[1];
+      if (className && !isPascal(className)) addIssue(issues, classNameIssue(className, lineNo));
+      const constant = line.match(/\b(?:static\s+final|final\s+static)\s+[A-Za-z_$][\w$.]*(?:\s*<[^;={}<>]+>)?(?:\s*\[\s*\])*\s+([A-Za-z_$][\w$]*)\s*(?:=|;)/)?.[1];
+      if (constant && !isUpperSnake(constant)) addIssue(issues, upperSnakeIssue("Java定数", constant, lineNo));
       const methodLine = line.trim().replace(/^(?:@[\w$.]+(?:\([^()\n]*\))?\s*)+/, "");
-      const methodMatch = methodLine.match(/^(?:(?:public|protected|private|static|final|synchronized|abstract|native|default)\s+)*(?:<[^{}();<>]+>\s*)?([A-Za-z_$][\w$.]*(?:\s*<[^(){};=<>]+>)?(?:\s*\[\s*\])*)\s+([A-Za-z_$][\w$]*)\s*\([^;{}]*\)\s*(?:throws\s+[^\{;]+)?\{/);
-      if (methodMatch && !/\b(?:if|for|while|switch|catch)\s*$/.test(methodMatch[1])) {
-        const returnType = methodMatch[1].trim().split(/\s+/).pop();
-        const name = methodMatch[2];
-        if (!/^(?:public|protected|private|static|final|synchronized|abstract|native|default)$/.test(returnType)) checkMethodName(name, lineNo, returnType, issues);
+      const method = methodLine.match(/^(?:(?:public|protected|private|static|final|synchronized|abstract|native|default)\s+)*(?:<[^{}();<>]+>\s*)?([A-Za-z_$][\w$.]*(?:\s*<[^(){};=<>]+>)?(?:\s*\[\s*\])*)\s+([A-Za-z_$][\w$]*)\s*\([^;{}]*\)\s*(?:throws\s+[^\{;]+)?\{/);
+      if (method && !/\b(?:if|for|while|switch|catch)\s*$/.test(method[1])) {
+        const returnType = method[1].trim().split(/\s+/).pop();
+        if (!/^(?:public|protected|private|static|final|synchronized|abstract|native|default)$/.test(returnType)) checkMethodName(method[2], lineNo, returnType, issues);
       }
       const declaration = line.match(/\b([A-Za-z_$][\w$]*(?:\s*<[^;=<>]+>)?(?:\[\])?)\s+([A-Za-z_$][\w$]*)\s*(?:=\s*([^;]+))?;/);
       if (declaration && !/^(?:return|new|throw|case|break|continue|yield)$/.test(declaration[1]) && !/\b(?:return|new|throw|case)\b/.test(line.slice(0, declaration.index))) {
-        const type = declaration[1].replace(/\s+/g, " ").trim();
-        const name = declaration[2];
-        const initializer = declaration[3] || "";
-        const isConstant = Boolean(constantMatch);
-        checkVariableName(name, type, lineNo, original, issues, {
+        const [, rawType, name, initializer = ""] = declaration;
+        const type = rawType.replace(/\s+/g, " ").trim();
+        checkVariableName(name, type, lineNo, lex.noComments[index], issues, {
           initializer,
-          constant: isConstant
+          constant: Boolean(constant)
         });
         if (/^(?:List|Set|Collection|ArrayList|HashSet|LinkedList|Iterable|Stream)\b/.test(type) && !/(?:s|List|Set|Collection)$/.test(name)) {
-          addIssue(issues, {
-            level: "warn",
-            line: lineNo,
-            title: `コレクション変数「${name}」は複数形が分かる名前にしてください`,
-            suggestion: "例: users / userList / orderIds"
-          });
+          addIssue(issues, collectionNameIssue(name, lineNo));
         }
       }
-      const enumStart = line.match(/\benum\s+[A-Za-z_$][\w$]*\s*\{/);
-      if (enumStart) enumDepth = depth + 1;
-      if (enumDepth != null && depth >= enumDepth) {
-        const enumValue = line.match(/^\s*([A-Za-z_$][\w$]*)\s*(?:\([^)]*\))?\s*[,;]?\s*$/);
-        if (enumValue && !isUpperSnake(enumValue[1])) {
-          addIssue(issues, {
-            level: "fix",
-            line: lineNo,
-            title: `enum定数「${enumValue[1]}」は UPPER_SNAKE_CASE にしてください`,
-            suggestion: `例: ${toUpperSnake(enumValue[1])}`
-          });
-        }
+      if (/\benum\s+[A-Za-z_$][\w$]*\s*\{/.test(line)) enumDepth = depth + 1;
+      if (enumDepth !== null && depth >= enumDepth) {
+        const enumValue = line.match(/^\s*([A-Za-z_$][\w$]*)\s*(?:\([^)]*\))?\s*[,;]?\s*$/)?.[1];
+        if (enumValue && !isUpperSnake(enumValue)) addIssue(issues, upperSnakeIssue("enum定数", enumValue, lineNo));
       }
       for (const ch of line) {
         if (ch === "{") depth++;
         if (ch === "}") depth = Math.max(0, depth - 1);
       }
-      if (enumDepth != null && depth < enumDepth) enumDepth = null;
-    });
-  }
-  function addJavaStringComparisonIssue(issues, line) {
-    addIssue(issues, {
-      level: "fix",
-      line,
-      title: "Stringの比較に == / != が使われています",
-      message: "Javaの == / != は文字列内容ではなく参照を比較します。",
-      suggestion: "equals / Objects.equals など、意図に合う比較を使用してください。"
+      if (enumDepth !== null && depth < enumDepth) enumDepth = null;
     });
   }
   function analyzeJavaStringComparisons(lex, issues) {
@@ -16500,7 +16320,7 @@ const acorn = reviewParsers.acorn;</script>
           scope
         });
       } else if (code[index] === "}") {
-        scope = scope.parent || root;
+        scope = scope.parent ?? root;
         events.push({
           offset: index + 1,
           scope
@@ -16513,27 +16333,23 @@ const acorn = reviewParsers.acorn;</script>
     for (const match of code.matchAll(declarations)) {
       if (/^(?:return|throw|new|case|break|continue|yield)$/.test(match[1])) continue;
       let target = scopeAt(match.index);
-      const lineStart = code.lastIndexOf("\n", match.index) + 1;
-      const before = code.slice(lineStart, match.index);
+      const before = code.slice(code.lastIndexOf("\n", match.index) + 1, match.index);
       if (before.lastIndexOf("(") > before.lastIndexOf(")")) {
         const end = match.index + match[0].length;
         const brace = code.indexOf("{", end);
         const semicolon = code.indexOf(";", end);
-        if (brace >= 0 && (semicolon < 0 || brace < semicolon)) target = opened.get(brace) || target;
+        if (brace >= 0 && (semicolon < 0 || brace < semicolon)) target = opened.get(brace) ?? target;
       }
       const name = match[2];
-      const entries = target.bindings.get(name) || [];
-      entries.push({
+      if (!target.bindings.has(name)) target.bindings.set(name, []);
+      target.bindings.get(name).push({
         start: match.index,
         isString: match[1] === "String" && !match[3]
       });
-      target.bindings.set(name, entries);
     }
     const isStringAt = (name, offset) => {
       for (let current = scopeAt(offset); current; current = current.parent) {
-        const bindings = current.bindings.get(name);
-        if (!bindings) continue;
-        const binding = bindings.findLast(entry => entry.start <= offset);
+        const binding = current.bindings.get(name)?.findLast(entry => entry.start <= offset);
         if (binding) return binding.isString;
       }
       return false;
@@ -16541,16 +16357,17 @@ const acorn = reviewParsers.acorn;</script>
     lex.noComments.forEach((line, index) => {
       const comparison = /("(?:\\.|[^"\\])*"|\b[A-Za-z_$][\w$]*)\s*(==|!=)\s*("(?:\\.|[^"\\])*"|[A-Za-z_$][\w$]*)/g;
       for (const match of line.matchAll(comparison)) {
-        const operatorCol = match.index + match[0].lastIndexOf(match[2], match[0].length - match[3].length - 1);
-        if (lex.structural[index].slice(operatorCol, operatorCol + 2) !== match[2]) continue;
-        const left = match[1];
-        const right = match[3];
-        if (left === "null" || right === "null") continue;
+        const [whole, left, operator, right] = match;
+        const operatorCol = match.index + whole.lastIndexOf(operator, whole.length - right.length - 1);
+        if (lex.structural[index].slice(operatorCol, operatorCol + 2) !== operator || left === "null" || right === "null") continue;
         const offset = offsets[index] + operatorCol;
         const leftIsLocal = !/[.\w$]$/.test(line.slice(0, match.index));
-        const rightIsLocal = !/^\s*[.(\[]/.test(line.slice(match.index + match[0].length));
+        const rightIsLocal = !/^\s*[.(\[]/.test(line.slice(match.index + whole.length));
         if (left.startsWith('"') || right.startsWith('"') || leftIsLocal && isStringAt(left, offset) || rightIsLocal && isStringAt(right, offset)) {
-          addJavaStringComparisonIssue(issues, index + 1);
+          addIssue(issues, {
+            ...ISSUES.javaStringComparison,
+            line: index + 1
+          });
           break;
         }
       }
@@ -16559,11 +16376,11 @@ const acorn = reviewParsers.acorn;</script>
   function analyzeJavaSqlConcatenation(lex, issues) {
     const sqlKeyword = /\b(?:SELECT|INSERT|UPDATE|DELETE|MERGE|WHERE|AND|OR|VALUES|SET|FROM|LIKE|IN|HAVING)\b/i;
     const valuePosition = /(?:=|<>|!=|<|>|\bLIKE|\bIN\s*\(|,|\(|')\s*$/i;
-    (lex.noComments || lex.lines).forEach((line, index) => {
+    lex.noComments.forEach((line, index) => {
       const literals = [ ...line.matchAll(/"((?:[^"\\\n]|\\.)*)"/g) ];
       if (!literals.some(match => sqlKeyword.test(match[1]) && valuePosition.test(match[1]))) return;
       const shape = line.replace(/"(?:[^"\\\n]|\\.)*"/g, '"S"');
-      const operands = [ ...shape.matchAll(/"S"\s*\+\s*([^"+;,)]+)|([^"+=(,]+?)\s*\+\s*"S"/g) ].map(match => (match[1] || match[2] || "").trim()).filter(Boolean);
+      const operands = [ ...shape.matchAll(/"S"\s*\+\s*([^"+;,)]+)|([^"+=(,]+?)\s*\+\s*"S"/g) ].map(match => (match[1] ?? match[2] ?? "").trim()).filter(Boolean);
       if (!operands.length || operands.every(operand => /^(?:[A-Z][A-Z0-9_]*(?:\.[A-Z][A-Z0-9_]*)*|\d+)$/.test(operand))) return;
       addIssue(issues, {
         level: "fix",
@@ -16580,123 +16397,96 @@ const acorn = reviewParsers.acorn;</script>
       return;
     }
     analyzeJavaStringComparisons(lex, issues);
-    const {structural} = lex;
-    structural.forEach((line, index) => {
-      const lineNo = index + 1;
-      if (/\bSystem\.out\.println\s*\(/.test(line)) {
-        addIssue(issues, {
-          level: "warn",
-          line: lineNo,
-          title: "System.out.println が残っています",
-          suggestion: "デバッグ出力の消し忘れでないか確認してください。必要ならプロジェクトのロガーを使用します。"
-        });
-      }
-      if (/\.printStackTrace\s*\(/.test(line)) {
-        addIssue(issues, {
-          level: "warn",
-          line: lineNo,
-          title: "printStackTrace() が残っています",
-          suggestion: "例外の扱い方やプロジェクトのログ方針に合わせて処理してください。"
-        });
-      }
-      if (/\bcatch\s*\(\s*Exception\b/.test(line)) {
-        addIssue(issues, {
-          level: "info",
-          line: lineNo,
-          title: "Exception を広く catch しています",
-          suggestion: "必要に応じて、より具体的な例外型を扱えないか確認してください。"
+    const lineRules = [ [ /\bSystem\.out\.println\s*\(/, ISSUES.println ], [ /\.printStackTrace\s*\(/, ISSUES.printStackTrace ], [ /\bcatch\s*\(\s*Exception\b/, ISSUES.broadCatch ] ];
+    lex.structural.forEach((line, index) => {
+      for (const [pattern, issue] of lineRules) {
+        if (pattern.test(line)) addIssue(issues, {
+          ...issue,
+          line: index + 1
         });
       }
     });
-    const joined = structural.join("\n");
     const offsets = sourceLineOffsets(lex.lines);
-    const emptyCatchRegex = /catch\s*\([^)]*\)\s*\{\s*\}/g;
-    for (const match of joined.matchAll(emptyCatchRegex)) {
-      const line = lineAtOffset(offsets, match.index);
+    for (const match of lex.structural.join("\n").matchAll(/catch\s*\([^)]*\)\s*\{\s*\}/g)) {
       addIssue(issues, {
-        level: "fix",
-        line,
-        title: "空の catch ブロックがあります",
-        suggestion: "例外を握りつぶす意図が明確でない場合は、適切な処理・ログ・再throwを検討してください。"
+        ...ISSUES.javaEmptyCatch,
+        line: lineAtOffset(offsets, match.index)
       });
     }
   }
   const MAX_ISSUES_PER_LINE = 3;
+  const LEVEL_LABELS = {
+    fix: "要修正",
+    warn: "警告",
+    info: "情報"
+  };
   function escapeHtml(value) {
     return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
-  }
-  function levelLabel(level) {
-    return level === "fix" ? "要修正" : level === "warn" ? "警告" : "情報";
   }
   function lineSnippet(lines, line) {
     const raw = (lines[line - 1] ?? "").trim();
     return raw.length > 160 ? `${raw.slice(0, 159)}…` : raw;
   }
   function prepareReview(source, lang) {
-    const result = reviewSource(source, lang);
+    const {issues, lex} = reviewSource(source, lang);
     return {
-      issues: result.issues,
-      complete: result.lex.complete,
-      cards: resultCards(result.issues, result.lex.lines)
+      issues,
+      complete: lex.complete,
+      cards: resultCards(issues, lex.lines)
     };
   }
   function categoryForIssue(issue) {
-    const text = `${issue.title || ""} ${issue.message || ""}`;
+    const text = `${issue.title} ${issue.message}`;
     if (/SQLを文字列連結で組み立て/.test(text)) return "セキュリティ";
     if (/(?:変数名|メソッド名|クラス名|定数|Boolean|略語|接頭辞|UPPER_SNAKE_CASE|lowerCamelCase|PascalCase)/.test(text)) return "命名";
     if (/(?:インデント|スペース|セミコロン|シングルクォート|ダブルクォート|文字列|1行が\d+文字|文末|波括弧)/.test(text)) return "書式";
     return "コード品質";
   }
-  function fixExampleForIssue(issue, snippet, getParsed = () => parseJavaScript(snippet)) {
-    if (!snippet) return issue.suggestion || "";
-    const title = issue.title || "";
-    if (!/var は禁止|シングルクォート|ダブルクォート|===|!==|キーワード.*スペース|半角スペース1個|波括弧|\{.*スペース|文末にセミコロン|関数宣言の末尾にはセミコロン/.test(title)) return issue.suggestion || "";
+  function fixExampleForIssue(issue, snippet, getParsed) {
+    const {title, suggestion} = issue;
+    if (!snippet || !/var は禁止|シングルクォート|ダブルクォート|===|!==|キーワード.*スペース|半角スペース1個|波括弧|\{.*スペース|文末にセミコロン|関数宣言の末尾にはセミコロン/.test(title)) return suggestion;
     const parsed = getParsed();
-    if (!parsed.complete) return issue.suggestion || "";
-    const replaceToken = (token, value) => token ? snippet.slice(0, token.start) + value + snippet.slice(token.end) : issue.suggestion || "";
+    if (!parsed.complete) return suggestion;
+    const replaceRange = ({start, end}, value) => snippet.slice(0, start) + value + snippet.slice(end);
     if (title === "var は禁止です") {
       const declaration = parsed.nodes.find(({node}) => node.type === "VariableDeclaration" && node.kind === "var");
-      return replaceToken(declaration && {
+      return declaration ? replaceRange({
         start: declaration.node.start,
         end: declaration.node.start + 3
-      }, "let");
+      }, "let") : suggestion;
     }
     if (title === "文字列はシングルクォートを使用してください") {
       const token = parsed.tokens.find(token => token.type.label === "string" && snippet[token.start] === '"');
       if (token) {
         const content = snippet.slice(token.start + 1, token.end - 1).replace(/\\.|'/g, part => part === '\\"' ? '"' : part === "'" ? "\\'" : part);
-        return replaceToken(token, `'${content}'`);
+        return replaceRange(token, `'${content}'`);
       }
     } else if (/===|!==/.test(title)) {
       const operator = title.startsWith("!=") ? "!=" : "==";
-      const entry = parsed.nodes.find(({node}) => node.type === "BinaryExpression" && node.operator === operator && ![ node.left, node.right ].some(value => value.type === "Literal" && value.value === null));
+      const entry = parsed.nodes.find(({node}) => node.type === "BinaryExpression" && node.operator === operator && !isNullLiteral(node.left) && !isNullLiteral(node.right));
       if (entry) {
         const token = comparisonToken(parsed, entry.node);
-        return replaceToken(token, operator + "=");
+        return token ? replaceRange(token, `${operator}=`) : suggestion;
       }
     } else if (/^(?:if|for|while|switch|catch) の後ろ/.test(title)) {
       const keyword = title.split(" ")[0];
       const starts = controlKeywordStarts(parsed);
-      const tokenIndex = parsed.tokens.findIndex((token, index) => starts.has(token.start) && token.type.label === keyword && parsed.tokens[index + 1]?.type.label === "(" && snippet.slice(token.end, parsed.tokens[index + 1].start) !== " " && !/\/\*|\/\//.test(snippet.slice(token.end, parsed.tokens[index + 1].start)));
-      const token = parsed.tokens[tokenIndex];
-      const next = parsed.tokens[tokenIndex + 1];
-      if (token) return replaceToken({
-        start: token.end,
-        end: next.start
+      const {tokens} = parsed;
+      const index = tokens.findIndex((token, index) => starts.has(token.start) && token.type.label === keyword && tokens[index + 1]?.type.label === "(" && badKeywordGap(snippet.slice(token.end, tokens[index + 1].start)));
+      if (index >= 0) return replaceRange({
+        start: tokens[index].end,
+        end: tokens[index + 1].start
       }, " ");
     } else if (/波括弧|\{.*スペース/.test(title)) {
       const openings = new Set(parsed.nodes.flatMap(({node}) => node.type === "SwitchStatement" ? [ tokenAfter(parsed, node.discriminant.end, "{")?.start ] : [ "BlockStatement", "ClassBody" ].includes(node.type) ? [ node.start ] : []));
       const token = parsed.tokens.find(token => openings.has(token.start) && token.type.label === "{" && !/\S $/.test(snippet.slice(0, token.start)));
-      if (token) {
-        const start = snippet.slice(0, token.start).trimEnd().length;
-        return replaceToken({
-          start,
-          end: token.start
-        }, " ");
-      }
+      if (token) return replaceRange({
+        start: snippet.slice(0, token.start).trimEnd().length,
+        end: token.start
+      }, " ");
     } else if (/文末にセミコロン/.test(title) && parsed.semicolons.length) {
-      const offset = parsed.semicolons[0].offset;
-      return replaceToken({
+      const {offset} = parsed.semicolons[0];
+      return replaceRange({
         start: offset,
         end: offset
       }, ";");
@@ -16704,29 +16494,15 @@ const acorn = reviewParsers.acorn;</script>
       for (const {node} of parsed.nodes) {
         if (node.type !== "FunctionDeclaration") continue;
         const after = tokenAfter(parsed, node.end);
-        if (after?.type.label === ";") return replaceToken(after, "");
+        if (after?.type.label === ";") return replaceRange(after, "");
       }
     }
-    return issue.suggestion || "";
-  }
-  function groupIssuesByLine(issues) {
-    const groups = new Map;
-    for (const issue of issues) {
-      const {line} = issue;
-      if (!groups.has(line)) groups.set(line, []);
-      groups.get(line).push(issue);
-    }
-    return [ ...groups ].map(([line, items]) => ({
-      line,
-      items
-    }));
+    return suggestion;
   }
   function resultCards(issues, lines) {
-    const groups = groupIssuesByLine(issues);
-    return groups.map(({line, items}) => {
+    return [ ...Map.groupBy(issues, issue => issue.line) ].map(([line, items]) => {
       const snippet = lineSnippet(lines, line);
       const hiddenCount = Math.max(0, items.length - MAX_ISSUES_PER_LINE);
-      const highest = items[0].level;
       let parsedSnippet;
       const getParsed = () => parsedSnippet ??= (lines[line - 1] ?? "").trim().length > snippet.length ? {
         complete: false
@@ -16734,9 +16510,9 @@ const acorn = reviewParsers.acorn;</script>
       const issueHtml = items.map(issue => {
         const example = fixExampleForIssue(issue, snippet, getParsed);
         const key = escapeHtml(JSON.stringify([ issue.level, issue.title, issue.message, example ]));
-        return `\n                <details class="issue-details" data-issue-key="${key}">\n                  <summary>\n                    <span class="level-chip gm-badge ${issue.level}">${levelLabel(issue.level)}</span>\n                    <span class="issue-title">${escapeHtml(issue.title)}</span>\n                  </summary>\n                  <div class="issue-body">\n                    <span class="category-chip gm-badge">${categoryForIssue(issue)}</span>\n                    ${issue.message ? `<span class="issue-message">${escapeHtml(issue.message)}</span>` : ""}\n                    ${example ? `<span class="fix-example"><strong>修正例</strong>${escapeHtml(example)}</span>` : ""}\n                  </div>\n                </details>`;
+        return `\n                <details class="issue-details" data-issue-key="${key}">\n                  <summary>\n                    <span class="level-chip gm-badge ${issue.level}">${LEVEL_LABELS[issue.level]}</span>\n                    <span class="issue-title">${escapeHtml(issue.title)}</span>\n                  </summary>\n                  <div class="issue-body">\n                    <span class="category-chip gm-badge">${categoryForIssue(issue)}</span>\n                    ${issue.message ? `<span class="issue-message">${escapeHtml(issue.message)}</span>` : ""}\n                    ${example ? `<span class="fix-example"><strong>修正例</strong>${escapeHtml(example)}</span>` : ""}\n                  </div>\n                </details>`;
       });
-      return `\n              <article class="line-card" data-line="${line}" aria-label="${line}行目の指摘 ${items.length}件">\n                <span class="line-card-head">\n                  <button type="button" class="line-jump gm-btn" data-line="${line}" aria-label="${line}行目のコードへ移動" aria-controls="codeInput">${line}行目へ</button>\n                  <span class="level-chip gm-badge ${highest}">${items.length}件</span>\n                </span>\n                ${snippet ? `<code class="line-code">${escapeHtml(snippet)}</code>` : ""}\n                <div class="line-issues">${issueHtml.slice(0, MAX_ISSUES_PER_LINE).join("")}</div>\n                ${hiddenCount ? `<details class="more-issues"><summary>残りの指摘を表示（${hiddenCount}件）</summary><div class="line-issues">${issueHtml.slice(MAX_ISSUES_PER_LINE).join("")}</div></details>` : ""}\n              </article>`;
+      return `\n              <article class="line-card" data-line="${line}" aria-label="${line}行目の指摘 ${items.length}件">\n                <span class="line-card-head">\n                  <button type="button" class="line-jump gm-btn" data-line="${line}" aria-label="${line}行目のコードへ移動" aria-controls="codeInput">${line}行目へ</button>\n                  <span class="level-chip gm-badge ${items[0].level}">${items.length}件</span>\n                </span>\n                ${snippet ? `<code class="line-code">${escapeHtml(snippet)}</code>` : ""}\n                <div class="line-issues">${issueHtml.slice(0, MAX_ISSUES_PER_LINE).join("")}</div>\n                ${hiddenCount ? `<details class="more-issues"><summary>残りの指摘を表示（${hiddenCount}件）</summary><div class="line-issues">${issueHtml.slice(MAX_ISSUES_PER_LINE).join("")}</div></details>` : ""}\n              </article>`;
     });
   }
   const REVIEW_DELAY_MS = 300;
@@ -16773,6 +16549,10 @@ const acorn = reviewParsers.acorn;</script>
     retryBtn: document.getElementById("retryBtn"),
     langBtns: document.querySelectorAll(".lang-btn")
   };
+  const THEME_STORAGE_KEY = "code-review-checker-theme";
+  const LANGUAGE_STORAGE_KEY = "arttools.review.language.v1";
+  const languageLabel = lang => lang === "javascript" ? "JavaScript" : "Java";
+  const savedTheme = value => value === "dark" || value === "light" ? value : null;
   let language = "java";
   let reviewTimer = null;
   let revision = 0;
@@ -16792,36 +16572,29 @@ const acorn = reviewParsers.acorn;</script>
     first: -1,
     last: -1
   };
-  const THEME_STORAGE_KEY = "code-review-checker-theme";
   let themePreference = null;
   let systemTheme = null;
   try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY);
-    if (saved === "dark" || saved === "light") themePreference = saved;
+    themePreference = savedTheme(localStorage.getItem(THEME_STORAGE_KEY));
   } catch {}
   try {
-    systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
-    systemTheme.addEventListener?.("change", () => {
+    systemTheme = matchMedia("(prefers-color-scheme: dark)");
+    systemTheme.addEventListener("change", () => {
       if (themePreference === null) setTheme(systemTheme.matches ? "dark" : "light", false);
     });
   } catch {}
-  function getTheme() {
-    return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-  }
   function setTheme(theme, persist = true) {
-    const nextTheme = theme === "dark" ? "dark" : "light";
-    document.documentElement.dataset.theme = nextTheme;
-    if (persist) {
-      themePreference = nextTheme;
-      try {
-        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-      } catch {}
-    }
+    const next = theme === "dark" ? "dark" : "light";
+    document.documentElement.dataset.theme = next;
+    if (!persist) return;
+    themePreference = next;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {}
   }
   function scheduleReview() {
     invalidateReview();
-    if (isComposing) return;
-    reviewTimer = setTimeout(runReview, REVIEW_DELAY_MS);
+    if (!isComposing) reviewTimer = setTimeout(runReview, REVIEW_DELAY_MS);
   }
   function invalidateReview() {
     revision++;
@@ -16837,9 +16610,7 @@ const acorn = reviewParsers.acorn;</script>
     }
     els.resultList.setAttribute("aria-busy", "true");
     els.resultList.dataset.analysisState = "pending";
-    els.resultList.querySelectorAll(".line-jump").forEach(button => {
-      button.setAttribute("aria-disabled", "true");
-    });
+    for (const button of els.resultList.querySelectorAll(".line-jump")) button.setAttribute("aria-disabled", "true");
     setReviewStatus("pending", renderedSource.trim() ? "更新中… 表示は前回のコードの結果です。" : "解析中…");
   }
   function setReviewStatus(state, message) {
@@ -16898,22 +16669,23 @@ const acorn = reviewParsers.acorn;</script>
         applyEmpty(false, true);
       }
     };
-    els.resultList.setAttribute("aria-busy", "true");
     const current = ensureWorker();
     if (!current) {
       fallback();
       return;
     }
     workerBusy = true;
-    current.onmessage = event => {
-      if (current !== worker || event.data.id !== id || id !== revision) return;
-      if (event.data.failed) {
-        disposeWorker();
-        applyEmpty(false, true);
-      } else apply(event.data.result);
+    current.onmessage = ({data}) => {
+      if (current !== worker || data.id !== id || id !== revision) return;
+      if (!data.failed) {
+        apply(data.result);
+        return;
+      }
+      disposeWorker();
+      applyEmpty(false, true);
     };
     const workerFailed = event => {
-      event?.preventDefault?.();
+      event?.preventDefault();
       if (current !== worker || id !== revision) return;
       disposeWorker();
       workerUnavailable = true;
@@ -16932,21 +16704,18 @@ const acorn = reviewParsers.acorn;</script>
     }
   }
   function renderResults({issues, cards, complete, failed = false}) {
-    const renderInBatches = cards.length > RENDER_BATCH_SIZE * 2;
     const source = els.code.value;
     const lang = language;
     const id = revision;
     const scrollTop = renderedLanguage === lang ? els.resultList.scrollTop : 0;
-    const counts = issues.reduce((acc, issue) => {
-      acc[issue.level]++;
-      return acc;
-    }, {
+    const counts = {
       fix: 0,
       warn: 0,
       info: 0
-    });
-    const summary = issues.length ? [ "fix", "warn", "info" ].filter(level => counts[level]).map(level => `<span class="gm-badge ${level}">${levelLabel(level)} ${counts[level]}件</span>`).join("") : "";
-    const label = lang === "javascript" ? "JavaScript" : "Java";
+    };
+    for (const issue of issues) counts[issue.level]++;
+    const summary = [ "fix", "warn", "info" ].filter(level => counts[level]).map(level => `<span class="gm-badge ${level}">${LEVEL_LABELS[level]} ${counts[level]}件</span>`).join("");
+    const label = languageLabel(lang);
     const state = !source.trim() ? "ready" : failed ? "failed" : complete ? "complete" : "partial";
     const message = state === "ready" ? "コードを入力すると自動でレビューします。" : state === "failed" ? "解析処理に失敗しました。再解析してください。" : state === "partial" ? `${label}として解析できませんでした。構文と言語選択を確認してください。${issues.length ? `確認できた範囲の指摘は${issues.length}件です。` : ""}${lang === "javascript" ? " JSX・TypeScriptは未対応です。" : ""}` : issues.length ? `${label}の解析完了：指摘${issues.length}件（要修正${counts.fix}件、警告${counts.warn}件、情報${counts.info}件）。` : `${label}の解析完了：現在のルールでは指摘はありません。`;
     const commit = content => {
@@ -16954,27 +16723,26 @@ const acorn = reviewParsers.acorn;</script>
       const previousLines = renderedSource.split("\n");
       const nextLines = source.split("\n");
       const unchangedLine = line => renderedLanguage === lang && previousLines[line - 1] === nextLines[line - 1];
+      const cardLine = node => node.closest(".line-card").dataset.line;
       const expandedLines = new Set([ ...els.resultList.querySelectorAll(".line-card") ].filter(card => card.querySelector(".more-issues")?.open && unchangedLine(Number(card.dataset.line))).map(card => card.dataset.line));
-      const expandedIssues = new Set([ ...els.resultList.querySelectorAll(".issue-details") ].filter(detail => detail.open && unchangedLine(Number(detail.closest(".line-card").dataset.line))).map(detail => JSON.stringify([ detail.closest(".line-card").dataset.line, detail.dataset.issueKey ])));
+      const expandedIssues = new Set([ ...els.resultList.querySelectorAll(".issue-details") ].filter(detail => detail.open && unchangedLine(Number(cardLine(detail)))).map(detail => JSON.stringify([ cardLine(detail), detail.dataset.issueKey ])));
       const active = document.activeElement;
       const focusedCard = els.resultList.contains(active) ? active.closest(".line-card") : null;
       const focusedLine = focusedCard?.dataset.line;
       const focusedIssueKey = focusedCard ? active.closest(".issue-details")?.dataset.issueKey : null;
-      const focusedControl = focusedCard ? active.matches(".line-jump") ? ".line-jump" : ".more-issues > summary" : null;
+      const focusedControl = focusedCard && (active.matches(".line-jump") ? ".line-jump" : ".more-issues > summary");
       if (typeof content === "string") els.resultList.innerHTML = content; else els.resultList.replaceChildren(content);
       for (const card of els.resultList.querySelectorAll(".line-card")) {
-        if (expandedLines.has(card.dataset.line)) {
-          const disclosure = card.querySelector(".more-issues");
-          if (disclosure) disclosure.open = true;
-        }
+        const disclosure = card.querySelector(".more-issues");
+        if (disclosure && expandedLines.has(card.dataset.line)) disclosure.open = true;
         for (const detail of card.querySelectorAll(".issue-details")) {
           if (expandedIssues.has(JSON.stringify([ card.dataset.line, detail.dataset.issueKey ]))) detail.open = true;
         }
       }
       if (focusedCard) {
         const card = unchangedLine(Number(focusedLine)) ? els.resultList.querySelector(`.line-card[data-line="${focusedLine}"]`) : null;
-        const replacement = focusedIssueKey ? [ ...card?.querySelectorAll(".issue-details") || [] ].find(detail => detail.dataset.issueKey === focusedIssueKey)?.querySelector("summary") : card?.querySelector(focusedControl);
-        (replacement || els.resultList).focus({
+        const replacement = focusedIssueKey ? [ ...card?.querySelectorAll(".issue-details") ?? [] ].find(detail => detail.dataset.issueKey === focusedIssueKey)?.querySelector("summary") : card?.querySelector(focusedControl);
+        (replacement ?? els.resultList).focus({
           preventScroll: true
         });
       }
@@ -16987,13 +16755,13 @@ const acorn = reviewParsers.acorn;</script>
       els.resultList.setAttribute("aria-busy", "false");
       setReviewStatus(state, message);
     };
-    if (issues.length === 0) {
+    if (!issues.length) {
       const title = state === "ready" ? "コードを貼り付けてレビューを開始" : state === "complete" ? "指摘はありません" : "結果を表示できません";
       const description = state === "ready" ? "指摘がここに表示されます。" : state === "complete" ? `${label}のチェックが完了しました。` : "";
       commit(`<div class="empty-state"><div><div class="empty-title">${title}</div>${description ? `<p>${description}</p>` : ""}</div></div>`);
       return;
     }
-    if (!renderInBatches) {
+    if (cards.length <= RENDER_BATCH_SIZE * 2) {
       commit(cards.join(""));
       return;
     }
@@ -17014,35 +16782,28 @@ const acorn = reviewParsers.acorn;</script>
   }
   function updateGutter(issues) {
     const count = Math.max(1, els.code.value.split("\n").length);
-    if (!issues.length) {
-      gutterState = {
-        count,
-        levels: new Uint8Array(0),
-        first: -1,
-        last: -1
+    let levels = new Uint8Array(0);
+    if (issues.length) {
+      const rank = {
+        info: 0,
+        warn: 1,
+        fix: 2
       };
-      syncGutterScroll();
-      return;
-    }
-    const ranges = [ new Int32Array(count + 2), new Int32Array(count + 2), new Int32Array(count + 2) ];
-    const rank = {
-      info: 0,
-      warn: 1,
-      fix: 2
-    };
-    for (const issue of issues) {
-      const start = Math.max(1, issue.line);
-      const end = Math.min(count, issue.endLine);
-      if (start > end) continue;
-      ranges[rank[issue.level]][start]++;
-      ranges[rank[issue.level]][end + 1]--;
-    }
-    const levels = new Uint8Array(count + 1);
-    const active = [ 0, 0, 0 ];
-    for (let line = 1; line <= count; line++) {
-      for (let level = 0; level < 3; level++) {
-        active[level] += ranges[level][line];
-        if (active[level]) levels[line] = level + 1;
+      const ranges = [ 0, 1, 2 ].map(() => new Int32Array(count + 2));
+      for (const issue of issues) {
+        const start = Math.max(1, issue.line);
+        const end = Math.min(count, issue.endLine);
+        if (start > end) continue;
+        ranges[rank[issue.level]][start]++;
+        ranges[rank[issue.level]][end + 1]--;
+      }
+      levels = new Uint8Array(count + 1);
+      const active = [ 0, 0, 0 ];
+      for (let line = 1; line <= count; line++) {
+        for (let level = 0; level < 3; level++) {
+          active[level] += ranges[level][line];
+          if (active[level]) levels[line] = level + 1;
+        }
       }
     }
     gutterState = {
@@ -17055,16 +16816,16 @@ const acorn = reviewParsers.acorn;</script>
   }
   function syncGutterScroll() {
     const height = Number.parseFloat(getComputedStyle(els.code).lineHeight);
-    const count = gutterState.count;
+    const {count} = gutterState;
     const visible = Math.ceil((els.code.clientHeight || 600) / height);
     const first = count <= 200 ? 1 : Math.min(count, Math.max(1, Math.floor(els.code.scrollTop / height) - 40));
     const last = count <= 200 ? count : Math.min(count, first + visible + 80);
     if (first !== gutterState.first || last !== gutterState.last) {
+      const levelNames = [ "", "info", "warn", "fix" ];
       let html = "";
       for (let line = first; line <= last; line++) {
-        const level = [ "", "info", "warn", "fix" ][gutterState.levels[line]];
-        const cls = level ? `gutter-line has-issue has-${level}` : "gutter-line";
-        html += `<div class="${cls}">${line}</div>`;
+        const level = levelNames[gutterState.levels[line]];
+        html += `<div class="${level ? `gutter-line has-issue has-${level}` : "gutter-line"}">${line}</div>`;
       }
       els.gutter.innerHTML = html;
       gutterState.first = first;
@@ -17073,34 +16834,54 @@ const acorn = reviewParsers.acorn;</script>
     els.gutter.style.transform = `translateY(${(first - 1) * height - els.code.scrollTop}px)`;
   }
   function jumpToLine(lineNumber) {
-    const source = els.code.value;
-    const lines = source.split("\n");
     if (!Number.isFinite(lineNumber)) return;
-    const clamped = Math.min(Math.max(1, Math.trunc(lineNumber)), lines.length);
-    let start = 0;
-    for (let i = 0; i < clamped - 1; i++) start += lines[i].length + 1;
-    const end = start + lines[clamped - 1].length;
+    const lines = els.code.value.split("\n");
+    const target = Math.min(Math.max(1, Math.trunc(lineNumber)), lines.length);
+    const start = lines.slice(0, target - 1).reduce((offset, line) => offset + line.length + 1, 0);
     els.code.focus({
       preventScroll: true
     });
-    els.code.setSelectionRange(start, end);
+    els.code.setSelectionRange(start, start + lines[target - 1].length);
     const codeStyle = getComputedStyle(els.code);
     const lineHeight = Number.parseFloat(codeStyle.lineHeight);
-    els.code.scrollTop = Math.max(0, (clamped - 4) * lineHeight);
+    els.code.scrollTop = Math.max(0, (target - 4) * lineHeight);
     syncGutterScroll();
-    const y = els.code.getBoundingClientRect().top + Number.parseFloat(codeStyle.paddingTop || "0") + (clamped - 1) * lineHeight - els.code.scrollTop;
-    if (y < 0 || y > window.innerHeight - lineHeight) window.scrollBy(0, y - window.innerHeight / 3);
+    const y = els.code.getBoundingClientRect().top + Number.parseFloat(codeStyle.paddingTop || "0") + (target - 1) * lineHeight - els.code.scrollTop;
+    if (y < 0 || y > innerHeight - lineHeight) scrollBy(0, y - innerHeight / 3);
   }
   function switchLanguage(next) {
     if (![ "java", "javascript" ].includes(next) || next === language) return;
     language = next;
     try {
-      localStorage.setItem("arttools.review.language.v1", language);
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
     } catch {}
-    els.langBtns.forEach(btn => btn.setAttribute("aria-pressed", String(btn.dataset.language === language)));
-    const languageLabel = language === "javascript" ? "JavaScript" : "Java";
-    els.code.placeholder = `${languageLabel}コードを貼り付け`;
+    for (const button of els.langBtns) button.setAttribute("aria-pressed", String(button.dataset.language === language));
+    els.code.placeholder = `${languageLabel(language)}コードを貼り付け`;
     runReview();
+  }
+  function insertEditorText(text, start, end) {
+    els.code.setSelectionRange(start, end);
+    let inserted = false;
+    try {
+      inserted = document.execCommand("insertText", false, text);
+    } catch {}
+    if (inserted) return;
+    els.code.setRangeText(text, start, end, "end");
+    els.code.dispatchEvent(new Event("input", {
+      bubbles: true
+    }));
+  }
+  function updateEditorControls() {
+    els.clearBtn.disabled = !els.code.value;
+    els.recovery.hidden = clearedDraft === null;
+    els.clearNotice.textContent = clearedDraft ? "クリアしました。" : "";
+  }
+  function dismissClearRecovery() {
+    clearedDraft = null;
+    if (document.activeElement === els.restoreBtn) els.code.focus({
+      preventScroll: true
+    });
+    updateEditorControls();
   }
   els.code.addEventListener("input", () => {
     dismissClearRecovery();
@@ -17115,98 +16896,65 @@ const acorn = reviewParsers.acorn;</script>
     isComposing = false;
     scheduleReview();
   });
-  els.resultList.addEventListener("click", event => {
-    const button = event.target.closest(".line-jump");
-    if (!button || button.disabled || !els.resultList.contains(button)) return;
-    if (els.resultList.dataset.analysisState === "pending" || renderedSource !== els.code.value || renderedLanguage !== language) return;
-    jumpToLine(Number(button.dataset.line));
-  });
-  if (window.addEventListener) {
-    window.addEventListener("beforeprint", () => {
-      if (printDisclosures !== null) return;
-      printDisclosures = [ ...els.resultList.querySelectorAll("details") ].map(detail => [ detail, detail.open ]);
-      printDisclosures.forEach(([detail]) => {
-        detail.open = true;
-      });
-    });
-    window.addEventListener("afterprint", () => {
-      printDisclosures?.forEach(([detail, open]) => {
-        detail.open = open;
-      });
-      printDisclosures = null;
-    });
-    window.addEventListener("storage", event => {
-      if (event.key !== THEME_STORAGE_KEY && event.key !== null) return;
-      try {
-        if (event.storageArea && event.storageArea !== localStorage) return;
-      } catch {
-        return;
-      }
-      themePreference = event.newValue === "dark" || event.newValue === "light" ? event.newValue : null;
-      setTheme(themePreference ?? (systemTheme?.matches ? "dark" : "light"), false);
-    });
-    window.addEventListener("resize", () => {
-      gutterState.first = -1;
-      syncGutterScroll();
-    });
-    window.addEventListener("pagehide", () => {
-      isComposing = false;
-      invalidateReview();
-      disposeWorker();
-    });
-    window.addEventListener("pageshow", event => {
-      if (event.persisted || els.code.value !== renderedSource) runReview();
-    });
-  }
   els.code.addEventListener("scroll", syncGutterScroll, {
     passive: true
   });
-  function insertEditorText(text, start, end) {
-    els.code.setSelectionRange(start, end);
-    let inserted = false;
+  els.resultList.addEventListener("click", event => {
+    const button = event.target.closest(".line-jump");
+    if (!button || !els.resultList.contains(button)) return;
+    if (els.resultList.dataset.analysisState === "pending" || renderedSource !== els.code.value || renderedLanguage !== language) return;
+    jumpToLine(Number(button.dataset.line));
+  });
+  addEventListener("beforeprint", () => {
+    if (printDisclosures !== null) return;
+    printDisclosures = [ ...els.resultList.querySelectorAll("details") ].map(detail => [ detail, detail.open ]);
+    for (const [detail] of printDisclosures) detail.open = true;
+  });
+  addEventListener("afterprint", () => {
+    for (const [detail, open] of printDisclosures ?? []) detail.open = open;
+    printDisclosures = null;
+  });
+  addEventListener("storage", event => {
+    if (event.key !== THEME_STORAGE_KEY && event.key !== null) return;
     try {
-      inserted = document.execCommand?.("insertText", false, text) ?? false;
-    } catch {}
-    if (!inserted) {
-      els.code.setRangeText(text, start, end, "end");
-      els.code.dispatchEvent(new Event("input", {
-        bubbles: true
-      }));
+      if (event.storageArea && event.storageArea !== localStorage) return;
+    } catch {
+      return;
     }
-  }
-  els.langBtns.forEach(btn => btn.addEventListener("click", () => switchLanguage(btn.dataset.language)));
-  function updateEditorControls() {
-    els.clearBtn.disabled = !els.code.value;
-    els.recovery.hidden = clearedDraft === null;
-    els.clearNotice.textContent = clearedDraft ? "クリアしました。" : "";
-  }
-  function dismissClearRecovery() {
-    clearedDraft = null;
-    if (document.activeElement === els.restoreBtn) els.code.focus({
-      preventScroll: true
-    });
-    updateEditorControls();
-  }
+    themePreference = savedTheme(event.newValue);
+    setTheme(themePreference ?? (systemTheme?.matches ? "dark" : "light"), false);
+  });
+  addEventListener("resize", () => {
+    gutterState.first = -1;
+    syncGutterScroll();
+  });
+  addEventListener("pagehide", () => {
+    isComposing = false;
+    invalidateReview();
+    disposeWorker();
+  });
+  addEventListener("pageshow", event => {
+    if (event.persisted || els.code.value !== renderedSource) runReview();
+  });
+  for (const button of els.langBtns) button.addEventListener("click", () => switchLanguage(button.dataset.language));
   els.clearBtn.addEventListener("click", () => {
     if (isComposing || !els.code.value) return;
+    const {value: source, selectionStart: start, selectionEnd: end, selectionDirection: direction, scrollTop, scrollLeft} = els.code;
     const draft = {
-      source: els.code.value,
+      source,
       language,
-      start: els.code.selectionStart,
-      end: els.code.selectionEnd,
-      direction: els.code.selectionDirection,
-      scrollTop: els.code.scrollTop,
-      scrollLeft: els.code.scrollLeft
+      start,
+      end,
+      direction,
+      scrollTop,
+      scrollLeft
     };
     els.code.focus();
-    if (els.code.value) {
-      const source = els.code.value;
-      try {
-        if (source.length <= 1e5 && document.queryCommandEnabled?.("undo") && document.execCommand("undo")) document.execCommand("redo");
-      } catch {}
-      if (els.code.value !== source) els.code.value = source;
-      insertEditorText("", 0, source.length);
-    }
+    try {
+      if (source.length <= 1e5 && document.queryCommandEnabled("undo") && document.execCommand("undo")) document.execCommand("redo");
+    } catch {}
+    if (els.code.value !== source) els.code.value = source;
+    insertEditorText("", 0, source.length);
     clearedDraft = draft;
     updateEditorControls();
     runReview();
@@ -17232,12 +16980,11 @@ const acorn = reviewParsers.acorn;</script>
     runReview();
   });
   els.themeToggle.addEventListener("click", () => {
-    const nextTheme = getTheme() === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
+    setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
   });
   try {
-    const savedLanguage = localStorage.getItem("arttools.review.language.v1");
-    if (savedLanguage) switchLanguage(savedLanguage);
+    const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (saved) switchLanguage(saved);
   } catch {}
   updateEditorControls();
   runReview();
@@ -17274,14 +17021,24 @@ boolean active = true;</pre>
     
   <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.review.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
-  let preferences = {}, faviconTheme = "";
-  const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
+  const root = document.documentElement;
+  const body = document.body;
+  const storageKey = `arttools.ui.review.v1`;
+  const legacySharedKey = "arttools.shared-ui.v1";
+  const settingsDialog = document.getElementById("art-settings");
+  const helpDialog = document.getElementById("art-help");
+  const saveNote = document.getElementById("art-save-note");
+  let preferences = {};
+  let faviconTheme = "";
+  const validTheme = value => value === "light" || value === "dark";
+  const editorSizes = [ 10, 14, 18 ];
+  const validSize = value => editorSizes.includes(value);
+  const migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
     try {
       const value = JSON.parse(raw);
-      if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
+      if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+      const editorSize = migrateSize(typeof value.editorSize === "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -17299,37 +17056,44 @@ boolean active = true;</pre>
   }
   function syncTheme() {
     const theme = originalTheme();
-    root.dataset.uiTheme !== theme && (root.dataset.uiTheme = theme), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (root.dataset.uiTheme !== theme) root.dataset.uiTheme = theme;
+    document.querySelectorAll("[data-art-theme]").forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.artTheme === theme));
-    }), syncFavicon();
+    });
+    syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg"), theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
+    const original = document.querySelector(".art-mark svg");
+    const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
       layer.setAttribute("display", layer.dataset.iconAppearance === theme ? "inline" : "none");
-    }), original.setAttribute("data-icon-theme", theme);
-    const icon = original.cloneNode(!0), favicon = document.getElementById("art-favicon");
-    favicon.type = "image/svg+xml", favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon)), 
+    });
+    original.setAttribute("data-icon-theme", theme);
+    const icon = original.cloneNode(true);
+    const favicon = document.getElementById("art-favicon");
+    favicon.type = "image/svg+xml";
+    favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon));
     faviconTheme = theme;
   }
-  {
-    const preview = document.querySelector(".art-preview"), syncReviewPreview = () => {
-      const language = document.querySelector('.lang-btn[aria-pressed="true"]').dataset.language;
-      preview.textContent = language === "javascript" ? preview.dataset.previewJavascript : preview.dataset.previewJava;
-    };
-    document.querySelectorAll(".lang-btn").forEach(button => button.addEventListener("click", syncReviewPreview)), 
-    syncReviewPreview();
-  }
+  const preview = document.querySelector(".art-preview");
+  const syncReviewPreview = () => {
+    const language = document.querySelector('.lang-btn[aria-pressed="true"]').dataset.language;
+    preview.textContent = language === "javascript" ? preview.dataset.previewJavascript : preview.dataset.previewJava;
+  };
+  document.querySelectorAll(".lang-btn").forEach(button => button.addEventListener("click", syncReviewPreview));
+  syncReviewPreview();
   function applyTheme(theme) {
-    validTheme(theme) && originalTheme() !== theme && document.querySelector("#themeToggle").click(), 
+    if (validTheme(theme) && originalTheme() !== theme) document.querySelector("#themeToggle").click();
     syncTheme();
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px"), document.querySelectorAll("[data-art-size]").forEach(button => {
+    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
-    }), document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
+    });
+    document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
       detail: {
         size: nextSize
       }
@@ -17337,62 +17101,93 @@ boolean active = true;</pre>
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
-      saveNote.hidden = !0, saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+      saveNote.textContent = "";
+      saveNote.hidden = true;
+      saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。";
+      saveNote.hidden = false;
       saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (dialog.open) return;
+    if (dialog === settingsDialog) document.dispatchEvent(new Event("arttools:settings-open"));
+    dialog.showModal();
+    dialog.scrollTop = 0;
+    button.setAttribute("aria-expanded", "true");
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
-    button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
+    button.addEventListener("click", () => openDialog(dialog, button));
+    dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
-      button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
-        preventScroll: !0
+      button.setAttribute("aria-expanded", "false");
+      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
+      destination.focus({
+        preventScroll: true
       });
     });
-    let backdropStart = !1;
+    let backdropStart = false;
     const outside = event => {
       const rect = dialog.getBoundingClientRect();
       return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
     };
     dialog.addEventListener("pointerdown", event => {
       backdropStart = event.target === dialog && outside(event);
-    }), dialog.addEventListener("click", event => {
-      backdropStart && event.target === dialog && outside(event) && dialog.close(), backdropStart = !1;
+    });
+    dialog.addEventListener("click", event => {
+      if (backdropStart && event.target === dialog && outside(event)) dialog.close();
+      backdropStart = false;
     });
   }
   body.addEventListener("keydown", event => {
     const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
-    if (!dialog || (event.stopPropagation(), event.isComposing || event.keyCode === 229)) return;
+    if (!dialog) {
+      return;
+    }
+    event.stopPropagation();
+    if (event.isComposing || event.keyCode === 229) return;
     if (event.key === "Escape") {
-      event.preventDefault(), dialog.close();
+      event.preventDefault();
+      dialog.close();
       return;
     }
     if (event.key !== "Tab") return;
     const controls = [ ...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, a[href], [tabindex="0"]') ].filter(control => {
-      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return !1;
-      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return !1;
-      return !0;
-    }), first = controls[0], last = controls[controls.length - 1];
+      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return false;
+      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return false;
+      }
+      return true;
+    });
+    const first = controls[0];
+    const last = controls[controls.length - 1];
     if (!first) {
       event.preventDefault();
       return;
     }
-    event.shiftKey && document.activeElement === first ? (event.preventDefault(), last.focus()) : !event.shiftKey && document.activeElement === last && (event.preventDefault(), 
-    first.focus());
-  }), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
+      preferences.theme = button.dataset.artTheme;
+      save();
+      applyTheme(preferences.theme);
     });
-  }), document.querySelectorAll("[data-art-size]").forEach(button => {
+  });
+  document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.editorSize = Number(button.dataset.artSize), applySize(preferences.editorSize), 
+      preferences.editorSize = Number(button.dataset.artSize);
+      applySize(preferences.editorSize);
       save();
     });
   });
@@ -17400,50 +17195,67 @@ boolean active = true;</pre>
     let raw = localStorage.getItem(storageKey);
     if (raw === null) {
       const legacy = localStorage.getItem(legacySharedKey);
-      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+      if (legacy !== null) {
+        raw = JSON.stringify(readPreferences(legacy));
+        localStorage.setItem(storageKey, raw);
+      }
     }
-    if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
+    preferences = readPreferences(raw);
+    if (validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
-      stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
-        ...stored,
-        editorSize: preferences.editorSize
-      }));
+      if (stored.editorSize !== preferences.editorSize) {
+        localStorage.setItem(storageKey, JSON.stringify({
+          ...stored,
+          editorSize: preferences.editorSize
+        }));
+      }
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。";
+    saveNote.hidden = false;
     saveNote.dataset.error = "true";
   }
-  applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
-    validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();
-  }).observe(root, {
-    attributes: !0,
+  applyTheme(preferences.theme);
+  applySize(preferences.editorSize);
+  const observer = new MutationObserver(() => {
+    if (validTheme(preferences.theme) && originalTheme() !== preferences.theme) applyTheme(preferences.theme); else syncTheme();
+  });
+  observer.observe(root, {
+    attributes: true,
     attributeFilter: [ "data-theme" ]
   });
   const focusPrimaryInput = () => {
     const target = document.querySelector("[data-art-autofocus]");
     if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
-    let finished = !1;
+    const deadline = performance.now() + 3e3;
+    const userEvents = [ "pointerdown", "keydown" ];
+    let finished = false;
     const finish = () => {
-      finished = !0;
-      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+      finished = true;
+      for (const type of userEvents) window.removeEventListener(type, finish, true);
     };
-    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    for (const type of userEvents) window.addEventListener(type, finish, true);
     const attempt = () => {
-      if (!finished) {
-        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
-          preventScroll: !0
-        }), document.activeElement === target)) return finish();
-        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      if (finished) return;
+      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
+      if (target.getClientRects().length) {
+        target.focus({
+          preventScroll: true
+        });
+        if (document.activeElement === target) return finish();
       }
+      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
     };
     attempt();
   };
-  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
-    once: !0
-  }), window.addEventListener("storage", event => {
-    event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
-    applyTheme(preferences.theme), applySize(preferences.editorSize));
+  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
+    once: true
+  });
+  window.addEventListener("storage", event => {
+    if (event.key !== storageKey && event.key !== null) return;
+    preferences = readPreferences(event.newValue);
+    applyTheme(preferences.theme);
+    applySize(preferences.editorSize);
   });
 })();</script>
   </body>

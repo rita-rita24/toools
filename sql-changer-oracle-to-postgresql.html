@@ -11,40 +11,36 @@
 
 (() => {
   const key = "sql-changer-theme";
-  const system = window.matchMedia("(prefers-color-scheme: dark)");
+  const system = matchMedia("(prefers-color-scheme: dark)");
+  const validTheme = value => value === "light" || value === "dark" ? value : null;
   let preference = null;
-  let button;
-  const validTheme = value => value === "light" || value === "dark";
   try {
-    const saved = window.localStorage.getItem(key);
-    if (validTheme(saved)) preference = saved;
+    preference = validTheme(localStorage.getItem(key));
   } catch {}
-  function applyTheme() {
-    const theme = preference ?? (system.matches ? "dark" : "light");
-    document.documentElement.dataset.mode = theme;
-  }
+  const applyTheme = () => {
+    document.documentElement.dataset.mode = preference ?? (system.matches ? "dark" : "light");
+  };
   applyTheme();
   system.addEventListener("change", () => {
     if (!preference) applyTheme();
   });
-  window.addEventListener("storage", event => {
+  addEventListener("storage", event => {
     if (event.key !== key && event.key !== null) return;
     try {
-      if (event.storageArea !== window.localStorage) return;
+      if (event.storageArea !== localStorage) return;
     } catch {
       return;
     }
-    preference = validTheme(event.newValue) ? event.newValue : null;
+    preference = validTheme(event.newValue);
     applyTheme();
   });
   document.addEventListener("DOMContentLoaded", () => {
-    button = document.getElementById("eclipse-toggle");
     applyTheme();
-    button.addEventListener("click", () => {
+    document.getElementById("eclipse-toggle").addEventListener("click", () => {
       preference = document.documentElement.dataset.mode === "dark" ? "light" : "dark";
       applyTheme();
       try {
-        window.localStorage.setItem(key, preference);
+        localStorage.setItem(key, preference);
       } catch {}
     });
   }, {
@@ -1797,24 +1793,23 @@ body.art-app[data-tool=sql] :is(#copyPostgresButton):not(:has(svg, .material-sym
 
 const targetPostgresVersion = "15.17";
 
-const targetPostgresMajorVersion = Number(targetPostgresVersion.split(".")[0]);
+const simpleReplacements = [ [ /\bVARCHAR2\s*\(/gi, "VARCHAR(" ], [ /\bNVARCHAR2\s*\(/gi, "VARCHAR(" ], [ /\bNCHAR\s*\(/gi, "CHAR(" ], [ /\bNUMBER\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)/gi, "NUMERIC($1,$2)" ], [ /\bNUMBER\s*\(\s*(\d+)\s*\)/gi, "NUMERIC($1)" ], [ /\bNUMBER\b/gi, "NUMERIC" ], [ /\bBINARY_FLOAT\b/gi, "REAL" ], [ /\bBINARY_DOUBLE\b/gi, "DOUBLE PRECISION" ], [ /\bFLOAT\b(?:\s*\(\s*\d+\s*\))?/gi, "DOUBLE PRECISION" ], [ /\bDATE\b/gi, "TIMESTAMP" ], [ /\bCLOB\b/gi, "TEXT" ], [ /\bNCLOB\b/gi, "TEXT" ], [ /\bBLOB\b/gi, "BYTEA" ], [ /\bRAW\s*\(\s*\d+\s*\)/gi, "BYTEA" ], [ /\bLONG\s+RAW\b/gi, "BYTEA" ], [ /\bLONG\b/gi, "TEXT" ], [ /\bMINUS\b/gi, "EXCEPT" ], [ /\bSOUNDEX\s*\(/gi, "SOUNDEX(" ], [ /\bEMPTY_CLOB\s*\(\s*\)/gi, "''" ], [ /\bEMPTY_BLOB\s*\(\s*\)/gi, "decode('', 'hex')" ], [ /\b(VARCHAR|CHAR)\s*\(\s*(\d+)\s+(?:BYTE|CHAR)\s*\)/gi, "$1($2)" ] ];
 
-const simpleReplacements = [ [ /\bVARCHAR2\s*\(/gi, "VARCHAR(" ], [ /\bNVARCHAR2\s*\(/gi, "VARCHAR(" ], [ /\bNCHAR\s*\(/gi, "CHAR(" ], [ /\bNUMBER\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)/gi, "NUMERIC($1,$2)" ], [ /\bNUMBER\s*\(\s*(\d+)\s*\)/gi, "NUMERIC($1)" ], [ /\bNUMBER\b/gi, "NUMERIC" ], [ /\bBINARY_FLOAT\b/gi, "REAL" ], [ /\bBINARY_DOUBLE\b/gi, "DOUBLE PRECISION" ], [ /\bFLOAT\b(?:\s*\(\s*\d+\s*\))?/gi, "DOUBLE PRECISION" ], [ /\bDATE\b/gi, "TIMESTAMP" ], [ /\bCLOB\b/gi, "TEXT" ], [ /\bNCLOB\b/gi, "TEXT" ], [ /\bBLOB\b/gi, "BYTEA" ], [ /\bRAW\s*\(\s*\d+\s*\)/gi, "BYTEA" ], [ /\bLONG\s+RAW\b/gi, "BYTEA" ], [ /\bLONG\b/gi, "TEXT" ], [ /\bMINUS\b/gi, "EXCEPT" ], [ /\bSOUNDEX\s*\(/gi, "SOUNDEX(" ], [ /\bEMPTY_CLOB\s*\(\s*\)/gi, "''" ], [ /\bEMPTY_BLOB\s*\(\s*\)/gi, "decode('', 'hex')" ], [ /\bCURRENT_DATE\b/gi, "CURRENT_DATE" ], [ /\b(VARCHAR|CHAR)\s*\(\s*(\d+)\s+(?:BYTE|CHAR)\s*\)/gi, "$1($2)" ] ];
+const identifierPattern = '(?:"(?:""|[^"])+"|[\\p{L}_][\\p{L}\\p{M}\\p{N}_$#]*)';
 
-function readQuoted(sql, start, quote) {
-  return readQuotedToken(sql, start, quote).end;
-}
+const asGlobal = pattern => new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`);
+
+const blankOut = text => text.replace(/[^\r\n]/g, " ");
 
 function readQuotedToken(sql, start, quote) {
   const escaped = quote === "'" && /[eE]/.test(sql[start - 1] || "") && !isSqlIdentifierAt(sql, start - 2);
   for (let index = start + 1; index < sql.length; index += 1) {
-    if (escaped && sql[index] === "\\" && index + 1 < sql.length) {
-      index += 1;
-    } else if (sql[index] === quote) {
-      if (sql[index + 1] === quote) index += 1; else return {
+    if (escaped && sql[index] === "\\" && index + 1 < sql.length) index += 1; else if (sql[index] === quote) {
+      if (sql[index + 1] !== quote) return {
         end: index + 1,
         closed: true
       };
+      index += 1;
     }
   }
   return {
@@ -1829,25 +1824,18 @@ function readDoubleQuotedContent(sql, start) {
   while (index < sql.length) {
     const char = sql[index];
     const next = sql[index + 1];
-    if (char === "\\" && next !== undefined) {
+    if (char === '"' && next !== '"') return {
+      end: index + 1,
+      raw,
+      closed: true
+    };
+    if (char === "\\" && next !== undefined || char === '"') {
       raw += char + next;
       index += 2;
-      continue;
+    } else {
+      raw += char;
+      index += 1;
     }
-    if (char === '"') {
-      if (next === '"') {
-        raw += '""';
-        index += 2;
-        continue;
-      }
-      return {
-        end: index + 1,
-        raw,
-        closed: true
-      };
-    }
-    raw += char;
-    index += 1;
   }
   return {
     end: sql.length,
@@ -1856,27 +1844,27 @@ function readDoubleQuotedContent(sql, start) {
   };
 }
 
+const simpleEscapes = {
+  n: "\n",
+  r: "\r",
+  t: "\t",
+  b: "\b",
+  f: "\f",
+  v: "\v",
+  '"': '"',
+  "'": "'",
+  "\\": "\\"
+};
+
 function decodeDoubleQuotedContent(raw) {
   const usesBackslashEscapes = raw.includes("\\");
-  const usesDoubledQuotes = raw.includes('""');
   let text = "";
   let supported = true;
   for (let index = 0; index < raw.length; index += 1) {
     const char = raw[index];
     const next = raw[index + 1];
     if (usesBackslashEscapes && char === "\\" && next !== undefined) {
-      const simple = {
-        n: "\n",
-        r: "\r",
-        t: "\t",
-        b: "\b",
-        f: "\f",
-        v: "\v",
-        '"': '"',
-        "'": "'",
-        "\\": "\\"
-      };
-      if (Object.hasOwn(simple, next)) text += simple[next]; else if (next === "0" && !/\d/.test(raw[index + 2] || "")) text += "\0"; else if (next === "\r" || next === "\n") {
+      if (Object.hasOwn(simpleEscapes, next)) text += simpleEscapes[next]; else if (next === "0" && !/\d/.test(raw[index + 2] || "")) text += "\0"; else if (next === "\r" || next === "\n") {
         if (next === "\r" && raw[index + 2] === "\n") index += 1;
       } else {
         const escape = raw.slice(index).match(/^\\u\{([0-9a-f]{1,6})\}|^\\u([0-9a-f]{4})|^\\x([0-9a-f]{2})/i);
@@ -1890,19 +1878,16 @@ function decodeDoubleQuotedContent(raw) {
         }
       }
       index += 1;
-      continue;
-    }
-    if (!usesBackslashEscapes && char === '"' && next === '"') {
+    } else if (!usesBackslashEscapes && char === '"' && next === '"') {
       text += '"';
       index += 1;
-      continue;
-    }
-    text += char;
+    } else text += char;
   }
+  const quoteStyle = usesBackslashEscapes ? "backslash" : raw.includes('""') ? "doubled" : "plain";
   return {
     text,
     supported,
-    quoteStyle: usesBackslashEscapes ? "backslash" : usesDoubledQuotes ? "doubled" : "plain"
+    quoteStyle
   };
 }
 
@@ -1910,46 +1895,24 @@ function encodeDoubleQuotedContent(text, quoteStyle) {
   if (quoteStyle === "backslash" || quoteStyle === "plain" && /["\r\n\t]/.test(text)) {
     return text.replace(/\\/g, "\\\\").replace(/\r/g, "\\r").replace(/\n/g, "\\n").replace(/\t/g, "\\t").replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, char => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`).replace(/"/g, '\\"');
   }
-  if (quoteStyle === "doubled") {
-    return text.replace(/"/g, '""');
-  }
-  return text;
+  return quoteStyle === "doubled" ? text.replace(/"/g, '""') : text;
 }
 
 function isSqlQuotedIdentifierContext(source, start, end) {
   const before = source.slice(Math.max(0, start - 120), start);
   const after = source.slice(end, Math.min(source.length, end + 120));
   const statementPrefix = source.slice(Math.max(source.lastIndexOf(";", start - 1) + 1, 0), start);
-  const sqlKeywordInStatement = /\b(SELECT|AS|FROM|JOIN|WHERE|ON|BY|ORDER|GROUP|UPDATE|SET|INSERT|INTO|MERGE|DELETE|CREATE|ALTER|TABLE|COLUMN|COMMENT)\b/i.test(statementPrefix);
-  const identifierBoundaryAfter = /^\s*(?:AS\b|FROM\b|WHERE\b|JOIN\b|ON\b|,|\.|=|\)|;)/i.test(after);
-  const aliasContext = /\bAS\s*$/i.test(before) || /^\s*AS\b/i.test(after);
-  const dottedIdentifierContext = /\.\s*$/.test(before) || /^\s*\./.test(after);
-  const functionArgumentContext = /\b(?:COUNT|SUM|AVG|MIN|MAX|LOWER|UPPER|TRIM|COALESCE|NULLIF|CAST|TO_CHAR|TO_DATE|TO_NUMBER|SUBSTR|SUBSTRING|LPAD|RPAD)\s*\(\s*$/i.test(before);
-  return aliasContext || dottedIdentifierContext || functionArgumentContext || sqlKeywordInStatement && identifierBoundaryAfter;
+  return /\bAS\s*$/i.test(before) || /^\s*AS\b/i.test(after) || /\.\s*$/.test(before) || /^\s*\./.test(after) || /\b(?:COUNT|SUM|AVG|MIN|MAX|LOWER|UPPER|TRIM|COALESCE|NULLIF|CAST|TO_CHAR|TO_DATE|TO_NUMBER|SUBSTR|SUBSTRING|LPAD|RPAD)\s*\(\s*$/i.test(before) || /\b(SELECT|AS|FROM|JOIN|WHERE|ON|BY|ORDER|GROUP|UPDATE|SET|INSERT|INTO|MERGE|DELETE|CREATE|ALTER|TABLE|COLUMN|COMMENT)\b/i.test(statementPrefix) && /^\s*(?:AS\b|FROM\b|WHERE\b|JOIN\b|ON\b|,|\.|=|\)|;)/i.test(after);
 }
 
-function isLikelyEmbeddedSqlString(text, source = "", start = 0, end = 0) {
+function isLikelyEmbeddedSqlString(text, source, start, end) {
   const trimmed = text.trim();
-  if (!trimmed) {
-    return false;
-  }
-  if (/^(SELECT|WITH|INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|COMMENT|TRUNCATE|GRANT|REVOKE|DECLARE|BEGIN)\b/i.test(trimmed)) {
-    return true;
-  }
+  if (!trimmed) return false;
+  if (/^(SELECT|WITH|INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|COMMENT|TRUNCATE|GRANT|REVOKE|DECLARE|BEGIN)\b/i.test(trimmed)) return true;
   const oracleSpecificToken = /\b(FROM\s+(?:SYS\.)?DUAL|ROWNUM|VARCHAR2\s*\(|NVARCHAR2\s*\(|NUMBER\b|DATE\b|SYSDATE|SYSTIMESTAMP|[A-Za-z_][\w$#.]*\.(?:NEXTVAL|CURRVAL)|DECODE\s*\(|NVL2?\s*\(|TO_(?:CHAR|DATE|NUMBER)\s*\(|SUBSTR\s*\(|LPAD\s*\(|TRUNC\s*\()/i;
-  if (!oracleSpecificToken.test(trimmed)) {
-    return false;
-  }
-  if (text !== trimmed) {
-    return true;
-  }
-  if (/[()\s,;=+\-*\/]/.test(trimmed)) {
-    return true;
-  }
-  if (/^[A-Za-z_][\w$#]*(?:\.[A-Za-z_][\w$#]*)?$/.test(trimmed) && isSqlQuotedIdentifierContext(source, start, end)) {
-    return false;
-  }
-  return true;
+  if (!oracleSpecificToken.test(trimmed)) return false;
+  if (text !== trimmed || /[()\s,;=+\-*\/]/.test(trimmed)) return true;
+  return !(/^[A-Za-z_][\w$#]*(?:\.[A-Za-z_][\w$#]*)?$/.test(trimmed) && isSqlQuotedIdentifierContext(source, start, end));
 }
 
 function isSqlIdentifierAt(sql, index) {
@@ -1977,6 +1940,14 @@ function getSqlProtectedRanges(sql) {
   return ranges;
 }
 
+const commentRanges = sql => getSqlProtectedRanges(sql).filter(range => readSqlProtectedToken(sql, range.start)?.kind === "comment");
+
+function withoutComments(sql) {
+  let text = sql;
+  for (const range of commentRanges(sql).reverse()) text = text.slice(0, range.start) + " " + text.slice(range.end);
+  return text;
+}
+
 function isProtectedIndex(ranges, index) {
   let low = 0;
   let high = ranges.length - 1;
@@ -1988,60 +1959,37 @@ function isProtectedIndex(ranges, index) {
 }
 
 function sqlCodeMask(sql, ranges = getSqlProtectedRanges(sql)) {
-  const parts = [];
+  let masked = "";
   let start = 0;
   for (const range of ranges) {
-    parts.push(sql.slice(start, range.start), sql.slice(range.start, range.end).replace(/[^\r\n]/g, " "));
+    masked += sql.slice(start, range.start) + blankOut(sql.slice(range.start, range.end));
     start = range.end;
   }
-  parts.push(sql.slice(start));
-  return parts.join("");
-}
-
-function expandReplacement(match, captures, replacement) {
-  return replacement.replace(/\$\$|\$&|\$(\d{1,2})/g, (token, indexText) => {
-    if (token === "$$") {
-      return "$";
-    }
-    if (token === "$&") {
-      return match;
-    }
-    return captures[Number(indexText) - 1] || "";
-  });
+  return masked + sql.slice(start);
 }
 
 function replaceOutsideSqlLiterals(sql, pattern, replacement) {
   let ranges;
-  const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
-  const globalPattern = new RegExp(pattern.source, flags);
-  return sql.replace(globalPattern, (...args) => {
+  return sql.replace(asGlobal(pattern), (...args) => {
     const match = args[0];
     const offset = args.at(-2);
-    if (isProtectedIndex(ranges ??= getSqlProtectedRanges(sql), offset)) {
-      return match;
-    }
-    if (!hasSqlTokenBoundaries(sql, offset, match)) return match;
-    if (typeof replacement === "function") {
-      return replacement(...args);
-    }
-    return expandReplacement(match, args.slice(1, -2), replacement);
+    if (isProtectedIndex(ranges ??= getSqlProtectedRanges(sql), offset) || !hasSqlTokenBoundaries(sql, offset, match)) return match;
+    if (typeof replacement === "function") return replacement(...args);
+    return replacement.replace(/\$(\d{1,2})/g, (_, number) => args[number] || "");
   });
 }
 
-function matchesOutsideSqlLiterals(sql, pattern, protectedRanges) {
-  let ranges = protectedRanges;
-  const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
-  const globalPattern = new RegExp(pattern.source, flags);
+function* matchesOutside(sql, pattern, ranges) {
+  const search = asGlobal(pattern);
   let match;
-  while ((match = globalPattern.exec(sql)) !== null) {
-    if (!isProtectedIndex(ranges ??= getSqlProtectedRanges(sql), match.index) && hasSqlTokenBoundaries(sql, match.index, match[0])) {
-      return true;
-    }
-    if (!match[0]) {
-      globalPattern.lastIndex += 1;
-    }
+  while ((match = search.exec(sql)) !== null) {
+    if (!isProtectedIndex(ranges ??= getSqlProtectedRanges(sql), match.index) && hasSqlTokenBoundaries(sql, match.index, match[0])) yield match;
+    if (!match[0]) search.lastIndex += 1;
   }
-  return false;
+}
+
+function matchesOutsideSqlLiterals(sql, pattern, ranges) {
+  return !matchesOutside(sql, pattern, ranges).next().done;
 }
 
 function trimSqlFragment(text, trimStart = true) {
@@ -2064,12 +2012,7 @@ function findClosingParen(text, openIndex) {
   let depth = 0;
   for (let index = openIndex; index < text.length; index += 1) {
     const end = readSqlProtectedEnd(text, index);
-    if (end) {
-      index = end - 1;
-      continue;
-    }
-    if (text[index] === "(") depth += 1;
-    if (text[index] === ")" && --depth === 0) return index;
+    if (end) index = end - 1; else if (text[index] === "(") depth += 1; else if (text[index] === ")" && --depth === 0) return index;
   }
   return -1;
 }
@@ -2108,7 +2051,7 @@ function readSqlProtectedToken(sql, index) {
     };
   }
   const quoteIndex = (char === "n" || char === "N") && /[qQ]/.test(sql[index + 1] || "") ? index + 1 : index;
-  if ((sql[quoteIndex] === "q" || sql[quoteIndex] === "Q") && sql[quoteIndex + 1] === "'" && !isSqlIdentifierAt(sql, index - 1)) {
+  if (/[qQ]/.test(sql[quoteIndex] || "") && sql[quoteIndex + 1] === "'" && !isSqlIdentifierAt(sql, index - 1)) {
     const opener = sql[quoteIndex + 2] === undefined ? "" : String.fromCodePoint(sql.codePointAt(quoteIndex + 2));
     const closer = {
       "[": "]",
@@ -2144,24 +2087,18 @@ function* topLevelSqlIndexes(text, start = 0, end = text.length) {
   let depth = 0;
   for (let index = start; index < end; index += 1) {
     const protectedEnd = readSqlProtectedEnd(text, index);
-    if (protectedEnd) {
-      index = protectedEnd - 1;
-      continue;
-    }
-    if (text[index] === "(") depth += 1; else if (text[index] === ")") depth = Math.max(0, depth - 1); else if (depth === 0) yield index;
+    if (protectedEnd) index = protectedEnd - 1; else if (text[index] === "(") depth += 1; else if (text[index] === ")") depth = Math.max(0, depth - 1); else if (depth === 0) yield index;
   }
 }
 
 function findTopLevelRegex(text, pattern, start = 0, end = text.length) {
   for (const index of topLevelSqlIndexes(text, start, end)) {
     const match = text.slice(index, end).match(pattern);
-    if (match && match.index === 0 && hasSqlTokenBoundaries(text, index, match[0])) {
-      return {
-        index,
-        end: index + match[0].length,
-        match
-      };
-    }
+    if (match && match.index === 0 && hasSqlTokenBoundaries(text, index, match[0])) return {
+      index,
+      end: index + match[0].length,
+      match
+    };
   }
   return null;
 }
@@ -2174,6 +2111,25 @@ function findNearestTopLevelRegex(text, patterns, start = 0, end = text.length) 
   }
   return nearest;
 }
+
+function splitTopLevel(text, pattern) {
+  const parts = [];
+  const separators = [];
+  let start = 0;
+  let match;
+  while (match = findTopLevelRegex(text, pattern, start)) {
+    parts.push(text.slice(start, match.index));
+    separators.push(text.slice(match.index, match.end));
+    start = match.end;
+  }
+  parts.push(text.slice(start));
+  return {
+    parts,
+    separators
+  };
+}
+
+const joinKept = (kept, separators) => kept.map(({index, segment}, position) => position === 0 ? segment : separators[index - 1] + segment).join("");
 
 function splitTopLevelCommaSegments(text) {
   const segments = [];
@@ -2198,9 +2154,7 @@ function escapeRegExp(value) {
 }
 
 function lineIndentBefore(text, index = text.length) {
-  const lineStart = text.lastIndexOf("\n", index - 1) + 1;
-  const linePrefix = text.slice(lineStart, index);
-  return linePrefix.match(/^[ \t]*/)?.[0] ?? "";
+  return text.slice(text.lastIndexOf("\n", index - 1) + 1, index).match(/^[ \t]*/)[0];
 }
 
 function nestedIndentFromArgs(argsText, fallbackIndent) {
@@ -2211,16 +2165,17 @@ function countLineBreaks(text) {
   return (text.match(/\r\n|\r|\n/g) ?? []).length;
 }
 
+const locationOf = (source, offset) => ({
+  offset,
+  line: 1 + countLineBreaks(source.slice(0, offset))
+});
+
 function splitSqlStatements(sql) {
   const statements = [];
   let start = 0;
   for (let index = 0; index < sql.length; index += 1) {
     const end = readSqlProtectedEnd(sql, index);
-    if (end) {
-      index = end - 1;
-      continue;
-    }
-    if (sql[index] === ";") {
+    if (end) index = end - 1; else if (sql[index] === ";") {
       statements.push(sql.slice(start, index + 1));
       start = index + 1;
     }
@@ -2229,50 +2184,34 @@ function splitSqlStatements(sql) {
   return statements;
 }
 
+const mapStatements = (sql, convert) => splitSqlStatements(sql).map(convert).join("");
+
+const statementHead = statement => statement.slice(skipWhitespaceAndComments(statement, 0));
+
 function splitTopLevelUnionAll(text) {
-  const parts = [];
-  let start = 0;
-  let match;
-  while (match = findTopLevelRegex(text, /^UNION\s+ALL\b/i, start)) {
-    parts.push(text.slice(start, match.index).trim());
-    start = match.end;
-  }
-  parts.push(text.slice(start).trim());
-  return parts.filter(Boolean);
-}
-
-function findTopLevelFromDual(text) {
-  return findTopLevelRegex(text, /^FROM\s+(?:SYS\.)?DUAL\b/i);
-}
-
-function stripIdentifierQuotes(identifier) {
-  return identifier.replace(/^"|"$/g, "");
+  return splitTopLevel(text, /^UNION\s+ALL\b/i).parts.map(part => part.trim()).filter(Boolean);
 }
 
 function parseSelectItem(item, index, warnings) {
   const trimmed = trimSqlFragment(item);
-  const comments = getSqlProtectedRanges(trimmed).filter(range => readSqlProtectedToken(trimmed, range.start)?.kind === "comment");
+  const comments = commentRanges(trimmed);
   let aliasInput = trimmed;
-  for (const range of comments.toReversed()) aliasInput = aliasInput.slice(0, range.start) + trimmed.slice(range.start, range.end).replace(/[^\r\n]/g, " ") + aliasInput.slice(range.end);
+  for (const range of comments.toReversed()) aliasInput = aliasInput.slice(0, range.start) + blankOut(trimmed.slice(range.start, range.end)) + aliasInput.slice(range.end);
   const valueBeforeAlias = length => {
     let value = trimSqlFragment(trimmed.slice(0, length));
     for (const range of comments) if (range.start >= length) value += " " + trimSqlFragment(trimmed.slice(range.start, range.end));
     return value;
   };
   const withAs = aliasInput.match(/^([\s\S]+?)\s+AS\s+("(?:""|[^"])+"|[A-Za-z_][\w$#]*)\s*$/i);
-  if (withAs) {
-    return {
-      value: valueBeforeAlias(withAs[1].length),
-      alias: withAs[2].trim()
-    };
-  }
-  const withImplicitAlias = aliasInput.match(/^([\s\S]+?)\s+("(?:""|[^"])+"|[A-Za-z_][\w$#]*)\s*$/);
-  if (withImplicitAlias && !/[.)\]'"`]/.test(withImplicitAlias[2][0]) && !/^(?:END|NULL|TRUE|FALSE|CURRENT_DATE|CURRENT_TIMESTAMP)$/i.test(withImplicitAlias[2]) && !/[+*/%<>=|.-]\s*$/.test(withImplicitAlias[1])) {
-    return {
-      value: valueBeforeAlias(withImplicitAlias[1].length),
-      alias: withImplicitAlias[2].trim()
-    };
-  }
+  if (withAs) return {
+    value: valueBeforeAlias(withAs[1].length),
+    alias: withAs[2].trim()
+  };
+  const implicit = aliasInput.match(/^([\s\S]+?)\s+("(?:""|[^"])+"|[A-Za-z_][\w$#]*)\s*$/);
+  if (implicit && !/[.)\]'"`]/.test(implicit[2][0]) && !/^(?:END|NULL|TRUE|FALSE|CURRENT_DATE|CURRENT_TIMESTAMP)$/i.test(implicit[2]) && !/[+*/%<>=|.-]\s*$/.test(implicit[1])) return {
+    value: valueBeforeAlias(implicit[1].length),
+    alias: implicit[2].trim()
+  };
   warnings.push(`MERGE USING: 列${index + 1}に別名 col${index + 1} を補完。`);
   return {
     value: trimmed,
@@ -2283,35 +2222,21 @@ function parseSelectItem(item, index, warnings) {
 function parseDualSelectValues(innerSql, warnings) {
   const rows = [];
   let columns = [];
-  const selectBlocks = splitTopLevelUnionAll(innerSql.trim().replace(/;$/, ""));
-  for (let rowIndex = 0; rowIndex < selectBlocks.length; rowIndex += 1) {
-    const block = selectBlocks[rowIndex].trim();
-    const selectMatch = block.match(/^SELECT\s+([\s\S]+)$/i);
-    if (!selectMatch) {
-      return null;
-    }
-    const afterSelect = selectMatch[1].trim();
-    const fromDual = findTopLevelFromDual(afterSelect);
-    if (!fromDual) {
-      return null;
-    }
-    const tail = afterSelect.slice(fromDual.end).trim();
-    if (tail) {
+  for (const [rowIndex, block] of splitTopLevelUnionAll(innerSql.trim().replace(/;$/, "")).entries()) {
+    const afterSelect = block.match(/^SELECT\s+([\s\S]+)$/i)?.[1].trim();
+    const fromDual = afterSelect && findTopLevelRegex(afterSelect, /^FROM\s+(?:SYS\.)?DUAL\b/i);
+    if (!fromDual) return null;
+    if (afterSelect.slice(fromDual.end).trim()) {
       warnings.push("MERGE USING: FROM DUAL 以外の句は手動変換。");
       return null;
     }
-    const items = splitArgs(afterSelect.slice(0, fromDual.index));
-    if (!items.length) {
-      return null;
-    }
-    const parsedItems = items.map((item, itemIndex) => parseSelectItem(item, itemIndex, warnings));
-    if (rowIndex === 0) {
-      columns = parsedItems.map(item => item.alias);
-    } else if (parsedItems.length !== columns.length) {
+    const items = splitArgs(afterSelect.slice(0, fromDual.index)).map((item, itemIndex) => parseSelectItem(item, itemIndex, warnings));
+    if (!items.length) return null;
+    if (rowIndex === 0) columns = items.map(item => item.alias); else if (items.length !== columns.length) {
       warnings.push("MERGE USING: UNION ALL の列数が不一致。");
       return null;
     }
-    rows.push(parsedItems.map(item => item.value));
+    rows.push(items.map(item => item.value));
   }
   return {
     columns,
@@ -2321,23 +2246,13 @@ function parseDualSelectValues(innerSql, warnings) {
 
 function readOptionalAlias(text, index) {
   const match = text.slice(index).match(/^\s+(?:AS\s+)?("[^"]+"|[A-Za-z_][\w$#]*)/i);
-  if (!match) {
-    return {
-      alias: "src",
-      end: index,
-      generated: true
-    };
-  }
-  const alias = match[1];
-  if (/^(ON|WHEN|WHERE|JOIN|USING)$/i.test(alias)) {
-    return {
-      alias: "src",
-      end: index,
-      generated: true
-    };
-  }
+  if (!match || /^(ON|WHEN|WHERE|JOIN|USING)$/i.test(match[1])) return {
+    alias: "src",
+    end: index,
+    generated: true
+  };
   return {
-    alias,
+    alias: match[1],
     end: index + match[0].length,
     generated: false
   };
@@ -2345,8 +2260,38 @@ function readOptionalAlias(text, index) {
 
 function isMergeUsingContext(sql, usingIndex) {
   const code = sqlCodeMask(sql);
-  const statementStart = Math.max(code.lastIndexOf(";", usingIndex) + 1, 0);
-  return /\bMERGE\s+INTO\b/i.test(code.slice(statementStart, usingIndex));
+  return /\bMERGE\s+INTO\b/i.test(code.slice(Math.max(code.lastIndexOf(";", usingIndex) + 1, 0), usingIndex));
+}
+
+function qualifiedStarts(sql) {
+  const tokens = sqlExpressionTokens(sql);
+  return new Set(tokens.filter((_, index) => tokens[index - 1]?.text === ".").map(token => token.start));
+}
+
+function rewriteCalls(sql, namePattern, visit, {skipComments = true} = {}) {
+  const ranges = getSqlProtectedRanges(sql);
+  const qualified = qualifiedStarts(sql);
+  let index = 0;
+  let output = "";
+  while (index < sql.length) {
+    namePattern.lastIndex = index;
+    const nameMatch = namePattern.exec(sql);
+    if (!nameMatch) return output + sql.slice(index);
+    const found = nameMatch.index;
+    const afterName = found + nameMatch[0].length;
+    const cursor = skipComments ? skipWhitespaceAndComments(sql, afterName) : afterName + sql.slice(afterName).match(/^\s*/)[0].length;
+    if (isProtectedIndex(ranges, found) || qualified.has(found) || !hasSqlTokenBoundaries(sql, found, nameMatch[0]) || sql[cursor] !== "(") {
+      output += sql.slice(index, afterName);
+      index = afterName;
+      continue;
+    }
+    const close = findClosingParen(sql, cursor);
+    if (close === -1) return output + sql.slice(index);
+    const result = visit(found, afterName, cursor, close);
+    output += sql.slice(index, found) + result.text;
+    index = result.end;
+  }
+  return output;
 }
 
 function replaceFunctionCalls(sql, functionName, replacer, warnings = [], depth = 0, typeHints = new Map, warningOrigins = null) {
@@ -2356,57 +2301,27 @@ function replaceFunctionCalls(sql, functionName, replacer, warnings = [], depth 
   }
   const namePattern = new RegExp(escapeRegExp(functionName), "gi");
   if (!namePattern.test(sql)) return sql;
-  const ranges = getSqlProtectedRanges(sql);
-  const functionTokens = sqlExpressionTokens(sql);
-  const qualified = new Set(functionTokens.filter((_, index) => functionTokens[index - 1]?.text === ".").map(token => token.start));
-  let index = 0;
-  let output = "";
-  while (index < sql.length) {
-    namePattern.lastIndex = index;
-    const nameMatch = namePattern.exec(sql);
-    if (!nameMatch) {
-      output += sql.slice(index);
-      break;
-    }
-    const found = nameMatch.index;
-    const afterNameIndex = found + nameMatch[0].length;
-    if (isProtectedIndex(ranges, found) || qualified.has(found) || !hasSqlTokenBoundaries(sql, found, sql.slice(found, afterNameIndex))) {
-      output += sql.slice(index, afterNameIndex);
-      index = afterNameIndex;
-      continue;
-    }
-    const cursor = skipWhitespaceAndComments(sql, afterNameIndex);
-    if (sql[cursor] !== "(") {
-      output += sql.slice(index, afterNameIndex);
-      index = afterNameIndex;
-      continue;
-    }
-    const close = findClosingParen(sql, cursor);
-    if (close === -1) {
-      output += sql.slice(index);
-      break;
-    }
-    const argsText = replaceFunctionCalls(sql.slice(cursor + 1, close), functionName, replacer, warnings, depth + 1, typeHints, warningOrigins);
-    const gap = sql.slice(afterNameIndex, cursor);
-    const comment = /\/\*|--/.test(gap) ? gap : "";
+  return rewriteCalls(sql, namePattern, (found, afterName, cursor, close) => {
+    const args = sql.slice(cursor + 1, close);
+    const argsText = replaceFunctionCalls(args, functionName, replacer, warnings, depth + 1, typeHints, warningOrigins);
+    const gap = sql.slice(afterName, cursor);
     const addWarning = (message, expression) => {
       warnings.push(message);
-      if (warningOrigins) {
-        const origins = warningOrigins.get(message) ?? [];
-        origins.push({
-          name: functionName,
-          args: sql.slice(cursor + 1, close),
-          expression
-        });
-        warningOrigins.set(message, origins);
-      }
+      if (!warningOrigins) return;
+      const origins = warningOrigins.get(message) ?? [];
+      origins.push({
+        name: functionName,
+        args,
+        expression
+      });
+      warningOrigins.set(message, origins);
     };
     const replacement = replacer(splitArgs(argsText), argsText, {
       hasMultilineArgs: argsText.includes("\n"),
       indent: lineIndentBefore(sql, found),
       warnings: {
         push: (...messages) => {
-          messages.forEach(message => addWarning(message));
+          for (const message of messages) addWarning(message);
           return warnings.length;
         }
       },
@@ -2417,47 +2332,53 @@ function replaceFunctionCalls(sql, functionName, replacer, warnings = [], depth 
     const expansionFloor = /^(?:LPAD|RPAD)$/.test(functionName) ? 16384 : 4096;
     if (replacement.length > Math.max(expansionFloor, originalCall.length * 8)) {
       addWarning(`${functionName}: 式が大きくなるため未変換。入れ子・評価回数を確認。`);
-      output += sql.slice(index, found) + originalCall;
-    } else {
-      output += sql.slice(index, found) + comment + replacement;
+      return {
+        text: originalCall,
+        end: close + 1
+      };
     }
-    index = close + 1;
-  }
-  return output;
+    return {
+      text: (/\/\*|--/.test(gap) ? gap : "") + replacement,
+      end: close + 1
+    };
+  });
+}
+
+function multiline(context, argsText) {
+  if (!context.hasMultilineArgs) return null;
+  const indent = context.indent || "";
+  return {
+    indent,
+    inner: nestedIndentFromArgs(argsText, indent)
+  };
 }
 
 function formatCall(name, args, argsText, context = {}) {
-  if (context.hasMultilineArgs) {
-    const indent = context.indent || "";
-    const innerIndent = nestedIndentFromArgs(argsText, indent);
-    return `${name}(\n${args.map(arg => `${innerIndent}${arg}`).join(",\n")}\n${indent})`;
-  }
+  const lines = multiline(context, argsText);
+  if (lines) return `${name}(\n${args.map(arg => `${lines.inner}${arg}`).join(",\n")}\n${lines.indent})`;
   return `${name}(${args.join(", ")})`;
+}
+
+function formatCase(parts, argsText, context) {
+  const lines = multiline(context, argsText);
+  if (lines) return `(CASE\n${parts.map(part => `${lines.inner}${part}`).join("\n")}\n${lines.indent}END)`;
+  return `(CASE ${parts.join(" ")} END)`;
 }
 
 function unquoteSqlLiteral(value) {
   const trimmed = value.trim().replace(/^N(?=')/i, "");
-  if (!/^'(?:''|[^'])*'$/.test(trimmed)) {
-    return "";
-  }
-  return trimmed.slice(1, -1).replace(/''/g, "'");
+  return /^'(?:''|[^'])*'$/.test(trimmed) ? trimmed.slice(1, -1).replace(/''/g, "'") : "";
 }
 
-function isNumericLiteral(value) {
-  return /^[+-]?\d+(?:\.\d+)?$/.test(value.trim());
-}
+const isNumericLiteral = value => /^[+-]?\d+(?:\.\d+)?$/.test(value.trim());
 
-function isIntegerLiteral(value) {
-  return /^[+-]?\d+$/.test(value.trim());
-}
+const isIntegerLiteral = value => /^[+-]?\d+$/.test(value.trim());
 
-function isSqlStringLiteral(value) {
-  return /^N?'(?:''|[^'])*'$/i.test(value.trim());
-}
+const isSqlStringLiteral = value => /^N?'(?:''|[^'])*'$/i.test(value.trim());
 
-function isEmptySqlStringLiteral(value) {
-  return isSqlStringLiteral(value) && unquoteSqlLiteral(value) === "";
-}
+const isEmptySqlStringLiteral = value => isSqlStringLiteral(value) && unquoteSqlLiteral(value) === "";
+
+const isNullKeyword = value => /^NULL$/i.test(value.trim());
 
 function sqlExpressionTokens(sql) {
   const tokens = [];
@@ -2469,12 +2390,15 @@ function sqlExpressionTokens(sql) {
     }
     const protectedToken = readSqlProtectedToken(sql, index);
     if (protectedToken) {
-      if (protectedToken.kind !== "comment") tokens.push({
-        start: index,
-        end: protectedToken.end,
-        text: sql.slice(index, protectedToken.end),
-        kind: sql[index] === '"' ? "identifier" : "literal"
-      });
+      if (protectedToken.kind !== "comment") {
+        const kind = sql[index] === '"' ? "identifier" : "literal";
+        tokens.push({
+          start: index,
+          end: protectedToken.end,
+          text: sql.slice(index, protectedToken.end),
+          kind
+        });
+      }
       index = protectedToken.end;
       continue;
     }
@@ -2502,14 +2426,22 @@ function sqlExpressionTokens(sql) {
 function wholeSqlCall(expression) {
   const value = expression.trim();
   const name = value.match(/^([A-Z_][A-Z_0-9]*)\s*\(/i);
-  if (!name) return null;
-  const open = name[0].length - 1;
-  if (findClosingParen(value, open) !== value.length - 1) return null;
+  if (!name || findClosingParen(value, name[0].length - 1) !== value.length - 1) return null;
   return {
     name: name[1].toUpperCase(),
-    body: value.slice(open + 1, -1)
+    body: value.slice(name[0].length, -1)
   };
 }
+
+function castParts(body) {
+  const as = findTopLevelRegex(body, /^AS\b/i);
+  return as && {
+    value: body.slice(0, as.index),
+    type: body.slice(as.end).trim()
+  };
+}
+
+const scalarTypes = [ "numeric", "text", "null" ];
 
 function convertExpressionOperations(sql, depth = 0, metadata = {}) {
   if (depth > 96) return sql;
@@ -2544,18 +2476,20 @@ function convertExpressionOperations(sql, depth = 0, metadata = {}) {
     "*": 2,
     "/": 2
   };
-  function primary(index, level = 0) {
+  const primary = (index, level = 0) => {
     if (level > 128) return null;
     const token = tokens[index];
     if (!token) return null;
     if (token.text === "+" || token.text === "-") {
       const child = primary(index + 1, level + 1);
-      return child ? {
+      if (!child) return null;
+      const text = child.type === "text" ? `${token.text}${sql.slice(token.end, child.start)}${coerceKnownScalar(child.text, "numeric")}` : sql.slice(token.start, child.end);
+      return {
         ...child,
         start: token.start,
-        text: child.type === "text" ? `${token.text}${sql.slice(token.end, child.start)}${coerceKnownScalar(child.text, "numeric")}` : sql.slice(token.start, child.end),
+        text,
         type: [ "text", "null" ].includes(child.type) ? "numeric" : child.type
-      } : null;
+      };
     }
     let next = index + 1;
     let nestedType;
@@ -2577,8 +2511,29 @@ function convertExpressionOperations(sql, depth = 0, metadata = {}) {
       text,
       type: nestedType || explicitExpressionType(text)
     };
-  }
-  function expression(index, minimum = 1, level = 0) {
+  };
+  const combine = (left, operator, right) => {
+    const before = sql.slice(left.end, operator.start);
+    const after = sql.slice(operator.end, right.start);
+    const op = operator.text;
+    const numericLeft = left.type === "text" ? coerceKnownScalar(left.text, "numeric") : left.text;
+    const numericRight = right.type === "text" ? coerceKnownScalar(right.text, "numeric") : right.text;
+    if (op === "-" && left.type === "oracle-date" && right.type === "oracle-date") return [ `(EXTRACT(EPOCH FROM (${left.text}${before}-${after}${right.text})) / 86400)`, "numeric" ];
+    if (op === "/") return [ `${numericLeft}${before}/${after}CAST(${numericRight} AS NUMERIC)`, "numeric" ];
+    if (/^[+-]$/.test(op) && left.type === "oracle-date" && scalarTypes.includes(right.type)) {
+      const text = /^SYSDATE$/i.test(left.text) && /^\d+(?:\.\d+)?$/.test(right.text) ? `${left.text}${before}${op}${after}INTERVAL '${right.text} day'` : `(${left.text}${before}${op}${after}(${numericRight}) * INTERVAL '1 day')`;
+      return [ text, "oracle-date" ];
+    }
+    if (op === "+" && scalarTypes.includes(left.type) && right.type === "oracle-date") return [ `((${numericLeft}) * INTERVAL '1 day'${before}+${after}${right.text})`, "oracle-date" ];
+    const bothScalar = scalarTypes.includes(left.type) && scalarTypes.includes(right.type);
+    if (op === "||" && bothScalar) return [ `NULLIF(CONCAT(${coerceKnownScalar(left.text, "text")}${before},${after}${coerceKnownScalar(right.text, "text")}), '')`, "text" ];
+    const arithmetic = /^[+*-]$/.test(op);
+    if (arithmetic && bothScalar && (left.type === "text" || right.type === "text")) return [ `${numericLeft}${before}${op}${after}${numericRight}`, "numeric" ];
+    if (left.type === "null" && right.type === "null" && arithmetic) return [ `CAST(${left.text} AS NUMERIC)${before}${op}${after}${right.text}`, "numeric" ];
+    const text = left.text + before + op + after + right.text;
+    return [ text, [ "numeric", "null" ].includes(left.type) && [ "numeric", "null" ].includes(right.type) ? "numeric" : "unknown" ];
+  };
+  const expression = (index, minimum = 1, level = 0) => {
     let left = primary(index, level);
     if (!left) return null;
     while (left.next < tokens.length) {
@@ -2587,35 +2542,7 @@ function convertExpressionOperations(sql, depth = 0, metadata = {}) {
       if (!rank || rank < minimum) break;
       const right = expression(left.next + 1, rank + 1, level + 1);
       if (!right) break;
-      const before = sql.slice(left.end, operator.start);
-      const after = sql.slice(operator.end, right.start);
-      let text = left.text + before + operator.text + after + right.text;
-      let type = "unknown";
-      const scalarTypes = [ "numeric", "text", "null" ];
-      const numericLeft = left.type === "text" ? coerceKnownScalar(left.text, "numeric") : left.text;
-      const numericRight = right.type === "text" ? coerceKnownScalar(right.text, "numeric") : right.text;
-      if (operator.text === "-" && left.type === "oracle-date" && right.type === "oracle-date") {
-        text = `(EXTRACT(EPOCH FROM (${left.text}${before}-${after}${right.text})) / 86400)`;
-        type = "numeric";
-      } else if (operator.text === "/") {
-        text = `${numericLeft}${before}/${after}CAST(${numericRight} AS NUMERIC)`;
-        type = "numeric";
-      } else if (/^[+-]$/.test(operator.text) && left.type === "oracle-date" && scalarTypes.includes(right.type)) {
-        text = /^SYSDATE$/i.test(left.text) && /^\d+(?:\.\d+)?$/.test(right.text) ? `${left.text}${before}${operator.text}${after}INTERVAL '${right.text} day'` : `(${left.text}${before}${operator.text}${after}(${numericRight}) * INTERVAL '1 day')`;
-        type = "oracle-date";
-      } else if (operator.text === "+" && scalarTypes.includes(left.type) && right.type === "oracle-date") {
-        text = `((${numericLeft}) * INTERVAL '1 day'${before}+${after}${right.text})`;
-        type = "oracle-date";
-      } else if (operator.text === "||" && scalarTypes.includes(left.type) && scalarTypes.includes(right.type)) {
-        text = `NULLIF(CONCAT(${coerceKnownScalar(left.text, "text")}${before},${after}${coerceKnownScalar(right.text, "text")}), '')`;
-        type = "text";
-      } else if (/^[+*-]$/.test(operator.text) && scalarTypes.includes(left.type) && scalarTypes.includes(right.type) && (left.type === "text" || right.type === "text")) {
-        text = `${numericLeft}${before}${operator.text}${after}${numericRight}`;
-        type = "numeric";
-      } else if (left.type === "null" && right.type === "null" && /^[+*-]$/.test(operator.text)) {
-        text = `CAST(${left.text} AS NUMERIC)${before}${operator.text}${after}${right.text}`;
-        type = "numeric";
-      } else if ([ "numeric", "null" ].includes(left.type) && [ "numeric", "null" ].includes(right.type)) type = "numeric";
+      const [text, type] = combine(left, operator, right);
       left = {
         start: left.start,
         end: right.end,
@@ -2625,7 +2552,7 @@ function convertExpressionOperations(sql, depth = 0, metadata = {}) {
       };
     }
     return left;
-  }
+  };
   let output = "";
   let cursor = 0;
   for (let i = 0; i < tokens.length; ) {
@@ -2642,16 +2569,13 @@ function convertExpressionOperations(sql, depth = 0, metadata = {}) {
   return output + sql.slice(cursor);
 }
 
+const numericTypePattern = /^(?:NUMBER|NUMERIC|DECIMAL|SMALLINT|INTEGER|INT|BIGINT|REAL|FLOAT|BINARY_FLOAT|BINARY_DOUBLE|DOUBLE\s+PRECISION)(?:\s*\([^()]*\))?$/i;
+
 function explicitExpressionType(expression, depth = 0) {
   if (depth > 64) return "unknown";
   const value = expression.trim();
   if (/--|\/\*/.test(value)) {
-    let uncommented = value;
-    for (const range of getSqlProtectedRanges(value).reverse()) {
-      if (readSqlProtectedToken(value, range.start)?.kind === "comment") {
-        uncommented = uncommented.slice(0, range.start) + " " + uncommented.slice(range.end);
-      }
-    }
+    const uncommented = withoutComments(value);
     if (uncommented !== value) return explicitExpressionType(uncommented, depth + 1);
   }
   if (value[0] === "(" && findClosingParen(value, 0) === value.length - 1) return explicitExpressionType(value.slice(1, -1), depth + 1);
@@ -2662,27 +2586,26 @@ function explicitExpressionType(expression, depth = 0) {
   if (/^TIMESTAMP\s*'/i.test(value)) return "date";
   const call = wholeSqlCall(value);
   if (call?.name === "CAST") {
-    const as = findTopLevelRegex(call.body, /^AS\b/i);
-    const type = as ? call.body.slice(as.end).trim() : "";
-    if (/^(?:NUMBER|NUMERIC|DECIMAL|SMALLINT|INTEGER|INT|BIGINT|REAL|FLOAT|BINARY_FLOAT|BINARY_DOUBLE|DOUBLE\s+PRECISION)(?:\s*\([^()]*\))?$/i.test(type)) return "numeric";
+    const type = castParts(call.body)?.type ?? "";
+    if (numericTypePattern.test(type)) return "numeric";
     if (/^(?:VARCHAR2?|NVARCHAR2|CHAR|NCHAR|TEXT|CLOB)(?:\s*\([^()]*\))?$/i.test(type)) return "text";
     if (/^DATE$/i.test(type)) return "oracle-date";
     if (/^(?:TIMESTAMP(?:\s+(?:WITH|WITHOUT)\s+TIME\s+ZONE)?|TIMESTAMPTZ)$/i.test(type)) return "date";
   }
   if (call) {
-    if (/^(?:TO_DATE|ADD_MONTHS|LAST_DAY)$/.test(call.name)) return "oracle-date";
-    if (/^(?:CLOCK_TIMESTAMP|STATEMENT_TIMESTAMP|TO_TIMESTAMP|MAKE_TIMESTAMP|DATE_TRUNC)$/.test(call.name)) return "date";
-    if (/^(?:TO_CHAR|SUBSTR|SUBSTRING|LPAD|RPAD|TRIM|LTRIM|RTRIM|LOWER|UPPER|CONCAT|REGEXP_REPLACE)$/.test(call.name)) return "text";
-    if (/^(?:TO_NUMBER|LENGTH|CHAR_LENGTH|INSTR|POSITION|NEXTVAL|CURRVAL|TRIM_SCALE|EXTRACT|COUNT)$/.test(call.name)) return "numeric";
-    if (/^(?:TRUNC|ROUND|ABS|CEIL|CEILING|FLOOR|MOD|POWER|SIGN|SQRT|EXP|LN|LOG)$/.test(call.name)) {
-      const args = splitArgs(call.body);
-      const types = args.map(arg => explicitExpressionType(arg, depth + 1));
+    const {name} = call;
+    if (/^(?:TO_DATE|ADD_MONTHS|LAST_DAY)$/.test(name)) return "oracle-date";
+    if (/^(?:CLOCK_TIMESTAMP|STATEMENT_TIMESTAMP|TO_TIMESTAMP|MAKE_TIMESTAMP|DATE_TRUNC)$/.test(name)) return "date";
+    if (/^(?:TO_CHAR|SUBSTR|SUBSTRING|LPAD|RPAD|TRIM|LTRIM|RTRIM|LOWER|UPPER|CONCAT|REGEXP_REPLACE)$/.test(name)) return "text";
+    if (/^(?:TO_NUMBER|LENGTH|CHAR_LENGTH|INSTR|POSITION|NEXTVAL|CURRVAL|TRIM_SCALE|EXTRACT|COUNT)$/.test(name)) return "numeric";
+    const argTypes = () => splitArgs(call.body).map(arg => explicitExpressionType(arg, depth + 1));
+    if (/^(?:TRUNC|ROUND|ABS|CEIL|CEILING|FLOOR|MOD|POWER|SIGN|SQRT|EXP|LN|LOG)$/.test(name)) {
+      const types = argTypes();
       if (types.length && types.every(type => type === "numeric" || type === "null")) return "numeric";
-      if (/^(?:TRUNC|ROUND)$/.test(call.name) && [ "date", "oracle-date" ].includes(types[0])) return "oracle-date";
+      if (/^(?:TRUNC|ROUND)$/.test(name) && [ "date", "oracle-date" ].includes(types[0])) return "oracle-date";
     }
-    if (/^(?:NULLIF|NVL|COALESCE)$/.test(call.name)) {
-      const args = splitArgs(call.body);
-      const known = args.map(arg => explicitExpressionType(arg, depth + 1)).filter(type => type !== "null");
+    if (/^(?:NULLIF|NVL|COALESCE)$/.test(name)) {
+      const known = argTypes().filter(type => type !== "null");
       if (known.length && known.every(type => type === known[0])) return known[0];
     }
   }
@@ -2706,18 +2629,13 @@ function explicitExpressionType(expression, depth = 0) {
 }
 
 function warnUnknownType(name, expression, context) {
-  if (explicitExpressionType(expression) === "unknown") {
-    const message = `${name}: ${expression.trim().slice(0, 60)} の型・空文字の扱いを確認。`;
-    if (context.addWarning) context.addWarning(message, expression); else context.warnings?.push(message);
-  }
+  if (explicitExpressionType(expression) === "unknown") context.addWarning(`${name}: ${expression.trim().slice(0, 60)} の型・空文字の扱いを確認。`, expression);
 }
 
 function coerceKnownScalar(expression, targetType) {
   const sourceType = explicitExpressionType(expression);
   if (targetType === "text" && sourceType === "text") return preserveCharPadding(expression);
-  if (targetType === "text" && sourceType === "numeric") {
-    return isIntegerLiteral(expression) ? `CAST(${expression} AS TEXT)` : convertToChar([ expression ], expression);
-  }
+  if (targetType === "text" && sourceType === "numeric") return isIntegerLiteral(expression) ? `CAST(${expression} AS TEXT)` : convertToChar([ expression ], expression);
   if (targetType === "numeric" && sourceType === "text") return `CAST(${nullIfEmpty(expression)} AS NUMERIC)`;
   return expression;
 }
@@ -2725,9 +2643,8 @@ function coerceKnownScalar(expression, targetType) {
 function preserveCharPadding(expression) {
   const call = wholeSqlCall(expression);
   if (call?.name !== "CAST") return expression;
-  const as = findTopLevelRegex(call.body, /^AS\b/i);
-  const type = as && call.body.slice(as.end).trim().match(/^(?:N?CHAR)\s*\(\s*(\d+)\s*\)$/i);
-  return type ? bindScalarArguments([ `CAST(${expression} AS TEXT)` ], `"__oc_0" || REPEAT(' ', GREATEST(${type[1]} - CHAR_LENGTH("__oc_0"), 0))`) : expression;
+  const size = castParts(call.body)?.type.match(/^(?:N?CHAR)\s*\(\s*(\d+)\s*\)$/i)?.[1];
+  return size ? bindScalarArguments([ `CAST(${expression} AS TEXT)` ], `"__oc_0" || REPEAT(' ', GREATEST(${size} - CHAR_LENGTH("__oc_0"), 0))`) : expression;
 }
 
 function oracleTextArgument(expression) {
@@ -2745,9 +2662,7 @@ function constantNullFunction(expression) {
   const call = wholeSqlCall(expression);
   if (!call) return false;
   const args = splitArgs(call.body);
-  if (/^(?:TRIM|LTRIM|RTRIM)$/.test(call.name) && args.length === 1 && isSqlStringLiteral(args[0])) {
-    return /^ *$/.test(unquoteSqlLiteral(args[0]));
-  }
+  if (/^(?:TRIM|LTRIM|RTRIM)$/.test(call.name) && args.length === 1 && isSqlStringLiteral(args[0])) return /^ *$/.test(unquoteSqlLiteral(args[0]));
   if (call.name === "SUBSTR" && args.length >= 2 && isSqlStringLiteral(args[0]) && isIntegerLiteral(args[1]) && (!args[2] || isIntegerLiteral(args[2]))) {
     const size = BigInt(Array.from(unquoteSqlLiteral(args[0])).length);
     const start = BigInt(args[1]);
@@ -2755,6 +2670,11 @@ function constantNullFunction(expression) {
   }
   return false;
 }
+
+const utf8Bytes = chars => chars.reduce((sum, char) => {
+  const cp = char.codePointAt(0);
+  return sum + (cp < 128 ? 1 : cp < 2048 ? 2 : cp < 65536 ? 3 : 4);
+}, 0);
 
 function normalizeOracleScalars(sql, normalizeEmpty = true, depth = 0) {
   if (depth > 96) return sql;
@@ -2765,10 +2685,9 @@ function normalizeOracleScalars(sql, normalizeEmpty = true, depth = 0) {
     const token = tokens[index];
     if (token.text === "''" && normalizeEmpty) {
       const national = /^N$/i.test(tokens[index - 1]?.text || "") && tokens[index - 1].end === token.start;
-      const start = national ? tokens[index - 1].start : token.start;
       const literal = national ? "N''" : "''";
       const commentLiteral = /^COMMENT$/i.test(tokens[0]?.text || "") && /^ON$/i.test(tokens[1]?.text || "") && /^IS$/i.test(tokens[index - 1]?.text || "");
-      output += sql.slice(cursor, start) + (commentLiteral ? "NULL" : `NULLIF(${literal}, ${literal})`);
+      output += sql.slice(cursor, national ? tokens[index - 1].start : token.start) + (commentLiteral ? "NULL" : `NULLIF(${literal}, ${literal})`);
       cursor = token.end;
       continue;
     }
@@ -2783,17 +2702,14 @@ function normalizeOracleScalars(sql, normalizeEmpty = true, depth = 0) {
     const originalArgs = splitArgs(originalBody);
     let replacement;
     if (name === "CAST") {
-      const as = findTopLevelRegex(body, /^AS\b/i);
-      if (as) {
-        const value = trimSqlFragment(body.slice(0, as.index));
-        const target = body.slice(as.end).trim();
+      const cast = castParts(body);
+      if (cast) {
+        const value = trimSqlFragment(cast.value);
+        const target = cast.type;
         const charSize = target.match(/^CHAR\s*\(\s*(\d+)(?:\s+BYTE)?\s*\)$/i);
         if (charSize && isSqlStringLiteral(value)) {
           const chars = Array.from(unquoteSqlLiteral(value));
-          const bytes = chars.reduce((sum, char) => {
-            const cp = char.codePointAt(0);
-            return sum + (cp < 128 ? 1 : cp < 2048 ? 2 : cp < 65536 ? 3 : 4);
-          }, 0);
+          const bytes = utf8Bytes(chars);
           if (bytes > chars.length && bytes <= Number(charSize[1])) replacement = `CAST(${value} AS CHAR(${Number(charSize[1]) - bytes + chars.length}))`;
         }
         if (/^(?:VARCHAR2?|NVARCHAR2|N?CHAR|TEXT)(?:\s*\([^()]*\))?$/i.test(target)) {
@@ -2810,7 +2726,8 @@ function normalizeOracleScalars(sql, normalizeEmpty = true, depth = 0) {
         replacement = size ? String(size) : "CAST(NULL AS NUMERIC)";
       }
     } else if (name === "REPLACE" && (args.length === 2 || args.length === 3)) {
-      replacement = nullIfEmpty(`REPLACE(${nullIfEmpty(oracleTextArgument(args[0]))}, COALESCE(${oracleTextArgument(args[1])}, ''), COALESCE(${args[2] ? oracleTextArgument(args[2]) : "NULL"}, ''))`);
+      const replaceWith = args[2] ? oracleTextArgument(args[2]) : "NULL";
+      replacement = nullIfEmpty(`REPLACE(${nullIfEmpty(oracleTextArgument(args[0]))}, COALESCE(${oracleTextArgument(args[1])}, ''), COALESCE(${replaceWith}, ''))`);
     } else if (name === "TRANSLATE" && args.length === 3) {
       replacement = nullIfEmpty(`TRANSLATE(${args.map(arg => nullIfEmpty(oracleTextArgument(arg))).join(", ")})`);
     } else if (name === "NULLIF" && args.length === 2 && (isEmptySqlStringLiteral(originalArgs[1]) || /^NULL$/i.test(originalArgs[1]))) {
@@ -2819,7 +2736,7 @@ function normalizeOracleScalars(sql, normalizeEmpty = true, depth = 0) {
       replacement = `NVL(NULL,${args[1]})`;
     } else if (/^(?:ABS|CEIL|FLOOR|SIGN|ROUND|TRUNC|MOD)$/.test(name) && args.length >= 1 && args.length <= 2) {
       const types = args.map(arg => explicitExpressionType(arg));
-      if (types.every(type => [ "text", "numeric", "null" ].includes(type))) {
+      if (types.every(type => scalarTypes.includes(type))) {
         const values = args.map(numericScalarArgument);
         if (name === "MOD" && args.length === 2) {
           replacement = `CAST(${bindScalarArguments(values, 'CASE WHEN "__oc_1" = 0 THEN "__oc_0" ELSE MOD("__oc_0", NULLIF("__oc_1", 0)) END')} AS NUMERIC)`;
@@ -2849,15 +2766,8 @@ function isNumericLikeExpression(expression) {
 
 function defaultDateFormat(argument) {
   const literal = unquoteSqlLiteral(argument);
-  if (/^\d{8}$/.test(literal)) {
-    return "'YYYYMMDD'";
-  }
-  if (/^\d{4}\/\d{2}\/\d{2}$/.test(literal)) {
-    return "'YYYY/MM/DD'";
-  }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(literal)) {
-    return "'YYYY-MM-DD'";
-  }
+  if (/^\d{4}\/\d{2}\/\d{2}$/.test(literal)) return "'YYYY/MM/DD'";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(literal)) return "'YYYY-MM-DD'";
   return "'YYYYMMDD'";
 }
 
@@ -2867,12 +2777,9 @@ function isDateLikeExpression(expression) {
 }
 
 function isEmptyStringAwareExpression(expression) {
-  const value = expression.trim();
-  const call = value.match(/^NULLIF\s*\(/i);
-  if (!call) return false;
-  const open = call[0].length - 1;
-  if (findClosingParen(value, open) !== value.length - 1) return false;
-  const args = splitArgs(value.slice(open + 1, -1));
+  const call = wholeSqlCall(expression);
+  if (call?.name !== "NULLIF") return false;
+  const args = splitArgs(call.body);
   return args.length === 2 && isEmptySqlStringLiteral(args[1]);
 }
 
@@ -2884,112 +2791,71 @@ function shouldUseNullIfEmpty(expression, companionArgs = []) {
   const normalized = expression.trim();
   if (isEmptySqlStringLiteral(normalized)) return true;
   const explicitType = explicitExpressionType(normalized);
-  if (explicitType === "numeric" || explicitType === "date" || explicitType === "oracle-date" || explicitType === "null") return false;
-  if (!normalized || isEmptyStringAwareExpression(normalized)) {
-    return false;
-  }
+  if ([ "numeric", "date", "oracle-date", "null" ].includes(explicitType)) return false;
+  if (!normalized || isEmptyStringAwareExpression(normalized)) return false;
   if (explicitType === "text") return true;
-  if (isNumericLikeExpression(normalized) || isDateLikeExpression(normalized)) {
-    return false;
-  }
-  if (companionArgs.some(arg => isSqlStringLiteral(arg) || isEmptySqlStringLiteral(arg))) {
-    return true;
-  }
-  if (companionArgs.some(arg => isNumericLikeExpression(arg) || isDateLikeExpression(arg))) {
-    return false;
-  }
-  return true;
+  if (isNumericLikeExpression(normalized) || isDateLikeExpression(normalized)) return false;
+  if (companionArgs.some(isSqlStringLiteral)) return true;
+  return !companionArgs.some(arg => isNumericLikeExpression(arg) || isDateLikeExpression(arg));
 }
 
-function convertNvl(args, argsText, context = {}) {
-  if (args.length !== 2) {
-    return `NVL(${argsText})`;
-  }
+function convertNvl(args, argsText, context) {
+  if (args.length !== 2) return `NVL(${argsText})`;
   const type = context.typeHints?.get(args[0].trim().toLowerCase()) || explicitExpressionType(args[0]);
   if (type === "unknown") warnUnknownType("NVL", args[0], context);
-  const convertedArgs = [ ...args ];
-  if (isEmptySqlStringLiteral(convertedArgs[1])) convertedArgs[1] = "NULL";
-  convertedArgs[1] = coerceKnownScalar(convertedArgs[1], type);
-  if (![ "numeric", "date", "oracle-date" ].includes(type) && shouldUseNullIfEmpty(convertedArgs[0], [ convertedArgs[1] ])) {
-    convertedArgs[0] = nullIfEmpty(convertedArgs[0]);
-  }
-  return formatCall("COALESCE", convertedArgs, argsText, context);
+  const converted = [ ...args ];
+  if (isEmptySqlStringLiteral(converted[1])) converted[1] = "NULL";
+  converted[1] = coerceKnownScalar(converted[1], type);
+  if (![ "numeric", "date", "oracle-date" ].includes(type) && shouldUseNullIfEmpty(converted[0], [ converted[1] ])) converted[0] = nullIfEmpty(converted[0]);
+  return formatCall("COALESCE", converted, argsText, context);
 }
 
-function convertNvl2(args, argsText, context = {}) {
-  if (args.length !== 3) {
-    return `NVL2(${argsText})`;
-  }
-  warnUnknownType("NVL2", args[0], context);
-  args.slice(1).forEach(arg => warnUnknownType("NVL2", arg, context));
+function convertNvl2(args, argsText, context) {
+  if (args.length !== 3) return `NVL2(${argsText})`;
+  for (const arg of args) warnUnknownType("NVL2", arg, context);
   const resultType = explicitExpressionType(args[1]);
   args = args.map((arg, index) => index > 0 && isEmptySqlStringLiteral(arg) ? "NULL" : arg);
   if (resultType === "text") args[1] = /^NULL$/i.test(args[1]) ? "CAST(NULL AS TEXT)" : preserveCharPadding(args[1]);
   args[2] = coerceKnownScalar(args[2], resultType);
-  const conditionExpression = shouldUseNullIfEmpty(args[0], args.slice(1)) ? nullIfEmpty(args[0]) : args[0];
-  if (context.hasMultilineArgs) {
-    const indent = context.indent || "";
-    const innerIndent = nestedIndentFromArgs(argsText, indent);
-    return `(CASE\n${innerIndent}WHEN ${conditionExpression} IS NOT NULL THEN ${args[1]}\n${innerIndent}ELSE ${args[2]}\n${indent}END)`;
-  }
-  return `(CASE WHEN ${conditionExpression} IS NOT NULL THEN ${args[1]} ELSE ${args[2]} END)`;
+  const condition = shouldUseNullIfEmpty(args[0], args.slice(1)) ? nullIfEmpty(args[0]) : args[0];
+  return formatCase([ `WHEN ${condition} IS NOT NULL THEN ${args[1]}`, `ELSE ${args[2]}` ], argsText, context);
 }
 
-function convertDecode(args, argsText, context = {}) {
-  if (args.length < 3) {
-    return `DECODE(${argsText})`;
-  }
-  args = args.map((arg, index) => (index > 0 && index % 2 === 0 || index === args.length - 1 && args.length % 2 === 0) && isEmptySqlStringLiteral(arg) ? "NULL" : arg);
+function convertDecode(args, argsText, context) {
+  if (args.length < 3) return `DECODE(${argsText})`;
+  const hasDefault = args.length % 2 === 0;
+  args = args.map((arg, index) => (index > 0 && index % 2 === 0 || index === args.length - 1 && hasDefault) && isEmptySqlStringLiteral(arg) ? "NULL" : arg);
   warnUnknownType("DECODE", args[0], context);
   warnUnknownType("DECODE", args[2], context);
   const firstSearchType = explicitExpressionType(args[1]);
   const firstResultType = explicitExpressionType(args[2]);
   const resultType = firstResultType === "null" ? "text" : firstResultType;
-  const originalExpression = args[0];
-  const coercedExpression = coerceKnownScalar(originalExpression, firstSearchType);
-  const expression = explicitExpressionType(originalExpression) === "text" && firstSearchType !== "numeric" ? nullIfEmpty(coercedExpression) : coercedExpression;
-  if (/\b(?:CLOCK_TIMESTAMP|NEXTVAL|CURRVAL|RANDOM)\s*\(/i.test(sqlCodeMask(expression))) context.warnings?.push("DECODE: CASE変換で時刻・採番の評価回数が変わる可能性あり。");
+  const coerced = coerceKnownScalar(args[0], firstSearchType);
+  const expression = explicitExpressionType(args[0]) === "text" && firstSearchType !== "numeric" ? nullIfEmpty(coerced) : coerced;
+  if (/\b(?:CLOCK_TIMESTAMP|NEXTVAL|CURRVAL|RANDOM)\s*\(/i.test(sqlCodeMask(expression))) context.warnings.push("DECODE: CASE変換で時刻・採番の評価回数が変わる可能性あり。");
   const parts = [];
-  const hasDefault = args.length % 2 === 0;
-  const limit = hasDefault ? args.length - 1 : args.length;
-  for (let i = 1; i < limit; i += 2) {
+  for (let i = 1; i < (hasDefault ? args.length - 1 : args.length); i += 2) {
     args[i] = coerceKnownScalar(args[i], firstSearchType);
     args[i + 1] = coerceKnownScalar(args[i + 1], resultType);
     const searchType = explicitExpressionType(args[i]);
     const search = searchType === "text" && !isSqlStringLiteral(args[i]) ? nullIfEmpty(args[i]) : args[i];
-    const comparison = /^NULL$/i.test(args[i].trim()) || isEmptySqlStringLiteral(args[i]) ? `${expression} IS NULL` : !isNumericLiteral(args[i]) && !isSqlStringLiteral(args[i]) ? `${expression} IS NOT DISTINCT FROM ${search}` : `${expression} = ${search}`;
+    const comparison = isNullKeyword(args[i]) || isEmptySqlStringLiteral(args[i]) ? `${expression} IS NULL` : !isNumericLiteral(args[i]) && !isSqlStringLiteral(args[i]) ? `${expression} IS NOT DISTINCT FROM ${search}` : `${expression} = ${search}`;
     if (searchType === "unknown") warnUnknownType("DECODE", args[i], context);
     parts.push(`WHEN ${comparison} THEN ${args[i + 1]}`);
   }
-  if (hasDefault) {
-    parts.push(`ELSE ${coerceKnownScalar(args[args.length - 1], resultType)}`);
-  }
-  if (context.hasMultilineArgs) {
-    const indent = context.indent || "";
-    const innerIndent = nestedIndentFromArgs(argsText, indent);
-    return `(CASE\n${parts.map(part => `${innerIndent}${part}`).join("\n")}\n${indent}END)`;
-  }
-  return `(CASE ${parts.join(" ")} END)`;
+  if (hasDefault) parts.push(`ELSE ${coerceKnownScalar(args.at(-1), resultType)}`);
+  return formatCase(parts, argsText, context);
 }
 
-function convertAddMonths(args, argsText, context = {}) {
-  if (args.length !== 2) {
-    return `ADD_MONTHS(${argsText})`;
-  }
-  context.warnings?.push("ADD_MONTHS: 互換関数 add_months と月末の扱いを確認。");
+function convertAddMonths(args, argsText, context) {
+  if (args.length !== 2) return `ADD_MONTHS(${argsText})`;
+  context.warnings.push("ADD_MONTHS: 互換関数 add_months と月末の扱いを確認。");
   return formatCall("ADD_MONTHS", args, argsText, context);
 }
 
-function convertMonthsBetween(args, argsText, context = {}) {
-  if (args.length !== 2) {
-    return `MONTHS_BETWEEN(${argsText})`;
-  }
-  context.warnings?.push("MONTHS_BETWEEN: 未変換。月末・小数月の計算を確認。");
+function convertMonthsBetween(args, argsText, context) {
+  if (args.length === 2) context.warnings.push("MONTHS_BETWEEN: 未変換。月末・小数月の計算を確認。");
   return `MONTHS_BETWEEN(${argsText})`;
-}
-
-function isQuotedSqlLiteral(value) {
-  return /^['"]/.test(value.trim());
 }
 
 function isDateLikeTruncExpression(expression) {
@@ -2997,7 +2863,7 @@ function isDateLikeTruncExpression(expression) {
   return /^(CLOCK_TIMESTAMP|CURRENT_DATE|CURRENT_TIMESTAMP|LOCALTIMESTAMP|LOCALTIME)\b/i.test(normalized) || /^(TO_DATE|TO_TIMESTAMP)\s*\(/i.test(normalized) || /^(DATE|TIMESTAMP)\s*'/i.test(normalized) || /\b(date|time|timestamp|created_at|updated_at|deleted_at|published_at)\b/i.test(normalized);
 }
 
-function convertInstr(args, argsText, context = {}) {
+function convertInstr(args, argsText, context) {
   if (args.length >= 2 && args.length <= 4 && args.slice(0, 2).every(isSqlStringLiteral) && args.slice(2).every(isIntegerLiteral)) {
     const source = Array.from(unquoteSqlLiteral(args[0]));
     const search = Array.from(unquoteSqlLiteral(args[1]));
@@ -3005,7 +2871,8 @@ function convertInstr(args, argsText, context = {}) {
     const position = BigInt(args[2] || "1");
     const occurrence = BigInt(args[3] || "1");
     if (position !== 0n && occurrence > 0n && source.length * search.length <= 1e6) {
-      if (position > BigInt(source.length) || position < -BigInt(source.length) || occurrence > BigInt(source.length)) return "0";
+      const size = BigInt(source.length);
+      if (position > size || position < -size || occurrence > size) return "0";
       const step = position < 0n ? -1 : 1;
       let found = 0n;
       for (let index = position < 0n ? source.length + Number(position) : Number(position) - 1; index >= 0 && index < source.length; index += step) {
@@ -3014,101 +2881,83 @@ function convertInstr(args, argsText, context = {}) {
       return "0";
     }
   }
-  if (args.length === 2 && args.every(arg => [ "text", "null" ].includes(explicitExpressionType(arg)))) {
-    return `POSITION(NULLIF(${preserveCharPadding(args[1])}, '') IN NULLIF(${preserveCharPadding(args[0])}, ''))`;
-  }
-  context.warnings?.push("INSTR: 互換関数 instr の定義を確認。");
+  if (args.length === 2 && args.every(arg => [ "text", "null" ].includes(explicitExpressionType(arg)))) return `POSITION(NULLIF(${preserveCharPadding(args[1])}, '') IN NULLIF(${preserveCharPadding(args[0])}, ''))`;
+  context.warnings.push("INSTR: 互換関数 instr の定義を確認。");
   return formatCall("INSTR", args.length ? args : [ argsText ], argsText, context);
 }
 
-function convertTrunc(args, argsText, context = {}) {
-  if (args.length === 1 || args.length === 2) {
-    const type = explicitExpressionType(args[0]);
-    const unit = args.length === 1 ? "DD" : isSqlStringLiteral(args[1]) ? unquoteSqlLiteral(args[1]).toUpperCase() : "";
-    const units = {
-      DD: "day",
-      DDD: "day",
-      J: "day",
-      MM: "month",
-      MON: "month",
-      MONTH: "month",
-      YYYY: "year",
-      YY: "year",
-      YEAR: "year",
-      Q: "quarter",
-      HH: "hour",
-      HH12: "hour",
-      HH24: "hour",
-      MI: "minute",
-      IW: "week"
-    };
-    if ((type === "date" || type === "oracle-date") && units[unit]) return `DATE_TRUNC('${units[unit]}', CAST(${args[0]} AS TIMESTAMP))`;
-    if (type === "numeric" && args.length === 2 && [ "numeric", "null" ].includes(explicitExpressionType(args[1]))) {
-      const precision = isIntegerLiteral(args[1]) ? args[1] : `CAST(TRUNC(CAST(${args[1]} AS NUMERIC)) AS INTEGER)`;
-      return formatCall("TRUNC", [ `CAST(${args[0]} AS NUMERIC)`, precision ], argsText, context);
-    }
-    if (args.some(arg => isQuotedSqlLiteral(arg)) || isDateLikeTruncExpression(args[0])) {
-      context.warnings?.push("TRUNC: 日付用の互換関数 trunc(date, format) を確認。");
-    } else if (type !== "numeric" && type !== "null") {
-      context.warnings?.push("TRUNC: 引数が日付型ならDATE_TRUNCへ手動変換（数値型ならそのまま使えます）。");
-    }
-    return formatCall("TRUNC", args, argsText, context);
+const truncUnits = {
+  DD: "day",
+  DDD: "day",
+  J: "day",
+  MM: "month",
+  MON: "month",
+  MONTH: "month",
+  YYYY: "year",
+  YY: "year",
+  YEAR: "year",
+  Q: "quarter",
+  HH: "hour",
+  HH12: "hour",
+  HH24: "hour",
+  MI: "minute",
+  IW: "week"
+};
+
+function convertTrunc(args, argsText, context) {
+  if (args.length !== 1 && args.length !== 2) return `TRUNC(${argsText})`;
+  const type = explicitExpressionType(args[0]);
+  const unit = args.length === 1 ? "DD" : isSqlStringLiteral(args[1]) ? unquoteSqlLiteral(args[1]).toUpperCase() : "";
+  if ((type === "date" || type === "oracle-date") && Object.hasOwn(truncUnits, unit)) return `DATE_TRUNC('${truncUnits[unit]}', CAST(${args[0]} AS TIMESTAMP))`;
+  if (type === "numeric" && args.length === 2 && [ "numeric", "null" ].includes(explicitExpressionType(args[1]))) {
+    const precision = isIntegerLiteral(args[1]) ? args[1] : `CAST(TRUNC(CAST(${args[1]} AS NUMERIC)) AS INTEGER)`;
+    return formatCall("TRUNC", [ `CAST(${args[0]} AS NUMERIC)`, precision ], argsText, context);
   }
-  return `TRUNC(${argsText})`;
+  if (args.some(arg => /^['"]/.test(arg.trim())) || isDateLikeTruncExpression(args[0])) {
+    context.warnings.push("TRUNC: 日付用の互換関数 trunc(date, format) を確認。");
+  } else if (type !== "numeric" && type !== "null") {
+    context.warnings.push("TRUNC: 引数が日付型ならDATE_TRUNCへ手動変換（数値型ならそのまま使えます）。");
+  }
+  return formatCall("TRUNC", args, argsText, context);
 }
 
+const rrWarning = "RR/RRRR → YY/YYYY: 2桁年の世紀の解釈を確認。";
+
 function convertToChar(args, argsText, context = {}) {
-  if (args.length === 1 && explicitExpressionType(args[0]) === "null") return `CAST(${args[0]} AS TEXT)`;
-  if (args.length === 1 && explicitExpressionType(args[0]) === "text") return nullIfEmpty(preserveCharPadding(args[0]));
-  if (args.length === 1 && explicitExpressionType(args[0]) === "numeric") {
-    return `REGEXP_REPLACE(CAST(TRIM_SCALE(CAST(${args[0]} AS NUMERIC)) AS TEXT), '^(-?)0[.]', '\\1.')`;
-  }
+  const firstType = args.length === 1 ? explicitExpressionType(args[0]) : null;
+  if (firstType === "null") return `CAST(${args[0]} AS TEXT)`;
+  if (firstType === "text") return nullIfEmpty(preserveCharPadding(args[0]));
+  if (firstType === "numeric") return `REGEXP_REPLACE(CAST(TRIM_SCALE(CAST(${args[0]} AS NUMERIC)) AS TEXT), '^(-?)0[.]', '\\1.')`;
   if (args.length > 2) context.warnings?.push("TO_CHAR: NLS指定を省略。言語・通貨・小数点を確認。");
-  if (args[1] && /RR/i.test(unquoteSqlLiteral(args[1]))) context.warnings?.push("RR/RRRR → YY/YYYY: 2桁年の世紀の解釈を確認。");
-  if (args.length >= 2 && /'[A-Z0-9:/._ -]+'/i.test(args[1])) {
-    if (context.hasMultilineArgs) {
-      const indent = context.indent || "";
-      const innerIndent = nestedIndentFromArgs(argsText, indent);
-      return `TO_CHAR(\n${innerIndent}${args[0]},\n${innerIndent}${normalizeDateFormat(args[1])}\n${indent})`;
-    }
-    return `TO_CHAR(${args[0]}, ${normalizeDateFormat(args[1])})`;
-  }
-  if (args.length === 1) {
-    let format = "'FM999999999'";
-    if (isDateLikeTruncExpression(args[0])) {
-      format = "'YYYY-MM-DD HH24:MI:SS'";
-    } else if (!isNumericLikeExpression(args[0])) {
-      context.warnings?.push("TO_CHAR: 引数の型が不明。補完した書式を確認。");
-    }
-    return formatCall("TO_CHAR", [ args[0], format ], argsText, context);
-  }
-  return `TO_CHAR(${argsText})`;
+  if (args[1] && /RR/i.test(unquoteSqlLiteral(args[1]))) context.warnings?.push(rrWarning);
+  if (args.length >= 2 && /'[A-Z0-9:/._ -]+'/i.test(args[1])) return formatCall("TO_CHAR", [ args[0], normalizeDateFormat(args[1]) ], argsText, context);
+  if (args.length !== 1) return `TO_CHAR(${argsText})`;
+  let format = "'FM999999999'";
+  if (isDateLikeTruncExpression(args[0])) format = "'YYYY-MM-DD HH24:MI:SS'"; else if (!isNumericLikeExpression(args[0])) context.warnings?.push("TO_CHAR: 引数の型が不明。補完した書式を確認。");
+  return formatCall("TO_CHAR", [ args[0], format ], argsText, context);
 }
 
 function parseFixedOracleDate(value, format) {
   if (!isSqlStringLiteral(value) || !isSqlStringLiteral(format)) return null;
   const model = unquoteSqlLiteral(format);
-  const supported = /YYYY|RRRR|RR|YY|MM|DD|HH24|MI|SS/gi;
   let pattern = "^";
   const fields = [];
   let cursor = 0;
-  for (const match of model.matchAll(supported)) {
+  for (const match of model.matchAll(/YYYY|RRRR|RR|YY|MM|DD|HH24|MI|SS/gi)) {
     const separator = model.slice(cursor, match.index);
     if (/[A-Za-z"]/.test(separator)) return null;
-    pattern += escapeRegExp(separator);
-    fields.push(match[0].toUpperCase());
-    pattern += match[0].toUpperCase() === "YYYY" ? "(\\d{4})" : match[0].toUpperCase() === "RRRR" ? "(\\d{2}|\\d{4})" : "(\\d{2})";
+    const field = match[0].toUpperCase();
+    fields.push(field);
+    pattern += escapeRegExp(separator) + (field === "YYYY" ? "(\\d{4})" : field === "RRRR" ? "(\\d{2}|\\d{4})" : "(\\d{2})");
     cursor = match.index + match[0].length;
   }
   if (/[A-Za-z"]/.test(model.slice(cursor)) || new Set(fields).size !== fields.length) return null;
-  pattern += escapeRegExp(model.slice(cursor)) + "$";
-  const input = unquoteSqlLiteral(value).match(new RegExp(pattern));
-  if (!input || !fields.includes("MM") || !fields.includes("DD") || !fields.some(key => /^(YYYY|RRRR|RR|YY)$/.test(key))) return null;
-  const values = Object.fromEntries(fields.map((key, index) => [ key, input[index + 1] ]));
-  if (Number(values.HH24 || 0) > 23 || Number(values.MI || 0) > 59 || Number(values.SS || 0) > 59) {
-    return "MAKE_TIMESTAMP(0, 1, 1, 0, 0, 0)";
-  }
+  const input = unquoteSqlLiteral(value).match(new RegExp(pattern + escapeRegExp(model.slice(cursor)) + "$"));
   const yearToken = fields.find(key => /^(YYYY|RRRR|RR|YY)$/.test(key));
+  if (!input || !fields.includes("MM") || !fields.includes("DD") || !yearToken) return null;
+  const values = Object.fromEntries(fields.map((key, index) => [ key, input[index + 1] ]));
+  const [hour, minute, second] = [ "HH24", "MI", "SS" ].map(key => Number(values[key] || 0));
+  if (hour > 23 || minute > 59 || second > 59) return "MAKE_TIMESTAMP(0, 1, 1, 0, 0, 0)";
   const year = Number(values[yearToken]);
   let yearSql = String(year);
   if (yearToken === "YY" || /^(RR|RRRR)$/.test(yearToken) && values[yearToken].length === 2) {
@@ -3117,45 +2966,30 @@ function parseFixedOracleDate(value, format) {
     const shift = yearToken === "YY" ? "0" : year < 50 ? `(CASE WHEN ${currentYear} >= 50 THEN 1 ELSE 0 END)` : `(CASE WHEN ${currentYear} < 50 THEN -1 ELSE 0 END)`;
     yearSql = `((${century} + ${shift}) * 100 + ${year})`;
   }
-  return `MAKE_TIMESTAMP(${yearSql}, ${Number(values.MM)}, ${Number(values.DD)}, ${Number(values.HH24 || 0)}, ${Number(values.MI || 0)}, ${Number(values.SS || 0)})`;
+  return `MAKE_TIMESTAMP(${yearSql}, ${Number(values.MM)}, ${Number(values.DD)}, ${hour}, ${minute}, ${second})`;
 }
 
-function convertToDate(args, argsText, context = {}) {
+function convertToDate(args, argsText, context) {
   if (args.length === 2) {
     const fixed = parseFixedOracleDate(args[0], args[1]);
     if (fixed) return fixed;
-    if (isSqlStringLiteral(args[1])) {
-      const model = unquoteSqlLiteral(args[1]);
-      if (/YYYY/i.test(model) && /MM/i.test(model) && /DD/i.test(model) && !/[A-Z]/i.test(model.replace(/YYYY|HH24|MM|DD|MI|SS/gi, "")) && !model.includes('"')) {
-        const input = `NULLIF(CAST(${args[0]} AS TEXT), '')`;
-        return `(TO_TIMESTAMP(${input} || ' +00:00', '${model.replace(/'/g, "''")} TZH:TZM') AT TIME ZONE 'UTC')`;
-      }
-    }
+    const model = isSqlStringLiteral(args[1]) ? unquoteSqlLiteral(args[1]) : null;
+    if (model !== null && /YYYY/i.test(model) && /MM/i.test(model) && /DD/i.test(model) && !/[A-Z]/i.test(model.replace(/YYYY|HH24|MM|DD|MI|SS/gi, "")) && !model.includes('"')) return `(TO_TIMESTAMP(NULLIF(CAST(${args[0]} AS TEXT), '') || ' +00:00', '${model.replace(/'/g, "''")} TZH:TZM') AT TIME ZONE 'UTC')`;
   }
-  if (args.length > 2) context.warnings?.push("TO_DATE: NLS指定を省略。月名の言語・設定を確認。");
-  if (args.length === 1) context.warnings?.push("TO_DATE: 書式を補完。NLS_DATE_FORMATと入力形式を確認。");
-  if (args[1] && /HH|MI|SS|FF/i.test(unquoteSqlLiteral(args[1]))) context.warnings?.push("TO_DATE: 式を維持。時刻が必要なら互換関数を確認。");
-  if (args[1] && /RR/i.test(unquoteSqlLiteral(args[1]))) context.warnings?.push("RR/RRRR → YY/YYYY: 2桁年の世紀の解釈を確認。");
-  if (args.length >= 2) {
-    if (context.hasMultilineArgs) {
-      const indent = context.indent || "";
-      const innerIndent = nestedIndentFromArgs(argsText, indent);
-      return `TO_DATE(\n${innerIndent}${args[0]},\n${innerIndent}${normalizeDateFormat(args[1])}\n${indent})`;
-    }
-    return `TO_DATE(${args[0]}, ${normalizeDateFormat(args[1])})`;
-  }
-  if (args.length === 1) {
-    const argument = isSqlStringLiteral(args[0]) && !isEmptySqlStringLiteral(args[0]) ? args[0] : nullIfEmpty(args[0]);
-    return formatCall("TO_DATE", [ argument, defaultDateFormat(args[0]) ], argsText, context);
-  }
-  return `TO_DATE(${argsText})`;
+  if (args.length > 2) context.warnings.push("TO_DATE: NLS指定を省略。月名の言語・設定を確認。");
+  if (args.length === 1) context.warnings.push("TO_DATE: 書式を補完。NLS_DATE_FORMATと入力形式を確認。");
+  if (args[1] && /HH|MI|SS|FF/i.test(unquoteSqlLiteral(args[1]))) context.warnings.push("TO_DATE: 式を維持。時刻が必要なら互換関数を確認。");
+  if (args[1] && /RR/i.test(unquoteSqlLiteral(args[1]))) context.warnings.push(rrWarning);
+  if (args.length >= 2) return formatCall("TO_DATE", [ args[0], normalizeDateFormat(args[1]) ], argsText, context);
+  if (args.length !== 1) return `TO_DATE(${argsText})`;
+  const argument = isSqlStringLiteral(args[0]) && !isEmptySqlStringLiteral(args[0]) ? args[0] : nullIfEmpty(args[0]);
+  return formatCall("TO_DATE", [ argument, defaultDateFormat(args[0]) ], argsText, context);
 }
 
 function normalizeDateFormat(formatLiteral) {
   if (!isSqlStringLiteral(formatLiteral)) return formatLiteral;
-  const value = unquoteSqlLiteral(formatLiteral);
   let quoted = false;
-  const normalized = value.replace(/"|RRRR|RR/gi, token => {
+  const normalized = unquoteSqlLiteral(formatLiteral).replace(/"|RRRR|RR/gi, token => {
     if (token === '"') {
       quoted = !quoted;
       return token;
@@ -3165,108 +2999,78 @@ function normalizeDateFormat(formatLiteral) {
   return `'${normalized.replace(/'/g, "''")}'`;
 }
 
-function convertToNumber(args, argsText, context = {}) {
-  if (args.length > 2) context.warnings?.push("TO_NUMBER: 第3引数のNLS指定は未対応。");
+function convertToNumber(args, argsText, context) {
+  if (args.length > 2) context.warnings.push("TO_NUMBER: 第3引数のNLS指定は未対応。");
   if (args.length === 1) warnUnknownType("TO_NUMBER", args[0], context);
   if (args.length >= 2) {
     if (explicitExpressionType(args[0]) === "numeric") args[0] = `CAST(${args[0]} AS TEXT)`;
     return formatCall("TO_NUMBER", args, argsText, context);
   }
-  if (args.length !== 1) {
-    return `TO_NUMBER(${argsText})`;
-  }
-  const scalarType = explicitExpressionType(args[0]);
+  if (args.length !== 1) return `TO_NUMBER(${argsText})`;
   const literal = isSqlStringLiteral(args[0]) ? unquoteSqlLiteral(args[0]) : null;
   const text = `CAST(${args[0]} AS TEXT)`;
   const finiteText = literal !== null && !/^[\s+-]*(?:nan|inf(?:inity)?)[\s]*$/i.test(literal) ? text : `REGEXP_REPLACE(${text}, '^[[:space:]]*[+-]?(nan|inf(inity)?)[[:space:]]*$', '!', 'i')`;
-  const argument = scalarType === "numeric" ? args[0] : `NULLIF(${finiteText}, '')`;
-  return `CAST(${argument} AS NUMERIC)`;
+  return `CAST(${explicitExpressionType(args[0]) === "numeric" ? args[0] : `NULLIF(${finiteText}, '')`} AS NUMERIC)`;
 }
 
 function convertTrimNullPredicates(sql) {
-  const pattern = /TRIM/gi;
-  const ranges = getSqlProtectedRanges(sql);
-  const functionTokens = sqlExpressionTokens(sql);
-  const qualified = new Set(functionTokens.filter((_, index) => functionTokens[index - 1]?.text === ".").map(token => token.start));
-  let index = 0;
-  let output = "";
-  while (index < sql.length) {
-    pattern.lastIndex = index;
-    const match = pattern.exec(sql);
-    if (!match) {
-      output += sql.slice(index);
-      break;
-    }
-    const found = match.index;
-    const afterNameIndex = found + 4;
-    if (isProtectedIndex(ranges, found) || qualified.has(found) || !hasSqlTokenBoundaries(sql, found, match[0])) {
-      output += sql.slice(index, afterNameIndex);
-      index = afterNameIndex;
-      continue;
-    }
-    let cursor = afterNameIndex;
-    while (/\s/.test(sql[cursor] || "")) {
-      cursor += 1;
-    }
-    if (sql[cursor] !== "(") {
-      output += sql.slice(index, afterNameIndex);
-      index = afterNameIndex;
-      continue;
-    }
-    const close = findClosingParen(sql, cursor);
-    if (close === -1) {
-      output += sql.slice(index);
-      break;
-    }
+  return rewriteCalls(sql, /TRIM/gi, (found, afterName, open, close) => {
     const nullPredicate = sql.slice(close + 1).match(/^\s+IS\s+(?:NOT\s+)?NULL\b/i);
-    if (!nullPredicate) {
-      output += sql.slice(index, close + 1);
-      index = close + 1;
-      continue;
-    }
-    const trimCall = sql.slice(found, close + 1);
-    output += `${sql.slice(index, found)}${nullIfEmpty(trimCall)}${nullPredicate[0]}`;
-    index = close + 1 + nullPredicate[0].length;
-  }
-  return output;
+    if (!nullPredicate) return {
+      text: sql.slice(found, close + 1),
+      end: close + 1
+    };
+    return {
+      text: nullIfEmpty(sql.slice(found, close + 1)) + nullPredicate[0],
+      end: close + 1 + nullPredicate[0].length
+    };
+  }, {
+    skipComments: false
+  });
 }
 
 function bindScalarArguments(args, body) {
   return `(SELECT ${body} FROM (SELECT ${args.map((arg, index) => `${arg} AS "__oc_${index}"`).join(", ")} OFFSET 0) AS "__oc_values")`;
 }
 
-function convertSubstr(args, argsText, context = {}) {
+const numberAsText = arg => explicitExpressionType(arg) === "numeric" && !isIntegerLiteral(arg) ? convertToChar([ arg ], arg) : `CAST(${arg} AS TEXT)`;
+
+function convertSubstr(args, argsText, context) {
   if (args.length < 2 || args.length > 3) return `SUBSTR(${argsText})`;
   const sourceType = explicitExpressionType(args[0]);
-  if (sourceType === "unknown") context.warnings?.push("SUBSTR: 式を維持。空文字・範囲外の開始位置でNULLの扱いを確認。");
-  const source = sourceType === "text" || sourceType === "null" ? preserveCharPadding(args[0]) : sourceType === "numeric" && !isIntegerLiteral(args[0]) ? convertToChar([ args[0] ], args[0], context) : `CAST(${args[0]} AS TEXT)`;
+  const textSource = sourceType === "text" || sourceType === "null";
+  if (sourceType === "unknown") context.warnings.push("SUBSTR: 式を維持。空文字・範囲外の開始位置でNULLの扱いを確認。");
+  const source = textSource ? preserveCharPadding(args[0]) : numberAsText(args[0]);
   const start = args[1].trim();
+  const length = args[2];
+  const hasLength = args.length === 3;
   if (isEmptySqlStringLiteral(source)) return "NULL";
-  if (isSqlStringLiteral(source) && isIntegerLiteral(start) && (!args[2] || isIntegerLiteral(args[2]))) {
-    const length = BigInt(Array.from(unquoteSqlLiteral(source)).length);
+  if (isIntegerLiteral(start) && (!length || isIntegerLiteral(length))) {
     const position = BigInt(start);
-    if (position > length || position < -length || args[2] && BigInt(args[2]) < 1n) return "NULL";
-    if (position < 0n) {
-      const right = `RIGHT(${source}, ${-position})`;
-      return args.length === 2 ? right : `SUBSTR(${right}, 1, ${BigInt(args[2]) > length ? length : args[2]})`;
+    const first = position === 0n ? "1" : start;
+    if (isSqlStringLiteral(source)) {
+      const size = BigInt(Array.from(unquoteSqlLiteral(source)).length);
+      if (position > size || position < -size || length && BigInt(length) < 1n) return "NULL";
+      const take = () => BigInt(length) > size ? String(size) : length;
+      if (position < 0n) {
+        const right = `RIGHT(${source}, ${-position})`;
+        return hasLength ? `SUBSTR(${right}, 1, ${take()})` : right;
+      }
+      return formatCall("SUBSTR", [ source, first, ...length ? [ take() ] : [] ], argsText, context);
     }
-    return formatCall("SUBSTR", [ source, position === 0n ? "1" : start, ...args[2] ? [ BigInt(args[2]) > length ? String(length) : args[2] ] : [] ], argsText, context);
-  }
-  if (isIntegerLiteral(start) && (!args[2] || isIntegerLiteral(args[2]))) {
-    const position = BigInt(start);
-    const length = args[2] ? BigInt(args[2]) : null;
-    if (position >= 0n && position <= 2147483647n && (length === null || length >= 1n)) {
-      const call = formatCall("SUBSTR", [ source, position === 0n ? "1" : start, ...length === null ? [] : [ String(length > 2147483647n ? 2147483647n : length) ] ], argsText, context);
-      return `NULLIF(${call}, '')`;
+    const count = length ? BigInt(length) : null;
+    if (position >= 0n && position <= 2147483647n && (count === null || count >= 1n)) {
+      const take = count === null ? [] : [ String(count > 2147483647n ? 2147483647n : count) ];
+      return `NULLIF(${formatCall("SUBSTR", [ source, first, ...take ], argsText, context)}, '')`;
     }
   }
-  const bound = [ `NULLIF(${sourceType === "text" || sourceType === "null" ? `CAST(${source} AS TEXT)` : source}, '')`, `TRUNC(CAST(${args[1]} AS NUMERIC))` ];
-  if (args.length === 3) bound.push(`TRUNC(CAST(${args[2]} AS NUMERIC))`);
-  const s = '"__oc_0"', p = '"__oc_1"', n = '"__oc_2"';
-  const invalidLength = args.length === 3 ? ` OR ${n} IS NULL OR ${n} < 1` : "";
-  const position = `CAST(CASE WHEN ${p} = 0 THEN 1 WHEN ${p} < 0 THEN CHAR_LENGTH(${s}) + ${p} + 1 ELSE ${p} END AS INTEGER)`;
-  const length = args.length === 3 ? `, CAST(LEAST(${n}, CHAR_LENGTH(${s})) AS INTEGER)` : "";
-  return bindScalarArguments(bound, `CASE WHEN ${s} IS NULL OR ${p} IS NULL OR ${p} > CHAR_LENGTH(${s}) OR ${p} < -CHAR_LENGTH(${s})${invalidLength} THEN NULL ELSE NULLIF(SUBSTR(${s}, ${position}${length}), '') END`);
+  const bound = [ `NULLIF(${textSource ? `CAST(${source} AS TEXT)` : source}, '')`, `TRUNC(CAST(${args[1]} AS NUMERIC))` ];
+  if (hasLength) bound.push(`TRUNC(CAST(${length} AS NUMERIC))`);
+  const [s, p, n] = [ '"__oc_0"', '"__oc_1"', '"__oc_2"' ];
+  const invalidLength = hasLength ? ` OR ${n} IS NULL OR ${n} < 1` : "";
+  const startSql = `CAST(CASE WHEN ${p} = 0 THEN 1 WHEN ${p} < 0 THEN CHAR_LENGTH(${s}) + ${p} + 1 ELSE ${p} END AS INTEGER)`;
+  const lengthSql = hasLength ? `, CAST(LEAST(${n}, CHAR_LENGTH(${s})) AS INTEGER)` : "";
+  return bindScalarArguments(bound, `CASE WHEN ${s} IS NULL OR ${p} IS NULL OR ${p} > CHAR_LENGTH(${s}) OR ${p} < -CHAR_LENGTH(${s})${invalidLength} THEN NULL ELSE NULLIF(SUBSTR(${s}, ${startSql}${lengthSql}), '') END`);
 }
 
 function knownAsciiScalar(expression, depth = 0) {
@@ -3276,8 +3080,8 @@ function knownAsciiScalar(expression, depth = 0) {
   const call = wholeSqlCall(expression);
   if (!call) return false;
   if (call.name === "CAST") {
-    const as = findTopLevelRegex(call.body, /^AS\b/i);
-    return Boolean(as && knownAsciiScalar(call.body.slice(0, as.index).trim(), depth + 1));
+    const cast = castParts(call.body);
+    return Boolean(cast && knownAsciiScalar(cast.value.trim(), depth + 1));
   }
   return /^(?:NULLIF|COALESCE|TRIM|LTRIM|RTRIM|LOWER|UPPER|SUBSTR|LPAD|RPAD|TO_CHAR)$/.test(call.name) && splitArgs(call.body).every(arg => knownAsciiScalar(arg, depth + 1));
 }
@@ -3292,36 +3096,26 @@ function convertDisplayPad(args, name) {
   return bindScalarArguments([ `NULLIF(CAST(${args[0]} AS TEXT), '')`, `TRUNC(CAST(${args[1]} AS NUMERIC))`, `NULLIF(CAST(${args[2] || "' '"} AS TEXT), '')` ], `CASE WHEN "__oc_0" IS NULL OR "__oc_1" IS NULL OR "__oc_2" IS NULL OR "__oc_1" < 1 THEN NULL ELSE (${parts}${value}${tail}) END`);
 }
 
-function convertLpad(args, argsText, context = {}, name = "LPAD") {
-  if (args.length < 2 || args.length > 3) {
-    return `${name}(${argsText})`;
-  }
-  if (isEmptySqlStringLiteral(args[0]) || args[2] && (isEmptySqlStringLiteral(args[2]) || /^NULL$/i.test(args[2].trim())) || isNumericLiteral(args[1]) && Number(args[1]) < 1) return "NULL";
-  if (explicitExpressionType(args[0]) === "unknown" || !isNumericLiteral(args[1])) context.warnings?.push("LPAD: 空文字・NULL・長さの境界値を確認。");
-  const convertedArgs = args.map((arg, index) => index === 1 ? arg : preserveCharPadding(arg));
-  if (explicitExpressionType(convertedArgs[0]) === "numeric" || /^(NEXTVAL|CURRVAL|COUNT|SUM|AVG|TO_NUMBER|TRUNC|ROUND)\s*\(/i.test(convertedArgs[0].trim())) {
-    convertedArgs[0] = explicitExpressionType(args[0]) === "numeric" && !isIntegerLiteral(args[0]) ? convertToChar([ args[0] ], args[0], context) : `CAST(${args[0]} AS TEXT)`;
-  }
-  if (convertedArgs[2] && isNumericLiteral(convertedArgs[2])) {
-    convertedArgs[2] = isIntegerLiteral(args[2]) ? `'${BigInt(args[2])}'` : convertToChar([ args[2] ], args[2], context);
-  } else if (convertedArgs[2] && explicitExpressionType(convertedArgs[2]) === "numeric") {
-    convertedArgs[2] = convertToChar([ args[2] ], args[2], context);
-  }
-  if (!knownAsciiScalar(args[0]) || args[2] && !knownAsciiScalar(args[2])) return convertDisplayPad(convertedArgs, name);
-  if (!isIntegerLiteral(convertedArgs[1])) convertedArgs[1] = `CAST(TRUNC(CAST(${convertedArgs[1]} AS NUMERIC)) AS INTEGER)`;
+function convertPad(name, args, argsText, context) {
+  if (args.length < 2 || args.length > 3) return `${name}(${argsText})`;
+  if (isEmptySqlStringLiteral(args[0]) || args[2] && (isEmptySqlStringLiteral(args[2]) || isNullKeyword(args[2])) || isNumericLiteral(args[1]) && Number(args[1]) < 1) return "NULL";
+  if (explicitExpressionType(args[0]) === "unknown" || !isNumericLiteral(args[1])) context.warnings.push("LPAD: 空文字・NULL・長さの境界値を確認。");
+  const converted = args.map((arg, index) => index === 1 ? arg : preserveCharPadding(arg));
+  if (explicitExpressionType(converted[0]) === "numeric" || /^(NEXTVAL|CURRVAL|COUNT|SUM|AVG|TO_NUMBER|TRUNC|ROUND)\s*\(/i.test(converted[0].trim())) converted[0] = numberAsText(args[0]);
+  if (converted[2] && isNumericLiteral(converted[2])) converted[2] = isIntegerLiteral(args[2]) ? `'${BigInt(args[2])}'` : convertToChar([ args[2] ], args[2]); else if (converted[2] && explicitExpressionType(converted[2]) === "numeric") converted[2] = convertToChar([ args[2] ], args[2]);
+  if (!knownAsciiScalar(args[0]) || args[2] && !knownAsciiScalar(args[2])) return convertDisplayPad(converted, name);
+  if (!isIntegerLiteral(converted[1])) converted[1] = `CAST(TRUNC(CAST(${converted[1]} AS NUMERIC)) AS INTEGER)`;
   if (args.some(arg => !isSqlStringLiteral(arg) && !isNumericLiteral(arg))) {
-    convertedArgs[0] = `NULLIF(${convertedArgs[0]}, '')`;
-    if (convertedArgs[2]) convertedArgs[2] = `NULLIF(${convertedArgs[2]}, '')`;
-    return `NULLIF(${formatCall(name, convertedArgs, argsText, context)}, '')`;
+    converted[0] = `NULLIF(${converted[0]}, '')`;
+    if (converted[2]) converted[2] = `NULLIF(${converted[2]}, '')`;
+    return `NULLIF(${formatCall(name, converted, argsText, context)}, '')`;
   }
-  return formatCall(name, convertedArgs, argsText, context);
+  return formatCall(name, converted, argsText, context);
 }
 
-function convertLastDay(args, argsText, context = {}) {
-  if (args.length !== 1) {
-    return `LAST_DAY(${argsText})`;
-  }
-  context.warnings?.push("LAST_DAY: 互換関数 last_day の定義を確認。");
+function convertLastDay(args, argsText, context) {
+  if (args.length !== 1) return `LAST_DAY(${argsText})`;
+  context.warnings.push("LAST_DAY: 互換関数 last_day の定義を確認。");
   return formatCall("LAST_DAY", args, argsText, context);
 }
 
@@ -3336,7 +3130,7 @@ function convertSequences(sql) {
     for (let n = start; n < i; n += 2) names.push(tokens[n].text);
     const relation = names.map(token => token.startsWith('"') ? token : token.replace(/[A-Z]/g, letter => letter.toLowerCase())).join(".").replace(/'/g, "''");
     const source = sql.slice(tokens[start].start, tokens[i].end);
-    const comments = getSqlProtectedRanges(source).filter(range => /^(?:--|\/\*)/.test(source.slice(range.start))).map(range => {
+    const comments = commentRanges(source).map(range => {
       const comment = source.slice(range.start, range.end);
       return comment + (comment.startsWith("--") ? source.slice(range.end).match(/^(?:\r\n|\r|\n)/)?.[0] || "\n" : " ");
     }).join("");
@@ -3356,27 +3150,23 @@ function convertCurrentDateTimeTokens(sql) {
   next = replaceOutsideSqlLiterals(next, /\bSYSTIMESTAMP\b/gi, "STATEMENT_TIMESTAMP()");
   next = replaceOutsideSqlLiterals(next, /\bSYSDATE\b/gi, oracleDateNow);
   next = replaceOutsideSqlLiterals(next, /\bCURRENT_DATE\b/gi, oracleDateNow);
-  next = replaceOutsideSqlLiterals(next, /\b(CURRENT_TIMESTAMP|LOCALTIMESTAMP)\b(?:\s*\(\s*([0-6])\s*\))?/gi, (match, name, precision, offset, source) => {
+  return replaceOutsideSqlLiterals(next, /\b(CURRENT_TIMESTAMP|LOCALTIMESTAMP)\b(?:\s*\(\s*([0-6])\s*\))?/gi, (match, name, precision, offset, source) => {
     if (precision === undefined && source.slice(offset + match.length).trimStart().startsWith("(")) return match;
-    const type = name.toUpperCase() === "LOCALTIMESTAMP" ? "TIMESTAMP" : "TIMESTAMP WITH TIME ZONE";
-    if (precision === undefined) return name.toUpperCase() === "LOCALTIMESTAMP" ? "CAST(STATEMENT_TIMESTAMP() AS TIMESTAMP)" : "STATEMENT_TIMESTAMP()";
-    return `CAST(STATEMENT_TIMESTAMP() AS ${type.replace("TIMESTAMP", `TIMESTAMP(${precision})`)})`;
+    const local = name.toUpperCase() === "LOCALTIMESTAMP";
+    if (precision === undefined) return local ? "CAST(STATEMENT_TIMESTAMP() AS TIMESTAMP)" : "STATEMENT_TIMESTAMP()";
+    return `CAST(STATEMENT_TIMESTAMP() AS ${local ? `TIMESTAMP(${precision})` : `TIMESTAMP(${precision}) WITH TIME ZONE`})`;
   });
-  return next;
 }
 
 function normalizeKnownTypos(sql, warnings) {
-  let next = sql;
-  let fixedSelect = false;
-  const statementHead = skipWhitespaceAndComments(next, 0);
-  next = replaceOutsideSqlLiterals(next, /\bSEALECT\b/gi, (match, offset) => {
-    if (offset !== statementHead) return match;
-    fixedSelect = true;
+  const head = skipWhitespaceAndComments(sql, 0);
+  let fixed = false;
+  const next = replaceOutsideSqlLiterals(sql, /\bSEALECT\b/gi, (match, offset) => {
+    if (offset !== head) return match;
+    fixed = true;
     return "SELECT";
   });
-  if (fixedSelect) {
-    warnings.push("SEALECT → SELECT: 誤記を補正。");
-  }
+  if (fixed) warnings.push("SEALECT → SELECT: 誤記を補正。");
   return next;
 }
 
@@ -3389,9 +3179,7 @@ function convertMergeUsingDual(sql, warnings) {
   while ((match = usingPattern.exec(sql)) !== null) {
     const usingIndex = match.index;
     const openIndex = usingIndex + match[0].lastIndexOf("(");
-    if (isProtectedIndex(ranges, usingIndex) || !isMergeUsingContext(sql, usingIndex)) {
-      continue;
-    }
+    if (isProtectedIndex(ranges, usingIndex) || !isMergeUsingContext(sql, usingIndex)) continue;
     const closeIndex = findClosingParen(sql, openIndex);
     if (closeIndex === -1) {
       warnings.push("MERGE USING: 括弧を確認。");
@@ -3399,61 +3187,38 @@ function convertMergeUsingDual(sql, warnings) {
     }
     const aliasInfo = readOptionalAlias(sql, closeIndex + 1);
     const parsed = parseDualSelectValues(sql.slice(openIndex + 1, closeIndex), warnings);
+    usingPattern.lastIndex = closeIndex + 1;
     if (!parsed) {
       warnings.push("MERGE USING: SELECT ... FROM DUAL 以外は手動変換。");
-      usingPattern.lastIndex = closeIndex + 1;
       continue;
     }
-    if (aliasInfo.generated) {
-      warnings.push("MERGE USING: 別名 src を補完。");
-    }
+    if (aliasInfo.generated) warnings.push("MERGE USING: 別名 src を補完。");
     const indent = lineIndentBefore(sql, usingIndex);
-    const rowIndent = `${indent}  `;
-    const valuesRows = parsed.rows.map(row => `${rowIndent}(${row.join(", ")})`).join(",\n");
-    const replacement = `USING (VALUES\n${valuesRows}\n${indent}) AS ${aliasInfo.alias}(${parsed.columns.join(", ")})`;
-    output += sql.slice(cursor, usingIndex) + replacement;
+    const valuesRows = parsed.rows.map(row => `${indent}  (${row.join(", ")})`).join(",\n");
+    output += `${sql.slice(cursor, usingIndex)}USING (VALUES\n${valuesRows}\n${indent}) AS ${aliasInfo.alias}(${parsed.columns.join(", ")})`;
     cursor = aliasInfo.end;
-    usingPattern.lastIndex = closeIndex + 1;
   }
-  output += sql.slice(cursor);
-  return output;
+  return output + sql.slice(cursor);
 }
 
 function addMergeMatchedCondition(header, condition) {
-  const match = header.match(/^(\s*WHEN\s+MATCHED\b)([\s\S]*?)\s*$/i);
-  const wrappedCondition = `(${trimSqlFragment(condition)})`;
-  if (!match) {
-    return `${header.trimEnd()} AND ${wrappedCondition}`;
-  }
-  const existing = trimSqlFragment(match[2].trim().replace(/^AND\b/i, ""));
-  if (!existing) {
-    return `${match[1]} AND ${wrappedCondition}`;
-  }
-  return `${match[1]} AND (${existing}) AND ${wrappedCondition}`;
+  const [, whenMatched, rest] = header.match(/^(\s*WHEN\s+MATCHED\b)([\s\S]*?)\s*$/i);
+  const wrapped = `(${trimSqlFragment(condition)})`;
+  const existing = trimSqlFragment(rest.trim().replace(/^AND\b/i, ""));
+  return existing ? `${whenMatched} AND (${existing}) AND ${wrapped}` : `${whenMatched} AND ${wrapped}`;
 }
 
 function convertMergeMatchedUpdateClause(clause, warnings) {
-  if (!/^\s*WHEN\s+MATCHED\b/i.test(clause) || /^\s*WHEN\s+NOT\s+MATCHED\b/i.test(clause)) {
-    return clause;
-  }
+  if (!/^\s*WHEN\s+MATCHED\b/i.test(clause)) return clause;
   const thenMatch = findTopLevelRegex(clause, /^THEN\b/i);
-  if (!thenMatch) {
-    return clause;
-  }
-  const afterThen = clause.slice(thenMatch.end);
-  const updateMatch = afterThen.match(/^\s*UPDATE\s+SET\b/i);
-  if (!updateMatch) {
-    return clause;
-  }
+  const updateMatch = thenMatch && clause.slice(thenMatch.end).match(/^\s*UPDATE\s+SET\b/i);
+  if (!updateMatch) return clause;
   const actionPrefixEnd = thenMatch.end + updateMatch[0].length;
   const actionBody = clause.slice(actionPrefixEnd);
   const deleteMatch = findTopLevelRegex(actionBody, /^DELETE\s+WHERE\b/i);
-  const updateBodyEnd = deleteMatch ? deleteMatch.index : actionBody.length;
-  const updateBody = actionBody.slice(0, updateBodyEnd);
+  const updateBody = actionBody.slice(0, deleteMatch ? deleteMatch.index : actionBody.length);
   const updateWhere = findTopLevelRegex(updateBody, /^WHERE\b/i);
-  if (!updateWhere) {
-    return clause;
-  }
+  if (!updateWhere) return clause;
   const conditionSource = updateBody.slice(updateWhere.end);
   const condition = trimSqlFragment(conditionSource);
   if (!condition) {
@@ -3462,39 +3227,29 @@ function convertMergeMatchedUpdateClause(clause, warnings) {
   }
   const header = clause.slice(0, thenMatch.index);
   const assignments = trimSqlFragment(updateBody.slice(0, updateWhere.index), false);
-  const trailingWhitespace = conditionSource.match(/\s*$/)?.[0] || "";
+  const trailingWhitespace = conditionSource.match(/\s*$/)[0];
   const deleteTail = deleteMatch ? actionBody.slice(deleteMatch.index) : "";
   return `${addMergeMatchedCondition(header, condition)} THEN${clause.slice(thenMatch.end, actionPrefixEnd)}${assignments}${trailingWhitespace}${deleteTail}`;
 }
 
 function convertMergeUpdateWhereClauses(sql, warnings) {
-  return splitSqlStatements(sql).map(statement => {
-    if (!matchesOutsideSqlLiterals(statement, /\bMERGE\s+INTO\b/i)) {
-      return statement;
-    }
-    const semicolonMatch = statement.match(/;\s*$/);
-    const suffix = semicolonMatch ? semicolonMatch[0] : "";
-    const body = semicolonMatch ? statement.slice(0, semicolonMatch.index) : statement;
+  const whenPattern = /^WHEN\s+(?:NOT\s+)?MATCHED\b/i;
+  return mapStatements(sql, statement => {
+    if (!matchesOutsideSqlLiterals(statement, /\bMERGE\s+INTO\b/i)) return statement;
+    const semicolon = statement.match(/;\s*$/);
+    const body = semicolon ? statement.slice(0, semicolon.index) : statement;
     let output = "";
     let cursor = 0;
-    let whenMatch = findTopLevelRegex(body, /^WHEN\s+(?:NOT\s+)?MATCHED\b/i);
+    let whenMatch = findTopLevelRegex(body, whenPattern);
     while (whenMatch) {
-      const nextWhen = findTopLevelRegex(body, /^WHEN\s+(?:NOT\s+)?MATCHED\b/i, whenMatch.end);
+      const nextWhen = findTopLevelRegex(body, whenPattern, whenMatch.end);
       const clauseEnd = nextWhen ? nextWhen.index : body.length;
-      const clause = body.slice(whenMatch.index, clauseEnd);
-      output += body.slice(cursor, whenMatch.index);
-      output += convertMergeMatchedUpdateClause(clause, warnings);
+      output += body.slice(cursor, whenMatch.index) + convertMergeMatchedUpdateClause(body.slice(whenMatch.index, clauseEnd), warnings);
       cursor = clauseEnd;
       whenMatch = nextWhen;
     }
-    output += body.slice(cursor);
-    return output + suffix;
-  }).join("");
-}
-
-function identifierQualifierPattern(identifier) {
-  const unquoted = stripIdentifierQuotes(identifier.trim());
-  return `"${escapeRegExp(unquoted)}"|${escapeRegExp(unquoted)}`;
+    return output + body.slice(cursor) + (semicolon?.[0] ?? "");
+  });
 }
 
 function tableBaseName(tableName) {
@@ -3505,25 +3260,21 @@ function removeColumnQualifier(column, qualifiers) {
   const next = column.trim();
   for (const qualifier of qualifiers) {
     if (!qualifier) continue;
-    const pattern = new RegExp(`^(${identifierQualifierPattern(qualifier)})\\s*\\.\\s*`, "i");
+    const unquoted = qualifier.trim().replace(/^"|"$/g, "");
+    const pattern = new RegExp(`^("${escapeRegExp(unquoted)}"|${escapeRegExp(unquoted)})\\s*\\.\\s*`, "i");
     if (pattern.test(next)) return next.replace(pattern, "");
   }
   return next;
 }
 
 function removeAssignmentTargetQualifier(assignment, qualifiers) {
-  const equalIndex = findTopLevelRegex(assignment, /^=/)?.index ?? -1;
-  if (equalIndex === -1) {
-    return assignment;
-  }
-  const left = assignment.slice(0, equalIndex);
-  const right = assignment.slice(equalIndex);
-  const leftMatch = left.match(/^(\s*)([\s\S]*?)(\s*)$/);
-  if (!leftMatch) {
-    return assignment;
-  }
-  return `${leftMatch[1]}${removeColumnQualifier(leftMatch[2], qualifiers)}${leftMatch[3]}${right}`;
+  const equal = findTopLevelRegex(assignment, /^=/);
+  if (!equal) return assignment;
+  const [, leading, target, trailing] = assignment.slice(0, equal.index).match(/^(\s*)([\s\S]*?)(\s*)$/);
+  return `${leading}${removeColumnQualifier(target, qualifiers)}${trailing}${assignment.slice(equal.index)}`;
 }
+
+const removeAssignmentQualifiers = (assignments, qualifiers) => splitTopLevelCommaSegments(assignments).map(segment => removeAssignmentTargetQualifier(segment.text, qualifiers) + segment.delimiter).join("");
 
 function removeMergeUpdateAssignmentQualifiers(statement, qualifiers) {
   const clauseEndPatterns = [ /^WHERE\b/i, /^DELETE\s+WHERE\b/i, /^WHEN\s+(?:NOT\s+)?MATCHED\b/i ];
@@ -3533,37 +3284,25 @@ function removeMergeUpdateAssignmentQualifiers(statement, qualifiers) {
   while (updateMatch) {
     const nextClause = findNearestTopLevelRegex(statement, clauseEndPatterns, updateMatch.end);
     const assignmentsEnd = nextClause ? nextClause.index : statement.length;
-    const assignments = statement.slice(updateMatch.end, assignmentsEnd);
-    const convertedAssignments = splitTopLevelCommaSegments(assignments).map(segment => `${removeAssignmentTargetQualifier(segment.text, qualifiers)}${segment.delimiter}`).join("");
-    output += statement.slice(cursor, updateMatch.end) + convertedAssignments;
+    output += statement.slice(cursor, updateMatch.end) + removeAssignmentQualifiers(statement.slice(updateMatch.end, assignmentsEnd), qualifiers);
     cursor = assignmentsEnd;
     updateMatch = findTopLevelRegex(statement, /^UPDATE\s+SET\b/i, cursor);
   }
-  output += statement.slice(cursor);
-  return output;
+  return output + statement.slice(cursor);
 }
 
 function convertMergeTargetQualifiers(sql) {
-  return splitSqlStatements(sql).map(statement => {
-    const mergeMatch = statement.slice(skipWhitespaceAndComments(statement, 0)).match(/^MERGE\s+INTO\s+((?:"[^"]+"|[A-Za-z_][\w$#]*)(?:\s*\.\s*(?:"[^"]+"|[A-Za-z_][\w$#]*))?)(?:\s+(?:AS\s+)?("[^"]+"|[A-Za-z_][\w$#]*))?\s+USING\b/i);
-    if (!mergeMatch) {
-      return statement;
-    }
-    const targetTable = mergeMatch[1];
+  return mapStatements(sql, statement => {
+    const mergeMatch = statementHead(statement).match(/^MERGE\s+INTO\s+((?:"[^"]+"|[A-Za-z_][\w$#]*)(?:\s*\.\s*(?:"[^"]+"|[A-Za-z_][\w$#]*))?)(?:\s+(?:AS\s+)?("[^"]+"|[A-Za-z_][\w$#]*))?\s+USING\b/i);
+    if (!mergeMatch) return statement;
     const targetAlias = mergeMatch[2] && !/^(USING|ON|WHEN)$/i.test(mergeMatch[2]) ? mergeMatch[2] : "";
-    const qualifiers = [ targetAlias, tableBaseName(targetTable) ];
-    let next = statement;
-    next = removeMergeUpdateAssignmentQualifiers(next, qualifiers);
-    next = replaceOutsideSqlLiterals(next, /\bINSERT\s*\(([\s\S]*?)\)/gi, (_, columns) => {
-      const convertedColumns = splitArgs(columns).map(column => removeColumnQualifier(column, qualifiers)).join(", ");
-      return `INSERT (${convertedColumns})`;
-    });
-    return next;
-  }).join("");
+    const qualifiers = [ targetAlias, tableBaseName(mergeMatch[1]) ];
+    return replaceOutsideSqlLiterals(removeMergeUpdateAssignmentQualifiers(statement, qualifiers), /\bINSERT\s*\(([\s\S]*?)\)/gi, (_, columns) => `INSERT (${splitArgs(columns).map(column => removeColumnQualifier(column, qualifiers)).join(", ")})`);
+  });
 }
 
 function convertUpdateSetQualifiers(sql) {
-  return splitSqlStatements(sql).map(statement => {
+  return mapStatements(sql, statement => {
     const start = skipWhitespaceAndComments(statement, 0);
     const updateMatch = statement.slice(start).match(/^UPDATE\s+((?:"(?:""|[^"])+"|[A-Za-z_][\w$#]*)(?:\s*\.\s*(?:"(?:""|[^"])+"|[A-Za-z_][\w$#]*))?)(?:\s+(?:AS\s+)?("(?:""|[^"])+"|[A-Za-z_][\w$#]*))?\s+SET\b/i);
     if (!updateMatch) return statement;
@@ -3571,22 +3310,22 @@ function convertUpdateSetQualifiers(sql) {
     const assignmentsStart = start + updateMatch[0].length;
     const endClause = findNearestTopLevelRegex(statement, [ /^WHERE\b/i, /^RETURNING\b/i, /^FROM\b/i, /^;/ ], assignmentsStart);
     const end = endClause ? endClause.index : statement.length;
-    const assignments = splitTopLevelCommaSegments(statement.slice(assignmentsStart, end)).map(part => removeAssignmentTargetQualifier(part.text, qualifiers) + part.delimiter).join("");
-    return statement.slice(0, assignmentsStart) + assignments + statement.slice(end);
-  }).join("");
+    return statement.slice(0, assignmentsStart) + removeAssignmentQualifiers(statement.slice(assignmentsStart, end), qualifiers) + statement.slice(end);
+  });
 }
 
 function appendSelectLimit(statement, limit, comments = "") {
   const semicolonMatch = statement.match(/;\s*$/);
   const semicolon = semicolonMatch ? ";" : "";
-  const body = semicolonMatch ? statement.slice(0, semicolonMatch.index) : statement;
-  const trimmedBody = body.trimEnd();
-  const lockClause = findTopLevelRegex(trimmedBody, /^FOR\s+(?:NO\s+KEY\s+UPDATE|UPDATE|KEY\s+SHARE|SHARE)\b/i);
-  if (lockClause) {
-    return `${trimmedBody.slice(0, lockClause.index).trimEnd()}\n${comments}LIMIT ${limit}\n${trimmedBody.slice(lockClause.index)}${semicolon}`;
-  }
-  return `${trimmedBody}\n${comments}LIMIT ${limit}${semicolon}`;
+  const body = (semicolonMatch ? statement.slice(0, semicolonMatch.index) : statement).trimEnd();
+  const lockClause = findTopLevelRegex(body, /^FOR\s+(?:NO\s+KEY\s+UPDATE|UPDATE|KEY\s+SHARE|SHARE)\b/i);
+  if (lockClause) return `${body.slice(0, lockClause.index).trimEnd()}\n${comments}LIMIT ${limit}\n${body.slice(lockClause.index)}${semicolon}`;
+  return `${body}\n${comments}LIMIT ${limit}${semicolon}`;
 }
+
+const rownumBound = /^ROWNUM\s*(<=|<)\s*(\d+)$/i;
+
+const statisticalAggregates = "STDDEV(?:_POP|_SAMP)?|VARIANCE|VAR_POP|VAR_SAMP|MEDIAN|CORR|COVAR_POP|COVAR_SAMP|REGR_[A-Z_]+|XMLAGG|JSON_ARRAYAGG|JSON_OBJECTAGG|PERCENTILE_CONT|PERCENTILE_DISC";
 
 function convertSelectRownumLimit(statement) {
   const where = findTopLevelRegex(statement, /^WHERE\b/i);
@@ -3599,37 +3338,27 @@ function convertSelectRownumLimit(statement) {
   const endClause = findNearestTopLevelRegex(statement, [ /^ORDER\s+BY\b/i, /^GROUP\s+BY\b/i, /^HAVING\b/i, /^UNION\b/i, /^INTERSECT\b/i, /^EXCEPT\b/i, /^FETCH\b/i, /^OFFSET\b/i, /^LIMIT\b/i, /^FOR\s+UPDATE\b/i, /^;/ ], where.end);
   const end = endClause ? endClause.index : statement.length;
   const predicate = statement.slice(where.end, end);
-  const mask = sqlCodeMask(predicate);
-  if (/\b(?:OR|BETWEEN|SELECT)\b/i.test(mask)) return unchanged;
-  if (/\b(?:UNION|INTERSECT|EXCEPT|FETCH|OFFSET|LIMIT)\b/i.test(sqlCodeMask(statement)) || /\bROWNUM\b/i.test(sqlCodeMask(statement.slice(0, where.index)))) return unchanged;
-  const needsInnerLimit = /\b(?:ORDER\s+BY|GROUP\s+BY|HAVING|DISTINCT|COUNT|SUM|AVG|MIN|MAX|LISTAGG|STDDEV(?:_POP|_SAMP)?|VARIANCE|VAR_POP|VAR_SAMP|MEDIAN|CORR|COVAR_POP|COVAR_SAMP|REGR_[A-Z_]+|XMLAGG|JSON_ARRAYAGG|JSON_OBJECTAGG|PERCENTILE_CONT|PERCENTILE_DISC|OVER)\b/i.test(sqlCodeMask(statement));
-  if (/\b(?:STDDEV(?:_POP|_SAMP)?|VARIANCE|VAR_POP|VAR_SAMP|MEDIAN|CORR|COVAR_POP|COVAR_SAMP|REGR_[A-Z_]+|XMLAGG|JSON_ARRAYAGG|JSON_OBJECTAGG|PERCENTILE_CONT|PERCENTILE_DISC)\b/i.test(sqlCodeMask(statement.slice(0, where.index)))) return unchanged;
-  const segments = [];
-  let start = 0;
-  let and;
-  while (and = findTopLevelRegex(predicate, /^AND\b/i, start)) {
-    segments.push(predicate.slice(start, and.index));
-    start = and.end;
-  }
-  segments.push(predicate.slice(start));
+  const statementCode = sqlCodeMask(statement);
+  const headCode = sqlCodeMask(statement.slice(0, where.index));
+  if (/\b(?:OR|BETWEEN|SELECT)\b/i.test(sqlCodeMask(predicate)) || /\b(?:UNION|INTERSECT|EXCEPT|FETCH|OFFSET|LIMIT)\b/i.test(statementCode) || /\bROWNUM\b/i.test(headCode) || new RegExp(`\\b(?:${statisticalAggregates})\\b`, "i").test(headCode)) return unchanged;
+  const needsInnerLimit = new RegExp(`\\b(?:ORDER\\s+BY|GROUP\\s+BY|HAVING|DISTINCT|COUNT|SUM|AVG|MIN|MAX|LISTAGG|${statisticalAggregates}|OVER)\\b`, "i").test(statementCode);
+  const {parts: segments, separators} = splitTopLevel(predicate, /^AND\b/i);
   let limit = null;
   const remaining = [];
   let boundComments = "";
   for (const segment of segments) {
     const code = sqlCodeMask(segment).trim();
-    const match = code.match(/^ROWNUM\s*(<=|<)\s*(\d+)$/i);
-    if (match) {
-      for (const range of getSqlProtectedRanges(segment)) {
-        if (readSqlProtectedToken(segment, range.start)?.kind === "comment") boundComments += trimSqlFragment(segment.slice(range.start, range.end)) + " ";
-      }
-      const bound = BigInt(match[2]);
-      const value = match[1] === "<" ? bound > 0n ? bound - 1n : 0n : bound;
-      if (value > 9223372036854775807n) return unchanged;
-      limit = limit === null || value < limit ? value : limit;
-    } else {
+    const match = code.match(rownumBound);
+    if (!match) {
       if (/\bROWNUM\b/i.test(code)) return unchanged;
       remaining.push(trimSqlFragment(segment));
+      continue;
     }
+    for (const range of commentRanges(segment)) boundComments += trimSqlFragment(segment.slice(range.start, range.end)) + " ";
+    const bound = BigInt(match[2]);
+    const value = match[1] === "<" ? bound > 0n ? bound - 1n : 0n : bound;
+    if (value > 9223372036854775807n) return unchanged;
+    if (limit === null || value < limit) limit = value;
   }
   if (limit === null) return unchanged;
   const prefix = trimSqlFragment(statement.slice(0, where.index), false);
@@ -3638,46 +3367,29 @@ function convertSelectRownumLimit(statement) {
     const from = findTopLevelRegex(prefix, /^FROM\b/i);
     if (!from) return unchanged;
     const source = trimSqlFragment(prefix.slice(from.end));
-    const identifier = '(?:"(?:""|[^"])+"|[\\p{L}_][\\p{L}\\p{M}\\p{N}_$#]*)';
-    let tableSource = source;
-    for (const range of getSqlProtectedRanges(source).reverse()) {
-      if (readSqlProtectedToken(source, range.start)?.kind === "comment") tableSource = tableSource.slice(0, range.start) + " " + tableSource.slice(range.end);
-    }
-    const table = tableSource.trim().match(new RegExp(`^(${identifier})(?:\\s+(?:AS\\s+)?(${identifier}))?$`, "iu"));
+    const table = withoutComments(source).trim().match(new RegExp(`^(${identifierPattern})(?:\\s+(?:AS\\s+)?(${identifierPattern}))?$`, "iu"));
     if (!table) return unchanged;
-    const alias = table[2] || table[1];
     const filter = remaining.length ? ` WHERE ${remaining.join(" AND ")}` : "";
     const inner = `SELECT * FROM ${source}${filter} ${boundComments}LIMIT ${limit}`;
     return {
-      sql: `${prefix.slice(0, from.index)}FROM (${inner}) AS ${alias}${tail && !tail.startsWith(";") ? " " : ""}${tail}`,
+      sql: `${prefix.slice(0, from.index)}FROM (${inner}) AS ${table[2] || table[1]}${tail && !tail.startsWith(";") ? " " : ""}${tail}`,
       changed: true
     };
   }
   if (remaining.length) {
-    const rawSegments = [];
-    const rawAnds = [];
-    let rawStart = 0;
-    let rawAnd;
-    while (rawAnd = findTopLevelRegex(predicate, /^AND\b/i, rawStart)) {
-      rawSegments.push(predicate.slice(rawStart, rawAnd.index));
-      rawAnds.push(predicate.slice(rawAnd.index, rawAnd.end));
-      rawStart = rawAnd.end;
-    }
-    rawSegments.push(predicate.slice(rawStart));
-    const keptPredicate = rawSegments.map((segment, index) => ({
+    const kept = segments.map((segment, index) => ({
       segment,
       index
-    })).filter(({segment}) => !/^ROWNUM\s*(<=|<)\s*(\d+)$/i.test(sqlCodeMask(segment).trim())).map(({segment, index}, position) => position === 0 ? segment : rawAnds[index - 1] + segment).join("");
-    const next = `${statement.slice(0, where.end)}${keptPredicate.trimEnd()}${predicate.match(/\s*$/)[0]}${tail}`;
+    })).filter(({segment}) => !rownumBound.test(sqlCodeMask(segment).trim()));
+    const next = `${statement.slice(0, where.end)}${joinKept(kept, separators).trimEnd()}${predicate.match(/\s*$/)[0]}${tail}`;
     return {
       sql: appendSelectLimit(next, String(limit), boundComments),
       changed: true
     };
   }
   const joiner = tail && !/^;/.test(tail) ? " " : "";
-  const next = prefix + joiner + tail;
   return {
-    sql: appendSelectLimit(next, String(limit), boundComments),
+    sql: appendSelectLimit(prefix + joiner + tail, String(limit), boundComments),
     changed: true
   };
 }
@@ -3689,11 +3401,7 @@ function convertOuterJoinStatement(statement) {
   };
   const code = sqlCodeMask(statement);
   const marker = /\(\s*\+\s*\)/;
-  if (!marker.test(code)) return unchanged;
-  if (!/^SELECT\b/i.test(statement.slice(skipWhitespaceAndComments(statement, 0)))) return unchanged;
-  if (getSqlProtectedRanges(statement).some(range => readSqlProtectedToken(statement, range.start)?.kind === "comment")) return unchanged;
-  if (/\b(?:UNION|INTERSECT|EXCEPT|MINUS|JOIN|CONNECT|PRIOR)\b/i.test(code)) return unchanged;
-  if ((code.match(/\bSELECT\b/gi) || []).length !== 1 || (code.match(/\bFROM\b/gi) || []).length !== 1) return unchanged;
+  if (!marker.test(code) || !/^SELECT\b/i.test(statementHead(statement)) || commentRanges(statement).length || /\b(?:UNION|INTERSECT|EXCEPT|MINUS|JOIN|CONNECT|PRIOR)\b/i.test(code) || (code.match(/\bSELECT\b/gi) || []).length !== 1 || (code.match(/\bFROM\b/gi) || []).length !== 1) return unchanged;
   const from = findTopLevelRegex(statement, /^FROM\b/i);
   const where = from && findTopLevelRegex(statement, /^WHERE\b/i, from.end);
   if (!from || !where || marker.test(code.slice(0, where.index))) return unchanged;
@@ -3701,8 +3409,7 @@ function convertOuterJoinStatement(statement) {
   const end = endClause ? endClause.index : statement.length;
   const predicate = statement.slice(where.end, end);
   if (marker.test(code.slice(end)) || findTopLevelRegex(predicate, /^OR\b/i)) return unchanged;
-  const identifier = '(?:"(?:""|[^"])+"|[\\p{L}_][\\p{L}\\p{M}\\p{N}_$#]*)';
-  const tablePattern = new RegExp(`^(${identifier}(?:\\.${identifier})?)(?:\\s+(?:AS\\s+)?(${identifier}))?$`, "iu");
+  const tablePattern = new RegExp(`^(${identifierPattern}(?:\\.${identifierPattern})?)(?:\\s+(?:AS\\s+)?(${identifierPattern}))?$`, "iu");
   const tables = [];
   for (const item of splitTopLevelCommaSegments(statement.slice(from.end, where.index))) {
     const match = item.text.trim().match(tablePattern);
@@ -3714,18 +3421,9 @@ function convertOuterJoinStatement(statement) {
   }
   const aliases = new Set(tables.map(table => table.alias));
   if (tables.length < 2 || aliases.size !== tables.length) return unchanged;
-  const segments = [];
-  const separators = [];
-  let start = 0;
-  let and;
-  while (and = findTopLevelRegex(predicate, /^AND\b/i, start)) {
-    segments.push(predicate.slice(start, and.index));
-    separators.push(predicate.slice(and.index, and.end));
-    start = and.end;
-  }
-  segments.push(predicate.slice(start));
-  const outerMarker = new RegExp(`(${identifier})\\s*\\.\\s*${identifier}\\s*\\(\\s*\\+\\s*\\)`, "giu");
-  const reference = new RegExp(`(${identifier})\\s*\\.\\s*${identifier}`, "giu");
+  const {parts: segments, separators} = splitTopLevel(predicate, /^AND\b/i);
+  const outerMarker = new RegExp(`(${identifierPattern})\\s*\\.\\s*${identifierPattern}\\s*\\(\\s*\\+\\s*\\)`, "giu");
+  const reference = new RegExp(`(${identifierPattern})\\s*\\.\\s*${identifierPattern}`, "giu");
   const conditions = new Map;
   const kept = [];
   for (const [index, segment] of segments.entries()) {
@@ -3754,7 +3452,7 @@ function convertOuterJoinStatement(statement) {
     entry.texts.push(trimSqlFragment(segment.replace(/\s*\(\s*\+\s*\)/g, "")));
     for (const alias of dependencies) entry.dependencies.add(alias);
   }
-  for (const entry of conditions.values()) if (!entry.dependencies.size) return unchanged;
+  if ([ ...conditions.values() ].some(entry => !entry.dependencies.size)) return unchanged;
   const preserved = tables.filter(table => !conditions.has(table.alias));
   if (!preserved.length) return unchanged;
   const joined = new Set(preserved.map(table => table.alias));
@@ -3772,55 +3470,45 @@ function convertOuterJoinStatement(statement) {
   const joinIndent = `${lineIndentBefore(statement, from.index)}  `;
   const fromClause = [ preserved.map(table => table.text).join(`\n${joinIndent}CROSS JOIN `), ...order.map(table => `LEFT JOIN ${table.text} ON ${conditions.get(table.alias).texts.join(" AND ")}`) ].join(`\n${joinIndent}`);
   const rest = statement.slice(end);
-  const fromList = statement.slice(from.end, where.index);
   const trailing = predicate.match(/\s*$/)[0];
   let whereText = "";
   if (kept.length) {
-    const keptPredicate = kept.map(({index, segment}, position) => position === 0 ? segment : separators[index - 1] + segment).join("");
-    whereText = `${fromList.match(/\s*$/)[0] || " "}${statement.slice(where.index, where.end)}${keptPredicate.trimEnd()}${trailing}`;
-  } else if (rest && !/^;/.test(rest)) {
-    whereText = trailing || " ";
-  }
+    const fromListSpace = statement.slice(from.end, where.index).match(/\s*$/)[0] || " ";
+    whereText = `${fromListSpace}${statement.slice(where.index, where.end)}${joinKept(kept, separators).trimEnd()}${trailing}`;
+  } else if (rest && !/^;/.test(rest)) whereText = trailing || " ";
   return {
-    sql: `${statement.slice(0, from.index)}${statement.slice(from.index, from.end)} ${fromClause}${whereText}${rest}`,
+    sql: `${statement.slice(0, from.end)} ${fromClause}${whereText}${rest}`,
     changed: true
   };
 }
 
 function convertOuterJoins(sql, warnings) {
-  return splitSqlStatements(sql).map(statement => {
+  return mapStatements(sql, statement => {
     const result = convertOuterJoinStatement(statement);
     if (result.changed) warnings.push("(+): LEFT JOINへ変換。結合の向きと条件を確認。");
     return result.sql;
-  }).join("");
+  });
 }
 
 function convertLimit(sql, warnings) {
-  const next = splitSqlStatements(sql).map(statement => {
-    if (!matchesOutsideSqlLiterals(statement, /\bROWNUM\b/i)) {
-      return statement;
-    }
-    if (!/^SELECT\b/i.test(statement.slice(skipWhitespaceAndComments(statement, 0)))) {
+  return mapStatements(sql, statement => {
+    if (!matchesOutsideSqlLiterals(statement, /\bROWNUM\b/i)) return statement;
+    if (!/^SELECT\b/i.test(statementHead(statement))) {
       warnings.push("ROWNUM: SELECT以外の条件は未変換。");
       return statement;
     }
     const result = convertSelectRownumLimit(statement);
-    if (!result.changed || matchesOutsideSqlLiterals(result.sql, /\bROWNUM\b/i)) {
-      warnings.push("ROWNUM: 複雑な条件は手動変換。");
-    }
+    if (!result.changed || matchesOutsideSqlLiterals(result.sql, /\bROWNUM\b/i)) warnings.push("ROWNUM: 複雑な条件は手動変換。");
     return result.sql;
-  }).join("");
-  return next;
+  });
 }
 
 function removeDual(sql, preserveDual = false) {
   if (preserveDual || /\bDUAL\s+AS\s*\(/i.test(sqlCodeMask(sql))) return sql;
-  return splitSqlStatements(sql).map(statement => {
+  return mapStatements(sql, statement => {
     const code = sqlCodeMask(statement);
     const dualAlias = code.match(/\bFROM\s+(?:SYS\.)?DUAL\s+(?:AS\s+)?([A-Za-z_][\w$#]*)/i)?.[1];
-    if (dualAlias && new RegExp(`\\b${escapeRegExp(dualAlias)}\\s*\\.`, "i").test(code)) return statement;
-    if (/\bFROM\s+(?:SYS\.)?DUAL\s+(?:AS\s+)?"/i.test(statement)) return statement;
-    if (/\bDUMMY\b|\bJOIN\b|\bFROM\s+(?:SYS\.)?DUAL\s*,|\bSELECT\s+\*|\bCONNECT\s+BY\b|\bSTART\s+WITH\b/i.test(code)) return statement;
+    if (dualAlias && new RegExp(`\\b${escapeRegExp(dualAlias)}\\s*\\.`, "i").test(code) || /\bFROM\s+(?:SYS\.)?DUAL\s+(?:AS\s+)?"/i.test(statement) || /\bDUMMY\b|\bJOIN\b|\bFROM\s+(?:SYS\.)?DUAL\s*,|\bSELECT\s+\*|\bCONNECT\s+BY\b|\bSTART\s+WITH\b/i.test(code)) return statement;
     const selectFrom = new Set;
     const scopes = [ null ];
     for (const token of sqlExpressionTokens(statement)) {
@@ -3829,70 +3517,59 @@ function removeDual(sql, preserveDual = false) {
       } else if (/^(SELECT|DELETE|UPDATE|MERGE|INSERT)$/i.test(token.text)) scopes[scopes.length - 1] = token.text.toUpperCase(); else if (/^FROM$/i.test(token.text) && scopes.at(-1) === "SELECT") selectFrom.add(token.start);
     }
     return replaceOutsideSqlLiterals(statement, /(^|\s+)FROM\s+(?:SYS\.)?DUAL\b(?:\s+(?:AS\s+)?(?!(?:WHERE|ORDER|GROUP|HAVING|CONNECT|START|UNION|MINUS|INTERSECT|EXCEPT|FETCH|OFFSET|LIMIT|FOR|RETURNING)\b)[\p{L}_][\p{L}\p{M}\p{N}_$#]*)?/giu, (match, space, offset) => selectFrom.has(offset + space.length) ? "" : match);
-  }).join("");
+  });
 }
 
 function removeStorageClauses(sql) {
   const start = skipWhitespaceAndComments(sql, 0);
   const head = sql.slice(start).match(/^(CREATE|ALTER)\s+(?:(?:UNIQUE|BITMAP)\s+)?(TABLE|INDEX|SEQUENCE)\s+/i);
   if (!head) return sql;
-  let cursor = skipWhitespaceAndComments(sql, start + head[0].length);
-  let name = readAliasToken(sql, cursor);
+  let name = readAliasToken(sql, skipWhitespaceAndComments(sql, start + head[0].length));
   if (!name) return sql;
-  cursor = skipWhitespaceAndComments(sql, name.end);
+  let cursor = skipWhitespaceAndComments(sql, name.end);
   while (sql[cursor] === ".") {
     name = readAliasToken(sql, skipWhitespaceAndComments(sql, cursor + 1));
     if (!name) return sql;
     cursor = skipWhitespaceAndComments(sql, name.end);
   }
-  if (head[2].toUpperCase() === "SEQUENCE") {
-    const prefixEnd = name.end;
-    return sql.slice(0, prefixEnd) + normalizeSequenceOptions(sql.slice(prefixEnd));
-  }
+  if (head[2].toUpperCase() === "SEQUENCE") return sql.slice(0, name.end) + normalizeSequenceOptions(sql.slice(name.end));
   if (head[1].toUpperCase() !== "CREATE") return sql;
   const candidate = sqlCodeMask(sql).slice(cursor).match(/\(|\b(?:AS|SELECT)\b/i);
-  if (!candidate || candidate[0] !== "(") return sql;
-  const open = {
-    index: cursor + candidate.index
-  };
-  const close = findClosingParen(sql, open.index);
+  if (candidate?.[0] !== "(") return sql;
+  const open = cursor + candidate.index;
+  const close = findClosingParen(sql, open);
   if (close === -1) return sql;
-  let body = sql.slice(open.index + 1, close);
+  let body = sql.slice(open + 1, close);
   if (head[2].toUpperCase() === "TABLE") {
-    body = splitTopLevelCommaSegments(body).map(segment => {
-      const text = segment.text;
-      const code = sqlCodeMask(text);
-      if (!/\b(?:PRIMARY\s+KEY|NOT\s+NULL|UNIQUE|CHECK\s*\(|REFERENCES\s+)/i.test(code)) return text;
-      return replaceOutsideSqlLiterals(text, /\bENABLE(?=\s*$)/gi, "");
-    }).join(",");
+    body = splitTopLevelCommaSegments(body).map(({text}) => /\b(?:PRIMARY\s+KEY|NOT\s+NULL|UNIQUE|CHECK\s*\(|REFERENCES\s+)/i.test(sqlCodeMask(text)) ? replaceOutsideSqlLiterals(text, /\bENABLE(?=\s*$)/gi, "") : text).join(",");
   }
   const tail = sql.slice(close + 1);
   const query = findTopLevelRegex(tail, /^(?:AS\s+)?SELECT\b|^AS\s+WITH\b/i);
   const end = query ? query.index : tail.length;
-  let options = tail.slice(0, end);
-  options = replaceFunctionCalls(options, "STORAGE", (_, argsText) => getSqlProtectedRanges(argsText).filter(range => /^(?:\/\*|--)/.test(argsText.slice(range.start, range.end))).map(range => {
+  let options = replaceFunctionCalls(tail.slice(0, end), "STORAGE", (_, argsText) => commentRanges(argsText).map(range => {
     const comment = argsText.slice(range.start, range.end);
     return comment.startsWith("--") ? comment + "\n" : comment;
   }).join(" "));
   for (const pattern of [ /\bTABLESPACE\s+(?:"(?:""|[^"])*"|[\p{L}_][\p{L}\p{M}\p{N}_$#]*)/giu, /\b(?:PCTFREE|PCTUSED|INITRANS|MAXTRANS)\s+\d+\b/gi, /\bSEGMENT\s+CREATION\s+(?:IMMEDIATE|DEFERRED)\b/gi ]) options = replaceOutsideSqlLiterals(options, pattern, "");
-  return sql.slice(0, open.index + 1) + body + ")" + options + tail.slice(end);
+  return sql.slice(0, open + 1) + body + ")" + options + tail.slice(end);
 }
 
+const sequenceOptions = {
+  NOCACHE: "CACHE 1",
+  NOCYCLE: "NO CYCLE",
+  NOMINVALUE: "NO MINVALUE",
+  NOMAXVALUE: "NO MAXVALUE"
+};
+
 function normalizeSequenceOptions(sql) {
-  return replaceOutsideSqlLiterals(sql, /\b(?:NOCACHE|NOORDER|NOCYCLE|NOMINVALUE|NOMAXVALUE|ORDER)\b/gi, token => ({
-    NOCACHE: "CACHE 1",
-    NOCYCLE: "NO CYCLE",
-    NOMINVALUE: "NO MINVALUE",
-    NOMAXVALUE: "NO MAXVALUE"
-  }[token.toUpperCase()] || ""));
+  return replaceOutsideSqlLiterals(sql, /\b(?:NOCACHE|NOORDER|NOCYCLE|NOMINVALUE|NOMAXVALUE|ORDER)\b/gi, token => sequenceOptions[token.toUpperCase()] || "");
 }
 
 function convertIdentity(sql) {
-  const pattern = /\bGENERATED\s+(ALWAYS|BY\s+DEFAULT)(?:\s+ON\s+NULL)?\s+AS\s+IDENTITY\b/gi;
   const ranges = getSqlProtectedRanges(sql);
   let output = "";
   let cursor = 0;
-  for (const match of sql.matchAll(pattern)) {
+  for (const match of sql.matchAll(/\bGENERATED\s+(ALWAYS|BY\s+DEFAULT)(?:\s+ON\s+NULL)?\s+AS\s+IDENTITY\b/gi)) {
     if (isProtectedIndex(ranges, match.index) || /ON\s+NULL/i.test(match[0])) continue;
     const end = match.index + match[0].length;
     const open = skipWhitespaceAndComments(sql, end);
@@ -3913,19 +3590,14 @@ function convertComments(sql) {
 function skipWhitespaceAndComments(sql, index) {
   let cursor = index;
   while (cursor < sql.length) {
-    if (/\s/.test(sql[cursor])) {
-      cursor += 1;
-      continue;
-    }
-    if (!sql.startsWith("--", cursor) && !sql.startsWith("/*", cursor)) break;
-    cursor = readSqlProtectedEnd(sql, cursor);
+    if (/\s/.test(sql[cursor])) cursor += 1; else if (sql.startsWith("--", cursor) || sql.startsWith("/*", cursor)) cursor = readSqlProtectedEnd(sql, cursor); else break;
   }
   return cursor;
 }
 
 function readAliasToken(sql, index) {
   if (sql[index] === '"') {
-    const end = readQuoted(sql, index, '"');
+    const {end} = readQuotedToken(sql, index, '"');
     return {
       value: sql.slice(index, end),
       end
@@ -3938,59 +3610,32 @@ function readAliasToken(sql, index) {
   } : null;
 }
 
-function isDerivedTableAliasStopWord(token) {
-  if (token.startsWith('"')) {
-    return false;
-  }
-  const normalized = token.replace(/^"|"$/g, "").toUpperCase();
-  return [ "WHERE", "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "CROSS", "NATURAL", "ON", "USING", "GROUP", "ORDER", "HAVING", "LIMIT", "OFFSET", "FETCH", "UNION", "EXCEPT", "INTERSECT", "CONNECT", "START", "MODEL", "MATCH_RECOGNIZE" ].includes(normalized);
-}
+const derivedTableStopWords = new Set("WHERE JOIN INNER LEFT RIGHT FULL CROSS NATURAL ON USING GROUP ORDER HAVING LIMIT OFFSET FETCH UNION EXCEPT INTERSECT CONNECT START MODEL MATCH_RECOGNIZE".split(" "));
 
 function hasDerivedTableWithoutAlias(sql) {
   const ranges = getSqlProtectedRanges(sql);
   const pattern = /\b(?:FROM|JOIN)\s*\(/gi;
   let match;
   while ((match = pattern.exec(sql)) !== null) {
-    if (isProtectedIndex(ranges, match.index)) {
-      continue;
-    }
+    if (isProtectedIndex(ranges, match.index)) continue;
     const openIndex = match.index + match[0].length - 1;
-    const innerStart = skipWhitespaceAndComments(sql, openIndex + 1);
-    if (!/^(?:SELECT|WITH)\b/i.test(sql.slice(innerStart))) {
-      continue;
-    }
+    if (!/^(?:SELECT|WITH)\b/i.test(sql.slice(skipWhitespaceAndComments(sql, openIndex + 1)))) continue;
     const closeIndex = findClosingParen(sql, openIndex);
-    if (closeIndex === -1) {
-      continue;
-    }
-    let aliasIndex = skipWhitespaceAndComments(sql, closeIndex + 1);
-    let alias = readAliasToken(sql, aliasIndex);
-    if (alias && /^AS$/i.test(alias.value)) {
-      aliasIndex = skipWhitespaceAndComments(sql, alias.end);
-      alias = readAliasToken(sql, aliasIndex);
-    }
-    if (!alias || isDerivedTableAliasStopWord(alias.value)) {
-      return true;
-    }
+    if (closeIndex === -1) continue;
+    let alias = readAliasToken(sql, skipWhitespaceAndComments(sql, closeIndex + 1));
+    if (alias && /^AS$/i.test(alias.value)) alias = readAliasToken(sql, skipWhitespaceAndComments(sql, alias.end));
+    if (!alias || !alias.value.startsWith('"') && derivedTableStopWords.has(alias.value.toUpperCase())) return true;
     pattern.lastIndex = closeIndex + 1;
   }
   return false;
 }
 
-function hasOracleQuotedLiteral(sql) {
+function someProtectedToken(sql, predicate) {
   for (let index = 0; index < sql.length; index += 1) {
     const token = readSqlProtectedToken(sql, index);
-    if (token?.kind === "oracle-string") return true;
-    if (token) index = token.end - 1;
-  }
-  return false;
-}
-
-function hasUnterminatedSqlDelimiter(sql) {
-  for (let index = 0; index < sql.length; index += 1) {
-    const token = readSqlProtectedToken(sql, index);
-    if (token && !token.closed) return true;
-    if (token) index = token.end - 1;
+    if (!token) continue;
+    if (predicate(token)) return true;
+    index = token.end - 1;
   }
   return false;
 }
@@ -3999,81 +3644,40 @@ function hasUnbalancedParentheses(sql) {
   let depth = 0;
   for (let index = 0; index < sql.length; index += 1) {
     const protectedEnd = readSqlProtectedEnd(sql, index);
-    if (protectedEnd) {
-      index = protectedEnd - 1;
-      continue;
-    }
-    if (sql[index] === "(") {
-      depth += 1;
-      continue;
-    }
-    if (sql[index] === ")") {
-      if (depth === 0) {
-        return true;
-      }
+    if (protectedEnd) index = protectedEnd - 1; else if (sql[index] === "(") depth += 1; else if (sql[index] === ")") {
+      if (depth === 0) return true;
       depth -= 1;
     }
   }
   return depth !== 0;
 }
 
-function collectWarnings(original, converted, warningLocations = {}) {
+function collectWarnings(original, converted, warningLocations) {
   const warnings = [];
   const checks = [ [ /\bLISTAGG\s*\(/i, "LISTAGG: STRING_AGG等へ手動変換（順序・NULL・区切り文字を確認）。" ], [ /\bSOUNDEX\s*\(/i, "SOUNDEX: fuzzystrmatch等の拡張・互換関数を確認。" ], [ /\bFLOAT\s*\(/i, "FLOAT → DOUBLE PRECISION: 精度指定を除去。精度・範囲を確認。" ], [ /\bNUMBER\s*\(\s*\*/i, "NUMBER(*,s): NUMERICの精度・スケールを手動指定。" ], [ /\bGENERATED\s+(?:ALWAYS|BY\s+DEFAULT)(?:\s+ON\s+NULL)?\s+AS\s+IDENTITY/i, "IDENTITY: 整数型が必要。NUMERIC・ON NULL・除去した採番設定を確認。" ], [ /\bMERGE\b[\s\S]*\bDELETE\s+WHERE\b/i, "MERGE DELETE WHERE: 未対応。更新後の値による条件判定を確認。" ], [ /\bMERGE\b[\s\S]*\bINSERT\s*\([^)]*\)\s*VALUES\s*\([^)]*\)\s*WHERE\b/i, "MERGE INSERT WHERE: WHEN NOT MATCHEDの条件へ手動変換。" ], [ /\(\+\)/, "(+): JOINへ手動変換。" ], [ /\bCONNECT\s+BY\b/i, "CONNECT BY / START WITH: WITH RECURSIVEへ手動変換。" ], [ /\bSTART\s+WITH\b/i, "START WITH: WITH RECURSIVEへ手動変換。" ], [ /\bPRIOR\b/i, "PRIOR: WITH RECURSIVEへ手動変換。" ], [ /\bORDER\s+SIBLINGS\s+BY\b/i, "ORDER SIBLINGS BY: 階層問い合わせの並び順を手動変換。" ], [ /\bCREATE\s+OR\s+REPLACE\s+TRIGGER\b/i, "トリガー: PL/pgSQLへ手動変換。" ], [ /\bCREATE\s+(?:OR\s+REPLACE\s+)?(?:FUNCTION|PROCEDURE)\b/i, "FUNCTION/PROCEDURE: PL/pgSQLへ手動変換。" ], [ /(^|;)\s*(?:DECLARE\b[\s\S]*?\bBEGIN\b|BEGIN\b[\s\S]*?\bEND\s*;?)/i, "無名PL/SQLブロック: DO $$ ... $$ 等へ手動変換。" ], [ /\bEXECUTE\s+IMMEDIATE\b/i, "EXECUTE IMMEDIATE: EXECUTE形式へ手動変換。" ], [ /\bPACKAGE\b/i, "PACKAGE: 未対応。手動変換が必要。" ], [ /\bPRAGMA\b/i, "PRAGMA: 未対応。手動変換が必要。" ], [ /\bDBMS_[A-Z0-9_]+\b/i, "DBMS_*: パッケージ呼び出しを手動変換。" ], [ /\bBULK\s+COLLECT\b/i, "BULK COLLECT: PL/pgSQLへ手動変換。" ], [ /\bFORALL\b/i, "FORALL: 未対応。手動変換が必要。" ], [ /\bINSERT\s+(?:ALL|FIRST)\b/i, "INSERT ALL/FIRST: 複数のINSERT等へ手動変換。" ], [ /\bPIVOT\b|\bUNPIVOT\b/i, "PIVOT/UNPIVOT: CASE集計・crosstab等へ手動変換。" ], [ /\bMODEL\b/i, "MODEL: SQL・アプリ側の処理へ手動変換。" ], [ /\bMATCH_RECOGNIZE\b/i, "MATCH_RECOGNIZE: 未対応。手動変換が必要。" ], [ /\bSAMPLE\s*\(/i, "SAMPLE: TABLESAMPLE等への置換を確認。" ], [ /\bVERSIONS\s+BETWEEN\b|\bAS\s+OF\s+(?:SCN|TIMESTAMP)\b/i, "Flashback Query: 履歴テーブル等へ手動変換。" ], [ /\bROWID\b/i, "ROWID: ctid等へ置換できるか確認。" ], [ /\bNEXT_DAY\s*\(/i, "NEXT_DAY: PostgreSQLに同名関数はありません。曜日の計算へ手動変換。" ], [ /\bSYS_GUID\s*\(/i, "SYS_GUID: PostgreSQLに同名関数はありません。gen_random_uuid()等へ手動変換。" ], [ /\bSYS_CONTEXT\s*\(/i, "SYS_CONTEXT: PostgreSQLに同名関数はありません。current_user・current_setting()等へ手動変換。" ], [ /\bBITAND\s*\(/i, "BITAND: PostgreSQLに同名関数はありません。& 演算子へ手動変換。" ], [ /\b(?:RAWTOHEX|HEXTORAW)\s*\(/i, "RAWTOHEX/HEXTORAW: PostgreSQLに同名関数はありません。encode()/decode()へ手動変換。" ], [ /\bWM_CONCAT\s*\(/i, "WM_CONCAT: PostgreSQLに同名関数はありません。string_agg()へ手動変換。" ], [ /\b(?:GREATEST|LEAST)\s*\(/i, "GREATEST/LEAST: OracleはNULLを含むとNULL、PostgreSQLはNULLを無視します。NULLの扱いを確認。" ], [ /\bSYSDATE\s*[-+](?!\s*\d+(?:\.\d+)?(?:\s*\/\s*\d+(?:\.\d+)?)?\b)/i, "SYSDATE: 数値以外の加減算をintervalへ手動変換。" ], [ /\bALTER\s+TABLE\b[\s\S]*?\bMODIFY\b/i, "ALTER TABLE MODIFY: ALTER COLUMNへ手動変換。" ], [ /\bALTER\s+(?:SESSION|SYSTEM)\b/i, "ALTER SESSION/ALTER SYSTEM: PostgreSQLの設定方法を確認。" ], [ /\bCREATE\s+(?:OR\s+REPLACE\s+)?(?:PUBLIC\s+)?SYNONYM\b/i, "SYNONYM: search_path・VIEW・スキーマ変更等を検討。" ], [ /\bCREATE\s+(?:SHARED\s+)?DATABASE\s+LINK\b/i, "DATABASE LINK: postgres_fdw等への置換を検討。" ], [ /\bCREATE\s+(?:OR\s+REPLACE\s+)?(?:TYPE|TYPE\s+BODY)\b/i, "TYPE/TYPE BODY: 型定義・関数へ手動変換。" ], [ /\bCREATE\s+(?:OR\s+REPLACE\s+)?FORCE\s+VIEW\b/i, "CREATE FORCE VIEW: FORCEを外せるか確認。" ], [ /\bCREATE\s+BITMAP\s+INDEX\b/i, "BITMAP INDEX: 通常・部分インデックス等へ手動変換。" ], [ /\bCREATE\s+MATERIALIZED\s+VIEW\b[\s\S]*\b(?:BUILD|REFRESH)\b/i, "MATERIALIZED VIEW: BUILD/REFRESH句を手動変換。" ], [ /\bPARTITION\s+BY\s+(?:RANGE|LIST|HASH|REFERENCE|SYSTEM)\b/i, "PARTITION BY: パーティション定義の互換性を確認。" ], [ /\bLOB\s*\([^)]*\)\s+STORE\s+AS\b/i, "LOB STORE AS: 削除・記憶域設計の変更を検討。" ], [ /\bORGANIZATION\s+INDEX\b/i, "ORGANIZATION INDEX: テーブル・インデックスの設計を確認。" ], [ /\bDEFAULT\s+ON\s+NULL\b/i, "DEFAULT ON NULL: DEFAULTとNULL制御を手動変換。" ], [ /\bGENERATED\s+ALWAYS\s+AS\s*\([^)]*\)\s+VIRTUAL\b/i, "VIRTUAL列: STORED生成列等へ手動変換。" ], [ /\bTIMESTAMP\s+WITH\s+LOCAL\s+TIME\s+ZONE\b/i, "TIMESTAMP WITH LOCAL TIME ZONE: timestamptz等への置換を確認。" ], [ /\bBFILE\b|\bXMLTYPE\b|\bUROWID\b/i, "BFILE/XMLTYPE/UROWID: データ型を手動変換。" ], [ /\bVARCHAR2\s*\([^)]*\s+CHAR\s*\)/i, "VARCHAR2(... CHAR): 文字数の扱いを確認。" ], [ /\bSUBSTRB\s*\(/i, "SUBSTRB: バイト単位の切り出し・マルチバイト文字を確認。" ], [ /\bREGEXP_SUBSTR\s*\(/i, "REGEXP_SUBSTR: 検索開始位置・パターンの互換性を確認。" ], [ /\bREGEXP_LIKE\s*\(/i, "REGEXP_LIKE: パターンの互換性を確認。" ], [ /\bTO_MULTI_BYTE\s*\(/i, "TO_MULTI_BYTE: 互換関数の定義を確認。" ], [ /\bRETURNING\b[\s\S]*?\bINTO\b/i, "RETURNING INTO: 呼び出し側・PL/pgSQLの構文へ手動変換。" ], [ /\bFOR\s+UPDATE\s+OF\b/i, "FOR UPDATE OF: 列名をテーブル名・別名へ手動変換。" ], [ /\bLOCK\s+TABLE\b[\s\S]*?\bIN\s+\w+(?:\s+\w+)*\s+MODE\b/i, "LOCK TABLE: PostgreSQLのロック構文へ手動変換。" ], [ /\bTRUNCATE\s+TABLE\b[\s\S]*\b(?:DROP|REUSE)\s+STORAGE\b/i, "TRUNCATE: DROP/REUSE STORAGEを削除。" ], [ /(^|[^:]):(?:[A-Za-z_][\w$#]*|\d+)\b/, ":name/:1: 利用クライアントのバインド変数形式を確認。" ], [ /&&?[A-Za-z_][\w$#]*\b/, "&name/&&name: SQL*Plus置換変数を手動置換。" ], [ /^\s*(?:PROMPT|SET\s+DEFINE|SET\s+SERVEROUTPUT|WHENEVER\s+SQLERROR|SPOOL|DEFINE|UNDEFINE|ACCEPT|COLUMN)\b/im, "SQL*Plusコマンド: 実行スクリプト側で手動変換。" ], [ /^\s*@@?\S+/im, "@/@@: psql等のスクリプト実行方法へ手動変換。" ], [ /(^|\n)\s*\/\s*(?=\n|$)/, "単独の /: PL/SQL終端を削除、または実行方法を変更。" ], [ /\bLOAD\s+DATA\b|\bINFILE\b[\s\S]*\bINTO\s+TABLE\b/i, "SQL*Loader: COPY等へ手動変換。" ], [ /\u3000/, "全角スペース: 半角スペースへ修正。" ], [ /\bPRAGMA\s+AUTONOMOUS_TRANSACTION\b/i, "自律型トランザクション: アプリ側を含めて実装を確認。" ], [ /\|\|/, "文字列連結: NULLで結果がNULLになるため、COALESCEの要否を確認。" ] ];
   const originalRanges = getSqlProtectedRanges(original);
   const originalCode = sqlCodeMask(original, originalRanges);
   const convertedRanges = getSqlProtectedRanges(converted);
   const convertedCode = sqlCodeMask(converted, convertedRanges);
+  const convertedHas = pattern => matchesOutsideSqlLiterals(converted, pattern, convertedRanges);
   if (/\b(?:DATE|TIMESTAMP)\s*[-+]/i.test(originalCode)) warnings.push("DATE/TIMESTAMP: 日付計算のinterval・戻り値の型を確認。");
   if (/\bROWNUM\b/i.test(convertedCode)) warnings.push("ROWNUM: 未変換。集計・サブクエリ・OR条件の適用範囲を確認。");
-  if (/\b(?:NVL2?|DECODE)\s*\(/i.test(convertedCode)) {
-    if (matchesOutsideSqlLiterals(converted, /\bNVL2?\s*(?:\/\*[\s\S]*?\*\/\s*)?\(/i, convertedRanges) || /\bDECODE\s*\([^)]*,[^)]*,/i.test(convertedCode)) warnings.push("NVL/NVL2/DECODE: 未変換の引数・修飾名・入れ子を確認。");
-  }
+  if (/\b(?:NVL2?|DECODE)\s*\(/i.test(convertedCode) && (convertedHas(/\bNVL2?\s*(?:\/\*[\s\S]*?\*\/\s*)?\(/i) || /\bDECODE\s*\([^)]*,[^)]*,/i.test(convertedCode))) warnings.push("NVL/NVL2/DECODE: 未変換の引数・修飾名・入れ子を確認。");
   for (const [pattern, message] of checks) {
-    if (message === "(+): JOINへ手動変換。" && !matchesOutsideSqlLiterals(converted, pattern, convertedRanges)) continue;
+    if (message === "(+): JOINへ手動変換。" && !convertedHas(pattern)) continue;
     if (pattern.source === "\\bSTART\\s+WITH\\b" && /\b(?:CREATE|ALTER)\s+SEQUENCE\b|\bAS\s+IDENTITY\b/i.test(originalCode)) continue;
-    if (matchesOutsideSqlLiterals(original, pattern, originalRanges)) {
-      warnings.push(message);
-      const search = new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`);
-      let match;
-      while (match = search.exec(original)) {
-        if (!isProtectedIndex(originalRanges, match.index) && hasSqlTokenBoundaries(original, match.index, match[0])) {
-          const leadingWhitespace = match[0].search(/\S/);
-          const offset = match.index + Math.max(0, leadingWhitespace);
-          warningLocations[message] = {
-            offset,
-            line: 1 + countLineBreaks(original.slice(0, offset))
-          };
-          break;
-        }
-        if (!match[0]) search.lastIndex += 1;
-      }
-    }
+    const match = matchesOutside(original, pattern, originalRanges).next().value;
+    if (!match) continue;
+    warnings.push(message);
+    warningLocations[message] = locationOf(original, match.index + Math.max(0, match[0].search(/\S/)));
   }
-  if (matchesOutsideSqlLiterals(original, /\bMERGE\s+INTO\b/i, originalRanges) && matchesOutsideSqlLiterals(converted, /\bUSING\s*\(\s*SELECT\b/i, convertedRanges)) {
-    warnings.push("MERGE USING: 残ったSELECTをVALUES・実テーブルへ手動変換。");
-  }
-  if (targetPostgresMajorVersion < 15 && matchesOutsideSqlLiterals(converted, /\bMERGE\s+INTO\b/i, convertedRanges)) {
-    warnings.push("MERGE: PostgreSQL 15以上が必要。旧版ではON CONFLICT等へ変換。");
-  }
-  if (matchesOutsideSqlLiterals(converted, /\bFROM\s+(?:SYS\.)?DUAL\b/i, convertedRanges)) {
-    warnings.push("FROM DUAL: 未変換の箇所を確認。");
-  }
-  if (hasOracleQuotedLiteral(original)) {
-    warnings.push("q'[...]': 通常の文字列リテラルへ手動変換。");
-  }
-  if (hasUnterminatedSqlDelimiter(original)) {
-    warnings.push("引用符・ドルクォート・コメントの閉じ忘れを確認。");
-  }
-  if (hasUnbalancedParentheses(original)) {
-    warnings.push("括弧の対応を確認。");
-  }
-  if (hasDerivedTableWithoutAlias(converted)) {
-    warnings.push(`FROM/JOINのサブクエリに別名を追加（AS alias）。`);
-  }
-  if (matchesOutsideSqlLiterals(converted, /TODO:/i, convertedRanges) || /\/\*\s*TODO:/i.test(converted)) {
-    warnings.push("TODO: 未変換の箇所を確認。");
-  }
+  if (matchesOutsideSqlLiterals(original, /\bMERGE\s+INTO\b/i, originalRanges) && convertedHas(/\bUSING\s*\(\s*SELECT\b/i)) warnings.push("MERGE USING: 残ったSELECTをVALUES・実テーブルへ手動変換。");
+  if (convertedHas(/\bFROM\s+(?:SYS\.)?DUAL\b/i)) warnings.push("FROM DUAL: 未変換の箇所を確認。");
+  if (someProtectedToken(original, token => token.kind === "oracle-string")) warnings.push("q'[...]': 通常の文字列リテラルへ手動変換。");
+  if (someProtectedToken(original, token => !token.closed)) warnings.push("引用符・ドルクォート・コメントの閉じ忘れを確認。");
+  if (hasUnbalancedParentheses(original)) warnings.push("括弧の対応を確認。");
+  if (hasDerivedTableWithoutAlias(converted)) warnings.push("FROM/JOINのサブクエリに別名を追加（AS alias）。");
+  if (convertedHas(/TODO:/i) || /\/\*\s*TODO:/i.test(converted)) warnings.push("TODO: 未変換の箇所を確認。");
   return [ ...new Set(warnings) ];
 }
 
@@ -4082,10 +3686,8 @@ function derivedProjectionTypes(sql) {
   const code = sqlCodeMask(sql);
   if ((code.match(/\bSELECT\b/gi) || []).length !== 2 || /\bJOIN\b/i.test(code)) return hints;
   const from = findTopLevelRegex(sql, /^FROM\b/i);
-  if (!from) return hints;
-  const open = skipWhitespaceAndComments(sql, from.end);
-  if (sql[open] !== "(") return hints;
-  const close = findClosingParen(sql, open);
+  const open = from && skipWhitespaceAndComments(sql, from.end);
+  const close = sql[open] === "(" ? findClosingParen(sql, open) : -1;
   if (close < 0) return hints;
   const after = sql.slice(close + 1).trim();
   const alias = after.match(/^(?:AS\s+)?([A-Za-z_][\w$#]*)(?=\s|;|$)/i)?.[1];
@@ -4094,18 +3696,19 @@ function derivedProjectionTypes(sql) {
   const values = parseDualSelectValues(sql.slice(open + 1, close), warnings);
   if (!values || values.rows.length !== 1 || warnings.length) return hints;
   const names = values.columns.map(column => column.toLowerCase());
-  for (let i = 0; i < names.length; i += 1) {
-    if (!/^[a-z_][\w$#]*$/i.test(names[i]) || names.indexOf(names[i]) !== names.lastIndexOf(names[i])) continue;
+  for (const [i, name] of names.entries()) {
+    if (!/^[a-z_][\w$#]*$/i.test(name) || names.indexOf(name) !== names.lastIndexOf(name)) continue;
     const type = explicitExpressionType(values.rows[0][i]);
-    if (type !== "unknown") {
-      hints.set(names[i], type);
-      hints.set(`${alias.toLowerCase()}.${names[i]}`, type);
-    }
+    if (type === "unknown") continue;
+    hints.set(name, type);
+    hints.set(`${alias.toLowerCase()}.${name}`, type);
   }
   return hints;
 }
 
 const functionReplacements = [ [ "NVL2", convertNvl2 ], [ "NVL", convertNvl ], [ "DECODE", convertDecode ], [ "ADD_MONTHS", convertAddMonths ], [ "MONTHS_BETWEEN", convertMonthsBetween ], [ "INSTR", convertInstr ], [ "TRUNC", convertTrunc ], [ "TO_CHAR", convertToChar ], [ "TO_DATE", convertToDate ], [ "TO_NUMBER", convertToNumber ], [ "SUBSTR", convertSubstr ], [ "LAST_DAY", convertLastDay ] ];
+
+const padReplacements = [ "LPAD", "RPAD" ].map(name => [ name, (args, argsText, context) => convertPad(name, args, argsText, context) ]);
 
 function locateFunctionWarnings(source, origins) {
   const locations = {};
@@ -4115,18 +3718,16 @@ function locateFunctionWarnings(source, origins) {
     if (!keys.has(value)) keys.set(value, JSON.stringify(sqlExpressionTokens(value).map(token => token.kind === "identifier" && !token.text.startsWith('"') ? token.text.toUpperCase() : token.text)));
     return keys.get(value);
   };
+  const addTo = (index, key, call) => {
+    if (!index.has(key)) index.set(key, []);
+    index.get(key).push(call);
+  };
   const names = new Set([ ...origins.values() ].flat().map(origin => origin.name));
   const calls = new Map;
   const tokens = sqlExpressionTokens(source);
   let previousOffset = 0;
   let line = 1;
-  const indexCall = (index, key, call) => {
-    const matches = index.get(key) ?? [];
-    matches.push(call);
-    index.set(key, matches);
-  };
-  for (let index = 0; index < tokens.length; index += 1) {
-    const token = tokens[index];
+  for (const [index, token] of tokens.entries()) {
     const name = token.text.toUpperCase();
     const open = tokens[index + 1];
     if (!names.has(name) || token.kind !== "identifier" || tokens[index - 1]?.text === "." || open?.text !== "(" || open.close === undefined) continue;
@@ -4141,8 +3742,8 @@ function locateFunctionWarnings(source, origins) {
       args: new Map,
       expressions: new Map
     };
-    indexCall(indexes.args, expressionKey(args), call);
-    for (const argument of splitArgs(args)) indexCall(indexes.expressions, expressionKey(argument), call);
+    addTo(indexes.args, expressionKey(args), call);
+    for (const argument of splitArgs(args)) addTo(indexes.expressions, expressionKey(argument), call);
     calls.set(name, indexes);
   }
   for (const [message, candidates] of origins) {
@@ -4165,24 +3766,26 @@ function locateFunctionWarnings(source, origins) {
   return locations;
 }
 
+function firstLocation(source, pattern) {
+  const ranges = getSqlProtectedRanges(source);
+  for (const match of source.matchAll(asGlobal(pattern))) if (!isProtectedIndex(ranges, match.index)) return locationOf(source, match.index);
+  return null;
+}
+
 function convertOracleSqlContent(input, warningSource = input, options = {}) {
-  let sql = input;
   const rownumWarnings = [];
   const conversionWarnings = [];
   const warningOrigins = new Map;
   const warningLocations = {};
   const typeHints = derivedProjectionTypes(input);
-  sql = normalizeKnownTypos(sql, conversionWarnings);
+  const replaceCalls = (sql, replacements) => replacements.reduce((next, [name, replacer]) => replaceFunctionCalls(next, name, replacer, conversionWarnings, 0, typeHints, warningOrigins), sql);
+  let sql = normalizeKnownTypos(input, conversionWarnings);
   sql = normalizeOracleScalars(sql);
   sql = convertExpressionOperations(sql);
   sql = convertSequences(sql);
   sql = convertCurrentDateTimeTokens(sql);
-  for (const [pattern, replacement] of simpleReplacements) {
-    sql = replaceOutsideSqlLiterals(sql, pattern, replacement);
-  }
-  for (const [name, replacer] of functionReplacements) {
-    sql = replaceFunctionCalls(sql, name, replacer, conversionWarnings, 0, typeHints, warningOrigins);
-  }
+  for (const [pattern, replacement] of simpleReplacements) sql = replaceOutsideSqlLiterals(sql, pattern, replacement);
+  sql = replaceCalls(sql, functionReplacements);
   sql = convertTrimNullPredicates(sql);
   sql = convertMergeUsingDual(sql, conversionWarnings);
   sql = convertMergeUpdateWhereClauses(sql, conversionWarnings);
@@ -4194,40 +3797,17 @@ function convertOracleSqlContent(input, warningSource = input, options = {}) {
   sql = convertComments(sql);
   sql = convertOuterJoins(sql, conversionWarnings);
   sql = convertLimit(sql, rownumWarnings);
-  sql = replaceFunctionCalls(sql, "LPAD", convertLpad, conversionWarnings, 0, typeHints, warningOrigins);
-  sql = replaceFunctionCalls(sql, "RPAD", (args, argsText, context) => convertLpad(args, argsText, context, "RPAD"), conversionWarnings, 0, typeHints, warningOrigins);
+  sql = replaceCalls(sql, padReplacements);
   const warnings = [ ...conversionWarnings, ...collectWarnings(warningSource, sql, warningLocations), ...rownumWarnings ];
   const rownumGeneric = "ROWNUM: 未変換。集計・サブクエリ・OR条件の適用範囲を確認。";
   const uniqueWarnings = [ ...new Set(warnings) ].filter(message => message !== rownumGeneric || !rownumWarnings.length);
-  if (uniqueWarnings.some(message => message.startsWith("ROWNUM:"))) {
-    const rownumRanges = getSqlProtectedRanges(warningSource);
-    const rownumSearch = /\bROWNUM\b/gi;
-    let rownumMatch;
-    while (rownumMatch = rownumSearch.exec(warningSource)) {
-      if (isProtectedIndex(rownumRanges, rownumMatch.index)) continue;
-      const location = {
-        offset: rownumMatch.index,
-        line: 1 + countLineBreaks(warningSource.slice(0, rownumMatch.index))
-      };
-      for (const message of uniqueWarnings) {
-        if (message.startsWith("ROWNUM:") && !warningLocations[message]) warningLocations[message] = location;
-      }
-      break;
-    }
-  }
+  const rownumMessages = uniqueWarnings.filter(message => message.startsWith("ROWNUM:") && !warningLocations[message]);
+  const rownumLocation = rownumMessages.length && firstLocation(warningSource, /\bROWNUM\b/i);
+  if (rownumLocation) for (const message of rownumMessages) warningLocations[message] = rownumLocation;
   const outerJoinMessage = "(+): LEFT JOINへ変換。結合の向きと条件を確認。";
   if (uniqueWarnings.includes(outerJoinMessage) && !warningLocations[outerJoinMessage]) {
-    const outerRanges = getSqlProtectedRanges(warningSource);
-    const outerSearch = /\(\s*\+\s*\)/g;
-    let outerMatch;
-    while (outerMatch = outerSearch.exec(warningSource)) {
-      if (isProtectedIndex(outerRanges, outerMatch.index)) continue;
-      warningLocations[outerJoinMessage] = {
-        offset: outerMatch.index,
-        line: 1 + countLineBreaks(warningSource.slice(0, outerMatch.index))
-      };
-      break;
-    }
+    const location = firstLocation(warningSource, /\(\s*\+\s*\)/);
+    if (location) warningLocations[outerJoinMessage] = location;
   }
   return {
     sql,
@@ -4240,7 +3820,9 @@ function convertOracleSqlContent(input, warningSource = input, options = {}) {
   };
 }
 
-function convertDoubleQuotedSqlStrings(input, warnings, embeddedStrings = new Map, embeddedLineBreaks = new Map) {
+const sqlStatementHead = /^(?:SELECT|WITH|INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|COMMENT|TRUNCATE|GRANT|REVOKE|DECLARE|BEGIN)\b/i;
+
+function convertDoubleQuotedSqlStrings(input, warnings, embeddedStrings) {
   let output = "";
   let index = 0;
   let statementStart = 0;
@@ -4248,10 +3830,8 @@ function convertDoubleQuotedSqlStrings(input, warnings, embeddedStrings = new Ma
     const char = input[index];
     if (char === '"') {
       const prefix = input.slice(statementStart, index);
-      const head = prefix.slice(skipWhitespaceAndComments(prefix, 0));
-      const sqlContext = /^(?:SELECT|WITH|INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|COMMENT|TRUNCATE|GRANT|REVOKE|DECLARE|BEGIN)\b/i.test(head);
-      if (sqlContext) {
-        const end = readQuoted(input, index, char);
+      if (sqlStatementHead.test(statementHead(prefix))) {
+        const {end} = readQuotedToken(input, index, char);
         output += input.slice(index, end);
         index = end;
         continue;
@@ -4259,8 +3839,7 @@ function convertDoubleQuotedSqlStrings(input, warnings, embeddedStrings = new Ma
       const quoted = readDoubleQuotedContent(input, index);
       if (!quoted.closed) {
         warnings.push("プログラム内の引用符が未閉鎖。文字列は未変換。");
-        output += input.slice(index);
-        break;
+        return output + input.slice(index);
       }
       const decoded = decodeDoubleQuotedContent(quoted.raw);
       let value = input.slice(index, quoted.end);
@@ -4275,7 +3854,6 @@ function convertDoubleQuotedSqlStrings(input, warnings, embeddedStrings = new Ma
         token = `'__SQL_CHANGER_EMBEDDED_${number++}__'`;
       } while (input.includes(token) || embeddedStrings.has(token));
       embeddedStrings.set(token, value);
-      embeddedLineBreaks.set(token, countLineBreaks(input.slice(index, quoted.end)));
       output += token;
       index = quoted.end;
       continue;
@@ -4297,13 +3875,12 @@ function convertOracleToPostgres(input) {
   const preserveDual = /\bCREATE\s+TABLE\s+DUAL\b/i.test(sqlCodeMask(input));
   const embeddedWarnings = [];
   const embeddedStrings = new Map;
-  const embeddedLineBreaks = new Map;
-  const sqlWithConvertedEmbeddedStrings = convertDoubleQuotedSqlStrings(input, embeddedWarnings, embeddedStrings, embeddedLineBreaks);
+  const converted = convertDoubleQuotedSqlStrings(input, embeddedWarnings, embeddedStrings);
   const statementCache = new Map;
   const originalStatements = splitSqlStatements(input);
   let line = 1;
   let inputOffset = 0;
-  const statements = splitSqlStatements(sqlWithConvertedEmbeddedStrings).map((statement, index) => {
+  const statements = splitSqlStatements(converted).map((statement, index) => {
     const original = originalStatements[index] ?? statement;
     const codeStart = skipWhitespaceAndComments(original, 0);
     const statementLine = line;
@@ -4311,8 +3888,7 @@ function convertOracleToPostgres(input) {
     const startLine = line + countLineBreaks(original.slice(0, codeStart));
     line += countLineBreaks(original);
     inputOffset += original.length;
-    const head = statement.slice(codeStart);
-    if (/^(?:const|let|var|(?:final\s+)?String)\b/i.test(head)) return {
+    if (/^(?:const|let|var|(?:final\s+)?String)\b/i.test(statement.slice(codeStart))) return {
       sql: statement,
       warnings: []
     };
@@ -4344,65 +3920,68 @@ function convertOracleToPostgres(input) {
   };
   const diagnostics = [ ...embeddedWarnings.map(message => diagnostic(message)), ...statements.flatMap(part => part.warnings.flatMap(message => {
     const location = part.warningLocations?.[message];
-    const locations = Array.isArray(location) ? location : [ location ];
-    return locations.map(location => diagnostic(message, {
+    return (Array.isArray(location) ? location : [ location ]).map(found => diagnostic(message, {
       statement: part.statement,
-      line: location ? part.statementLine + location.line - 1 : part.line,
-      offset: part.statementOffset + (location?.offset ?? part.codeStart),
-      locationKind: location ? "match" : "statement"
+      line: found ? part.statementLine + found.line - 1 : part.line,
+      offset: part.statementOffset + (found?.offset ?? part.codeStart),
+      locationKind: found ? "match" : "statement"
     }));
   })) ];
   const warnings = [ ...new Set(diagnostics.map(({message}) => message)) ];
+  let status = "converted-unverified";
+  if (!input.trim()) status = "empty"; else if (diagnostics.some(item => item.severity === "error")) status = "invalid-input"; else if (warnings.length) status = "review-required";
   return {
     sql,
     warnings,
     diagnostics,
-    status: !input.trim() ? "empty" : diagnostics.some(d => d.severity === "error") ? "invalid-input" : warnings.length ? "review-required" : "converted-unverified",
+    status,
     targetPostgresVersion
   };
 }</script>
 
     <script id="app-ui">"use strict";
 
-const oracleSql = document.getElementById("oracleSql");
+const byId = id => document.getElementById(id);
 
-const oracleHighlight = document.getElementById("oracleHighlight");
+const oracleSql = byId("oracleSql");
 
-const postgresHighlight = document.getElementById("postgresHighlight");
+const oracleHighlight = byId("oracleHighlight");
 
-const postgresDiff = document.getElementById("postgresDiff");
+const postgresHighlight = byId("postgresHighlight");
 
-const diffToggleButton = document.getElementById("diffToggleButton");
+const postgresDiff = byId("postgresDiff");
 
-const clearOracleButton = document.getElementById("clearOracleButton");
+const diffToggleButton = byId("diffToggleButton");
 
-const copyPostgresButton = document.getElementById("copyPostgresButton");
+const clearOracleButton = byId("clearOracleButton");
+
+const copyPostgresButton = byId("copyPostgresButton");
 
 const copyPostgresLabel = copyPostgresButton.querySelector("[data-copy-label]");
 
-const outputStatus = document.getElementById("outputStatus");
+const outputStatus = byId("outputStatus");
 
-const messagesDrawer = document.getElementById("messagesDrawer");
+const messagesDrawer = byId("messagesDrawer");
 
-const messagesTitle = document.getElementById("messagesTitle");
+const messagesTitle = byId("messagesTitle");
 
-const warningsList = document.getElementById("warningsList");
+const warningsList = byId("warningsList");
 
-const toast = document.getElementById("toast");
+const toast = byId("toast");
 
-const inputEmptyState = document.getElementById("inputEmptyState");
+const inputEmptyState = byId("inputEmptyState");
 
-const outputEmptyState = document.getElementById("outputEmptyState");
+const outputEmptyState = byId("outputEmptyState");
 
-const outputEmptyTitle = document.getElementById("outputEmptyTitle");
+const outputEmptyTitle = byId("outputEmptyTitle");
 
-const outputEmptyHelp = document.getElementById("outputEmptyHelp");
+const outputEmptyHelp = byId("outputEmptyHelp");
 
-const resultHelp = document.getElementById("resultHelp");
+const resultHelp = byId("resultHelp");
 
-const inputEmptyTitle = document.getElementById("inputEmptyTitle");
+const inputEmptyTitle = byId("inputEmptyTitle");
 
-const undoClearButton = document.getElementById("undoClearButton");
+const undoClearButton = byId("undoClearButton");
 
 const renderedHighlights = new WeakMap;
 
@@ -4434,26 +4013,37 @@ let renderedDiffSource = null;
 
 let renderedDiffResult = null;
 
-const sqlKeywords = new Set([ "ADD", "ALTER", "AND", "AS", "ASC", "BEGIN", "BETWEEN", "BY", "CASE", "CHECK", "COLUMN", "COMMENT", "COMMIT", "CONSTRAINT", "CREATE", "CROSS", "DEFAULT", "DELETE", "DESC", "DISTINCT", "DROP", "ELSE", "END", "EXCEPT", "EXISTS", "FETCH", "FOR", "FOREIGN", "FROM", "FULL", "GROUP", "HAVING", "IN", "INCREMENT", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "KEY", "LEFT", "LIKE", "LIMIT", "MATCHED", "MERGE", "NOT", "NULL", "OFFSET", "ON", "OR", "ORDER", "OUTER", "OVER", "PRIMARY", "REFERENCES", "RETURNING", "RIGHT", "ROLLBACK", "SELECT", "SET", "START", "THEN", "UNION", "UNIQUE", "UPDATE", "USING", "VALUES", "WHEN", "WHERE", "WITH" ]);
+const wordSet = words => new Set(words.split(/\s+/));
 
-const sqlFunctions = new Set([ "ADD_MONTHS", "AGE", "CLOCK_TIMESTAMP", "COALESCE", "CURRVAL", "DATE_TRUNC", "DECODE", "EXTRACT", "INSTR", "LAST_DAY", "LPAD", "MONTHS_BETWEEN", "NEXTVAL", "NVL", "NVL2", "POSITION", "SUBSTR", "SUBSTRB", "SUBSTRING", "SYSDATE", "SYSTIMESTAMP", "TO_CHAR", "TO_DATE", "TO_NUMBER", "TRUNC" ]);
+const sqlKeywords = wordSet(`ADD ALTER AND AS ASC BEGIN BETWEEN BY CASE CHECK COLUMN COMMENT COMMIT CONSTRAINT CREATE CROSS DEFAULT DELETE DESC\n        DISTINCT DROP ELSE END EXCEPT EXISTS FETCH FOR FOREIGN FROM FULL GROUP HAVING IN INCREMENT INNER INSERT INTERSECT INTO IS JOIN KEY\n        LEFT LIKE LIMIT MATCHED MERGE NOT NULL OFFSET ON OR ORDER OUTER OVER PRIMARY REFERENCES RETURNING RIGHT ROLLBACK SELECT SET START\n        THEN UNION UNIQUE UPDATE USING VALUES WHEN WHERE WITH`);
 
-const sqlTypes = new Set([ "BIGINT", "BINARY_DOUBLE", "BINARY_FLOAT", "BLOB", "BOOLEAN", "BYTEA", "CHAR", "CLOB", "DATE", "DOUBLE", "INTEGER", "NCLOB", "NCHAR", "NUMBER", "NUMERIC", "PRECISION", "RAW", "REAL", "TEXT", "TIMESTAMP", "VARCHAR", "VARCHAR2" ]);
+const sqlFunctions = wordSet(`ADD_MONTHS AGE CLOCK_TIMESTAMP COALESCE CURRVAL DATE_TRUNC DECODE EXTRACT INSTR LAST_DAY LPAD MONTHS_BETWEEN\n        NEXTVAL NVL NVL2 POSITION SUBSTR SUBSTRB SUBSTRING SYSDATE SYSTIMESTAMP TO_CHAR TO_DATE TO_NUMBER TRUNC`);
+
+const sqlTypes = wordSet(`BIGINT BINARY_DOUBLE BINARY_FLOAT BLOB BOOLEAN BYTEA CHAR CLOB DATE DOUBLE INTEGER NCLOB NCHAR NUMBER NUMERIC\n        PRECISION RAW REAL TEXT TIMESTAMP VARCHAR VARCHAR2`);
 
 function updateMeta({status, diagnostics = [], pending = false, hasError = false} = {}) {
   const source = oracleSql.value;
   const hasInput = source.length > 0;
   const hasSql = Boolean(source.trim());
+  const hasResult = Boolean(convertedSql.trim());
   if (hasInput) clearedInput = null;
   clearOracleButton.disabled = !hasInput;
-  copyPostgresButton.disabled = pending || !convertedSql.trim();
+  copyPostgresButton.disabled = pending || !hasResult;
   inputEmptyState.hidden = hasInput;
   outputEmptyState.hidden = Boolean(convertedSql);
-  outputEmptyTitle.textContent = hasError ? "変換できませんでした" : composingInput ? "入力確定待ち…" : pending ? "変換中…" : "ここに変換結果を表示します";
-  outputEmptyHelp.textContent = hasError ? "エラーの内容を確認し、入力を編集すると再変換します。" : composingInput ? "文字を確定すると自動変換します。" : "";
+  if (hasError) {
+    outputEmptyTitle.textContent = "変換できませんでした";
+    outputEmptyHelp.textContent = "エラーの内容を確認し、入力を編集すると再変換します。";
+  } else if (composingInput) {
+    outputEmptyTitle.textContent = "入力確定待ち…";
+    outputEmptyHelp.textContent = "文字を確定すると自動変換します。";
+  } else {
+    outputEmptyTitle.textContent = pending ? "変換中…" : "ここに変換結果を表示します";
+    outputEmptyHelp.textContent = "";
+  }
   outputEmptyHelp.hidden = !outputEmptyHelp.textContent;
-  resultHelp.hidden = !convertedSql.trim();
-  diffToggleButton.disabled = pending || !convertedSql.trim() || source === convertedSql;
+  resultHelp.hidden = !hasResult;
+  diffToggleButton.disabled = pending || !hasResult || source === convertedSql;
   if (diffToggleButton.disabled) setDiffView(false);
   undoClearButton.hidden = hasInput || !clearedInput;
   inputEmptyTitle.textContent = clearedInput ? "入力をクリアしました" : "Oracle SQLをここに貼り付け";
@@ -4461,41 +4051,20 @@ function updateMeta({status, diagnostics = [], pending = false, hasError = false
   if (hasError) {
     outputStatus.textContent = "変換エラー";
     outputStatus.dataset.state = "invalid-input";
-  } else if (pending) {
-    outputStatus.textContent = composingInput ? "入力確定待ち…" : "変換中…";
-  } else if (!hasSql) {
-    outputStatus.textContent = "未変換";
-  } else if (status === "invalid-input") {
-    outputStatus.textContent = "入力を修正してください";
-  } else if (diagnostics.length) {
-    outputStatus.textContent = `要確認（${diagnostics.length}件）`;
-  } else if (source === convertedSql) {
-    outputStatus.textContent = "変更なし（未検証）";
-  } else {
-    outputStatus.textContent = "変換済み（未検証）";
-  }
+  } else if (pending) outputStatus.textContent = composingInput ? "入力確定待ち…" : "変換中…"; else if (!hasSql) outputStatus.textContent = "未変換"; else if (status === "invalid-input") outputStatus.textContent = "入力を修正してください"; else if (diagnostics.length) outputStatus.textContent = `要確認（${diagnostics.length}件）`; else outputStatus.textContent = source === convertedSql ? "変更なし（未検証）" : "変換済み（未検証）";
 }
 
 function escapeHtml(value) {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
-function wrapToken(value, className) {
-  return `<span class="${className}">${escapeHtml(value)}</span>`;
-}
+const wrapToken = (value, className) => `<span class="${className}">${escapeHtml(value)}</span>`;
 
 function classForWord(word) {
   const upper = word.toUpperCase();
-  if (sqlKeywords.has(upper)) {
-    return "tok-keyword";
-  }
-  if (sqlFunctions.has(upper)) {
-    return "tok-function";
-  }
-  if (sqlTypes.has(upper)) {
-    return "tok-type";
-  }
-  return "";
+  if (sqlKeywords.has(upper)) return "tok-keyword";
+  if (sqlFunctions.has(upper)) return "tok-function";
+  return sqlTypes.has(upper) ? "tok-type" : "";
 }
 
 function highlightSql(sql) {
@@ -4505,44 +4074,31 @@ function highlightSql(sql) {
     const rest = sql.slice(index);
     const char = sql[index];
     const token = readSqlProtectedToken(sql, index);
+    const number = token ? null : rest.match(/^\b\d+(?:\.\d+)?\b/);
+    const word = token || number ? null : rest.match(/^[\p{L}_][\p{L}\p{M}\p{N}_$#]*/u);
     if (token) {
       html += wrapToken(sql.slice(index, token.end), token.kind === "comment" ? "tok-comment" : "tok-string");
       index = token.end;
-      continue;
-    }
-    const number = rest.match(/^\b\d+(?:\.\d+)?\b/);
-    if (number) {
+    } else if (number) {
       html += wrapToken(number[0], "tok-number");
       index += number[0].length;
-      continue;
-    }
-    const word = rest.match(/^[\p{L}_][\p{L}\p{M}\p{N}_$#]*/u);
-    if (word) {
+    } else if (word) {
       const className = classForWord(word[0]);
       html += className ? wrapToken(word[0], className) : escapeHtml(word[0]);
       index += word[0].length;
-      continue;
-    }
-    if (/[<>=!|&+\-*\/%,.;:()[\]]/.test(char)) {
-      html += wrapToken(char, "tok-operator");
+    } else {
+      html += /[<>=!|&+\-*\/%,.;:()[\]]/.test(char) ? wrapToken(char, "tok-operator") : escapeHtml(char);
       index += 1;
-      continue;
     }
-    html += escapeHtml(char);
-    index += 1;
   }
   return html;
 }
 
 function renderSqlHighlight(element, sql) {
   if (renderedHighlights.get(element) === sql) return;
-  if (sql.length > highlightTokenizeLimit) {
-    element.textContent = sql;
-    element.dataset.highlightMode = "plain";
-  } else {
-    element.innerHTML = highlightSql(sql);
-    element.dataset.highlightMode = "tokenized";
-  }
+  const plain = sql.length > highlightTokenizeLimit;
+  if (plain) element.textContent = sql; else element.innerHTML = highlightSql(sql);
+  element.dataset.highlightMode = plain ? "plain" : "tokenized";
   renderedHighlights.set(element, sql);
 }
 
@@ -4557,12 +4113,13 @@ function diffSqlLines(before, after) {
   const b = after.split(/\r\n|\r|\n/);
   const frontier = new Map([ [ 1, 0 ] ]);
   const trace = [];
+  const fromAbove = (map, k, d) => k === -d || k !== d && (map.get(k - 1) ?? -1) < (map.get(k + 1) ?? -1);
   let work = 0;
   if (before.length + after.length <= 24e4) {
     search: for (let d = 0; d <= Math.min(a.length + b.length, 250); d += 1) {
       trace.push(new Map(frontier));
       for (let k = -d; k <= d; k += 2) {
-        let x = k === -d || k !== d && (frontier.get(k - 1) ?? -1) < (frontier.get(k + 1) ?? -1) ? frontier.get(k + 1) ?? 0 : (frontier.get(k - 1) ?? 0) + 1;
+        let x = fromAbove(frontier, k, d) ? frontier.get(k + 1) ?? 0 : (frontier.get(k - 1) ?? 0) + 1;
         let y = x - k;
         while (x < a.length && y < b.length && a[x] === b[y]) {
           x += 1;
@@ -4576,7 +4133,7 @@ function diffSqlLines(before, after) {
         for (let step = trace.length - 1; step >= 0; step -= 1) {
           const previous = trace[step];
           const diagonal = x - y;
-          const previousDiagonal = diagonal === -step || diagonal !== step && (previous.get(diagonal - 1) ?? -1) < (previous.get(diagonal + 1) ?? -1) ? diagonal + 1 : diagonal - 1;
+          const previousDiagonal = fromAbove(previous, diagonal, step) ? diagonal + 1 : diagonal - 1;
           const previousX = previous.get(previousDiagonal) ?? 0;
           const previousY = previousX - previousDiagonal;
           while (x > previousX && y > previousY) {
@@ -4586,15 +4143,13 @@ function diffSqlLines(before, after) {
             });
             y -= 1;
           }
-          if (step > 0) {
-            if (x === previousX) lines.push({
-              kind: "added",
-              text: b[--y]
-            }); else lines.push({
-              kind: "removed",
-              text: a[--x]
-            });
-          }
+          if (step > 0) lines.push(x === previousX ? {
+            kind: "added",
+            text: b[--y]
+          } : {
+            kind: "removed",
+            text: a[--x]
+          });
         }
         return {
           lines: lines.reverse(),
@@ -4611,23 +4166,21 @@ function diffSqlLines(before, after) {
     lastA -= 1;
     lastB -= 1;
   }
+  const as = (kind, texts) => texts.map(text => ({
+    kind,
+    text
+  }));
   return {
     summarized: true,
-    lines: [ ...a.slice(0, first).map(text => ({
-      kind: "equal",
-      text
-    })), ...a.slice(first, lastA).map(text => ({
-      kind: "removed",
-      text
-    })), ...b.slice(first, lastB).map(text => ({
-      kind: "added",
-      text
-    })), ...a.slice(lastA).map(text => ({
-      kind: "equal",
-      text
-    })) ]
+    lines: [ ...as("equal", a.slice(0, first)), ...as("removed", a.slice(first, lastA)), ...as("added", b.slice(first, lastB)), ...as("equal", a.slice(lastA)) ]
   };
 }
+
+const diffPrefixes = {
+  added: "+ ",
+  removed: "− ",
+  equal: "  "
+};
 
 function renderSqlDiff() {
   const source = oracleSql.value;
@@ -4636,8 +4189,8 @@ function renderSqlDiff() {
   const tokenized = source.length + convertedSql.length <= highlightTokenizeLimit;
   const chunks = [];
   for (let start = 0; start < diff.lines.length; ) {
-    let end = start + 1;
     const kind = diff.lines[start].kind;
+    let end = start + 1;
     while (end < diff.lines.length && diff.lines[end].kind === kind) end += 1;
     const limit = kind === "equal" ? 6 : 200;
     for (let index = start; index < end; index += 1) {
@@ -4645,9 +4198,8 @@ function renderSqlDiff() {
         chunks.push(`<span class="diff-legend">… ${end - start - limit} 行を省略 …</span>`);
         index = end - limit / 2;
       }
-      const entry = diff.lines[index];
-      const prefix = kind === "added" ? "+ " : kind === "removed" ? "− " : "  ";
-      chunks.push(`<span class="diff-line diff-${kind}">${prefix}${tokenized ? highlightSql(entry.text) : escapeHtml(entry.text)}</span>`);
+      const {text} = diff.lines[index];
+      chunks.push(`<span class="diff-line diff-${kind}">${diffPrefixes[kind]}${tokenized ? highlightSql(text) : escapeHtml(text)}</span>`);
     }
     start = end;
   }
@@ -4673,10 +4225,8 @@ function syncOracleHighlightScroll() {
 function showToast(message, duration = 2500) {
   toast.textContent = message;
   toast.classList.add("show");
-  window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => {
-    toast.classList.remove("show");
-  }, duration);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), duration);
 }
 
 function jumpToDiagnostic(diagnostic) {
@@ -4692,16 +4242,14 @@ function jumpToDiagnostic(diagnostic) {
   oracleSql.setSelectionRange(start, end);
   const walker = document.createTreeWalker(oracleHighlight, NodeFilter.SHOW_TEXT);
   let remaining = offset;
-  let node;
   let targetTop = null;
-  while (node = walker.nextNode()) {
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     if (remaining < node.textContent.length) {
       const range = document.createRange();
       range.setStart(node, remaining);
       range.setEnd(node, remaining + 1);
-      const top = range.getBoundingClientRect().top - oracleHighlight.getBoundingClientRect().top + oracleHighlight.scrollTop;
-      oracleSql.scrollTop = Math.max(0, top - oracleSql.clientHeight / 3);
-      targetTop = top;
+      targetTop = range.getBoundingClientRect().top - oracleHighlight.getBoundingClientRect().top + oracleHighlight.scrollTop;
+      oracleSql.scrollTop = Math.max(0, targetTop - oracleSql.clientHeight / 3);
       break;
     }
     remaining -= node.textContent.length;
@@ -4709,46 +4257,49 @@ function jumpToDiagnostic(diagnostic) {
   syncOracleHighlightScroll();
   if (targetTop !== null) {
     const y = oracleSql.getBoundingClientRect().top + targetTop - oracleSql.scrollTop;
-    if (y < 0 || y > window.innerHeight - 40) window.scrollBy(0, y - window.innerHeight / 3);
+    if (y < 0 || y > innerHeight - 40) scrollBy(0, y - innerHeight / 3);
   }
 }
 
 function renderWarnings(warnings, title = "確認事項") {
-  const items = document.createDocumentFragment();
-  for (const warning of warnings) {
+  const items = warnings.map(warning => {
     const item = document.createElement("li");
-    if (typeof warning === "string") item.textContent = warning; else {
-      if (Number.isFinite(warning.offset)) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "warning-location";
-        button.textContent = warning.locationKind === "match" ? `${warning.line}行目` : `${warning.line}行目（文頭）`;
-        button.setAttribute("aria-label", `${button.textContent}: 文${warning.statement}・${warning.message}`);
-        button.addEventListener("click", () => jumpToDiagnostic(warning));
-        item.append(button);
-      }
-      item.append(document.createTextNode(warning.message));
+    if (typeof warning === "string") {
+      item.textContent = warning;
+      return item;
     }
-    items.append(item);
-  }
-  warningsList.replaceChildren(items);
+    if (Number.isFinite(warning.offset)) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "warning-location";
+      button.textContent = warning.locationKind === "match" ? `${warning.line}行目` : `${warning.line}行目（文頭）`;
+      button.setAttribute("aria-label", `${button.textContent}: 文${warning.statement}・${warning.message}`);
+      button.addEventListener("click", () => jumpToDiagnostic(warning));
+      item.append(button);
+    }
+    item.append(warning.message);
+    return item;
+  });
+  const fragment = document.createDocumentFragment();
+  for (const item of items) fragment.append(item);
+  warningsList.replaceChildren(fragment);
   messagesTitle.textContent = title;
   messagesDrawer.hidden = warnings.length === 0;
 }
 
 function finishConversion(result, error) {
   postgresHighlight.removeAttribute("aria-busy");
-  if (!error) {
-    convertedSql = result.sql;
-    renderWarnings(result.diagnostics, result.status === "invalid-input" ? "入力エラー" : "確認事項");
-    updateMeta(result);
-  } else {
+  if (error) {
     lastConvertedSource = null;
     convertedSql = "";
     renderWarnings([ `変換エラー: ${error.message}` ], "エラー");
     updateMeta({
       hasError: true
     });
+  } else {
+    convertedSql = result.sql;
+    renderWarnings(result.diagnostics, result.status === "invalid-input" ? "入力エラー" : "確認事項");
+    updateMeta(result);
   }
   renderSqlHighlights();
   syncOracleHighlightScroll();
@@ -4765,10 +4316,10 @@ function convertSynchronously(source) {
 function cancelConversionWorker() {
   postgresHighlight.removeAttribute("aria-busy");
   if (!activeConversionWorker) return;
-  const job = activeConversionWorker;
+  const {worker, url} = activeConversionWorker;
   activeConversionWorker = null;
-  job.worker.terminate();
-  URL.revokeObjectURL(job.url);
+  worker.terminate();
+  URL.revokeObjectURL(url);
 }
 
 function startConversionWorker(source) {
@@ -4776,7 +4327,7 @@ function startConversionWorker(source) {
   let url;
   let worker;
   try {
-    const code = `${document.getElementById("sql-converter").textContent}\n            self.onmessage = ({ data }) => {\n              try {\n                self.postMessage({ result: convertOracleToPostgres(data) });\n              } catch (error) {\n                self.postMessage({ error: String(error?.message ?? error) });\n              }\n            };\n          `;
+    const code = `${byId("sql-converter").textContent};\n            self.onmessage = ({ data }) => {\n              try {\n                self.postMessage({ result: convertOracleToPostgres(data) });\n              } catch (error) {\n                self.postMessage({ error: String(error?.message ?? error) });\n              }\n            };\n          `;
     url = URL.createObjectURL(new Blob([ code ], {
       type: "text/javascript"
     }));
@@ -4796,9 +4347,7 @@ function startConversionWorker(source) {
       }
       callback();
     };
-    worker.onmessage = ({data}) => complete(() => {
-      finishConversion(data.result, data.error !== undefined ? new Error(data.error) : null);
-    });
+    worker.onmessage = ({data}) => complete(() => finishConversion(data.result, data.error !== undefined ? new Error(data.error) : null));
     worker.onerror = worker.onmessageerror = event => {
       event.preventDefault();
       complete(() => convertSynchronously(source));
@@ -4814,36 +4363,41 @@ function startConversionWorker(source) {
   }
 }
 
+function showPendingResult(pending) {
+  convertedSql = "";
+  renderWarnings([]);
+  updateMeta({
+    pending,
+    status: "empty"
+  });
+}
+
 function convert() {
   const source = oracleSql.value;
   if (source === lastConvertedSource) return;
   lastConvertedSource = source;
   cancelConversionWorker();
   resetCopyFeedback();
-  if (!source.trim() || startConversionWorker(source)) {
-    convertedSql = "";
-    renderWarnings([]);
-    updateMeta({
-      pending: Boolean(source.trim()),
-      status: "empty"
-    });
-    renderSqlHighlights();
-    syncOracleHighlightScroll();
+  if (source.trim() && !startConversionWorker(source)) {
+    convertSynchronously(source);
     return;
   }
-  convertSynchronously(source);
+  showPendingResult(Boolean(source.trim()));
+  renderSqlHighlights();
+  syncOracleHighlightScroll();
 }
 
 function clearOracle() {
   if (!oracleSql.value) return;
   composingInput = false;
+  const {value, selectionStart: start, selectionEnd: end, selectionDirection: direction, scrollTop, scrollLeft} = oracleSql;
   clearedInput = {
-    value: oracleSql.value,
-    start: oracleSql.selectionStart,
-    end: oracleSql.selectionEnd,
-    direction: oracleSql.selectionDirection,
-    scrollTop: oracleSql.scrollTop,
-    scrollLeft: oracleSql.scrollLeft
+    value,
+    start,
+    end,
+    direction,
+    scrollTop,
+    scrollLeft
   };
   oracleSql.value = "";
   convert();
@@ -4862,12 +4416,17 @@ function undoClear() {
   syncOracleHighlightScroll();
 }
 
+function setCopyBusy(busy) {
+  for (const name of [ "aria-busy", "aria-disabled" ]) {
+    if (busy) copyPostgresButton.setAttribute(name, "true"); else copyPostgresButton.removeAttribute(name);
+  }
+}
+
 function resetCopyFeedback() {
-  window.clearTimeout(copyFeedbackTimer);
+  clearTimeout(copyFeedbackTimer);
   activeCopyAction?.cancel?.();
   activeCopyAction = null;
-  copyPostgresButton.removeAttribute("aria-busy");
-  copyPostgresButton.removeAttribute("aria-disabled");
+  setCopyBusy(false);
   copyPostgresLabel.textContent = "コピー";
   copyPostgresButton.setAttribute("aria-label", "PostgreSQLをコピー");
   copyPostgresButton.classList.remove("copied");
@@ -4878,11 +4437,11 @@ function showCopyFeedback(copied) {
   copyPostgresLabel.textContent = message;
   copyPostgresButton.setAttribute("aria-label", message);
   copyPostgresButton.classList.toggle("copied", copied);
-  copyFeedbackTimer = window.setTimeout(resetCopyFeedback, copied ? 2e3 : 4e3);
+  copyFeedbackTimer = setTimeout(resetCopyFeedback, copied ? 2e3 : 4e3);
 }
 
 function captureCopyPosition() {
-  const selection = window.getSelection();
+  const selection = getSelection();
   return {
     focus: document.activeElement,
     caret: [ oracleSql.selectionStart, oracleSql.selectionEnd, oracleSql.selectionDirection ],
@@ -4894,7 +4453,7 @@ function copyUsingSelection(initialPosition) {
   try {
     const currentPosition = captureCopyPosition();
     const unchanged = key => initialPosition[key].length === currentPosition[key].length && initialPosition[key].every((value, index) => value === currentPosition[key][index]);
-    const selection = window.getSelection();
+    const selection = getSelection();
     if (!selection || currentPosition.focus !== initialPosition.focus || !unchanged("caret") || !unchanged("selection")) return false;
     const range = document.createRange();
     const restoreDiff = showingDiff;
@@ -4908,9 +4467,7 @@ function copyUsingSelection(initialPosition) {
       return false;
     }
     selection.removeAllRanges();
-    if (initialPosition.selection[0] && initialPosition.selection[2]) {
-      selection.setBaseAndExtent(...initialPosition.selection);
-    }
+    if (initialPosition.selection[0] && initialPosition.selection[2]) selection.setBaseAndExtent(...initialPosition.selection);
     if (restoreDiff) setDiffView(true);
     return true;
   } catch {
@@ -4926,19 +4483,17 @@ async function copyPostgres() {
   activeCopyAction = action;
   const isCurrentAction = () => activeCopyAction === action && value === convertedSql && !composingInput && oracleSql.value === lastConvertedSource;
   const initialPosition = captureCopyPosition();
-  copyPostgresButton.setAttribute("aria-busy", "true");
-  copyPostgresButton.setAttribute("aria-disabled", "true");
+  setCopyBusy(true);
   let copyTimeout;
   let copied = false;
   try {
     try {
-      const writing = navigator.clipboard.writeText(value);
-      await Promise.race([ writing, new Promise((_, reject) => {
+      await Promise.race([ navigator.clipboard.writeText(value), new Promise((_, reject) => {
         action.cancel = () => {
-          window.clearTimeout(copyTimeout);
+          clearTimeout(copyTimeout);
           reject(new Error("obsolete copy"));
         };
-        copyTimeout = window.setTimeout(() => reject(new Error("clipboard timeout")), 8e3);
+        copyTimeout = setTimeout(() => reject(new Error("clipboard timeout")), 8e3);
       }) ]);
       copied = true;
     } catch {
@@ -4946,41 +4501,35 @@ async function copyPostgres() {
     }
     if (isCurrentAction()) showCopyFeedback(copied);
   } finally {
-    window.clearTimeout(copyTimeout);
+    clearTimeout(copyTimeout);
     if (activeCopyAction === action) {
       activeCopyAction = null;
-      copyPostgresButton.removeAttribute("aria-busy");
-      copyPostgresButton.removeAttribute("aria-disabled");
+      setCopyBusy(false);
     }
   }
 }
 
-window.addEventListener("pagehide", () => {
+addEventListener("pagehide", () => {
   if (activeConversionWorker) {
     cancelConversionWorker();
     lastConvertedSource = null;
   }
   resetCopyFeedback();
   composingInput = false;
-  window.clearTimeout(inputBatchTimer);
+  clearTimeout(inputBatchTimer);
   inputBatchTimer = null;
-  window.clearTimeout(toastTimer);
+  clearTimeout(toastTimer);
   toast.classList.remove("show");
 });
 
-window.addEventListener("pageshow", convert);
+addEventListener("pageshow", convert);
 
 function renderComposingInput() {
   composingInput = true;
   cancelConversionWorker();
   lastConvertedSource = null;
   resetCopyFeedback();
-  convertedSql = "";
-  renderWarnings([]);
-  updateMeta({
-    pending: true,
-    status: "empty"
-  });
+  showPendingResult(true);
   postgresHighlight.setAttribute("aria-busy", "true");
   renderSqlHighlights();
   syncOracleHighlightScroll();
@@ -4989,14 +4538,17 @@ function renderComposingInput() {
 oracleSql.addEventListener("compositionstart", renderComposingInput);
 
 oracleSql.addEventListener("input", event => {
-  if (event.isComposing || composingInput) renderComposingInput(); else if (inputBatchTimer === null) {
-    convert();
-    if ((lastConvertedSource?.length ?? 0) >= workerInputThreshold) {
-      inputBatchTimer = window.setTimeout(() => {
-        inputBatchTimer = null;
-        if (!composingInput) convert();
-      }, 0);
-    }
+  if (event.isComposing || composingInput) {
+    renderComposingInput();
+    return;
+  }
+  if (inputBatchTimer !== null) return;
+  convert();
+  if ((lastConvertedSource?.length ?? 0) >= workerInputThreshold) {
+    inputBatchTimer = setTimeout(() => {
+      inputBatchTimer = null;
+      if (!composingInput) convert();
+    }, 0);
   }
 });
 
@@ -5044,14 +4596,24 @@ WHERE id = 42;</pre>
     
   <script id="arttools-common-ui-script">(() => {
   "use strict";
-  const root = document.documentElement, body = document.body, storageKey = "arttools.ui.sql.v1", legacySharedKey = "arttools.shared-ui.v1", settingsDialog = document.getElementById("art-settings"), helpDialog = document.getElementById("art-help"), saveNote = document.getElementById("art-save-note");
-  let preferences = {}, faviconTheme = "";
-  const validTheme = value => value === "light" || value === "dark", editorSizes = [ 10, 14, 18 ], validSize = value => editorSizes.includes(value), migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
+  const root = document.documentElement;
+  const body = document.body;
+  const storageKey = `arttools.ui.sql.v1`;
+  const legacySharedKey = "arttools.shared-ui.v1";
+  const settingsDialog = document.getElementById("art-settings");
+  const helpDialog = document.getElementById("art-help");
+  const saveNote = document.getElementById("art-save-note");
+  let preferences = {};
+  let faviconTheme = "";
+  const validTheme = value => value === "light" || value === "dark";
+  const editorSizes = [ 10, 14, 18 ];
+  const validSize = value => editorSizes.includes(value);
+  const migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
   function readPreferences(raw) {
     try {
       const value = JSON.parse(raw);
-      if (!value || typeof value != "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(typeof value.editorSize == "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
+      if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+      const editorSize = migrateSize(typeof value.editorSize === "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
@@ -5069,29 +4631,37 @@ WHERE id = 42;</pre>
   }
   function syncTheme() {
     const theme = originalTheme();
-    root.dataset.uiTheme !== theme && (root.dataset.uiTheme = theme), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (root.dataset.uiTheme !== theme) root.dataset.uiTheme = theme;
+    document.querySelectorAll("[data-art-theme]").forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.artTheme === theme));
-    }), syncFavicon();
+    });
+    syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg"), theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
+    const original = document.querySelector(".art-mark svg");
+    const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
       layer.setAttribute("display", layer.dataset.iconAppearance === theme ? "inline" : "none");
-    }), original.setAttribute("data-icon-theme", theme);
-    const icon = original.cloneNode(!0), favicon = document.getElementById("art-favicon");
-    favicon.type = "image/svg+xml", favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon)), 
+    });
+    original.setAttribute("data-icon-theme", theme);
+    const icon = original.cloneNode(true);
+    const favicon = document.getElementById("art-favicon");
+    favicon.type = "image/svg+xml";
+    favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon));
     faviconTheme = theme;
   }
   function applyTheme(theme) {
-    validTheme(theme) && originalTheme() !== theme && document.querySelector("#eclipse-toggle").click(), 
+    if (validTheme(theme) && originalTheme() !== theme) document.querySelector("#eclipse-toggle").click();
     syncTheme();
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px"), document.querySelectorAll("[data-art-size]").forEach(button => {
+    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
-    }), document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
+    });
+    document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
       detail: {
         size: nextSize
       }
@@ -5099,62 +4669,93 @@ WHERE id = 42;</pre>
   }
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(preferences)), saveNote.textContent = "", 
-      saveNote.hidden = !0, saveNote.dataset.error = "false";
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+      saveNote.textContent = "";
+      saveNote.hidden = true;
+      saveNote.dataset.error = "false";
     } catch {
-      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。", saveNote.hidden = !1, 
+      saveNote.textContent = "ブラウザーの制限で設定を保存できません。この画面では適用されています。";
+      saveNote.hidden = false;
       saveNote.dataset.error = "true";
     }
   }
   const openDialog = (dialog, button) => {
-    dialog.open || (dialog === settingsDialog && document.dispatchEvent(new Event("arttools:settings-open")), 
-    dialog.showModal(), dialog.scrollTop = 0, button.setAttribute("aria-expanded", "true"));
+    if (dialog.open) return;
+    if (dialog === settingsDialog) document.dispatchEvent(new Event("arttools:settings-open"));
+    dialog.showModal();
+    dialog.scrollTop = 0;
+    button.setAttribute("aria-expanded", "true");
   };
   for (const [dialog, id] of [ [ settingsDialog, "art-settings-button" ], [ helpDialog, "art-help-button" ] ]) {
     const button = document.getElementById(id);
-    button.addEventListener("click", () => openDialog(dialog, button)), dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close()), 
+    button.addEventListener("click", () => openDialog(dialog, button));
+    dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
-      button.setAttribute("aria-expanded", "false"), (document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open")?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button).focus({
-        preventScroll: !0
+      button.setAttribute("aria-expanded", "false");
+      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
+      destination.focus({
+        preventScroll: true
       });
     });
-    let backdropStart = !1;
+    let backdropStart = false;
     const outside = event => {
       const rect = dialog.getBoundingClientRect();
       return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
     };
     dialog.addEventListener("pointerdown", event => {
       backdropStart = event.target === dialog && outside(event);
-    }), dialog.addEventListener("click", event => {
-      backdropStart && event.target === dialog && outside(event) && dialog.close(), backdropStart = !1;
+    });
+    dialog.addEventListener("click", event => {
+      if (backdropStart && event.target === dialog && outside(event)) dialog.close();
+      backdropStart = false;
     });
   }
   body.addEventListener("keydown", event => {
     const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
-    if (!dialog || (event.stopPropagation(), event.isComposing || event.keyCode === 229)) return;
+    if (!dialog) {
+      return;
+    }
+    event.stopPropagation();
+    if (event.isComposing || event.keyCode === 229) return;
     if (event.key === "Escape") {
-      event.preventDefault(), dialog.close();
+      event.preventDefault();
+      dialog.close();
       return;
     }
     if (event.key !== "Tab") return;
     const controls = [ ...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, a[href], [tabindex="0"]') ].filter(control => {
-      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return !1;
-      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return !1;
-      return !0;
-    }), first = controls[0], last = controls[controls.length - 1];
+      if (!control.getClientRects().length || control.closest("[hidden], [inert]")) return false;
+      for (let parent = control.parentElement; parent && parent !== dialog; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS" && !parent.open && !parent.querySelector(":scope > summary")?.contains(control)) return false;
+      }
+      return true;
+    });
+    const first = controls[0];
+    const last = controls[controls.length - 1];
     if (!first) {
       event.preventDefault();
       return;
     }
-    event.shiftKey && document.activeElement === first ? (event.preventDefault(), last.focus()) : !event.shiftKey && document.activeElement === last && (event.preventDefault(), 
-    first.focus());
-  }), document.querySelectorAll("[data-art-theme]").forEach(button => {
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  document.querySelectorAll("[data-art-theme]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.theme = button.dataset.artTheme, save(), applyTheme(preferences.theme);
+      preferences.theme = button.dataset.artTheme;
+      save();
+      applyTheme(preferences.theme);
     });
-  }), document.querySelectorAll("[data-art-size]").forEach(button => {
+  });
+  document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.editorSize = Number(button.dataset.artSize), applySize(preferences.editorSize), 
+      preferences.editorSize = Number(button.dataset.artSize);
+      applySize(preferences.editorSize);
       save();
     });
   });
@@ -5162,82 +4763,114 @@ WHERE id = 42;</pre>
     let raw = localStorage.getItem(storageKey);
     if (raw === null) {
       const legacy = localStorage.getItem(legacySharedKey);
-      legacy !== null && (raw = JSON.stringify(readPreferences(legacy)), localStorage.setItem(storageKey, raw));
+      if (legacy !== null) {
+        raw = JSON.stringify(readPreferences(legacy));
+        localStorage.setItem(storageKey, raw);
+      }
     }
-    if (preferences = readPreferences(raw), validSize(preferences.editorSize)) {
+    preferences = readPreferences(raw);
+    if (validSize(preferences.editorSize)) {
       const stored = JSON.parse(raw);
-      stored.editorSize !== preferences.editorSize && localStorage.setItem(storageKey, JSON.stringify({
-        ...stored,
-        editorSize: preferences.editorSize
-      }));
+      if (stored.editorSize !== preferences.editorSize) {
+        localStorage.setItem(storageKey, JSON.stringify({
+          ...stored,
+          editorSize: preferences.editorSize
+        }));
+      }
     }
   } catch {
-    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。", saveNote.hidden = !1, 
+    saveNote.textContent = "ブラウザーの制限で設定を読み込み・保存できません。この画面では適用できます。";
+    saveNote.hidden = false;
     saveNote.dataset.error = "true";
   }
-  applyTheme(preferences.theme), applySize(preferences.editorSize), new MutationObserver(() => {
-    validTheme(preferences.theme) && originalTheme() !== preferences.theme ? applyTheme(preferences.theme) : syncTheme();
-  }).observe(root, {
-    attributes: !0,
+  applyTheme(preferences.theme);
+  applySize(preferences.editorSize);
+  const observer = new MutationObserver(() => {
+    if (validTheme(preferences.theme) && originalTheme() !== preferences.theme) applyTheme(preferences.theme); else syncTheme();
+  });
+  observer.observe(root, {
+    attributes: true,
     attributeFilter: [ "data-mode" ]
   });
   const focusPrimaryInput = () => {
     const target = document.querySelector("[data-art-autofocus]");
     if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3, userEvents = [ "pointerdown", "keydown" ];
-    let finished = !1;
+    const deadline = performance.now() + 3e3;
+    const userEvents = [ "pointerdown", "keydown" ];
+    let finished = false;
     const finish = () => {
-      finished = !0;
-      for (const type of userEvents) window.removeEventListener(type, finish, !0);
+      finished = true;
+      for (const type of userEvents) window.removeEventListener(type, finish, true);
     };
-    for (const type of userEvents) window.addEventListener(type, finish, !0);
+    for (const type of userEvents) window.addEventListener(type, finish, true);
     const attempt = () => {
-      if (!finished) {
-        if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]") || target.getClientRects().length && (target.focus({
-          preventScroll: !0
-        }), document.activeElement === target)) return finish();
-        performance.now() < deadline ? requestAnimationFrame(attempt) : finish();
+      if (finished) return;
+      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
+      if (target.getClientRects().length) {
+        target.focus({
+          preventScroll: true
+        });
+        if (document.activeElement === target) return finish();
       }
+      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
     };
     attempt();
   };
-  document.readyState === "complete" ? focusPrimaryInput() : window.addEventListener("load", focusPrimaryInput, {
-    once: !0
+  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
+    once: true
   });
-  {
-    const field = document.querySelector("[data-art-persist]"), inputKey = "arttools.input.sql.v1", maxStoredCharacters = 2e6;
-    let saveTimer = 0, lastSaved = null;
-    const saveInput = () => {
-      if (window.clearTimeout(saveTimer), !(!field || field.value === lastSaved)) try {
-        if (field.value.length > maxStoredCharacters) throw new RangeError("input too large");
-        field.value ? localStorage.setItem(inputKey, field.value) : localStorage.removeItem(inputKey), 
-        lastSaved = field.value;
-      } catch {
-        saveNote && (saveNote.dataset.error = "true", saveNote.textContent = "入力内容をこのブラウザーへ保存できませんでした。ページを閉じる前に結果をコピーしてください。");
+  const field = document.querySelector("[data-art-persist]");
+  const inputKey = `arttools.input.sql.v1`;
+  const maxStoredCharacters = 2e6;
+  let saveTimer = 0;
+  let lastSaved = null;
+  const saveInput = () => {
+    window.clearTimeout(saveTimer);
+    if (!field || field.value === lastSaved) return;
+    try {
+      if (field.value.length > maxStoredCharacters) throw new RangeError("input too large");
+      if (field.value) localStorage.setItem(inputKey, field.value); else localStorage.removeItem(inputKey);
+      lastSaved = field.value;
+    } catch {
+      if (saveNote) {
+        saveNote.dataset.error = "true";
+        saveNote.textContent = "入力内容をこのブラウザーへ保存できませんでした。ページを閉じる前に結果をコピーしてください。";
       }
-    }, restoreInput = () => {
-      if (!field || field.value) return;
-      let stored = null;
-      try {
-        stored = localStorage.getItem(inputKey);
-      } catch {
-        return;
-      }
-      lastSaved = stored ?? "", stored && (field.value = stored, field.dispatchEvent(new Event("input", {
-        bubbles: !0
-      })));
-    };
-    field && (document.readyState === "complete" ? restoreInput() : window.addEventListener("load", restoreInput, {
-      once: !0
-    }), field.addEventListener("input", () => {
-      window.clearTimeout(saveTimer), saveTimer = window.setTimeout(saveInput, 400);
-    }), window.addEventListener("pagehide", saveInput), document.addEventListener("visibilitychange", () => {
-      document.visibilityState === "hidden" && saveInput();
+    }
+  };
+  const restoreInput = () => {
+    if (!field || field.value) return;
+    let stored = null;
+    try {
+      stored = localStorage.getItem(inputKey);
+    } catch {
+      return;
+    }
+    lastSaved = stored ?? "";
+    if (!stored) return;
+    field.value = stored;
+    field.dispatchEvent(new Event("input", {
+      bubbles: true
     }));
+  };
+  if (field) {
+    if (document.readyState === "complete") restoreInput(); else window.addEventListener("load", restoreInput, {
+      once: true
+    });
+    field.addEventListener("input", () => {
+      window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(saveInput, 400);
+    });
+    window.addEventListener("pagehide", saveInput);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") saveInput();
+    });
   }
   window.addEventListener("storage", event => {
-    event.key !== storageKey && event.key !== null || (preferences = readPreferences(event.newValue), 
-    applyTheme(preferences.theme), applySize(preferences.editorSize));
+    if (event.key !== storageKey && event.key !== null) return;
+    preferences = readPreferences(event.newValue);
+    applyTheme(preferences.theme);
+    applySize(preferences.editorSize);
   });
 })();</script>
   </body>
