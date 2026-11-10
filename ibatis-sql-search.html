@@ -2367,6 +2367,9 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   overflow: auto;
   padding: 16px 24px;
 }
+.art-app[data-tool=ibatis] .map-main > * {
+  flex-shrink: 0;
+}
 .art-app[data-tool=ibatis] .map-card {
   padding: 14px 16px;
   border: 1px solid var(--ui-border);
@@ -5446,11 +5449,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderList() {
     const filter = key(filterEl.value);
     const entries = screens.filter(screen => !filter || key(screen.screenId).includes(filter) || key(screen.name).includes(filter));
+    const {scrollTop} = listEl;
+    const focusedUid = listEl.contains(document.activeElement) ? document.activeElement.dataset.uid : null;
     listEl.innerHTML = entries.length ? entries.map(screen => {
       const active = screen.uid === selected;
       const count = screen.rows.filter(row => row.sqlNo.trim()).length;
       return `<button type="button" class="map-screen-item${active ? " selected" : ""}" role="option" aria-selected="${active}" data-uid="${screen.uid}">\n        <span class="map-screen-text"><span class="map-screen-id">${esc(screen.screenId || "画面ID未入力")}</span><span class="map-screen-name">${esc(screen.name || "画面名なし")}</span></span>\n        <span class="map-screen-badges">${isChanged(screen) ? `<span class="map-dirty" title="HTMLに未反映">${screen.origin ? "変更" : "追加"}</span>` : ""}<span class="map-count" aria-label="${count}件">${count}</span></span>\n      </button>`;
     }).join("") : `<p class="map-list-empty">${filter ? "一致する画面はありません" : "画面はまだありません"}</p>`;
+    listEl.scrollTop = scrollTop;
+    if (focusedUid) listEl.querySelector(`[data-uid="${focusedUid}"]`)?.focus({
+      preventScroll: true
+    });
   }
   const rowHtml = (row, index) => `<tr data-index="${index}">\n      <td><input type="text" data-field="sqlNo" value="${esc(row.sqlNo)}" placeholder="// SQL番号" aria-label="SQL番号" autocomplete="off" spellcheck="false"></td>\n      <td><input type="text" data-field="id" value="${esc(row.id)}" placeholder="// iBATISのID" aria-label="iBATISのID" autocomplete="off" spellcheck="false"></td>\n      <td><input type="text" data-field="note" value="${esc(row.note)}" placeholder="// 備考" aria-label="備考" autocomplete="off"></td>\n      <td class="map-cell-action"><button type="button" class="map-icon-button danger" data-action="delete-row" aria-label="${index + 1}行目を削除" title="この行を削除">${trashIcon}</button></td>\n    </tr>`;
   function renderEditor() {
@@ -5518,6 +5527,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     selected = uid;
     renderList();
     renderEditor();
+    editorEl.scrollTop = 0;
   }
   function addScreen() {
     const screen = withUid({
