@@ -456,8 +456,8 @@
   --ui-select-text-gap: 8px;
   --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
   --ui-dialog-padding: 24px;
-  --ui-header-height: 64px;
-  --ui-app-icon-size: 28px;
+  --ui-header-height: 48px;
+  --ui-app-icon-size: 24px;
   --ui-main-top: 16px;
 }
 html[data-ui-theme=light],
@@ -724,7 +724,7 @@ html[data-ui-theme=dark] {
   gap: 12px;
   min-width: 0;
   min-height: var(--ui-header-height);
-  padding: 8px var(--ui-gutter);
+  padding: 4px var(--ui-gutter);
   background: var(--ui-surface);
   border-bottom: 1px solid var(--ui-border);
 }
@@ -770,11 +770,11 @@ html[data-ui-theme=dark] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
-  min-height: 36px;
-  padding: 8px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 7px;
   border: 1px solid var(--ui-control-border);
   border-radius: var(--ui-control-radius);
   background: var(--ui-surface);
@@ -784,8 +784,8 @@ html[data-ui-theme=dark] {
 }
 .art-app .art-header-button svg {
   flex: none;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 .art-app .art-dialog {
   position: fixed;
@@ -1036,6 +1036,15 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
 .art-app[data-tool=text] .setting-field {
   gap: 6px;
 }
+@media (min-width: 1001px) {
+  .art-app[data-tool=text] .setting-field {
+    flex-direction: row;
+    align-items: center;
+  }
+  .art-app[data-tool=text] .setting-field .gm-label {
+    white-space: nowrap;
+  }
+}
 .art-app[data-tool=text] .setting-field .gm-label {
   font-size: var(--ui-meta-size);
   font-weight: 500;
@@ -1077,6 +1086,28 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   }
   .art-app[data-tool=text] .card-header {
     flex: none;
+  }
+  .art-app[data-tool=text] .output-card:nth-child(-n+3) {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+  }
+  .art-app[data-tool=text] .output-card:nth-child(-n+3) > .card-header {
+    display: contents;
+  }
+  .art-app[data-tool=text] .output-card:nth-child(-n+3) .copy-btn {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .art-app[data-tool=text] .output-card:nth-child(-n+3) > .output-area {
+    grid-column: 2;
+    grid-row: 1;
+    height: auto;
+    block-size: auto;
+  }
+  .art-app[data-tool=text] .output-card:nth-child(-n+3) > .card-feedback {
+    grid-column: 1/-1;
   }
   .art-app[data-tool=text] :is(.output-area, #output-pg-sql) {
     flex: 1 1 0px;
@@ -1511,7 +1542,7 @@ body.art-app[data-tool=text] :is(.copy-btn):not(:has(svg, .material-symbols-outl
             <div class="card-header-actions">
               <div class="setting-field">
                 <label class="gm-label" for="pg-table-name">テーブル名</label>
-                <input class="table-name-input gm-input" id="pg-table-name" aria-describedby="pg-help pg-feedback" placeholder="例：public.orders" autocomplete="off"/>
+                <input class="table-name-input gm-input" id="pg-table-name" aria-describedby="pg-feedback" placeholder="例：public.orders" autocomplete="off"/>
               </div>
               <button class="copy-btn gm-btn gm-btn-primary" type="button" disabled="disabled" data-copy-target="#output-pg-sql" aria-label="PostgreSQL SELECT・INSERT・DELETEの結果をコピー">
                 <svg class="gm-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -1521,10 +1552,7 @@ body.art-app[data-tool=text] :is(.copy-btn):not(:has(svg, .material-symbols-outl
               </button>
             </div>
           </div>
-          <p class="help-text" id="pg-help">
-            先頭行はカラム名。テーブル名が空欄の場合は「???」で生成します。
-          </p>
-          <textarea class="output-area gm-textarea" id="output-pg-sql" readonly="readonly" aria-label="PostgreSQL SELECT・INSERT・DELETEの変換結果" aria-describedby="pg-help pg-feedback" placeholder="結果なし"></textarea>
+          <textarea class="output-area gm-textarea" id="output-pg-sql" readonly="readonly" aria-label="PostgreSQL SELECT・INSERT・DELETEの変換結果" aria-describedby="pg-feedback" placeholder="結果なし"></textarea>
           <p class="card-feedback" id="pg-feedback" role="status" aria-atomic="true"></p>
         </article>
         <article class="output-card gm-panel" aria-labelledby="number-adjust-title">
@@ -1533,7 +1561,7 @@ body.art-app[data-tool=text] :is(.copy-btn):not(:has(svg, .material-symbols-outl
             <div class="card-header-actions">
               <div class="setting-field">
                 <label class="gm-label" for="number-offset">増減値（整数）</label>
-                <input class="number-offset-input gm-input" id="number-offset" type="text" inputmode="text" aria-describedby="number-help number-feedback" placeholder="例: 1, -2" autocomplete="off"/>
+                <input class="number-offset-input gm-input" id="number-offset" type="text" inputmode="text" aria-describedby="number-feedback" placeholder="例: 1, -2" autocomplete="off"/>
               </div>
               <button class="copy-btn gm-btn gm-btn-primary" type="button" disabled="disabled" data-copy-target="#output-number-adjust" aria-label="連番調整の結果をコピー">
                 <svg class="gm-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -1543,8 +1571,7 @@ body.art-app[data-tool=text] :is(.copy-btn):not(:has(svg, .material-symbols-outl
               </button>
             </div>
           </div>
-          <textarea class="output-area gm-textarea" id="output-number-adjust" readonly="readonly" aria-label="連番調整結果" aria-describedby="number-help number-feedback" placeholder="結果なし"></textarea>
-          <p class="help-text" id="number-help">数字の連続部分だけを増減します。符号や小数点は文字として残り、ゼロ埋めの桁数は保持します（001 → 002）。結果が負になる場合はゼロ埋めしません。</p>
+          <textarea class="output-area gm-textarea" id="output-number-adjust" readonly="readonly" aria-label="連番調整結果" aria-describedby="number-feedback" placeholder="結果なし"></textarea>
           <p class="card-feedback" id="number-feedback" role="status" aria-atomic="true"></p>
         </article>
       </section>
@@ -2156,7 +2183,7 @@ cherry</pre>
     </dialog>
     <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
       <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>テキストを貼り付ける</strong><p>左側の入力欄にテキストや表データを貼り付けると、自動で変換します。</p></li><li><strong>必要な形式を選ぶ</strong><p>A5M2 Caption、タブ区切り、SQL IN句、PostgreSQL、連番調整の結果を表示します。テーブル名や増減値は各結果の上で指定できます。</p></li><li><strong>空欄のセルを確認する</strong><p>PostgreSQLの結果では、空欄のセルをSELECT・DELETEの条件から外し、INSERTでは空白1文字として出力します。DELETEを実行する前に条件を確認してください。</p></li><li><strong>結果をコピーする</strong><p>使いたい結果の右上にある「コピー」を押します。入力・テーブル名・増減値は、このブラウザーに自動保存されます。「クリア」で消した入力は、次に入力するまで「元に戻す」で復元できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>テキストを貼り付ける</strong><p>左側の入力欄にテキストや表データを貼り付けると、自動で変換します。</p></li><li><strong>必要な形式を選ぶ</strong><p>A5M2 Caption、タブ区切り、SQL IN句、PostgreSQL、連番調整の結果を表示します。テーブル名や増減値は各結果の上で指定できます。PostgreSQLは先頭行をカラム名として扱い、テーブル名が空欄の場合は「???」で生成します。連番調整は数字の連続部分だけを増減し、符号や小数点は文字として残し、ゼロ埋めの桁数は保持します（001 → 002）。結果が負になる場合はゼロ埋めしません。</p></li><li><strong>空欄のセルを確認する</strong><p>PostgreSQLの結果では、空欄のセルをSELECT・DELETEの条件から外し、INSERTでは空白1文字として出力します。DELETEを実行する前に条件を確認してください。</p></li><li><strong>結果をコピーする</strong><p>使いたい結果の右上にある「コピー」を押します。入力・テーブル名・増減値は、このブラウザーに自動保存されます。「クリア」で消した入力は、次に入力するまで「元に戻す」で復元できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
   <script id="arttools-common-ui-script">(() => {

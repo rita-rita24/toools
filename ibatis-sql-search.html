@@ -933,9 +933,9 @@ kbd {
   --ui-select-text-gap: 8px;
   --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
   --ui-dialog-padding: 24px;
-  --ui-header-height: 64px;
+  --ui-header-height: 48px;
   --ui-workspace-height: calc(100dvh - var(--ui-header-height));
-  --ui-app-icon-size: 28px;
+  --ui-app-icon-size: 24px;
   --ui-main-top: 16px;
   --ui-toolbar-gap: 12px;
 }
@@ -1168,7 +1168,7 @@ html[data-ui-theme=dark] {
   gap: 12px;
   min-width: 0;
   min-height: var(--ui-header-height);
-  padding: 8px var(--ui-gutter);
+  padding: 4px var(--ui-gutter);
   background: var(--ui-surface);
   border-bottom: 1px solid var(--ui-border);
 }
@@ -1214,11 +1214,11 @@ html[data-ui-theme=dark] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
-  min-height: 36px;
-  padding: 8px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 7px;
   border: 1px solid var(--ui-control-border);
   border-radius: var(--ui-control-radius);
   background: var(--ui-surface);
@@ -1228,8 +1228,8 @@ html[data-ui-theme=dark] {
 }
 .art-app .art-header-button svg {
   flex: none;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 .art-app .art-dialog {
   position: fixed;
@@ -1770,7 +1770,7 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  padding: 16px;
+  padding: var(--ui-panel-padding) 12px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
@@ -1788,6 +1788,23 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+@media (min-width: 1241px) {
+  .art-app[data-tool=ibatis] .ibatis-query-row {
+    align-items: center;
+  }
+  .art-app[data-tool=ibatis] .search-field {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  .art-app[data-tool=ibatis] .search-field > label {
+    flex: none;
+    white-space: nowrap;
+  }
+  .art-app[data-tool=ibatis] .search-field > input {
+    flex: 1;
+  }
 }
 @media (max-width: 1000px) {
   .art-app[data-tool=ibatis] .ibatis-query-row {
@@ -1931,7 +1948,7 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
 }
 .art-app[data-tool=ibatis] .columns {
   min-width: 0;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+  grid-template-columns: minmax(0, 3fr) minmax(240px, 1fr);
   gap: var(--ui-gap);
 }
 .art-app[data-tool=ibatis] .columns > :is(.panel, .sticky-panel) {
@@ -2010,8 +2027,8 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   line-break: strict;
 }
 .art-app[data-tool=ibatis] .include-parent-panel {
-  margin-top: 16px;
-  padding: 16px;
+  margin-top: var(--ui-gap);
+  padding: 12px 14px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-panel-radius);
   background: var(--ui-surface);
@@ -2857,8 +2874,20 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
     height: 100%;
     min-height: 0;
   }
-  .art-app[data-tool=ibatis] .sticky-panel > .panel {
-    max-height: 100%;
+  .art-app[data-tool=ibatis] .sticky-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-gap);
+  }
+  .art-app[data-tool=ibatis] .sticky-panel > * {
+    flex: 0 1 auto;
+    min-height: 0;
+  }
+  .art-app[data-tool=ibatis] .sticky-panel > .include-parent-panel {
+    flex-shrink: 0;
+    max-height: 50%;
+    margin-top: 0;
+    overflow: auto;
   }
 }
 @media (max-width: 650px) {
@@ -3204,7 +3233,7 @@ body.art-app[data-tool=ibatis] :is(#btnClearInput):not(:has(svg, .material-symbo
 
       <div class="sticky-panel">
         <section class="panel">
-          <div class="panel-header"><h2><span class="material-symbols-outlined">sell</span> プレースホルダ（#...# / $...$ / #{...}）</h2></div>
+          <div class="panel-header"><h2><span class="material-symbols-outlined">sell</span> プレースホルダ</h2></div>
 
           <div class="panel-body">
             <div id="placeholder-ph" class="placeholder">
@@ -4380,7 +4409,7 @@ function ensureIncludeParentPanel() {
   panel.id = "includeParentPanel";
   panel.className = "include-parent-panel";
   panel.style.display = "none";
-  $sqlViewer.after(panel);
+  document.querySelector(".sticky-panel").append(panel);
   return panel;
 }
 
@@ -4401,7 +4430,7 @@ function renderIncludeParents(currentId) {
   if (!INCLUDE_PARENT_INDEX.size) rebuildIncludeParentIndex();
   const parents = INCLUDE_PARENT_INDEX.get(normalizeLookupValue(id)) || [];
   panel.style.display = "block";
-  const title = '<div class="include-parent-title"><span class="material-symbols-outlined" style="font-size:1rem;">account_tree</span>このSQLを include している親SQL</div>';
+  const title = '<div class="include-parent-title"><span class="material-symbols-outlined" style="font-size:1rem;">account_tree</span>include している親SQL</div>';
   const items = parents.map(parent => `\n        <div class="include-parent-item">\n          <div class="include-parent-main">\n            <div class="include-parent-id">${enc(parent.id)}</div>\n            <div class="include-parent-meta">refid: ${enc(parent.refid)}${parent.file ? ` / ${enc(parent.file)}` : ""}</div>\n          </div>\n          <button class="btn btn-include-parent-open" data-parent-id="${enc(parent.id)}" data-parent-file="${enc(parent.file)}"><span class="material-symbols-outlined" style="font-size:.95rem;">open_in_new</span> 開く</button>\n        </div>`);
   panel.innerHTML = title + (parents.length ? `<div class="include-parent-list">${items.join("")}</div>` : '<div class="include-parent-empty">このIDを include しているSQLは見つかりませんでした。</div>');
 }
@@ -4446,7 +4475,7 @@ function renderSqlNoList(screenId) {
     return;
   }
   const items = list.map(({sqlNo, id}) => `\n        <div class="sqlno-item" data-sql-no="${enc(sqlNo)}" data-id="${enc(id)}">\n          <div class="sqlno-header" role="button" tabindex="0" aria-expanded="false">\n            <span class="sqlno-chevron" aria-hidden="true"></span>\n            <span class="sqlno-label">${enc(sqlNo)}</span>\n            ${ALL_ITEMS.length && !lookupEntryById(id) ? '<span class="sqlno-missing">SQLが見つかりません</span>' : ""}\n          </div>\n          <div class="sqlno-content" hidden></div>\n        </div>`);
-  $sqlNoList.innerHTML = `<div class="sqlno-tip">▶ をクリックすると SQL の中身を表示します（初期状態は非表示）</div>${items.join("")}`;
+  $sqlNoList.innerHTML = items.join("");
 }
 
 function closeAllSqlnoExcept(targetItem) {
