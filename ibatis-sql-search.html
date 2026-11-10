@@ -2053,6 +2053,26 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   min-height: 44px;
   color: var(--ui-text);
 }
+.art-app[data-tool=ibatis] .sqlno-item {
+  overflow: clip;
+}
+.art-app[data-tool=ibatis] .sqlno-header {
+  position: sticky;
+  top: calc(-1 * var(--ui-panel-padding));
+  z-index: 3;
+  background: var(--ui-surface);
+}
+.art-app[data-tool=ibatis] .sqlno-item.expanded .sqlno-header {
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-accent-soft);
+}
+.art-app[data-tool=ibatis] .sqlno-item.expanded .sqlno-content {
+  border-top: 0;
+}
+.art-app[data-tool=ibatis] #screenIdField .suggest-box .muted,
+.art-app[data-tool=ibatis] #sqlNoField .suggest-box .muted {
+  font-size: var(--ui-meta-size);
+}
 .art-app[data-tool=ibatis] .sqlno-chevron {
   color: var(--ui-icon);
 }
@@ -2479,7 +2499,7 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   width: 37%;
 }
 .art-app[data-tool=ibatis] .map-table th:nth-child(4) {
-  width: 52px;
+  width: 84px;
 }
 .art-app[data-tool=ibatis] .map-table td {
   padding: 0;
@@ -2532,6 +2552,31 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
 }
 .art-app[data-tool=ibatis] .map-icon-button.danger {
   color: var(--ui-error);
+}
+.art-app[data-tool=ibatis] .map-grip {
+  color: var(--ui-icon);
+  cursor: grab;
+}
+.art-app[data-tool=ibatis] .map-screen-item > .map-grip {
+  display: grid;
+  flex: none;
+  width: 16px;
+  margin-inline: -6px -2px;
+}
+.art-app[data-tool=ibatis] .map-grip svg {
+  width: 16px;
+  height: 16px;
+}
+.art-app[data-tool=ibatis] .map-screen-text {
+  flex: 1;
+}
+.art-app[data-tool=ibatis] .map-screen-item.map-drop-before,
+.art-app[data-tool=ibatis] tr.map-drop-before > td {
+  box-shadow: inset 0 3px 0 var(--ui-accent);
+}
+.art-app[data-tool=ibatis] .map-screen-item.map-drop-after,
+.art-app[data-tool=ibatis] tr.map-drop-after > td {
+  box-shadow: inset 0 -3px 0 var(--ui-accent);
 }
 .art-app[data-tool=ibatis] .map-icon-button svg {
   width: 18px;
@@ -3175,14 +3220,16 @@ body.art-app[data-tool=ibatis] :is(#btnClearInput):not(:has(svg, .material-symbo
 
         <div class="ibatis-query-row">
         <div class="search-fields">
-          <div class="search-field" id="screenIdField">
+          <div class="search-field suggest" id="screenIdField">
             <label for="qScreenId">画面ID</label>
             <input type="text" id="qScreenId" placeholder="例: F01INP0101G" autocomplete="off" disabled="disabled"/>
+            <div id="screenSuggestBox" class="suggest-box" role="listbox" aria-label="画面IDの候補"></div>
           </div>
 
-          <div class="search-field" id="sqlNoField">
+          <div class="search-field suggest" id="sqlNoField">
             <label for="qSqlNo">設計書のSQL番号</label>
             <input type="text" id="qSqlNo" placeholder="例: SQL1" autocomplete="off" disabled="disabled"/>
+            <div id="sqlNoSuggestBox" class="suggest-box" role="listbox" aria-label="SQL番号の候補"></div>
           </div>
 
           <div class="search-field suggest" id="idField">
@@ -3692,9 +3739,9 @@ function updateSearchModeUI() {
   qs("#sqlNoField").classList.toggle("disabled", idMode || screenOnly);
   if (!idMode) $suggest.classList.remove("show");
   if (screenOnly) $sqlViewer.style.display = "none";
-  const copyLabel = screenOnly ? "表示中のSQLをSQL番号付きですべてコピー" : "SQLをコピー";
-  $btnCopy.title = copyLabel;
-  $btnCopy.setAttribute("aria-label", copyLabel);
+  $btnCopy.hidden = screenOnly;
+  $btnCopy.title = "SQLをコピー";
+  $btnCopy.setAttribute("aria-label", "SQLをコピー");
 }
 
 function focusActiveSearchInput() {
@@ -4527,32 +4574,14 @@ function toggleSqlNoItem(header) {
   if (firstOpen) markPlaceholdersIn(slimViewer);
   content.querySelector(".warn-slim").style.display = applyHighlightsIn(slimViewer) ? "inline-flex" : "none";
   renderPlaceholderChips(copySource);
-  slimViewer.scrollIntoView({
+  content.closest(".sqlno-item").scrollIntoView({
     behavior: "auto",
     block: "start"
   });
 }
 
-function buildScreenSqlBulkCopyBlocks() {
-  const screenId = $sqlNoList.dataset.screenId || "";
-  if (!screenId || $sqlNoList.style.display === "none") return [];
-  return getSqlListByScreenId(screenId).flatMap(({sqlNo, id}) => {
-    const entry = !id || UNMAPPED_ID_RE.test(id) ? null : lookupEntryById(id);
-    return entry ? [ `-- SQL番号: ${sqlNo}\n${buildSqlCopyTextWithInlineIncludes(entry.raw, entry.file || "", new Set, id).trim()}` ] : [];
-  });
-}
-
 $btnCopy.addEventListener("click", () => {
-  if (getSearchMode() !== "screenOnly") {
-    copyText($sqlViewer.style.display === "none" ? "" : $sqlRaw.textContent, $btnCopy, "ソース元の内容をコピーしました");
-    return;
-  }
-  if ($sqlNoList.style.display !== "none") {
-    const missing = getSqlListByScreenId($sqlNoList.dataset.screenId || "").filter(({id}) => !id || !lookupEntryById(id)).map(({sqlNo}) => sqlNo);
-    if (missing.length) errorToast(`${missing.join("・")} はSQLが見つからないためコピーしていません`);
-  }
-  const blocks = buildScreenSqlBulkCopyBlocks();
-  copyText(blocks.length ? `${blocks.join("\n\n")}\n` : "", $btnCopy, `${blocks.length}件のSQLをSQL番号付きでコピーしました`);
+  copyText($sqlViewer.style.display === "none" ? "" : $sqlRaw.textContent, $btnCopy, "ソース元の内容をコピーしました");
 });
 
 function searchById(preferredFile) {
@@ -4794,7 +4823,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             <tr><td>ヘルプを開く</td><td><kbd>?</kbd></td></tr>
             <tr><td>モーダルを閉じる</td><td><kbd>Esc</kbd></td></tr>
             <tr><td>SQLをコピー</td><td>「コピー」ボタン</td></tr>
-            <tr><td>画面IDのSQLを一括コピー</td><td>画面IDのみで検索し、SQL欄の右上の「コピー」</td></tr>
             <tr><td>フォルダ読込</td><td>「参照フォルダ」→「3フォルダを読み込む」</td></tr>
           </table>
         </div></div></details>
@@ -5120,29 +5148,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const copyButton = document.getElementById("btnCopy");
   const sqlViewer = document.getElementById("sql-viewer");
   const sqlRaw = document.getElementById("sql-raw");
-  const sqlNoList = document.getElementById("sqlNoList");
-  const folderStatus = document.getElementById("folderStatus");
   const searchMode = () => document.querySelector('input[name="searchMode"]:checked')?.value;
   const syncCopy = () => {
-    const single = sqlViewer.style.display !== "none" && Boolean(sqlRaw.textContent.trim());
-    const bulk = searchMode() === "screenOnly" && sqlNoList.style.display !== "none" && folderStatus.classList.contains("loaded") && [ ...sqlNoList.querySelectorAll(".sqlno-item") ].some(item => !item.querySelector(".sqlno-missing"));
-    copyButton.disabled = !(single || bulk);
+    copyButton.disabled = !(sqlViewer.style.display !== "none" && Boolean(sqlRaw.textContent.trim()));
   };
   const watch = new MutationObserver(syncCopy);
-  for (const target of [ sqlViewer, sqlRaw, sqlNoList ]) {
-    watch.observe(target, {
-      attributes: true,
-      attributeFilter: [ "style" ],
-      childList: true,
-      characterData: true,
-      subtree: target !== sqlViewer
-    });
-  }
-  watch.observe(folderStatus, {
+  watch.observe(sqlViewer, {
     attributes: true,
-    attributeFilter: [ "class" ]
+    attributeFilter: [ "style" ]
   });
-  for (const radio of document.querySelectorAll('input[name="searchMode"]')) radio.addEventListener("change", syncCopy);
+  watch.observe(sqlRaw, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
   syncCopy();
   const queryInput = document.getElementById("q");
   const suggestBox = document.getElementById("suggestBox");
@@ -5257,6 +5276,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }[ch]));
   const key = value => String(value ?? "").normalize("NFKC").trim().toLowerCase();
   const toast = (message, type = "") => showToast(message, type);
+  const gripIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
   const trashIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6m4-6v6"/></svg>';
   function locateMap(source) {
     const declared = source.indexOf("const SCREEN_SQL_ID_MAP");
@@ -5483,14 +5503,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     listEl.innerHTML = entries.length ? entries.map(screen => {
       const active = screen.uid === selected;
       const count = screen.rows.filter(row => row.sqlNo.trim()).length;
-      return `<button type="button" class="map-screen-item${active ? " selected" : ""}" role="option" aria-selected="${active}" data-uid="${screen.uid}">\n        <span class="map-screen-text"><span class="map-screen-id">${esc(screen.screenId || "画面ID未入力")}</span><span class="map-screen-name">${esc(screen.name || "画面名なし")}</span></span>\n        <span class="map-screen-badges">${isChanged(screen) ? `<span class="map-dirty" title="HTMLに未反映">${screen.origin ? "変更" : "追加"}</span>` : ""}<span class="map-count" aria-label="${count}件">${count}</span></span>\n      </button>`;
+      return `<button type="button" class="map-screen-item${active ? " selected" : ""}" role="option" aria-selected="${active}" data-uid="${screen.uid}" draggable="true" title="ドラッグ、またはAlt+↑↓で並べ替え">\n        <span class="map-grip" aria-hidden="true">${gripIcon}</span><span class="map-screen-text"><span class="map-screen-id">${esc(screen.screenId || "画面ID未入力")}</span><span class="map-screen-name">${esc(screen.name || "画面名なし")}</span></span>\n        <span class="map-screen-badges">${isChanged(screen) ? `<span class="map-dirty" title="HTMLに未反映">${screen.origin ? "変更" : "追加"}</span>` : ""}<span class="map-count" aria-label="${count}件">${count}</span></span>\n      </button>`;
     }).join("") : `<p class="map-list-empty">${filter ? "一致する画面はありません" : "画面はまだありません"}</p>`;
     listEl.scrollTop = scrollTop;
     if (focusedUid) listEl.querySelector(`[data-uid="${focusedUid}"]`)?.focus({
       preventScroll: true
     });
   }
-  const rowHtml = (row, index) => `<tr data-index="${index}">\n      <td><input type="text" data-field="sqlNo" value="${esc(row.sqlNo)}" placeholder="// SQL番号" aria-label="SQL番号" autocomplete="off" spellcheck="false"></td>\n      <td><input type="text" data-field="id" value="${esc(row.id)}" placeholder="// iBATISのID" aria-label="iBATISのID" autocomplete="off" spellcheck="false"></td>\n      <td><input type="text" data-field="note" value="${esc(row.note)}" placeholder="// 備考" aria-label="備考" autocomplete="off"></td>\n      <td class="map-cell-action"><button type="button" class="map-icon-button danger" data-action="delete-row" aria-label="${index + 1}行目を削除" title="この行を削除">${trashIcon}</button></td>\n    </tr>`;
+  const rowHtml = (row, index) => `<tr data-index="${index}">\n      <td><input type="text" data-field="sqlNo" value="${esc(row.sqlNo)}" placeholder="// SQL番号" aria-label="SQL番号" autocomplete="off" spellcheck="false"></td>\n      <td><input type="text" data-field="id" value="${esc(row.id)}" placeholder="// iBATISのID" aria-label="iBATISのID" autocomplete="off" spellcheck="false"></td>\n      <td><input type="text" data-field="note" value="${esc(row.note)}" placeholder="// 備考" aria-label="備考" autocomplete="off"></td>\n      <td class="map-cell-action"><button type="button" class="map-icon-button map-grip" data-action="move-row" draggable="true" aria-label="${index + 1}行目を移動（Alt+↑↓）" title="ドラッグ、またはAlt+↑↓で並べ替え">${gripIcon}</button><button type="button" class="map-icon-button danger" data-action="delete-row" aria-label="${index + 1}行目を削除" title="この行を削除">${trashIcon}</button></td>\n    </tr>`;
   function renderEditor() {
     const screen = current();
     if (!screen) {
@@ -5595,6 +5615,110 @@ document.addEventListener("DOMContentLoaded", async () => {
     const item = event.target.closest(".map-screen-item");
     if (item) select(Number(item.dataset.uid));
   });
+  const clearDropMarks = () => document.querySelectorAll(".map-drop-before, .map-drop-after").forEach(node => node.classList.remove("map-drop-before", "map-drop-after"));
+  const dropAfter = (event, node) => {
+    const rect = node.getBoundingClientRect();
+    return event.clientY > rect.top + rect.height / 2;
+  };
+  function moveScreen(uid, targetUid, after) {
+    const screen = screens.find(item => item.uid === uid);
+    if (!screen || uid === targetUid) return;
+    screens.splice(screens.indexOf(screen), 1);
+    const target = screens.findIndex(item => item.uid === targetUid);
+    screens.splice(target < 0 ? screens.length : target + (after ? 1 : 0), 0, screen);
+    changed();
+    listEl.querySelector(`[data-uid="${uid}"]`)?.focus({
+      preventScroll: true
+    });
+    listEl.querySelector(`[data-uid="${uid}"]`)?.scrollIntoView({
+      block: "nearest"
+    });
+  }
+  function moveRow(from, to) {
+    const screen = current();
+    if (!screen || from === to || to < 0 || to >= screen.rows.length) return;
+    const [row] = screen.rows.splice(from, 1);
+    screen.rows.splice(to, 0, row);
+    renderEditor();
+    changed();
+    editorEl.querySelector(`#mapRows tr[data-index="${to}"] [data-action="move-row"]`)?.focus();
+  }
+  let draggingScreen = null;
+  listEl.addEventListener("dragstart", event => {
+    const item = event.target.closest(".map-screen-item");
+    if (!item) return;
+    draggingScreen = Number(item.dataset.uid);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", item.dataset.uid);
+  });
+  listEl.addEventListener("dragover", event => {
+    const item = event.target.closest(".map-screen-item");
+    if (draggingScreen === null || !item) return;
+    event.preventDefault();
+    clearDropMarks();
+    if (Number(item.dataset.uid) !== draggingScreen) item.classList.add(dropAfter(event, item) ? "map-drop-after" : "map-drop-before");
+  });
+  listEl.addEventListener("drop", event => {
+    const item = event.target.closest(".map-screen-item");
+    if (draggingScreen === null || !item) return;
+    event.preventDefault();
+    const uid = draggingScreen;
+    draggingScreen = null;
+    clearDropMarks();
+    moveScreen(uid, Number(item.dataset.uid), dropAfter(event, item));
+  });
+  let draggingRow = null;
+  editorEl.addEventListener("dragstart", event => {
+    const grip = event.target.closest('[data-action="move-row"]');
+    if (!grip) return;
+    const tr = grip.closest("tr");
+    draggingRow = Number(tr.dataset.index);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", String(draggingRow));
+    event.dataTransfer.setDragImage(tr, 16, tr.offsetHeight / 2);
+  });
+  editorEl.addEventListener("dragover", event => {
+    const tr = event.target.closest("#mapRows tr");
+    if (draggingRow === null || !tr) return;
+    event.preventDefault();
+    clearDropMarks();
+    if (Number(tr.dataset.index) !== draggingRow) tr.classList.add(dropAfter(event, tr) ? "map-drop-after" : "map-drop-before");
+  });
+  editorEl.addEventListener("drop", event => {
+    const tr = event.target.closest("#mapRows tr");
+    if (draggingRow === null || !tr) return;
+    event.preventDefault();
+    const from = draggingRow;
+    draggingRow = null;
+    clearDropMarks();
+    const target = Number(tr.dataset.index) + (dropAfter(event, tr) ? 1 : 0);
+    moveRow(from, target > from ? target - 1 : target);
+  });
+  document.addEventListener("dragend", () => {
+    draggingScreen = null;
+    draggingRow = null;
+    clearDropMarks();
+  });
+  listEl.addEventListener("keydown", event => {
+    if (!event.altKey || ![ "ArrowDown", "ArrowUp" ].includes(event.key)) return;
+    const item = event.target.closest(".map-screen-item");
+    if (!item) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const items = [ ...listEl.querySelectorAll(".map-screen-item") ];
+    const neighbor = items[items.indexOf(item) + (event.key === "ArrowDown" ? 1 : -1)];
+    if (neighbor) moveScreen(Number(item.dataset.uid), Number(neighbor.dataset.uid), event.key === "ArrowDown");
+  }, true);
+  editorEl.addEventListener("keydown", event => {
+    if (!event.altKey || ![ "ArrowDown", "ArrowUp" ].includes(event.key)) return;
+    const tr = event.target.closest("#mapRows tr");
+    if (!tr) return;
+    event.preventDefault();
+    const from = Number(tr.dataset.index);
+    const field = event.target.dataset.field;
+    moveRow(from, from + (event.key === "ArrowDown" ? 1 : -1));
+    if (field) editorEl.querySelector(`#mapRows tr[data-index="${Math.max(0, Math.min(current().rows.length - 1, from + (event.key === "ArrowDown" ? 1 : -1)))}"] [data-field="${field}"]`)?.focus();
+  });
   listEl.addEventListener("keydown", event => {
     if (![ "ArrowDown", "ArrowUp" ].includes(event.key)) return;
     const items = [ ...listEl.querySelectorAll(".map-screen-item") ];
@@ -5683,13 +5807,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const output = [];
     let cursor = 0;
     const indentOf = line => /^\s*/.exec(line)[0];
+    const existing = writable().filter(screen => screen.origin && blocks.some(block => block.screenId === screen.origin));
+    const fileOrder = blocks.map(block => block.screenId).filter(id => existing.some(screen => screen.origin === id));
+    const reordered = existing.some((screen, index) => screen.origin !== fileOrder[index]);
+    let slot = 0;
     for (const block of blocks) {
       output.push(...lines.slice(cursor, block.start));
       cursor = block.end + 1;
-      const screen = screens.find(item => item.origin === block.screenId && item.screenId.trim());
-      const html = htmlScreens.find(item => item.origin === block.screenId);
-      if (!screen) continue;
-      if (html && shape(html) === shape(screen)) output.push(...lines.slice(block.start, block.end + 1)); else output.push(...blockLines(screen, indentOf(lines[block.start])));
+      if (!existing.some(item => item.origin === block.screenId)) continue;
+      const screen = reordered ? existing[slot++] : existing.find(item => item.origin === block.screenId);
+      const html = htmlScreens.find(item => item.origin === screen.origin);
+      if (screen.origin === block.screenId && html && shape(html) === shape(screen)) output.push(...lines.slice(block.start, block.end + 1)); else output.push(...blockLines(screen, indentOf(lines[block.start])));
     }
     const rest = lines.slice(cursor);
     const added = writable().filter(screen => !screen.origin || !blocks.some(block => block.screenId === screen.origin));
@@ -5869,6 +5997,145 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
   new MutationObserver(annotate).observe(sqlNoList, {
     childList: true
+  });
+  const screenInput = $("qScreenId");
+  const sqlNoInput = $("qSqlNo");
+  const idInput = $("q");
+  const mode = () => getSearchMode();
+  const rank = (value, typed) => value === typed ? 0 : value.startsWith(typed) ? 1 : 2;
+  const screenCandidates = () => {
+    const typed = key(screenInput.value);
+    return screens.filter(screen => screen.screenId.trim()).filter(screen => !typed || key(screen.screenId).includes(typed) || key(screen.name).includes(typed)).sort((a, b) => rank(key(a.screenId), typed) - rank(key(b.screenId), typed) || a.screenId.localeCompare(b.screenId, "ja")).slice(0, 100).map(screen => ({
+      value: screen.screenId.trim(),
+      detail: screen.name.trim()
+    }));
+  };
+  const sqlNoCandidates = () => {
+    const typed = key(sqlNoInput.value);
+    const {notes} = describe(screenInput.value);
+    return getSqlListByScreenId(screenInput.value).filter(({sqlNo}) => !typed || key(sqlNo).includes(typed)).map(({sqlNo, id}) => ({
+      value: sqlNo,
+      detail: [ notes.get(key(sqlNo)), id ].filter(Boolean).join("　")
+    }));
+  };
+  function attachSuggest(input, box, candidates, pick) {
+    const items = () => [ ...box.querySelectorAll(".suggest-item") ];
+    const setActive = item => {
+      items().forEach((candidate, index) => {
+        candidate.id ||= `${box.id}-${index}`;
+        candidate.classList.toggle("active", candidate === item);
+        candidate.setAttribute("aria-selected", String(candidate === item));
+      });
+      if (item) {
+        input.setAttribute("aria-activedescendant", item.id);
+        item.scrollIntoView({
+          block: "nearest"
+        });
+      } else input.removeAttribute("aria-activedescendant");
+    };
+    const close = () => {
+      box.classList.remove("show");
+      input.setAttribute("aria-expanded", "false");
+      setActive(null);
+    };
+    const open = () => {
+      const list = input.disabled ? [] : candidates();
+      box.innerHTML = list.map(({value, detail}) => `<div class="suggest-item" role="option" data-value="${esc(value)}"><strong>${esc(value)}</strong>${detail ? `<div class="muted">${esc(detail)}</div>` : ""}</div>`).join("");
+      box.classList.toggle("show", list.length > 0);
+      input.setAttribute("aria-expanded", String(list.length > 0));
+    };
+    const choose = item => {
+      input.value = item.dataset.value;
+      close();
+      pick();
+    };
+    input.setAttribute("role", "combobox");
+    input.setAttribute("aria-controls", box.id);
+    input.setAttribute("aria-autocomplete", "list");
+    input.setAttribute("aria-expanded", "false");
+    input.addEventListener("input", open);
+    input.addEventListener("focus", open);
+    input.addEventListener("focusout", event => {
+      if (!box.contains(event.relatedTarget)) close();
+    });
+    box.addEventListener("mousedown", event => event.preventDefault());
+    box.addEventListener("click", event => {
+      const item = event.target.closest(".suggest-item");
+      if (item) choose(item);
+    });
+    input.addEventListener("keydown", event => {
+      if (event.isComposing || event.keyCode === 229 || !box.classList.contains("show")) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        close();
+        return;
+      }
+      if (![ "ArrowDown", "ArrowUp", "Enter" ].includes(event.key)) return;
+      const list = items();
+      const current = list.findIndex(item => item.classList.contains("active"));
+      if (event.key === "Enter") {
+        const target = current >= 0 ? list[current] : list.some(item => key(item.dataset.value) === key(input.value)) ? null : list[0];
+        if (!target) {
+          close();
+          return;
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        choose(target);
+        return;
+      }
+      event.preventDefault();
+      setActive(list[event.key === "ArrowDown" ? (current + 1) % list.length : current <= 0 ? list.length - 1 : current - 1]);
+    }, true);
+    return {
+      close
+    };
+  }
+  let lastAuto = "";
+  const exactTarget = () => {
+    const current = mode();
+    if (current === "id") return ALL_ITEMS.length && resolveSearchId(idInput.value) ? `id:${key(idInput.value)}` : "";
+    if (current === "screenOnly") return getSqlListByScreenId(screenInput.value).length ? `screen:${key(screenInput.value)}` : "";
+    return ALL_ITEMS.length && resolveIdByScreenSql(screenInput.value, sqlNoInput.value) ? `sql:${key(screenInput.value)}:${key(sqlNoInput.value)}` : "";
+  };
+  const autoSearch = () => {
+    const target = exactTarget();
+    if (target && target !== lastAuto) doSearch();
+    lastAuto = target;
+  };
+  let autoTimer = 0;
+  for (const input of [ idInput, screenInput, sqlNoInput ]) {
+    input.addEventListener("input", event => {
+      window.clearTimeout(autoTimer);
+      if (!event.isComposing) autoTimer = window.setTimeout(autoSearch, 250);
+    });
+    input.addEventListener("compositionend", () => {
+      window.clearTimeout(autoTimer);
+      autoTimer = window.setTimeout(autoSearch, 250);
+    });
+  }
+  $("btnSearch").addEventListener("click", () => {
+    lastAuto = exactTarget();
+  });
+  for (const input of [ idInput, screenInput, sqlNoInput ]) {
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.isComposing) lastAuto = exactTarget();
+    });
+  }
+  attachSuggest(screenInput, $("screenSuggestBox"), screenCandidates, () => {
+    window.clearTimeout(autoTimer);
+    if (mode() === "screenSql") {
+      sqlNoInput.focus();
+      return;
+    }
+    lastAuto = exactTarget();
+    doSearch();
+  });
+  attachSuggest(sqlNoInput, $("sqlNoSuggestBox"), sqlNoCandidates, () => {
+    window.clearTimeout(autoTimer);
+    lastAuto = exactTarget();
+    doSearch();
   });
   save();
   apply();

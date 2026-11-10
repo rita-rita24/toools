@@ -610,9 +610,13 @@ html:not([data-ui-theme]) {
   --ui-success-bg: #f0fdf4;
   --ui-success-border: #b9f8cf;
   --ui-warning: #a65f00;
+  --ui-warning-bg: #fefce8;
+  --ui-warning-border: #fff085;
   --ui-error: #c10007;
   --ui-error-bg: #fef2f2;
   --ui-error-border: #ffc9c9;
+  --ui-info: #1447e6;
+  --ui-info-border: #bedbff;
   --ui-keyword: #1447e6;
   --ui-string: #016630;
   --ui-number: #973c00;
@@ -645,9 +649,13 @@ html[data-ui-theme=dark] {
   --ui-success-bg: #142a1f;
   --ui-success-border: #1f5a37;
   --ui-warning: #ffd54d;
+  --ui-warning-bg: #2c2615;
+  --ui-warning-border: #5e4a12;
   --ui-error: #ffa2a2;
   --ui-error-bg: #301b1f;
   --ui-error-border: #6a2a2f;
+  --ui-info: #8ec5ff;
+  --ui-info-border: #26467a;
   --ui-keyword: #8ec5ff;
   --ui-string: #7bf1a8;
   --ui-number: #ffd230;
@@ -1132,6 +1140,40 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
 .art-app[data-tool=bind] .sql-token--number {
   color: var(--ui-number);
 }
+.art-app[data-tool=bind] .sql-token--bind {
+  border-radius: 3px;
+  background: var(--ui-info-border);
+  color: var(--ui-info);
+  box-shadow: 0 0 0 1px var(--ui-info);
+}
+.art-app[data-tool=bind] .sql-bind-defs {
+  border-radius: 3px;
+  background: var(--ui-warning-bg);
+  box-shadow: 0 0 0 1px var(--ui-warning-border);
+}
+.art-app[data-tool=bind] mark.bind-value {
+  border-radius: 3px;
+  background: var(--ui-warning-border);
+  color: inherit;
+  box-shadow: 0 0 0 1px var(--ui-warning);
+}
+.art-app[data-tool=bind] [data-role=bindings-summary] {
+  color: var(--ui-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+.art-app[data-tool=bind] .bindings-list {
+  max-height: 8.5em;
+  margin: 6px 0 0;
+  overflow: auto;
+}
+.art-app[data-tool=bind] .bindings-list code {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--ui-warning-border);
+  color: var(--ui-text);
+  font: var(--ui-editor-size)/1.6 var(--ui-mono);
+}
 .art-app[data-tool=bind] .input-editor > pre {
   border-color: transparent;
 }
@@ -1541,14 +1583,14 @@ body.art-app[data-tool=bind] :is([data-action=recheck]):not(:has(svg, .material-
 
         <div class="panel__body input-editor">
           <pre class="editor" data-role="raw-highlight" aria-hidden="true" tabindex="-1"></pre>
-          <textarea data-art-autofocus data-art-persist aria-labelledby="input-title" aria-errormessage="validation-issues" class="editor" data-role="raw-input" wrap="off" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="SQLとバインド変数、またはSQLログを貼り付け&#10;&#10;例）&#10;SELECT * FROM users WHERE id = ? AND name = ?&#10;1 = 42&#10;2 = 山田&#10;&#10;または MyBatisのログ（Preparing: / Parameters: の2行）"></textarea>
+          <textarea data-art-autofocus data-art-persist aria-labelledby="input-title" aria-errormessage="validation-issues" class="editor" data-role="raw-input" wrap="off" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="SQLとバインド変数、またはSQLログを貼り付け"></textarea>
         </div>
         <div class="log-tools" data-role="log-tools" hidden>
           <label for="log-select" data-role="log-summary"></label>
           <select id="log-select" data-role="log-select"></select>
         </div>
         <div class="input-feedback" data-role="input-feedback" tabindex="0" role="region" aria-label="バインドの解釈と再変換" hidden>
-          <details data-role="bindings-panel" hidden>
+          <details data-role="bindings-panel" open hidden>
             <summary data-role="bindings-summary">バインド値</summary>
             <ol class="bindings-list" data-role="bindings-list"></ol>
           </details>
@@ -1575,7 +1617,8 @@ body.art-app[data-tool=bind] :is([data-action=recheck]):not(:has(svg, .material-
           <span class="sr-only" role="status" data-copy-status></span>
         </header>
 
-        <div class="panel__body">
+        <div class="panel__body input-editor output-editor">
+          <pre class="editor output" data-role="output-highlight" aria-hidden="true" tabindex="-1"></pre>
           <textarea aria-labelledby="output-title" class="editor output" data-role="output" aria-describedby="validation-status copy-hint" aria-errormessage="validation-issues" readonly="readonly" wrap="off" spellcheck="false" placeholder="入力すると自動で変換します"></textarea>
         </div>
         <div class="output-feedback" data-role="output-feedback" hidden tabindex="0" role="region" aria-label="コピーの案内とSQLチェック結果">
@@ -5078,14 +5121,49 @@ if (typeof exports === "object" && typeof module === "object") {
       text: sql[index]
     };
   };
-  const highlight = sql => {
+  const readBindMarker = (sql, index) => {
+    if (sql[index] === "?") return /[?|&#-]/.test(sql[index + 1] ?? "") || sql[index - 1] === "?" ? "" : "?";
+    if (sql[index] !== ":" || /[:A-Za-z0-9_$]/.test(sql[index - 1] ?? "")) return "";
+    return /^:[A-Za-z_][A-Za-z0-9_$]*/.exec(sql.slice(index, index + 200))?.[0] ?? "";
+  };
+  const highlight = (sql, bindFrom = sql.length) => {
     let html = "";
-    for (let index = 0; index < sql.length; ) {
+    let index = 0;
+    while (index < bindFrom && index < sql.length) {
+      const marker = readBindMarker(sql, index);
+      if (marker) {
+        html += `<span class="sql-token sql-token--bind">${escapeHtml(marker)}</span>`;
+        index += marker.length;
+        continue;
+      }
       const {kind, text} = highlightToken(sql, index);
       html += kind === "plain" ? escapeHtml(text) : `<span class="sql-token sql-token--${kind}">${escapeHtml(text)}</span>`;
       index += text.length;
     }
+    if (index < sql.length) html += `<span class="sql-bind-defs">${escapeHtml(sql.slice(index))}</span>`;
     return html;
+  };
+  const mapRangesAfterFormat = (source, formatted, ranges) => {
+    if (!ranges.length) return [];
+    const positions = new Map;
+    let j = 0;
+    for (let i = 0; i < source.length; i += 1) {
+      if (isSpace(source[i])) continue;
+      while (j < formatted.length && isSpace(formatted[j])) j += 1;
+      if (j >= formatted.length || source[i].toLowerCase() !== formatted[j].toLowerCase()) return [];
+      positions.set(i, j);
+      j += 1;
+    }
+    const mapped = [];
+    for (const [start, end] of ranges) {
+      let first = start;
+      let last = end - 1;
+      while (first <= last && isSpace(source[first])) first += 1;
+      while (last >= first && isSpace(source[last])) last -= 1;
+      if (first > last) continue;
+      mapped.push([ positions.get(first), positions.get(last) + 1 ]);
+    }
+    return mapped;
   };
   const hasUnclosedParameterQuote = value => {
     const text = value.trimStart();
@@ -5571,8 +5649,10 @@ if (typeof exports === "object" && typeof module === "object") {
     const issues = [ ...binds.issues ];
     const matches = namedPlaceholders(masked, segments);
     const requiredNames = new Set(matches.map(match => match.name));
+    const valueSegments = new Set;
     const protectValue = value => {
       const token = `${segments.prefix}${segments.length}@@`;
+      valueSegments.add(segments.length);
       segments.push(value);
       return ` ${token} `;
     };
@@ -5605,9 +5685,22 @@ if (typeof exports === "object" && typeof module === "object") {
     if (extraIndexes.length) {
       issues.push(`余剰の位置バインド (${extraIndexes.map(index => `[${index}]`).join(", ")}) が ${extraIndexes.length} 件あります。`);
     }
+    let restored = "";
+    let last = 0;
+    const valueRanges = [];
+    working.replace(segmentPattern(segments), (token, index, offset) => {
+      restored += working.slice(last, offset);
+      const value = segments[Number(index)] ?? token;
+      if (valueSegments.has(Number(index))) valueRanges.push([ restored.length, restored.length + value.length ]);
+      restored += value;
+      last = offset + token.length;
+      return token;
+    });
+    restored += working.slice(last);
     return {
-      sql: restoreProtected(working, segments),
-      issues
+      sql: restored,
+      issues,
+      valueRanges: restored === restoreProtected(working, segments) ? valueRanges : []
     };
   };
   const upperCaseKeywords = sql => sql.replace(SQL_KEYWORD_CASE_PATTERN, (match, offset, source) => [ ":", ".", "[", "`" ].includes(source[offset - 1]) ? match : match.toUpperCase());
@@ -6058,6 +6151,8 @@ if (typeof exports === "object" && typeof module === "object") {
       const definitionsFrom = base >= 0 ? base + input.sqlText.length : input.sourceOffset ?? 0;
       return {
         sql,
+        valueRanges: mapRangesAfterFormat(merged.sql, sql, merged.valueRanges),
+        bindDefsFrom: !input.logCount && base >= 0 && binds.positional.size + binds.named.size ? definitionsFrom : null,
         issues: merged.issues,
         diagnostics: merged.issues.map(message => {
           const detail = binds.diagnostics.find(item => item.message === message);
@@ -6292,6 +6387,7 @@ if (typeof exports === "object" && typeof module === "object") {
   const rawInput = role("raw-input");
   const rawHighlight = role("raw-highlight");
   const output = role("output");
+  const outputHighlight = role("output-highlight");
   const flash = role("flash");
   const copyLabel = $("[data-copy-label]");
   const copyStatus = $("[data-copy-status]");
@@ -6349,10 +6445,29 @@ if (typeof exports === "object" && typeof module === "object") {
     rawHighlight.scrollTop = rawInput.scrollTop;
     rawHighlight.scrollLeft = rawInput.scrollLeft;
   };
-  const syncInputHighlight = rawText => {
+  const syncInputHighlight = (rawText, bindDefsFrom = null) => {
     const source = !rawText || rawText.endsWith("\n") ? `${rawText} ` : rawText;
-    if (rawText.length >= LARGE_INPUT_LENGTH) rawHighlight.textContent = source; else rawHighlight.innerHTML = BindSQLEngine.highlight(source);
+    if (rawText.length >= LARGE_INPUT_LENGTH) rawHighlight.textContent = source; else rawHighlight.innerHTML = BindSQLEngine.highlight(source, bindDefsFrom ?? source.length);
     syncInputHighlightScroll();
+  };
+  const syncOutputHighlightScroll = () => {
+    outputHighlight.scrollTop = output.scrollTop;
+    outputHighlight.scrollLeft = output.scrollLeft;
+  };
+  const syncOutputHighlight = (sql, valueRanges = []) => {
+    const source = sql.endsWith("\n") ? `${sql} ` : sql;
+    if (sql.length >= LARGE_INPUT_LENGTH) outputHighlight.textContent = source; else {
+      let html = "";
+      let cursor = 0;
+      for (const [start, end] of valueRanges) {
+        if (start < cursor || end > sql.length) continue;
+        html += BindSQLEngine.highlight(sql.slice(cursor, start));
+        html += `<mark class="bind-value">${BindSQLEngine.highlight(sql.slice(start, end))}</mark>`;
+        cursor = end;
+      }
+      outputHighlight.innerHTML = html + BindSQLEngine.highlight(source.slice(cursor));
+    }
+    syncOutputHighlightScroll();
   };
   const applyColorScheme = theme => {
     document.documentElement.dataset.mode = theme;
@@ -6531,6 +6646,8 @@ if (typeof exports === "object" && typeof module === "object") {
     state.conversionError = result.issues.length > 0;
     showInputDetails(result);
     if (output.value !== result.sql) output.value = result.sql;
+    syncOutputHighlight(result.sql, result.valueRanges);
+    if (result.bindDefsFrom !== null && rawText.length < LARGE_INPUT_LENGTH) syncInputHighlight(rawText, result.bindDefsFrom);
     validation.setInputLocations(result.inputLocations, rawText);
     if (result.issues.length) {
       validation.conversionIssues(result.diagnostics);
@@ -6549,6 +6666,7 @@ if (typeof exports === "object" && typeof module === "object") {
       conversionError: true
     });
     output.value = "";
+    syncOutputHighlight("");
     reconvertButton.hidden = false;
     validation.conversionIssues([ {
       message: `変換できませんでした。「再変換」で再試行できます。大きい入力は対象のSQLに絞ってください。詳細: ${String(error?.message ?? error)}`
@@ -6629,6 +6747,7 @@ if (typeof exports === "object" && typeof module === "object") {
     render(true);
   });
   rawInput.addEventListener("scroll", syncInputHighlightScroll);
+  output.addEventListener("scroll", syncOutputHighlightScroll);
   clearButton.addEventListener("click", () => {
     if (!rawInput.value) return;
     const {value: text, selectionStart: start, selectionEnd: end, scrollTop, scrollLeft} = rawInput;
@@ -6680,7 +6799,10 @@ if (typeof exports === "object" && typeof module === "object") {
       block: "nearest"
     });
   });
-  const applyWrap = () => output.setAttribute("wrap", wrapToggle.checked ? "soft" : "off");
+  const applyWrap = () => {
+    for (const element of [ output, outputHighlight ]) element.setAttribute("wrap", wrapToggle.checked ? "soft" : "off");
+    syncOutputHighlightScroll();
+  };
   wrapToggle.checked = readStorage(WRAP_STORAGE_KEY) === "on";
   applyWrap();
   wrapToggle.addEventListener("change", () => {
