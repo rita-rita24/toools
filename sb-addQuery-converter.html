@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja" class="gm" data-mode="light">
+<html lang="ja" class="az-gm" data-mode="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -212,13 +212,13 @@
     return convertQuery(text).plain;
   }
   const initialize = () => {
-    const app = document.querySelector("#gm-app");
+    const app = document.querySelector("#az-gm-app");
     const plainText = app.querySelector("#gm-plain-text");
     const queryText = app.querySelector("#gm-query-text");
     const clearButton = app.querySelector("#gm-clear-button");
     const undoClearButton = app.querySelector("#gm-undo-clear-button");
     const unconvertedStatus = app.querySelector("#gm-unconverted-status");
-    const copyButton = app.querySelector("#gm-copy-button");
+    const copyButton = app.querySelector("#az-copy-button");
     const copyLabel = copyButton.querySelector("[data-copy-label]");
     const copySuccess = copyButton.querySelector("[data-copy-success]");
     const copyStatus = app.querySelector("#gm-copy-status");
@@ -236,7 +236,7 @@
       clearTimeout(copyTimer);
       setCopied(false);
       copyStatus.textContent = "";
-      copyStatus.className = "gm-sr";
+      copyStatus.className = "az-sr";
     };
     const setCopyBusy = busy => {
       for (const name of [ "aria-busy", "aria-disabled" ]) {
@@ -321,7 +321,7 @@
         }, COPY_FEEDBACK_MS);
       } catch {
         if (pendingCopy === request && revision === request.revision) {
-          copyStatus.className = "gm-copy-error gm-error-text";
+          copyStatus.className = "az-copy-error az-error-text";
           copyStatus.textContent = "コピーできませんでした。対象の文字を選択してコピーしてください。";
         }
       } finally {
@@ -367,56 +367,56 @@
     once: true
   });
 })();</script>
-  <style>.gm {
-  --gm-font:
+  <style>.az-gm {
+  --az-gm-font:
     "Noto Sans JP",
     "Hiragino Kaku Gothic ProN",
     "Yu Gothic",
     sans-serif;
-  --gm-mono-font:
+  --az-gm-mono-font:
     "SFMono-Regular",
     Consolas,
     "Liberation Mono",
     Menlo,
     monospace;
-  --gm-text-size: 0.875rem;
-  --gm-label-size: 0.8125rem;
-  --gm-title-size: 1rem;
-  --gm-title-line-height: 1.5rem;
-  --gm-section-title-size: 0.875rem;
-  --gm-section-title-line-height: 1.25rem;
-  --gm-space-1: 0.25rem;
-  --gm-space-2: 0.5rem;
-  --gm-space-4: 1rem;
-  --gm-radius: 0.25rem;
-  --gm-button-height: 1.875rem;
-  --gm-button-padding-block: 0.125rem;
-  --gm-control-padding-inline: 0.5rem;
-  --gm-control-icon-size: 1rem;
-  --gm-scroll-offset: 1rem;
-  --gm-text: #252b33;
-  --gm-surface: #ffffff;
-  --gm-background: #f5f6f8;
-  --gm-input-border: #788391;
-  --gm-error: #aa2424;
-  --gm-brand: var(--gm-light-brand, #174da7);
-  --gm-brand-soft: var(--gm-light-brand-soft, #eff3f9);
-  --gm-focus: var(--gm-light-focus, #174da7);
+  --az-gm-text-size: 0.875rem;
+  --az-gm-label-size: 0.8125rem;
+  --az-gm-title-size: 1rem;
+  --az-gm-title-line-height: 1.5rem;
+  --az-gm-section-title-size: 0.875rem;
+  --az-gm-section-title-line-height: 1.25rem;
+  --az-gm-space-1: 0.25rem;
+  --az-gm-space-2: 0.5rem;
+  --az-gm-space-4: 1rem;
+  --az-gm-radius: 0.25rem;
+  --az-gm-button-height: 1.875rem;
+  --az-gm-button-padding-block: 0.125rem;
+  --az-gm-control-padding-inline: 0.5rem;
+  --az-gm-control-icon-size: 1rem;
+  --az-gm-scroll-offset: 1rem;
+  --az-gm-text: #252b33;
+  --az-gm-surface: #ffffff;
+  --az-gm-background: #f5f6f8;
+  --az-gm-input-border: #788391;
+  --az-gm-error: #aa2424;
+  --az-gm-brand: var(--az-gm-light-brand, #174da7);
+  --az-gm-brand-soft: var(--az-gm-light-brand-soft, #eff3f9);
+  --az-gm-focus: var(--az-gm-light-focus, #174da7);
   color-scheme: light;
-  color: var(--gm-text);
-  background: var(--gm-background);
-  font-family: var(--gm-font);
+  color: var(--az-gm-text);
+  background: var(--az-gm-background);
+  font-family: var(--az-gm-font);
   overflow-wrap: anywhere;
   &[data-mode=dark] {
     color-scheme: dark;
-    --gm-text: #e7ebf0;
-    --gm-surface: #1c232d;
-    --gm-background: #131922;
-    --gm-input-border: #8b98a9;
-    --gm-error: #ffaaaa;
-    --gm-brand: var(--gm-dark-brand, #abbfdf);
-    --gm-brand-soft: var(--gm-dark-brand-soft, #263347);
-    --gm-focus: var(--gm-dark-focus, #abbfdf);
+    --az-gm-text: #e7ebf0;
+    --az-gm-surface: #1c232d;
+    --az-gm-background: #131922;
+    --az-gm-input-border: #8b98a9;
+    --az-gm-error: #ffaaaa;
+    --az-gm-brand: var(--az-gm-dark-brand, #abbfdf);
+    --az-gm-brand-soft: var(--az-gm-dark-brand-soft, #263347);
+    --az-gm-focus: var(--az-gm-dark-focus, #abbfdf);
   }
   &,
   & *,
@@ -429,7 +429,7 @@
   }
   & body {
     margin: 0;
-    font-size: var(--gm-text-size);
+    font-size: var(--az-gm-text-size);
     line-height: 1.65;
   }
   & :is(h1, h2, p) {
@@ -440,21 +440,21 @@
     color: inherit;
   }
   & :focus-visible {
-    outline: 2px solid var(--gm-focus);
+    outline: 2px solid var(--az-gm-focus);
     outline-offset: -2px;
   }
   & :is([id], :focus-visible) {
-    scroll-margin-block: var(--gm-scroll-offset);
+    scroll-margin-block: var(--az-gm-scroll-offset);
   }
   & h1 {
-    font-size: var(--gm-title-size);
-    line-height: var(--gm-title-line-height);
+    font-size: var(--az-gm-title-size);
+    line-height: var(--az-gm-title-line-height);
   }
   & h2 {
-    font-size: var(--gm-section-title-size);
-    line-height: var(--gm-section-title-line-height);
+    font-size: var(--az-gm-section-title-size);
+    line-height: var(--az-gm-section-title-line-height);
   }
-  & .gm-sr {
+  & .az-sr {
     position: absolute;
     inline-size: 1px;
     block-size: 1px;
@@ -465,20 +465,20 @@
     white-space: nowrap;
     border: 0;
   }
-  & .gm-btn {
+  & .az-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--gm-space-2);
+    gap: var(--az-gm-space-2);
     min-inline-size: 24px;
-    min-block-size: var(--gm-button-height);
+    min-block-size: var(--az-gm-button-height);
     max-inline-size: 100%;
-    padding-block: var(--gm-button-padding-block);
-    padding-inline: var(--gm-control-padding-inline);
-    border: 1px solid var(--gm-input-border);
-    border-radius: var(--gm-radius);
-    background: var(--gm-surface);
-    font-size: var(--gm-label-size);
+    padding-block: var(--az-gm-button-padding-block);
+    padding-inline: var(--az-gm-control-padding-inline);
+    border: 1px solid var(--az-gm-input-border);
+    border-radius: var(--az-gm-radius);
+    background: var(--az-gm-surface);
+    font-size: var(--az-gm-label-size);
     font-weight: 600;
     line-height: 1.5;
     text-align: center;
@@ -491,85 +491,85 @@
       cursor: progress;
     }
   }
-  & .gm-icon {
+  & .az-icon {
     display: block;
-    inline-size: var(--gm-control-icon-size);
-    block-size: var(--gm-control-icon-size);
+    inline-size: var(--az-gm-control-icon-size);
+    block-size: var(--az-gm-control-icon-size);
     fill: currentColor;
     flex: none;
   }
-  & .gm-copy-control {
+  & .az-copy-control {
     display: inline-grid;
     justify-items: start;
   }
-  & .gm-copy-label {
+  & .az-copy-label {
     min-inline-size: 0;
     text-align: start;
   }
-  & .gm-copy-button [data-copy-success],
-  & .gm-copy-button[data-copied=true] [data-copy-label] {
+  & .az-copy-button [data-copy-success],
+  & .az-copy-button[data-copied=true] [data-copy-label] {
     display: none;
   }
-  & .gm-copy-button[data-copied=true] [data-copy-success] {
+  & .az-copy-button[data-copied=true] [data-copy-success] {
     display: inline;
   }
-  & .gm-copy-error {
-    margin-block-start: var(--gm-space-2);
+  & .az-copy-error {
+    margin-block-start: var(--az-gm-space-2);
   }
-  & .gm-error-text {
-    font-size: var(--gm-label-size);
-    color: var(--gm-error);
+  & .az-error-text {
+    font-size: var(--az-gm-label-size);
+    color: var(--az-gm-error);
   }
-  & .gm-app {
+  & .az-gm-app {
     display: grid;
     grid-template-rows: auto minmax(18rem, 1fr);
-    gap: var(--gm-space-4);
+    gap: var(--az-gm-space-4);
     block-size: 100dvb;
     min-block-size: min-content;
-    padding: var(--gm-space-4);
+    padding: var(--az-gm-space-4);
   }
   & code {
-    padding-inline: var(--gm-space-1);
-    border-radius: var(--gm-radius);
-    color: var(--gm-brand);
-    background: var(--gm-brand-soft);
-    font-family: var(--gm-mono-font);
+    padding-inline: var(--az-gm-space-1);
+    border-radius: var(--az-gm-radius);
+    color: var(--az-gm-brand);
+    background: var(--az-gm-brand-soft);
+    font-family: var(--az-gm-mono-font);
   }
-  & .gm-editors {
+  & .az-editors {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--gm-space-4);
+    gap: var(--az-gm-space-4);
     min-block-size: 0;
   }
-  & .gm-editor {
+  & .az-editor {
     display: flex;
     flex-direction: column;
-    gap: var(--gm-space-2);
+    gap: var(--az-gm-space-2);
     min-inline-size: 0;
     min-block-size: 0;
   }
-  & .gm-editor-head {
+  & .az-editor-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--gm-space-2);
+    gap: var(--az-gm-space-2);
     & > * {
       min-inline-size: 0;
       max-inline-size: 100%;
     }
   }
-  & .gm-textarea {
+  & .az-textarea {
     flex: 1;
     inline-size: 100%;
     block-size: 0;
     min-inline-size: 0;
     min-block-size: 12rem;
-    padding: var(--gm-space-4);
-    border: 1px solid var(--gm-input-border);
-    border-radius: var(--gm-radius);
-    background: var(--gm-surface);
-    font-family: var(--gm-mono-font);
+    padding: var(--az-gm-space-4);
+    border: 1px solid var(--az-gm-input-border);
+    border-radius: var(--az-gm-radius);
+    background: var(--az-gm-surface);
+    font-family: var(--az-gm-mono-font);
     tab-size: 2;
     white-space: pre;
     overflow-wrap: normal;
@@ -578,40 +578,40 @@
     resize: none;
   }
   @media (width <= 820px), (height <= 560px) {
-    & .gm-app {
+    & .az-gm-app {
       block-size: auto;
       min-block-size: 100dvb;
     }
-    & .gm-editors {
+    & .az-editors {
       grid-auto-rows: minmax(22.5rem, 45dvb);
     }
   }
   @media (width <= 820px) {
-    & .gm-editors {
+    & .az-editors {
       grid-template-columns: minmax(0, 1fr);
     }
   }
   @media (any-pointer: coarse) {
-    --gm-button-height: 2.75rem;
-    --gm-button-padding-block: 0.5rem;
-    --gm-control-icon-size: 1.25rem;
-    & .gm-textarea {
+    --az-gm-button-height: 2.75rem;
+    --az-gm-button-padding-block: 0.5rem;
+    --az-gm-control-icon-size: 1.25rem;
+    & .az-textarea {
       font-size: 1rem;
     }
-    & .gm-btn {
+    & .az-btn {
       min-inline-size: 44px;
       min-block-size: 44px;
     }
   }
   @media (forced-colors: active) {
-    & :is(.gm-btn, .gm-textarea):focus-visible {
+    & :is(.az-btn, .az-textarea):focus-visible {
       outline-color: Highlight;
       outline-offset: -2px;
     }
-    & :is(.gm-btn, .gm-textarea) {
+    & :is(.az-btn, .az-textarea) {
       border-color: ButtonText;
     }
-    & .gm-btn:disabled {
+    & .az-btn:disabled {
       color: GrayText;
       border-color: GrayText;
       opacity: 1;
@@ -621,316 +621,316 @@
 </style>
 <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22sbquery%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-sbquery-light-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%237c3aed%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-sbquery-light-light)%22%2F%3E%3Crect%20x%3D%2228%22%20y%3D%2222%22%20width%3D%2254%22%20height%3D%2270%22%20rx%3D%228%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M40%2042h30M40%2056h30M40%2070h18%22%20fill%3D%22none%22%20stroke%3D%22%237c3aed%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2286%22%20r%3D%2222%22%20fill%3D%22%23fff%22%20stroke%3D%22%237c3aed%22%20stroke-width%3D%226%22%2F%3E%3Cpath%20d%3D%22M86%2075v22M75%2086h22%22%20fill%3D%22none%22%20stroke%3D%22%237c3aed%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-sbquery-dark-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%238b5cf6%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-sbquery-dark-light)%22%2F%3E%3Crect%20x%3D%224.75%22%20y%3D%224.75%22%20width%3D%22118.5%22%20height%3D%22118.5%22%20rx%3D%2227.25%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.2%22%20stroke-width%3D%221.5%22%2F%3E%3Crect%20x%3D%2228%22%20y%3D%2222%22%20width%3D%2254%22%20height%3D%2270%22%20rx%3D%228%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M40%2042h30M40%2056h30M40%2070h18%22%20fill%3D%22none%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2286%22%20r%3D%2222%22%20fill%3D%22%23fff%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%226%22%2F%3E%3Cpath%20d%3D%22M86%2075v22M75%2086h22%22%20fill%3D%22none%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
   <style id="arttools-common-ui">:root {
-  --ui-font:
+  --az-font:
     "Noto Sans JP",
     "Hiragino Sans",
     "Hiragino Kaku Gothic ProN",
     Meiryo,
     sans-serif;
-  --ui-mono:
+  --az-mono:
     ui-monospace,
     SFMono-Regular,
     Menlo,
     Consolas,
     monospace;
-  --ui-editor-size: 14px;
-  --ui-title-size: 18px;
-  --ui-body-size: 14px;
-  --ui-action-size: 14px;
-  --ui-meta-size: 12px;
-  --ui-dialog-title-size: 20px;
-  --ui-panel-title-size: 16px;
-  --ui-gutter: 24px;
-  --ui-gap: 16px;
-  --ui-panel-padding: 12px;
-  --ui-panel-radius: 8px;
-  --ui-control-radius: 4px;
-  --ui-inner-radius: 6px;
-  --ui-dialog-radius: 12px;
-  --ui-panel-head-height: calc(max(var(--ui-action-min-height), var(--ui-control-height)) + var(--ui-panel-head-padding) * 2 + 1px);
-  --ui-panel-head-padding: 12px;
-  --ui-panel-head-inline: 16px;
-  --ui-action-min-height: 40px;
-  --ui-action-padding-block: 9px;
-  --ui-action-padding-inline: 16px;
-  --ui-action-icon-gap: 8px;
-  --ui-action-group-gap: 8px;
-  --ui-workspace-bottom: 16px;
-  --ui-editor-padding: 12px;
-  --ui-control-height: 40px;
-  --ui-select-height: 28px;
-  --ui-select-arrow-size: 16px;
-  --ui-select-arrow-inset: 10px;
-  --ui-select-text-gap: 8px;
-  --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
-  --ui-dialog-padding: 24px;
-  --ui-header-height: 48px;
-  --ui-app-icon-size: 24px;
-  --ui-main-top: 16px;
+  --az-editor-size: 14px;
+  --az-title-size: 18px;
+  --az-body-size: 14px;
+  --az-action-size: 14px;
+  --az-meta-size: 12px;
+  --az-dialog-title-size: 20px;
+  --az-panel-title-size: 16px;
+  --az-gutter: 24px;
+  --az-gap: 16px;
+  --az-panel-padding: 12px;
+  --az-panel-radius: 8px;
+  --az-control-radius: 4px;
+  --az-inner-radius: 6px;
+  --az-dialog-radius: 12px;
+  --az-panel-head-height: calc(max(var(--az-action-min-height), var(--az-control-height)) + var(--az-panel-head-padding) * 2 + 1px);
+  --az-panel-head-padding: 12px;
+  --az-panel-head-inline: 16px;
+  --az-action-min-height: 40px;
+  --az-action-padding-block: 9px;
+  --az-action-padding-inline: 16px;
+  --az-action-icon-gap: 8px;
+  --az-action-group-gap: 8px;
+  --az-workspace-bottom: 16px;
+  --az-editor-padding: 12px;
+  --az-control-height: 40px;
+  --az-select-height: 28px;
+  --az-select-arrow-size: 16px;
+  --az-select-arrow-inset: 10px;
+  --az-select-text-gap: 8px;
+  --az-select-text-inset: calc(var(--az-select-arrow-size) + var(--az-select-arrow-inset) + var(--az-select-text-gap));
+  --az-dialog-padding: 24px;
+  --az-header-height: 48px;
+  --az-app-icon-size: 24px;
+  --az-main-top: 16px;
 }
 html[data-ui-theme=light],
 html:not([data-ui-theme]) {
-  --ui-bg: #fefffa;
-  --ui-surface: #ffffff;
-  --ui-inset: #f9fafb;
-  --ui-muted-bg: #f3f4f6;
-  --ui-text: #1e2939;
-  --ui-text-secondary: #4a5565;
-  --ui-icon: #6a7282;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #676f7f;
-  --ui-border: #e5e7eb;
-  --ui-control-border: #d1d5dc;
-  --ui-input-border: #6a7282;
-  --ui-accent: #b4432f;
-  --ui-accent-soft: #fdf1ee;
-  --ui-secondary-text: #b4432f;
-  --ui-on-accent: #ffffff;
-  --ui-focus-ring: #ea6c5566;
-  --ui-focus-border: #ee846f;
-  --ui-success: #016630;
-  --ui-success-bg: #f0fdf4;
-  --ui-success-border: #b9f8cf;
-  --ui-warning: #a65f00;
-  --ui-warning-bg: #fefce8;
-  --ui-warning-border: #fff085;
-  --ui-error: #c10007;
-  --ui-error-bg: #fef2f2;
-  --ui-error-border: #ffc9c9;
-  --ui-shadow-sm: 0 1px 2px 0 #1018281a;
-  --ui-shadow-lg: 0 16px 40px -8px #10182829;
+  --az-bg: #fefffa;
+  --az-surface: #ffffff;
+  --az-inset: #f9fafb;
+  --az-muted-bg: #f3f4f6;
+  --az-text: #1e2939;
+  --az-text-secondary: #4a5565;
+  --az-icon: #6a7282;
+  --az-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-muted: #676f7f;
+  --az-border: #e5e7eb;
+  --az-control-border: #d1d5dc;
+  --az-input-border: #6a7282;
+  --az-accent: #b4432f;
+  --az-accent-soft: #fdf1ee;
+  --az-secondary-text: #b4432f;
+  --az-on-accent: #ffffff;
+  --az-focus-ring: #ea6c5566;
+  --az-focus-border: #ee846f;
+  --az-success: #016630;
+  --az-success-bg: #f0fdf4;
+  --az-success-border: #b9f8cf;
+  --az-warning: #a65f00;
+  --az-warning-bg: #fefce8;
+  --az-warning-border: #fff085;
+  --az-error: #c10007;
+  --az-error-bg: #fef2f2;
+  --az-error-border: #ffc9c9;
+  --az-shadow-sm: 0 1px 2px 0 #1018281a;
+  --az-shadow-lg: 0 16px 40px -8px #10182829;
   color-scheme: light;
 }
 html[data-ui-theme=dark] {
-  --ui-bg: #121317;
-  --ui-surface: #1a1b20;
-  --ui-inset: #212329;
-  --ui-muted-bg: #282a31;
-  --ui-text: #f3f4f6;
-  --ui-text-secondary: #d1d5dc;
-  --ui-icon: #99a1af;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #99a1af;
-  --ui-border: #353840;
-  --ui-control-border: #464a53;
-  --ui-input-border: #6a7282;
-  --ui-accent: #ee846f;
-  --ui-accent-soft: #33221f;
-  --ui-secondary-text: #f29e8c;
-  --ui-on-accent: #1e2939;
-  --ui-focus-ring: #ea6c5580;
-  --ui-focus-border: #ee846f;
-  --ui-success: #7bf1a8;
-  --ui-success-bg: #142a1f;
-  --ui-success-border: #1f5a37;
-  --ui-warning: #ffd54d;
-  --ui-warning-bg: #2c2615;
-  --ui-warning-border: #5e4a12;
-  --ui-error: #ffa2a2;
-  --ui-error-bg: #301b1f;
-  --ui-error-border: #6a2a2f;
-  --ui-shadow-sm: 0 1px 2px 0 #00000066;
-  --ui-shadow-lg: 0 20px 48px -8px #000000a6;
+  --az-bg: #121317;
+  --az-surface: #1a1b20;
+  --az-inset: #212329;
+  --az-muted-bg: #282a31;
+  --az-text: #f3f4f6;
+  --az-text-secondary: #d1d5dc;
+  --az-icon: #99a1af;
+  --az-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-muted: #99a1af;
+  --az-border: #353840;
+  --az-control-border: #464a53;
+  --az-input-border: #6a7282;
+  --az-accent: #ee846f;
+  --az-accent-soft: #33221f;
+  --az-secondary-text: #f29e8c;
+  --az-on-accent: #1e2939;
+  --az-focus-ring: #ea6c5580;
+  --az-focus-border: #ee846f;
+  --az-success: #7bf1a8;
+  --az-success-bg: #142a1f;
+  --az-success-border: #1f5a37;
+  --az-warning: #ffd54d;
+  --az-warning-bg: #2c2615;
+  --az-warning-border: #5e4a12;
+  --az-error: #ffa2a2;
+  --az-error-bg: #301b1f;
+  --az-error-border: #6a2a2f;
+  --az-shadow-sm: 0 1px 2px 0 #00000066;
+  --az-shadow-lg: 0 20px 48px -8px #000000a6;
   color-scheme: dark;
 }
-:root .art-app {
-  --ui-editor-bg: var(--ui-inset);
-  --gm-font: var(--ui-font);
-  --gm-text: var(--ui-text);
-  --gm-surface: var(--ui-surface);
-  --gm-background: var(--ui-bg);
-  --gm-input-border: var(--ui-input-border);
-  --gm-brand: var(--ui-accent);
-  --gm-brand-soft: var(--ui-accent-soft);
-  --gm-error: var(--ui-error);
-  --gm-focus: var(--ui-accent);
-  --gm-text-size: var(--ui-body-size);
-  --gm-label-size: var(--ui-body-size);
-  --gm-title-size: var(--ui-dialog-title-size);
-  --gm-title-line-height: 1.3;
-  --gm-section-title-size: var(--ui-body-size);
-  --gm-section-title-line-height: 1.5;
-  --gm-radius: var(--ui-panel-radius);
-  --gm-space-1: 4px;
-  --gm-space-2: 8px;
-  --gm-space-4: 16px;
-  --gm-button-height: var(--ui-control-height);
-  --gm-button-padding-block: 8px;
-  --gm-control-padding-inline: 12px;
-  --gm-control-icon-size: 18px;
-  font-family: var(--ui-font);
-  font-size: var(--ui-body-size);
+:root .az-app {
+  --az-editor-bg: var(--az-inset);
+  --az-gm-font: var(--az-font);
+  --az-gm-text: var(--az-text);
+  --az-gm-surface: var(--az-surface);
+  --az-gm-background: var(--az-bg);
+  --az-gm-input-border: var(--az-input-border);
+  --az-gm-brand: var(--az-accent);
+  --az-gm-brand-soft: var(--az-accent-soft);
+  --az-gm-error: var(--az-error);
+  --az-gm-focus: var(--az-accent);
+  --az-gm-text-size: var(--az-body-size);
+  --az-gm-label-size: var(--az-body-size);
+  --az-gm-title-size: var(--az-dialog-title-size);
+  --az-gm-title-line-height: 1.3;
+  --az-gm-section-title-size: var(--az-body-size);
+  --az-gm-section-title-line-height: 1.5;
+  --az-gm-radius: var(--az-panel-radius);
+  --az-gm-space-1: 4px;
+  --az-gm-space-2: 8px;
+  --az-gm-space-4: 16px;
+  --az-gm-button-height: var(--az-control-height);
+  --az-gm-button-padding-block: 8px;
+  --az-gm-control-padding-inline: 12px;
+  --az-gm-control-icon-size: 18px;
+  font-family: var(--az-font);
+  font-size: var(--az-body-size);
   line-height: 1.55;
-  color: var(--ui-text);
-  background: var(--ui-bg);
+  color: var(--az-text);
+  background: var(--az-bg);
   -webkit-font-smoothing: antialiased;
 }
-.art-app *,
-.art-app *::before,
-.art-app *::after {
+.az-app *,
+.az-app *::before,
+.az-app *::after {
   box-sizing: border-box;
 }
-.art-app :is(button, input, select) {
-  font-family: var(--ui-font);
+.az-app :is(button, input, select) {
+  font-family: var(--az-font);
 }
-.art-app :is(button, input, select, textarea) {
+.az-app :is(button, input, select, textarea) {
   letter-spacing: normal;
 }
-.art-app :is(input, textarea)::placeholder {
-  color: var(--ui-muted);
+.az-app :is(input, textarea)::placeholder {
+  color: var(--az-muted);
   opacity: 1;
 }
-.art-app[data-tool] summary {
-  font: 500 var(--ui-action-size)/20px var(--ui-font);
+.az-app[data-tool] summary {
+  font: 500 var(--az-action-size)/20px var(--az-font);
 }
-.art-app [hidden] {
+.az-app [hidden] {
   display: none !important;
 }
-.art-app :focus-visible {
-  outline: 2px solid var(--ui-focus-border);
+.az-app :focus-visible {
+  outline: 2px solid var(--az-focus-border);
   outline-offset: -2px;
 }
-.art-app :is(button, .gm-btn, .button) {
+.az-app :is(button, .az-btn) {
   cursor: pointer;
-  min-height: var(--ui-control-height);
+  min-height: var(--az-control-height);
   padding: 9px 16px;
-  border: 1px solid var(--ui-button-border, var(--ui-control-border));
-  border-radius: var(--ui-control-radius);
-  background: var(--ui-button-bg, var(--ui-surface));
-  color: var(--ui-button-text, var(--ui-text-secondary));
-  font-size: var(--ui-action-size);
+  border: 1px solid var(--az-button-border, var(--az-control-border));
+  border-radius: var(--az-control-radius);
+  background: var(--az-button-bg, var(--az-surface));
+  color: var(--az-button-text, var(--az-text-secondary));
+  font-size: var(--az-action-size);
   font-weight: 500;
   line-height: 20px;
   transition: none;
 }
-.art-app[data-tool] :is(button, .gm-btn, .button):focus-visible {
+.az-app[data-tool] :is(button, .az-btn):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--ui-focus-ring);
+  box-shadow: 0 0 0 3px var(--az-focus-ring);
 }
-.art-app :is(.gm-btn-primary) {
-  --ui-button-bg: var(--ui-accent);
-  --ui-button-text: var(--ui-on-accent);
-  background: var(--ui-button-bg);
-  color: var(--ui-button-text);
+.az-app :is(.az-btn-primary, .az-tool-copy-button, .az-tool-btn-primary, .az-btn-search, .az-primary-btn, .az-tool-btn.az-primary, .az-focus-btn.az-playable, .az-focus-action-btn.az-is-resume, .az-save-message-edit-btn) {
+  --az-button-bg: var(--az-accent);
+  --az-button-text: var(--az-on-accent);
+  background: var(--az-button-bg);
+  color: var(--az-button-text);
   border-color: transparent;
 }
-.art-app :is(.gm-copy-button[data-copied=true]) {
-  --ui-button-bg: var(--ui-success-bg);
-  --ui-button-text: var(--ui-success);
-  --ui-button-border: var(--ui-success-border);
-  background: var(--ui-button-bg);
-  color: var(--ui-button-text);
-  border-color: var(--ui-button-border);
+.az-app :is(.az-copy-button[data-copied=true]) {
+  --az-button-bg: var(--az-success-bg);
+  --az-button-text: var(--az-success);
+  --az-button-border: var(--az-success-border);
+  background: var(--az-button-bg);
+  color: var(--az-button-text);
+  border-color: var(--az-button-border);
 }
-.art-app :is([aria-label=\5217\3092\524a\9664]) {
-  --ui-button-bg: var(--ui-error-bg);
-  --ui-button-text: var(--ui-error);
-  --ui-button-border: var(--ui-error-border);
-  background: var(--ui-button-bg);
-  color: var(--ui-button-text);
-  border-color: var(--ui-button-border);
+.az-app :is(.az-btn-danger, .az-danger, .az-danger-btn, [aria-label=\5217\3092\524a\9664], .az-focus-action-btn.az-abort) {
+  --az-button-bg: var(--az-error-bg);
+  --az-button-text: var(--az-error);
+  --az-button-border: var(--az-error-border);
+  background: var(--az-button-bg);
+  color: var(--az-button-text);
+  border-color: var(--az-button-border);
 }
-.art-app[data-tool] :is(button, .gm-btn, .button):is(:disabled, [aria-disabled=true]) {
-  background: var(--ui-inset);
-  color: var(--ui-muted);
-  border-color: var(--ui-border);
+.az-app[data-tool] :is(button, .az-btn):is(:disabled, [aria-disabled=true]) {
+  background: var(--az-inset);
+  color: var(--az-muted);
+  border-color: var(--az-border);
   opacity: 1;
   cursor: not-allowed;
 }
-.art-app[data-tool] :is([data-row-drag], [data-col-drag]) {
+.az-app[data-tool] :is([data-row-drag], [data-col-drag]) {
   display: inline-grid;
   place-items: center;
   flex-shrink: 0;
   padding: 0;
   line-height: 1;
-  color: var(--ui-muted);
+  color: var(--az-muted);
 }
-.art-app[data-tool] :is([data-row-drag], [data-col-drag]),
-.art-app[data-tool] :is([data-row-drag], [data-col-drag]):is(:focus-visible, :active) {
+.az-app[data-tool] :is([data-row-drag], [data-col-drag]),
+.az-app[data-tool] :is([data-row-drag], [data-col-drag]):is(:focus-visible, :active) {
   background: transparent;
   background-image: none;
   border-color: transparent;
   box-shadow: none;
 }
-.art-app :is(.gm-icon) {
+.az-app :is(.az-icon) {
   width: 18px;
   height: 18px;
   inline-size: 18px;
   block-size: 18px;
 }
-.art-app :is(.gm-btn, .button) > :is(.gm-icon) {
+.az-app :is(.az-btn) > :is(.az-icon) {
   width: 16px;
   height: 16px;
   inline-size: 16px;
   block-size: 16px;
 }
-.art-app :is(input:not([type=checkbox]), select) {
-  border: 1px solid var(--ui-input-border);
-  border-radius: var(--ui-control-radius);
-  background: var(--ui-surface);
-  color: var(--ui-text);
+.az-app :is(input:not([type=checkbox]), select) {
+  border: 1px solid var(--az-input-border);
+  border-radius: var(--az-control-radius);
+  background: var(--az-surface);
+  color: var(--az-text);
 }
-.art-app .gm-textarea {
-  border: 1px solid var(--ui-input-border);
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-editor-bg);
+.az-app .az-textarea {
+  border: 1px solid var(--az-input-border);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-editor-bg);
 }
-.art-app :is(textarea, [contenteditable=true]):focus {
-  outline: 2px solid var(--ui-focus-border);
+.az-app :is(textarea, [contenteditable=true]):focus {
+  outline: 2px solid var(--az-focus-border);
   outline-offset: -2px;
-  border-color: var(--ui-focus-border);
+  border-color: var(--az-focus-border);
   box-shadow: none;
 }
-.art-app :is(input:not([type=checkbox], [type=radio]), select):focus {
+.az-app :is(input:not([type=checkbox], [type=radio]), select):focus {
   outline: none;
-  border-color: var(--ui-focus-border);
-  box-shadow: 0 0 0 3px var(--ui-focus-ring);
+  border-color: var(--az-focus-border);
+  box-shadow: 0 0 0 3px var(--az-focus-ring);
 }
-.art-app input[type=checkbox] {
-  accent-color: var(--ui-accent);
+.az-app input[type=checkbox] {
+  accent-color: var(--az-accent);
 }
-.art-app :is(textarea, pre) {
+.az-app :is(textarea, pre) {
   tab-size: 2;
 }
-.art-app .art-header {
+.az-app .az-header {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
-  min-height: var(--ui-header-height);
-  padding: 4px var(--ui-gutter);
-  background: var(--ui-surface);
-  border-bottom: 1px solid var(--ui-border);
+  min-height: var(--az-header-height);
+  padding: 4px var(--az-gutter);
+  background: var(--az-surface);
+  border-bottom: 1px solid var(--az-border);
 }
-.art-app .art-identity {
+.az-app .az-identity {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
 }
-.art-app .art-identity > div {
+.az-app .az-identity > div {
   min-width: 0;
 }
-.art-app .art-mark {
-  width: var(--ui-app-icon-size);
-  height: var(--ui-app-icon-size);
+.az-app .az-mark {
+  width: var(--az-app-icon-size);
+  height: var(--az-app-icon-size);
   flex: none;
   display: grid;
   place-items: center;
 }
-.art-app .art-mark svg {
+.az-app .az-mark svg {
   display: block;
   width: 100%;
   height: 100%;
 }
-.art-app .art-title {
+.az-app .az-title {
   margin: 0;
   display: block;
-  font-size: var(--ui-title-size);
+  font-size: var(--az-title-size);
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: .02em;
@@ -938,13 +938,13 @@ html[data-ui-theme=dark] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.art-app .art-header-actions {
+.az-app .az-header-actions {
   display: flex;
   flex: none;
   align-items: center;
   gap: 8px;
 }
-.art-app .art-header-button {
+.az-app .az-header-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -953,19 +953,19 @@ html[data-ui-theme=dark] {
   height: 32px;
   min-height: 32px;
   padding: 7px;
-  border: 1px solid var(--ui-control-border);
-  border-radius: var(--ui-control-radius);
-  background: var(--ui-surface);
-  color: var(--ui-icon);
+  border: 1px solid var(--az-control-border);
+  border-radius: var(--az-control-radius);
+  background: var(--az-surface);
+  color: var(--az-icon);
   white-space: nowrap;
   letter-spacing: normal;
 }
-.art-app .art-header-button svg {
+.az-app .az-header-button svg {
   flex: none;
   width: 16px;
   height: 16px;
 }
-.art-app .art-dialog {
+.az-app .az-dialog {
   position: fixed;
   inset: 0;
   width: min(480px, calc(100vw - 32px));
@@ -974,40 +974,40 @@ html[data-ui-theme=dark] {
   margin: auto;
   padding: 0;
   overflow: auto;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-dialog-radius);
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  box-shadow: var(--ui-shadow-lg);
-  font-family: var(--ui-font);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-dialog-radius);
+  background: var(--az-surface);
+  color: var(--az-text);
+  box-shadow: var(--az-shadow-lg);
+  font-family: var(--az-font);
   letter-spacing: normal;
 }
-.art-dialog::backdrop {
+.az-dialog::backdrop {
   background: #1e293966;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
-html[data-ui-theme=dark] .art-dialog::backdrop {
+html[data-ui-theme=dark] .az-dialog::backdrop {
   background: #000000a6;
 }
-.art-app .art-dialog[open] {
+.az-app .az-dialog[open] {
   animation: none;
 }
-.art-app .art-dialog-head {
+.az-app .az-dialog-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: var(--ui-dialog-padding) var(--ui-dialog-padding) 12px;
+  padding: var(--az-dialog-padding) var(--az-dialog-padding) 12px;
 }
-.art-app .art-dialog-title {
+.az-app .az-dialog-title {
   margin: 0;
-  font-size: var(--ui-dialog-title-size);
+  font-size: var(--az-dialog-title-size);
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: .04em;
 }
-.art-app .art-close {
+.az-app .az-close {
   display: grid;
   place-items: center;
   flex: none;
@@ -1015,54 +1015,54 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   min-height: 32px;
   padding: 6px;
   border: 0;
-  border-radius: var(--ui-control-radius);
+  border-radius: var(--az-control-radius);
   background: transparent;
-  color: var(--ui-icon);
+  color: var(--az-icon);
 }
-.art-app .art-close svg {
+.az-app .az-close svg {
   width: 18px;
   height: 18px;
 }
-.art-app .art-dialog-body {
-  padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
+.az-app .az-dialog-body {
+  padding: 0 var(--az-dialog-padding) var(--az-dialog-padding);
 }
-.art-app .art-settings-group {
+.az-app .az-settings-group {
   overflow: hidden;
   margin: 0 0 12px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-panel-radius);
-  background: var(--ui-surface);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-panel-radius);
+  background: var(--az-surface);
 }
-.art-app .art-settings-row {
+.az-app .az-settings-row {
   display: grid;
   gap: 6px;
   padding: 12px;
 }
-.art-app .art-theme-row {
+.az-app .az-theme-row {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
 }
-.art-app .art-theme-row .art-segments {
+.az-app .az-theme-row .az-segments {
   min-width: 216px;
 }
-.art-app .art-settings-row + .art-settings-row {
-  border-top: 1px solid var(--ui-border);
+.az-app .az-settings-row + .az-settings-row {
+  border-top: 1px solid var(--az-border);
 }
-.art-app .art-setting-label {
+.az-app .az-setting-label {
   margin: 0;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   font-weight: 500;
-  color: var(--ui-text-secondary);
+  color: var(--az-text-secondary);
 }
-.art-app .art-segments {
+.az-app .az-segments {
   display: flex;
   gap: 2px;
   padding: 3px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-muted-bg);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-muted-bg);
 }
-.art-app .art-segments button {
+.az-app .az-segments button {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -1073,41 +1073,41 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   padding: 7px 12px;
   white-space: nowrap;
   border: 0;
-  border-radius: var(--ui-control-radius);
+  border-radius: var(--az-control-radius);
   background: transparent;
-  color: var(--ui-text-secondary);
-  font-size: var(--ui-action-size);
+  color: var(--az-text-secondary);
+  font-size: var(--az-action-size);
   line-height: 20px;
 }
-.art-app .art-segments button[aria-pressed=true] {
-  background: var(--ui-surface);
-  color: var(--ui-text);
+.az-app .az-segments button[aria-pressed=true] {
+  background: var(--az-surface);
+  color: var(--az-text);
   font-weight: 700;
-  box-shadow: var(--ui-shadow-sm);
+  box-shadow: var(--az-shadow-sm);
 }
-.art-app .art-segments svg {
+.az-app .az-segments svg {
   width: 16px;
   height: 16px;
 }
-.art-app .art-preview {
+.az-app .az-preview {
   margin: 0;
   padding: 12px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-editor-bg);
-  font: var(--ui-editor-size)/1.7 var(--ui-mono);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-editor-bg);
+  font: var(--az-editor-size)/1.7 var(--az-mono);
   overflow: auto;
 }
-.art-app .art-save-note {
+.az-app .az-save-note {
   margin: 0 4px;
-  color: var(--ui-muted);
-  font-size: var(--ui-meta-size);
+  color: var(--az-muted);
+  font-size: var(--az-meta-size);
   line-height: 1.7;
 }
-.art-app .art-save-note[data-error=true] {
-  color: var(--ui-error);
+.az-app .az-save-note[data-error=true] {
+  color: var(--az-error);
 }
-.art-app .art-steps {
+.az-app .az-steps {
   list-style: none;
   display: grid;
   gap: 0;
@@ -1115,16 +1115,16 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   padding: 0;
   counter-reset: art-step;
 }
-.art-app .art-steps li {
+.az-app .az-steps li {
   position: relative;
   margin: 0;
   padding: 18px 18px 18px 58px;
   counter-increment: art-step;
 }
-.art-app .art-steps li + li {
-  border-top: 1px solid var(--ui-border);
+.az-app .az-steps li + li {
+  border-top: 1px solid var(--az-border);
 }
-.art-app .art-steps li::before {
+.az-app .az-steps li::before {
   content: counter(art-step);
   position: absolute;
   left: 18px;
@@ -1134,25 +1134,25 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: var(--ui-secondary-text);
-  background: var(--ui-accent-soft);
-  font-size: var(--ui-meta-size);
+  color: var(--az-secondary-text);
+  background: var(--az-accent-soft);
+  font-size: var(--az-meta-size);
   font-weight: 700;
 }
-.art-app .art-steps strong {
+.az-app .az-steps strong {
   display: block;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   font-weight: 700;
-  color: var(--ui-text);
+  color: var(--az-text);
 }
-.art-app .art-steps p {
+.az-app .az-steps p {
   margin: 4px 0 0;
-  color: var(--ui-muted);
-  font-size: var(--ui-body-size);
+  color: var(--az-muted);
+  font-size: var(--az-body-size);
   line-height: 1.55;
 }
 @media screen and (min-width: 1001px) and (min-height: 641px) {
-  .art-app {
+  .az-app {
     height: 100dvh;
     block-size: 100dvh;
     min-height: 0;
@@ -1160,7 +1160,7 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   }
 }
 @media screen and (max-width: 1000px), screen and (max-height: 640px) {
-  .art-app {
+  .az-app {
     height: auto;
     block-size: auto;
     min-height: 100dvh;
@@ -1169,153 +1169,153 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
 }
 @media (max-width: 650px) {
   :root {
-    --ui-gutter: 16px;
-    --ui-panel-head-inline: 12px;
-    --ui-control-height: 40px;
-    --ui-select-height: 32px;
-    --ui-dialog-padding: 16px;
+    --az-gutter: 16px;
+    --az-panel-head-inline: 12px;
+    --az-control-height: 40px;
+    --az-select-height: 32px;
+    --az-dialog-padding: 16px;
   }
-  .art-app :is(input:not([type=checkbox]), select) {
+  .az-app :is(input:not([type=checkbox]), select) {
     font-size: 16px;
   }
 }
 @media (any-pointer: coarse) {
   :root {
-    --ui-control-height: 44px;
-    --ui-select-height: 44px;
+    --az-control-height: 44px;
+    --az-select-height: 44px;
   }
-  .art-app .art-header-button {
+  .az-app .az-header-button {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
     padding: 12px;
   }
-  .art-app .art-segments button {
+  .az-app .az-segments button {
     min-height: 44px;
   }
-  .art-app .art-close {
+  .az-app .az-close {
     width: 44px;
     min-height: 44px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .art-app *,
-  .art-app *::before,
-  .art-app *::after {
+  .az-app *,
+  .az-app *::before,
+  .az-app *::after {
     transition: none !important;
     animation: none !important;
     scroll-behavior: auto !important;
   }
 }
 @media (forced-colors: active) {
-  .art-app :focus-visible,
-  .art-app[data-tool] :is(button, .gm-btn, .button):focus-visible {
+  .az-app :focus-visible,
+  .az-app[data-tool] :is(button, .az-btn):focus-visible {
     outline-color: Highlight;
   }
-  .art-app :is(button, .gm-btn, .button, .art-dialog, .art-settings-group) {
+  .az-app :is(button, .az-btn, .az-dialog, .az-settings-group) {
     border-color: ButtonText;
   }
-  .art-app .art-segments button[aria-pressed=true] {
+  .az-app .az-segments button[aria-pressed=true] {
     outline: 2px solid Highlight;
     outline-offset: -2px;
   }
 }
 @media print {
-  .art-app .art-header,
-  .art-app .art-dialog {
+  .az-app .az-header,
+  .az-app .az-dialog {
     display: none !important;
   }
-  :root .art-app {
-    --ui-bg: #fff;
-    --ui-surface: #fff;
-    --ui-inset: #fff;
-    --ui-text: #000;
-    --ui-muted: #444;
-    --ui-border: #bbb;
+  :root .az-app {
+    --az-bg: #fff;
+    --az-surface: #fff;
+    --az-inset: #fff;
+    --az-text: #000;
+    --az-muted: #444;
+    --az-border: #bbb;
     height: auto;
     overflow: visible;
   }
 }
-.art-app,
-.art-app *,
-.art-app *::before,
-.art-app *::after,
-.art-app dialog::backdrop {
+.az-app,
+.az-app *,
+.az-app *::before,
+.az-app *::after,
+.az-app dialog::backdrop {
   animation: none !important;
   transition: none !important;
   scroll-behavior: auto !important;
 }
-.art-app .art-dialog {
+.az-app .az-dialog {
   scrollbar-gutter: stable;
   scrollbar-width: auto;
 }
-.art-app .art-dialog::-webkit-scrollbar {
+.az-app .az-dialog::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-.art-app .art-dialog::-webkit-scrollbar-track {
+.az-app .az-dialog::-webkit-scrollbar-track {
   background: transparent;
 }
-.art-app .art-dialog::-webkit-scrollbar-thumb {
-  background: var(--ui-input-border);
-  border: 2px solid var(--ui-bg);
+.az-app .az-dialog::-webkit-scrollbar-thumb {
+  background: var(--az-input-border);
+  border: 2px solid var(--az-bg);
   border-radius: 8px;
 }
-.art-app #art-settings {
+.az-app #art-settings {
   scrollbar-width: none;
   scrollbar-gutter: auto;
 }
-.art-app #art-settings::-webkit-scrollbar {
+.az-app #art-settings::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
 }
 @media (max-width: 380px) {
-  .art-app .art-theme-row {
+  .az-app .az-theme-row {
     grid-template-columns: minmax(0, 1fr);
   }
-  .art-app .art-theme-row .art-segments {
+  .az-app .az-theme-row .az-segments {
     min-width: 0;
   }
 }
-.art-app :is(.art-dialog) {
+.az-app :is(.az-dialog, .az-modal[role=dialog], .az-drawer-panel, .az-confirm-panel) {
   max-width: calc(100vw - 32px);
   max-inline-size: calc(100vw - 32px);
   max-height: calc(100dvh - 48px);
   max-block-size: calc(100dvh - 48px);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-dialog-radius);
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  box-shadow: var(--ui-shadow-lg);
-  font: 400 var(--ui-body-size)/1.55 var(--ui-font);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-dialog-radius);
+  background: var(--az-surface);
+  color: var(--az-text);
+  box-shadow: var(--az-shadow-lg);
+  font: 400 var(--az-body-size)/1.55 var(--az-font);
   letter-spacing: normal;
 }
-.art-app :is(.art-dialog-head) {
+.az-app :is(.az-dialog-head, .az-modal[role=dialog] > .az-modal-header, .az-drawer-panel > .az-drawer-header) {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: var(--ui-dialog-padding) var(--ui-dialog-padding) 12px;
+  padding: var(--az-dialog-padding) var(--az-dialog-padding) 12px;
   margin: 0;
   border: 0;
   background: transparent;
   flex: none;
 }
-.art-app :is(.art-dialog-title) {
+.az-app :is(.az-dialog-title) {
   margin: 0;
-  font: 700 var(--ui-dialog-title-size)/1.4 var(--ui-font);
+  font: 700 var(--az-dialog-title-size)/1.4 var(--az-font);
   letter-spacing: .04em;
 }
-.art-app :is(.art-dialog-body) {
-  padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
+.az-app :is(.az-dialog-body, .az-modal[role=dialog] > .az-modal-body, .az-drawer-panel > .az-drawer-body) {
+  padding: 0 var(--az-dialog-padding) var(--az-dialog-padding);
   min-width: 0;
   min-height: 0;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   line-height: 1.55;
 }
-.art-app :is(.art-dialog-head > button) {
+.az-app :is(.az-dialog-head > button, .az-modal-header > .az-modal-close-btn, .az-drawer-header > button, .az-import-wizard-header > button) {
   display: grid;
   place-items: center;
   flex: none;
@@ -1325,140 +1325,140 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   min-height: 32px;
   padding: 6px;
   border: 0;
-  border-radius: var(--ui-control-radius);
+  border-radius: var(--az-control-radius);
   background: transparent;
-  color: var(--ui-icon);
+  color: var(--az-icon);
 }
-.art-app :is(.art-dialog-head > button) :is(svg, [data-icon]) {
+.az-app :is(.az-dialog-head > button) :is(svg, [data-icon]) {
   width: 18px;
   height: 18px;
   font-size: 18px;
   line-height: 1;
 }
-.art-app .art-dialog-body > p:not([class]) {
+.az-app .az-dialog-body > p:not([class]) {
   margin: 0 0 16px;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   line-height: 1.55;
 }
-.art-app .art-dialog-body > p:not([class]):last-child {
+.az-app .az-dialog-body > p:not([class]):last-child {
   margin-bottom: 0;
 }
 @media (any-pointer: coarse) {
-  .art-app :is(.art-dialog-head > button) {
+  .az-app :is(.az-dialog-head > button, .az-modal-header > .az-modal-close-btn, .az-drawer-header > button, .az-import-wizard-header > button) {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
   }
 }
-:root .art-app[data-tool=sbquery] {
-  --gm-mono-font: var(--ui-mono);
+:root .az-app[data-tool=sbquery] {
+  --az-gm-mono-font: var(--az-mono);
 }
-.art-app[data-tool=sbquery] .gm-app {
+.az-app[data-tool=sbquery] .az-gm-app {
   width: 100%;
   max-width: none;
   padding: 0;
   gap: 0;
   grid-template-rows: auto minmax(0, 1fr);
 }
-.art-app[data-tool=sbquery] .gm-editors {
+.az-app[data-tool=sbquery] .az-editors {
   width: 100%;
   max-width: 1680px;
   margin: 0 auto;
-  padding: var(--ui-main-top) var(--ui-gutter) var(--ui-workspace-bottom);
-  gap: var(--ui-gap);
+  padding: var(--az-main-top) var(--az-gutter) var(--az-workspace-bottom);
+  gap: var(--az-gap);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.art-app[data-tool=sbquery] .gm-editor {
+.az-app[data-tool=sbquery] .az-editor {
   gap: 0;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-panel-radius);
-  background: var(--ui-surface);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-panel-radius);
+  background: var(--az-surface);
   overflow: hidden;
 }
-.art-app[data-tool=sbquery] .gm-editor-head {
+.az-app[data-tool=sbquery] .az-editor-head {
   flex: none;
-  min-height: var(--ui-panel-head-height);
-  padding: var(--ui-panel-head-padding) var(--ui-panel-head-inline);
-  gap: var(--ui-action-group-gap) 16px;
-  border-bottom: 1px solid var(--ui-border);
+  min-height: var(--az-panel-head-height);
+  padding: var(--az-panel-head-padding) var(--az-panel-head-inline);
+  gap: var(--az-action-group-gap) 16px;
+  border-bottom: 1px solid var(--az-border);
 }
-.art-app[data-tool=sbquery] .gm-editor-head h2 {
-  font: 700 var(--ui-panel-title-size)/1.4 var(--ui-font);
+.az-app[data-tool=sbquery] .az-editor-head h2 {
+  font: 700 var(--az-panel-title-size)/1.4 var(--az-font);
   letter-spacing: .04em;
 }
-.art-app[data-tool=sbquery] .gm-textarea {
-  width: calc(100% - var(--ui-panel-padding) * 2);
+.az-app[data-tool=sbquery] .az-textarea {
+  width: calc(100% - var(--az-panel-padding) * 2);
   min-height: 160px;
-  margin: var(--ui-panel-padding);
-  padding: var(--ui-editor-padding);
-  font: var(--ui-editor-size)/1.7 var(--ui-mono);
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-inset);
+  margin: var(--az-panel-padding);
+  padding: var(--az-editor-padding);
+  font: var(--az-editor-size)/1.7 var(--az-mono);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-inset);
 }
-.art-app[data-tool=sbquery] .gm-copy-control {
+.az-app[data-tool=sbquery] .az-copy-control {
   gap: 4px;
 }
-.art-app[data-tool=sbquery] .gm-unconverted {
+.az-app[data-tool=sbquery] .az-unconverted {
   margin-inline: 0 auto;
   padding: 2px 10px;
-  border: 1px solid var(--ui-warning-border);
-  border-radius: var(--ui-control-radius);
-  background: var(--ui-warning-bg);
-  color: var(--ui-warning);
-  font: 500 var(--ui-meta-size)/1.6 var(--ui-font);
+  border: 1px solid var(--az-warning-border);
+  border-radius: var(--az-control-radius);
+  background: var(--az-warning-bg);
+  color: var(--az-warning);
+  font: 500 var(--az-meta-size)/1.6 var(--az-font);
   white-space: nowrap;
 }
 @media (max-width: 1000px), (max-height: 640px) {
-  .art-app[data-tool=sbquery] .gm-app {
+  .az-app[data-tool=sbquery] .az-gm-app {
     height: auto;
     block-size: auto;
     min-height: 100dvh;
     grid-template-rows: auto auto;
   }
-  .art-app[data-tool=sbquery] .gm-editors {
+  .az-app[data-tool=sbquery] .az-editors {
     grid-template-columns: minmax(0, 1fr);
     grid-auto-rows: auto;
   }
-  .art-app[data-tool=sbquery] .gm-textarea {
+  .az-app[data-tool=sbquery] .az-textarea {
     min-height: 320px;
     block-size: 320px;
   }
 }
-.art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
+.az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
-  height: var(--ui-select-height);
-  min-height: var(--ui-select-height);
+  height: var(--az-select-height);
+  min-height: var(--az-select-height);
   min-width: 0;
   max-width: 100%;
-  padding: 0 var(--ui-select-text-inset) 0 12px;
-  border: 1px solid var(--ui-input-border);
-  border-radius: var(--ui-control-radius);
-  background-color: var(--ui-surface);
-  background-image: var(--ui-select-arrow);
+  padding: 0 var(--az-select-text-inset) 0 12px;
+  border: 1px solid var(--az-input-border);
+  border-radius: var(--az-control-radius);
+  background-color: var(--az-surface);
+  background-image: var(--az-select-arrow);
   background-repeat: no-repeat;
-  background-position: right var(--ui-select-arrow-inset) center;
-  background-size: var(--ui-select-arrow-size) var(--ui-select-arrow-size);
-  color: var(--ui-text);
-  font: 400 var(--ui-body-size)/20px var(--ui-font);
+  background-position: right var(--az-select-arrow-inset) center;
+  background-size: var(--az-select-arrow-size) var(--az-select-arrow-size);
+  color: var(--az-text);
+  font: 400 var(--az-body-size)/20px var(--az-font);
   text-overflow: ellipsis;
   cursor: pointer;
   box-shadow: none;
 }
-.art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]):disabled {
-  background-image: var(--ui-select-arrow-disabled);
-  color: var(--ui-muted);
+.az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]):disabled {
+  background-image: var(--az-select-arrow-disabled);
+  color: var(--az-muted);
   cursor: not-allowed;
 }
 @media (max-width: 650px) {
-  .art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
+  .az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
     font-size: 16px;
   }
 }
 @media (forced-colors: active) {
-  .art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
+  .az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
     appearance: auto;
     -webkit-appearance: auto;
     background-image: none;
@@ -1467,22 +1467,22 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
     color: ButtonText;
   }
 }
-body.art-app[data-tool=sbquery] :is(button.gm-btn) {
-  min-height: max(var(--ui-action-min-height), var(--ui-control-height));
+body.az-app[data-tool=sbquery] :is(button.az-btn) {
+  min-height: max(var(--az-action-min-height), var(--az-control-height));
   height: auto;
-  padding: var(--ui-action-padding-block) var(--ui-action-padding-inline);
+  padding: var(--az-action-padding-block) var(--az-action-padding-inline);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--ui-action-icon-gap);
-  font-size: var(--ui-action-size);
+  gap: var(--az-action-icon-gap);
+  font-size: var(--az-action-size);
   font-weight: 500;
   line-height: 20px;
   max-width: 100%;
   white-space: nowrap;
   flex-shrink: 0;
 }
-body.art-app[data-tool=sbquery] :is(button.gm-btn) > :is(svg, [data-icon]) {
+body.az-app[data-tool=sbquery] :is(button.az-btn) > :is(svg, [data-icon]) {
   width: 16px;
   height: 16px;
   inline-size: 16px;
@@ -1493,15 +1493,15 @@ body.art-app[data-tool=sbquery] :is(button.gm-btn) > :is(svg, [data-icon]) {
   line-height: 16px;
   margin: 0;
 }
-body.art-app[data-tool=sbquery] :is(button.gm-btn) > [data-icon] svg {
+body.az-app[data-tool=sbquery] :is(button.az-btn) > [data-icon] svg {
   width: 16px;
   height: 16px;
 }
-body.art-app[data-tool=sbquery] :is(.gm-copy-control) {
-  gap: var(--ui-action-group-gap);
+body.az-app[data-tool=sbquery] :is(.az-copy-control) {
+  gap: var(--az-action-group-gap);
   flex-wrap: wrap;
 }
-body.art-app[data-tool=sbquery] :is(#gm-clear-button):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.az-app[data-tool=sbquery] :is(#gm-clear-button):not(:has(svg, .az-material-symbols-outlined, .az-material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -1512,7 +1512,7 @@ body.art-app[data-tool=sbquery] :is(#gm-clear-button):not(:has(svg, .material-sy
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M9%205h11v14H9l-6-7Z%22%2F%3E%3Cpath%20d%3D%22m12%209%205%206m0-6-5%206%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M9%205h11v14H9l-6-7Z%22%2F%3E%3Cpath%20d%3D%22m12%209%205%206m0-6-5%206%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=sbquery] :is(#gm-undo-clear-button):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.az-app[data-tool=sbquery] :is(#gm-undo-clear-button):not(:has(svg, .az-material-symbols-outlined, .az-material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -1523,7 +1523,7 @@ body.art-app[data-tool=sbquery] :is(#gm-undo-clear-button):not(:has(svg, .materi
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M8%204%203%209l5%205%20M3%209h10a7%207%200%200%201%200%2014%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M8%204%203%209l5%205%20M3%209h10a7%207%200%200%201%200%2014%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=sbquery] :is(#gm-copy-button):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.az-app[data-tool=sbquery] :is(#az-copy-button):not(:has(svg, .az-material-symbols-outlined, .az-material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -1536,83 +1536,83 @@ body.art-app[data-tool=sbquery] :is(#gm-copy-button):not(:has(svg, .material-sym
 }
 </style>
   </head>
-<body class="art-app" data-tool="sbquery">
-  <main id="gm-app" class="gm-app">
+<body class="az-app" data-tool="sbquery">
+  <main id="az-gm-app" class="az-gm-app">
     
-    <header class="art-header">
-      <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="sbquery" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><defs><linearGradient id="art-icon-sbquery-light-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#7c3aed"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-sbquery-light-light)"/><rect x="28" y="22" width="54" height="70" rx="8" fill="#fff"/><path d="M40 42h30M40 56h30M40 70h18" fill="none" stroke="#7c3aed" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="86" cy="86" r="22" fill="#fff" stroke="#7c3aed" stroke-width="6"/><path d="M86 75v22M75 86h22" fill="none" stroke="#7c3aed" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><defs><linearGradient id="art-icon-sbquery-dark-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#8b5cf6"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-sbquery-dark-light)"/><rect x="4.75" y="4.75" width="118.5" height="118.5" rx="27.25" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1.5"/><rect x="28" y="22" width="54" height="70" rx="8" fill="#fff"/><path d="M40 42h30M40 56h30M40 70h18" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="86" cy="86" r="22" fill="#fff" stroke="#8b5cf6" stroke-width="6"/><path d="M86 75v22M75 86h22" fill="none" stroke="#8b5cf6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
-        <div><h1 class="art-title" title="sb.addQuery 双方向変換ツール">sb.addQuery 双方向変換ツール</h1></div>
+    <header class="az-header">
+      <div class="az-identity">
+        <span class="az-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="sbquery" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><defs><linearGradient id="art-icon-sbquery-light-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#7c3aed"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-sbquery-light-light)"/><rect x="28" y="22" width="54" height="70" rx="8" fill="#fff"/><path d="M40 42h30M40 56h30M40 70h18" fill="none" stroke="#7c3aed" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="86" cy="86" r="22" fill="#fff" stroke="#7c3aed" stroke-width="6"/><path d="M86 75v22M75 86h22" fill="none" stroke="#7c3aed" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><defs><linearGradient id="art-icon-sbquery-dark-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#8b5cf6"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-sbquery-dark-light)"/><rect x="4.75" y="4.75" width="118.5" height="118.5" rx="27.25" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1.5"/><rect x="28" y="22" width="54" height="70" rx="8" fill="#fff"/><path d="M40 42h30M40 56h30M40 70h18" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="86" cy="86" r="22" fill="#fff" stroke="#8b5cf6" stroke-width="6"/><path d="M86 75v22M75 86h22" fill="none" stroke="#8b5cf6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
+        <div><h1 class="az-title" title="sb.addQuery 双方向変換ツール">sb.addQuery 双方向変換ツール</h1></div>
       </div>
-      <div class="art-header-actions">
-        <button type="button" class="art-header-button" id="art-help-button" aria-label="使い方" title="使い方" aria-haspopup="dialog" aria-controls="art-help" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 0 1 4.4 1c0 1.5-2.2 1.8-2.2 3.2M12 16.5h.01"/></svg></button>
-        <button type="button" class="art-header-button" id="art-settings-button" aria-label="設定" title="設定" aria-haspopup="dialog" aria-controls="art-settings" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.4 4 .6-2h4l.6 2 1.8 1 2-.4 2 3.5-1.4 1.6v2l1.4 1.6-2 3.5-2-.4-1.8 1-.6 2h-4l-.6-2-1.8-1-2 .4-2-3.5L5 12.7v-2L3.6 9.1l2-3.5 2 .4 1.8-1Z" transform="translate(0 1)"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <div class="az-header-actions">
+        <button type="button" class="az-header-button" id="art-help-button" aria-label="使い方" title="使い方" aria-haspopup="dialog" aria-controls="art-help" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 0 1 4.4 1c0 1.5-2.2 1.8-2.2 3.2M12 16.5h.01"/></svg></button>
+        <button type="button" class="az-header-button" id="art-settings-button" aria-label="設定" title="設定" aria-haspopup="dialog" aria-controls="art-settings" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.4 4 .6-2h4l.6 2 1.8 1 2-.4 2 3.5-1.4 1.6v2l1.4 1.6-2 3.5-2-.4-1.8 1-.6 2h-4l-.6-2-1.8-1-2 .4-2-3.5L5 12.7v-2L3.6 9.1l2-3.5 2 .4 1.8-1Z" transform="translate(0 1)"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-      <div class="art-legacy-theme" hidden><button type="button" id="gm-theme-button"></button></div>
+      <div class="az-legacy-theme" hidden><button type="button" id="gm-theme-button"></button></div>
     </header>
     
 
-<p id="gm-converter-help" class="gm-sr">通常テキストとsb.addQuery形式を相互変換します。どちらの欄も編集できます。</p>
+<p id="gm-converter-help" class="az-sr">通常テキストとsb.addQuery形式を相互変換します。どちらの欄も編集できます。</p>
 
-    <noscript><p class="gm-error-text">自動変換とテーマ切替にはJavaScriptを有効にしてください。</p></noscript>
+    <noscript><p class="az-error-text">自動変換とテーマ切替にはJavaScriptを有効にしてください。</p></noscript>
 
-    <section class="gm-editors" aria-label="双方向変換エリア">
-      <section class="gm-editor" aria-labelledby="gm-plain-heading">
-        <div class="gm-editor-head">
+    <section class="az-editors" aria-label="双方向変換エリア">
+      <section class="az-editor" aria-labelledby="gm-plain-heading">
+        <div class="az-editor-head">
           <h2 id="gm-plain-heading"><label for="gm-plain-text">通常テキスト</label></h2>
-          <button id="gm-clear-button" class="gm-btn" type="button">
+          <button id="gm-clear-button" class="az-btn" type="button">
             <span>クリア</span>
           </button>
-          <button id="gm-undo-clear-button" class="gm-btn" type="button" aria-label="クリアした内容を元に戻す" hidden>
+          <button id="gm-undo-clear-button" class="az-btn" type="button" aria-label="クリアした内容を元に戻す" hidden>
             <span>元に戻す</span>
           </button>
         </div>
-        <textarea data-art-autofocus data-art-persist id="gm-plain-text" class="gm-textarea" name="plainText" aria-describedby="gm-converter-help" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off"></textarea>
+        <textarea data-art-autofocus data-art-persist id="gm-plain-text" class="az-textarea" name="plainText" aria-describedby="gm-converter-help" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off"></textarea>
       </section>
 
-      <section class="gm-editor" aria-labelledby="gm-query-heading">
-        <div class="gm-editor-head">
+      <section class="az-editor" aria-labelledby="gm-query-heading">
+        <div class="az-editor-head">
           <h2 id="gm-query-heading"><label for="gm-query-text">addQuery形式</label></h2>
-          <span id="gm-unconverted-status" class="gm-unconverted" role="status" hidden></span>
-          <span class="gm-copy-control">
-            <button id="gm-copy-button" class="gm-btn gm-btn-primary gm-copy-button" type="button" data-copied="false" disabled="disabled">
-              <svg xmlns="http://www.w3.org/2000/svg" class="gm-icon" data-icon="content_copy" viewBox="0 -960 960 960" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"/></svg>
-              <span class="gm-copy-label">
+          <span id="gm-unconverted-status" class="az-unconverted" role="status" hidden></span>
+          <span class="az-copy-control">
+            <button id="az-copy-button" class="az-btn az-btn-primary az-copy-button" type="button" data-copied="false" disabled="disabled">
+              <svg xmlns="http://www.w3.org/2000/svg" class="az-icon" data-icon="content_copy" viewBox="0 -960 960 960" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M360-240q-29.7 0-50.85-21.15Q288-282.3 288-312v-480q0-29.7 21.15-50.85Q330.3-864 360-864h384q29.7 0 50.85 21.15Q816-821.7 816-792v480q0 29.7-21.15 50.85Q773.7-240 744-240H360Zm0-72h384v-480H360v480ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-552h72v552h456v72H216Zm144-216v-480 480Z"/></svg>
+              <span class="az-copy-label">
                 <span data-copy-label>コピー</span>
                 <span data-copy-success aria-hidden="true">コピーしました</span>
               </span>
             </button>
-            <span id="gm-copy-status" class="gm-sr" role="status" aria-atomic="true"></span>
+            <span id="gm-copy-status" class="az-sr" role="status" aria-atomic="true"></span>
           </span>
         </div>
-        <textarea id="gm-query-text" class="gm-textarea" name="queryText" aria-describedby="gm-converter-help" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off"></textarea>
+        <textarea id="gm-query-text" class="az-textarea" name="queryText" aria-describedby="gm-converter-help" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off"></textarea>
       </section>
     </section>
   </main>
 
-    <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body">
-        <div class="art-settings-group">
-          <div class="art-settings-row art-theme-row">
-            <p class="art-setting-label" id="art-theme-label">外観</p>
-            <div class="art-segments" role="group" aria-labelledby="art-theme-label"><button type="button" data-art-theme="light" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>ライト</button><button type="button" data-art-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13a8.7 8.7 0 0 1-9.5-9.5A8.7 8.7 0 1 0 20.5 13Z"/></svg>ダーク</button></div>
+    <dialog class="az-dialog" id="art-settings" aria-labelledby="art-settings-title">
+      <div class="az-dialog-head"><h2 class="az-dialog-title" id="art-settings-title">設定</h2><button type="button" class="az-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <div class="az-dialog-body">
+        <div class="az-settings-group">
+          <div class="az-settings-row az-theme-row">
+            <p class="az-setting-label" id="art-theme-label">外観</p>
+            <div class="az-segments" role="group" aria-labelledby="art-theme-label"><button type="button" data-art-theme="light" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>ライト</button><button type="button" data-art-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13a8.7 8.7 0 0 1-9.5-9.5A8.7 8.7 0 1 0 20.5 13Z"/></svg>ダーク</button></div>
           </div>
-          <div class="art-settings-row">
-            <p class="art-setting-label" id="art-size-label">エディターの文字サイズ</p>
-            <div class="art-segments" role="group" aria-labelledby="art-size-label"><button type="button" data-art-size="10" title="10px" aria-pressed="false">小さめ</button><button type="button" data-art-size="14" title="14px" aria-pressed="true">標準</button><button type="button" data-art-size="18" title="18px" aria-pressed="false">大きめ</button></div>
-            <pre class="art-preview" aria-label="文字サイズのプレビュー">sb.addQuery(&quot; SELECT * &quot;);
+          <div class="az-settings-row">
+            <p class="az-setting-label" id="art-size-label">エディターの文字サイズ</p>
+            <div class="az-segments" role="group" aria-labelledby="art-size-label"><button type="button" data-art-size="10" title="10px" aria-pressed="false">小さめ</button><button type="button" data-art-size="14" title="14px" aria-pressed="true">標準</button><button type="button" data-art-size="18" title="18px" aria-pressed="false">大きめ</button></div>
+            <pre class="az-preview" aria-label="文字サイズのプレビュー">sb.addQuery(&quot; SELECT * &quot;);
 sb.addQuery(&quot; FROM users &quot;);
 sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
           </div>
         </div>
-        <p class="art-save-note" id="art-save-note" role="status" hidden></p>
+        <p class="az-save-note" id="az-save-note" role="status" hidden></p>
         
       </div>
     </dialog>
-    <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>どちらかの欄へ入力する</strong><p>左に通常テキスト、右にsb.addQuery形式を入力します。編集した側から、もう一方へ自動変換します。右欄は sb.addQWPNB(...) と、Javaのテキストブロック（sb.addQuery(""" ～ """);）が混在していても読み取ります。左欄から作る右欄は sb.addQuery 形式です。</p></li><li><strong>変換内容を確認する</strong><p>改行、空行、ダブルクォートやバックスラッシュを含む内容を確認します。各行は改行なしで連結されるため、SQLの行コメント（--）は /* */ に置き換えます。sb.addQuery(" A = ? ", today); のような引数付きの行は A = ? /* today */ と表示し、左から戻すと引数へ戻します。連結を含むJava行や、? と引数の数が合わない行は変換せず原文のまま残します。両方の欄を編集できます。</p></li><li><strong>結果をコピーする</strong><p>右上の「コピー」でsb.addQuery形式をコピーします。「クリア」は両方の欄を空にし、次に入力するまで「元に戻す」で復元できます。変換できない行は原文のまま残し、右欄の上に「未変換」の件数を表示します。入力はこのブラウザーに保存され、次に開いたときに復元されます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+    <dialog class="az-dialog" id="art-help" aria-labelledby="art-help-title">
+      <div class="az-dialog-head"><h2 class="az-dialog-title" id="art-help-title">使い方</h2><button type="button" class="az-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <div class="az-dialog-body"><div class="az-settings-group"><ol class="az-steps"><li><strong>どちらかの欄へ入力する</strong><p>左に通常テキスト、右にsb.addQuery形式を入力します。編集した側から、もう一方へ自動変換します。右欄は sb.addQWPNB(...) と、Javaのテキストブロック（sb.addQuery(""" ～ """);）が混在していても読み取ります。左欄から作る右欄は sb.addQuery 形式です。</p></li><li><strong>変換内容を確認する</strong><p>改行、空行、ダブルクォートやバックスラッシュを含む内容を確認します。各行は改行なしで連結されるため、SQLの行コメント（--）は /* */ に置き換えます。sb.addQuery(" A = ? ", today); のような引数付きの行は A = ? /* today */ と表示し、左から戻すと引数へ戻します。連結を含むJava行や、? と引数の数が合わない行は変換せず原文のまま残します。両方の欄を編集できます。</p></li><li><strong>結果をコピーする</strong><p>右上の「コピー」でsb.addQuery形式をコピーします。「クリア」は両方の欄を空にし、次に入力するまで「元に戻す」で復元できます。変換できない行は原文のまま残し、右欄の上に「未変換」の件数を表示します。入力はこのブラウザーに保存され、次に開いたときに復元されます。</p></li></ol></div><p class="az-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
   <script id="arttools-common-ui-script">(() => {
@@ -1623,7 +1623,7 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
   const legacySharedKey = "arttools.shared-ui.v1";
   const settingsDialog = document.getElementById("art-settings");
   const helpDialog = document.getElementById("art-help");
-  const saveNote = document.getElementById("art-save-note");
+  const saveNote = document.getElementById("az-save-note");
   let preferences = {};
   let faviconTheme = "";
   const validTheme = value => value === "light" || value === "dark";
@@ -1659,7 +1659,7 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
     syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg");
+    const original = document.querySelector(".az-mark svg");
     const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
@@ -1678,7 +1678,7 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    root.style.setProperty("--az-editor-size", nextSize + "px");
     document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
     });
@@ -1713,7 +1713,7 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
     dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
       button.setAttribute("aria-expanded", "false");
-      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const activeLegacy = document.querySelector(".az-modal-overlay.az-show, .az-confirm-modal:not([hidden]), .az-drawer.az-is-open");
       const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
       destination.focus({
         preventScroll: true
@@ -1733,7 +1733,7 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
     });
   }
   body.addEventListener("keydown", event => {
-    const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
+    const dialog = event.target instanceof Element ? event.target.closest("dialog.az-dialog[open]") : null;
     if (!dialog) {
       return;
     }

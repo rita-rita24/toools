@@ -19,25 +19,25 @@
 })();</script>
     <style id="app-styles">:root {
   color-scheme: light;
-  --gm-text: #252b33;
-  --gm-muted: #55616f;
-  --gm-surface: #fff;
-  --gm-background: #f5f6f8;
-  --gm-border: #d5dae1;
-  --gm-input-border: #788391;
-  --gm-warning: #775000;
-  --gm-warning-bg: #fff6df;
-  --gm-error: #aa2424;
-  --gm-error-bg: #fff0f0;
-  --gm-brand: #174da7;
-  --gm-brand-soft: #eff3f9;
-  --gm-focus: var(--gm-brand);
-  --gm-font:
+  --az-gm-text: #252b33;
+  --az-gm-muted: #55616f;
+  --az-gm-surface: #fff;
+  --az-gm-background: #f5f6f8;
+  --az-gm-border: #d5dae1;
+  --az-gm-input-border: #788391;
+  --az-gm-warning: #775000;
+  --az-gm-warning-bg: #fff6df;
+  --az-gm-error: #aa2424;
+  --az-gm-error-bg: #fff0f0;
+  --az-gm-brand: #174da7;
+  --az-gm-brand-soft: #eff3f9;
+  --az-gm-focus: var(--az-gm-brand);
+  --az-gm-font:
     "Noto Sans JP",
     "Hiragino Kaku Gothic ProN",
     "Yu Gothic",
     sans-serif;
-  --gm-code-font:
+  --az-gm-code-font:
     ui-monospace,
     SFMono-Regular,
     Menlo,
@@ -45,50 +45,50 @@
     Consolas,
     "Liberation Mono",
     monospace;
-  --gm-text-size: .875rem;
-  --gm-label-size: .8125rem;
-  --gm-meta-size: .75rem;
-  --gm-code-line-height: 1.5rem;
-  --gm-space-1: .25rem;
-  --gm-space-2: .5rem;
-  --gm-space-3: .75rem;
-  --gm-space-4: 1rem;
-  --gm-space-5: 1.5rem;
-  --gm-space-6: 2rem;
-  --gm-space-7: 3rem;
-  --gm-radius: .25rem;
-  --gm-control-height: 1.875rem;
-  --gm-control-text-size: var(--gm-label-size);
-  --gm-control-line-height: 1.125rem;
-  --gm-control-icon-size: 1rem;
-  font-family: var(--gm-font);
+  --az-gm-text-size: .875rem;
+  --az-gm-label-size: .8125rem;
+  --az-gm-meta-size: .75rem;
+  --az-gm-code-line-height: 1.5rem;
+  --az-gm-space-1: .25rem;
+  --az-gm-space-2: .5rem;
+  --az-gm-space-3: .75rem;
+  --az-gm-space-4: 1rem;
+  --az-gm-space-5: 1.5rem;
+  --az-gm-space-6: 2rem;
+  --az-gm-space-7: 3rem;
+  --az-gm-radius: .25rem;
+  --az-gm-control-height: 1.875rem;
+  --az-gm-control-text-size: var(--az-gm-label-size);
+  --az-gm-control-line-height: 1.125rem;
+  --az-gm-control-icon-size: 1rem;
+  font-family: var(--az-gm-font);
   font-size: 100%;
   line-height: 1.65;
-  color: var(--gm-text);
-  background: var(--gm-surface);
+  color: var(--az-gm-text);
+  background: var(--az-gm-surface);
   overflow-wrap: anywhere;
   @media screen {
     &[data-theme=dark] {
       color-scheme: dark;
-      --gm-text: #e7ebf0;
-      --gm-muted: #b4bdc9;
-      --gm-surface: #1c232d;
-      --gm-background: #131922;
-      --gm-border: #414d5d;
-      --gm-input-border: #8b98a9;
-      --gm-warning: #ebc26d;
-      --gm-warning-bg: #362c18;
-      --gm-error: #faa;
-      --gm-error-bg: #3d2428;
-      --gm-brand: #abbfdf;
-      --gm-brand-soft: #263347;
+      --az-gm-text: #e7ebf0;
+      --az-gm-muted: #b4bdc9;
+      --az-gm-surface: #1c232d;
+      --az-gm-background: #131922;
+      --az-gm-border: #414d5d;
+      --az-gm-input-border: #8b98a9;
+      --az-gm-warning: #ebc26d;
+      --az-gm-warning-bg: #362c18;
+      --az-gm-error: #faa;
+      --az-gm-error-bg: #3d2428;
+      --az-gm-brand: #abbfdf;
+      --az-gm-brand-soft: #263347;
     }
   }
   @media (any-pointer: coarse) {
-    --gm-control-height: 2.75rem;
-    --gm-control-text-size: 1rem;
-    --gm-control-line-height: 1.5rem;
-    --gm-control-icon-size: 1.25rem;
+    --az-gm-control-height: 2.75rem;
+    --az-gm-control-text-size: 1rem;
+    --az-gm-control-line-height: 1.5rem;
+    --az-gm-control-icon-size: 1.25rem;
   }
 }
 *,
@@ -112,8 +112,8 @@ body {
   block-size: 100dvh;
   min-inline-size: 0;
   margin: 0;
-  background: var(--gm-background);
-  font-size: var(--gm-text-size);
+  background: var(--az-gm-background);
+  font-size: var(--az-gm-text-size);
   @media (width <= 62rem), (height <= 36rem) {
     block-size: auto;
     min-block-size: 100dvh;
@@ -124,7 +124,7 @@ body {
   }
 }
 :focus-visible {
-  outline: 2px solid var(--gm-focus);
+  outline: 2px solid var(--az-gm-focus);
   outline-offset: 0;
   @media (forced-colors: active) {
     outline-color: Highlight;
@@ -132,7 +132,7 @@ body {
 }
 :focus-visible,
 [id] {
-  scroll-margin-block: var(--gm-space-4);
+  scroll-margin-block: var(--az-gm-space-4);
 }
 button,
 textarea {
@@ -150,20 +150,20 @@ button[aria-disabled=true] {
   cursor: default;
   opacity: .6;
 }
-.gm-btn {
+.az-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--gm-space-2);
-  min-block-size: var(--gm-control-height);
-  padding: .125rem var(--gm-space-2);
-  border: 1px solid var(--gm-input-border);
-  border-radius: var(--gm-radius);
-  background: var(--gm-surface);
-  color: var(--gm-text);
-  font-size: var(--gm-control-text-size);
+  gap: var(--az-gm-space-2);
+  min-block-size: var(--az-gm-control-height);
+  padding: .125rem var(--az-gm-space-2);
+  border: 1px solid var(--az-gm-input-border);
+  border-radius: var(--az-gm-radius);
+  background: var(--az-gm-surface);
+  color: var(--az-gm-text);
+  font-size: var(--az-gm-control-text-size);
   font-weight: 600;
-  line-height: var(--gm-control-line-height);
+  line-height: var(--az-gm-control-line-height);
   text-decoration: none;
   &:focus-visible {
     outline-offset: -2px;
@@ -175,112 +175,112 @@ button[aria-disabled=true] {
     display: none;
   }
 }
-.gm-badge {
-  font-size: var(--gm-label-size);
+.az-badge {
+  font-size: var(--az-gm-label-size);
   font-weight: 500;
-  color: var(--gm-muted);
-  &.fix {
-    color: var(--gm-error);
+  color: var(--az-gm-muted);
+  &.az-fix {
+    color: var(--az-gm-error);
   }
-  &.warn {
-    color: var(--gm-warning);
+  &.az-warn {
+    color: var(--az-gm-warning);
   }
-  &.info {
-    color: var(--ui-secondary-text, var(--gm-brand));
+  &.az-info {
+    color: var(--az-secondary-text, var(--az-gm-brand));
   }
 }
-.workspace {
+.az-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(22rem, .75fr);
   flex: 1;
-  gap: var(--gm-space-4);
+  gap: var(--az-gm-space-4);
   inline-size: min(100rem, 100%);
   min-block-size: 0;
   margin-inline: auto;
-  padding: var(--gm-space-5);
+  padding: var(--az-gm-space-5);
   @media (width <= 62rem), (height <= 36rem) {
     grid-template-columns: minmax(0, 1fr);
     flex: none;
-    padding: var(--gm-space-4);
+    padding: var(--az-gm-space-4);
   }
   @media (width <= 35rem) {
-    gap: var(--gm-space-3);
-    padding: var(--gm-space-3);
+    gap: var(--az-gm-space-3);
+    padding: var(--az-gm-space-3);
   }
   @media print {
     display: block;
     padding: 0;
   }
 }
-.panel {
+.az-tool-panel {
   display: flex;
   flex-direction: column;
   min-inline-size: 0;
   min-block-size: 0;
   overflow: hidden;
-  border: 1px solid var(--gm-border);
-  border-radius: var(--gm-radius);
-  background: var(--gm-surface);
-  .panel-head {
+  border: 1px solid var(--az-gm-border);
+  border-radius: var(--az-gm-radius);
+  background: var(--az-gm-surface);
+  .az-panel-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     flex: none;
-    gap: var(--gm-space-2);
-    padding: var(--gm-space-2) var(--gm-space-4);
+    gap: var(--az-gm-space-2);
+    padding: var(--az-gm-space-2) var(--az-gm-space-4);
     @media (width <= 35rem) {
-      padding-inline: var(--gm-space-3);
+      padding-inline: var(--az-gm-space-3);
     }
   }
-  .panel-title {
+  .az-panel-title {
     margin: 0;
-    font-size: var(--gm-text-size);
+    font-size: var(--az-gm-text-size);
     line-height: 1.25rem;
   }
   @media (width <= 62rem), (height <= 36rem) {
-    &.editor-panel {
+    &.az-editor-panel {
       min-block-size: max(25rem, 55dvh);
     }
-    &.review-panel {
+    &.az-review-panel {
       min-block-size: 20rem;
     }
   }
   @media print {
-    &.editor-panel {
+    &.az-editor-panel {
       display: none;
     }
   }
 }
-.language-tabs {
+.az-language-tabs {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--gm-space-2);
-  .lang-btn[aria-pressed=true] {
-    background: var(--gm-brand-soft);
-    border-color: var(--gm-brand);
-    color: var(--gm-brand);
+  gap: var(--az-gm-space-2);
+  .az-lang-btn[aria-pressed=true] {
+    background: var(--az-gm-brand-soft);
+    border-color: var(--az-gm-brand);
+    color: var(--az-gm-brand);
     font-weight: 700;
   }
 }
-.clear-recovery {
+.az-clear-recovery {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   flex: none;
-  gap: var(--gm-space-2);
-  padding: var(--gm-space-2) var(--gm-space-4);
-  background: var(--gm-brand-soft);
+  gap: var(--az-gm-space-2);
+  padding: var(--az-gm-space-2) var(--az-gm-space-4);
+  background: var(--az-gm-brand-soft);
   p {
     margin: 0;
   }
 }
-.review-status {
+.az-review-status {
   margin: 0;
-  padding: var(--gm-space-2) var(--gm-space-4);
-  border-block-start: 1px solid var(--gm-border);
-  font-size: var(--gm-label-size);
+  padding: var(--az-gm-space-2) var(--az-gm-space-4);
+  border-block-start: 1px solid var(--az-gm-border);
+  font-size: var(--az-gm-label-size);
   overflow: auto;
   max-block-size: 10rem;
   flex: none;
@@ -295,24 +295,24 @@ button[aria-disabled=true] {
     white-space: nowrap;
   }
   &[data-state=pending] {
-    background: var(--gm-brand-soft);
+    background: var(--az-gm-brand-soft);
   }
   &[data-state=partial],
   &[data-state=failed] {
-    color: var(--gm-warning);
-    background: var(--gm-warning-bg);
+    color: var(--az-gm-warning);
+    background: var(--az-gm-warning-bg);
   }
 }
-.review-panel {
-  .panel-head {
+.az-review-panel {
+  .az-panel-head {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    min-block-size: calc(var(--gm-control-height) + var(--gm-space-4));
+    min-block-size: calc(var(--az-gm-control-height) + var(--az-gm-space-4));
   }
-  .review-summary {
+  .az-review-summary {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--gm-space-2) var(--gm-space-4);
+    gap: var(--az-gm-space-2) var(--az-gm-space-4);
     &:empty {
       display: none;
     }
@@ -323,34 +323,34 @@ button[aria-disabled=true] {
     border: 0;
   }
 }
-.editor-wrap {
-  --gm-editor-bg: #101827;
-  --gm-editor-text: #e5edf8;
-  --gm-editor-gutter-bg: #0c1320;
-  --gm-editor-muted: #94a3b8;
-  --gm-focus: #9ec5ff;
-  --gm-warning: #ffb866;
-  --gm-error: #f97066;
-  --gm-brand: #84adff;
+.az-editor-wrap {
+  --az-gm-editor-bg: #101827;
+  --az-gm-editor-text: #e5edf8;
+  --az-gm-editor-gutter-bg: #0c1320;
+  --az-gm-editor-muted: #94a3b8;
+  --az-gm-focus: #9ec5ff;
+  --az-gm-warning: #ffb866;
+  --az-gm-error: #f97066;
+  --az-gm-brand: #84adff;
   color-scheme: dark;
   display: grid;
   grid-template-columns: 3.5rem minmax(0, 1fr);
   flex: 1;
   min-block-size: 0;
   overflow: hidden;
-  background: var(--gm-editor-bg);
+  background: var(--az-gm-editor-bg);
   @media (width <= 62rem), (height <= 36rem) {
     min-block-size: max(15rem, 35dvh);
   }
   @media screen {
     :root[data-theme=dark] & {
-      --gm-editor-bg: #0b111c;
-      --gm-editor-text: #e7edf7;
-      --gm-editor-gutter-bg: #080d15;
+      --az-gm-editor-bg: #0b111c;
+      --az-gm-editor-text: #e7edf7;
+      --az-gm-editor-gutter-bg: #080d15;
     }
   }
   &:has(textarea:focus-visible) {
-    outline: 2px solid var(--gm-focus);
+    outline: 2px solid var(--az-gm-focus);
     outline-offset: -2px;
     @media (forced-colors: active) {
       outline-color: Highlight;
@@ -359,39 +359,39 @@ button[aria-disabled=true] {
   @media (width <= 35rem) {
     grid-template-columns: 3rem minmax(0, 1fr);
   }
-  .gutter {
-    padding-block: var(--gm-space-4) var(--gm-space-6);
+  .az-gutter {
+    padding-block: var(--az-gm-space-4) var(--az-gm-space-6);
     overflow: hidden;
     user-select: none;
-    background: var(--gm-editor-gutter-bg);
-    color: var(--gm-editor-muted);
-    font: var(--gm-label-size)/var(--gm-code-line-height) var(--gm-code-font);
-    .gutter-inner {
+    background: var(--az-gm-editor-gutter-bg);
+    color: var(--az-gm-editor-muted);
+    font: var(--az-gm-label-size)/var(--az-gm-code-line-height) var(--az-gm-code-font);
+    .az-gutter-inner {
       will-change: transform;
     }
-    .gutter-line {
+    .az-gutter-line {
       position: relative;
-      block-size: var(--gm-code-line-height);
-      padding-inline-end: var(--gm-space-3);
+      block-size: var(--az-gm-code-line-height);
+      padding-inline-end: var(--az-gm-space-3);
       text-align: end;
-      &.has-issue::before {
+      &.az-has-issue::before {
         content: "";
         position: absolute;
-        inset-inline-start: var(--gm-space-2);
-        inset-block-start: calc((var(--gm-code-line-height) - .375rem) / 2);
+        inset-inline-start: var(--az-gm-space-2);
+        inset-block-start: calc((var(--az-gm-code-line-height) - .375rem) / 2);
         inline-size: .375rem;
         block-size: .375rem;
         border-radius: 50%;
-        background: var(--gm-warning);
+        background: var(--az-gm-warning);
       }
-      &.has-fix::before {
-        background: var(--gm-error);
+      &.az-has-fix::before {
+        background: var(--az-gm-error);
       }
-      &.has-info::before {
-        background: var(--gm-brand);
+      &.az-has-info::before {
+        background: var(--az-gm-brand);
       }
       @media (forced-colors: active) {
-        &.has-issue::before {
+        &.az-has-issue::before {
           background: CanvasText;
         }
       }
@@ -403,14 +403,14 @@ button[aria-disabled=true] {
     min-inline-size: 0;
     min-block-size: 0;
     margin: 0;
-    padding: var(--gm-space-4) var(--gm-space-4) var(--gm-space-6);
+    padding: var(--az-gm-space-4) var(--az-gm-space-4) var(--az-gm-space-6);
     border: 0;
     border-radius: 0;
     resize: none;
-    font: var(--gm-text-size)/var(--gm-code-line-height) var(--gm-code-font);
-    background: var(--gm-editor-bg);
-    color: var(--gm-editor-text);
-    caret-color: var(--gm-focus);
+    font: var(--az-gm-text-size)/var(--az-gm-code-line-height) var(--az-gm-code-font);
+    background: var(--az-gm-editor-bg);
+    color: var(--az-gm-editor-text);
+    caret-color: var(--az-gm-focus);
     tab-size: 2;
     white-space: pre;
     overflow-wrap: normal;
@@ -420,7 +420,7 @@ button[aria-disabled=true] {
       outline: none;
     }
     &::placeholder {
-      color: var(--gm-editor-muted);
+      color: var(--az-gm-editor-muted);
       opacity: 1;
     }
     &::selection {
@@ -431,133 +431,133 @@ button[aria-disabled=true] {
     }
   }
 }
-.result-list {
+.az-result-list {
   flex: 1;
   min-block-size: 0;
-  padding: var(--gm-space-4);
+  padding: var(--az-gm-space-4);
   overflow: auto;
-  background: var(--gm-background);
+  background: var(--az-gm-background);
   scrollbar-gutter: stable;
   @media (width <= 62rem), (height <= 36rem) {
     overflow: visible;
     scrollbar-gutter: auto;
   }
   @media (width <= 35rem) {
-    padding: var(--gm-space-3);
+    padding: var(--az-gm-space-3);
   }
   @media print {
     overflow: visible;
     scrollbar-gutter: auto;
   }
 }
-.line-card {
+.az-line-card {
   display: block;
   inline-size: 100%;
   min-inline-size: 0;
-  padding: var(--gm-space-4);
-  margin-block-end: var(--gm-space-3);
-  border: 1px solid var(--gm-border);
-  border-radius: var(--gm-radius);
-  background: var(--gm-surface);
+  padding: var(--az-gm-space-4);
+  margin-block-end: var(--az-gm-space-3);
+  border: 1px solid var(--az-gm-border);
+  border-radius: var(--az-gm-radius);
+  background: var(--az-gm-surface);
   text-align: start;
   &:last-child {
     margin-block-end: 0;
   }
-  .line-card-head {
+  .az-line-card-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--gm-space-2);
-    margin-block-end: var(--gm-space-3);
+    gap: var(--az-gm-space-2);
+    margin-block-end: var(--az-gm-space-3);
   }
-  .line-code {
+  .az-line-code {
     display: block;
-    margin-block-end: var(--gm-space-3);
-    padding: var(--gm-space-2) var(--gm-space-3);
-    border: 1px solid var(--gm-border);
-    border-radius: var(--gm-radius);
-    background: var(--gm-background);
-    font: var(--gm-label-size)/1.65 var(--gm-code-font);
+    margin-block-end: var(--az-gm-space-3);
+    padding: var(--az-gm-space-2) var(--az-gm-space-3);
+    border: 1px solid var(--az-gm-border);
+    border-radius: var(--az-gm-radius);
+    background: var(--az-gm-background);
+    font: var(--az-gm-label-size)/1.65 var(--az-gm-code-font);
     white-space: pre-wrap;
   }
-  .line-issues {
+  .az-line-issues {
     display: grid;
-    gap: var(--gm-space-2);
+    gap: var(--az-gm-space-2);
   }
-  .issue-details {
+  .az-issue-details {
     summary {
-      min-block-size: var(--gm-control-height);
-      padding-block: var(--gm-space-1);
+      min-block-size: var(--az-gm-control-height);
+      padding-block: var(--az-gm-space-1);
       cursor: pointer;
     }
-    .level-chip {
-      margin-inline-end: var(--gm-space-2);
+    .az-level-chip {
+      margin-inline-end: var(--az-gm-space-2);
     }
-    .issue-title {
+    .az-issue-title {
       display: inline;
     }
-    .issue-body {
-      padding: var(--gm-space-2) 0 var(--gm-space-2) var(--gm-space-4);
+    .az-issue-body {
+      padding: var(--az-gm-space-2) 0 var(--az-gm-space-2) var(--az-gm-space-4);
     }
   }
-  .level-chip,
-  .category-chip {
-    font-size: var(--gm-meta-size);
+  .az-level-chip,
+  .az-category-chip {
+    font-size: var(--az-gm-meta-size);
   }
-  .level-chip {
-    padding: var(--gm-space-1) var(--gm-space-2);
-    border-radius: var(--gm-radius);
-    &.fix {
-      background: var(--gm-error-bg);
+  .az-level-chip {
+    padding: var(--az-gm-space-1) var(--az-gm-space-2);
+    border-radius: var(--az-gm-radius);
+    &.az-fix {
+      background: var(--az-gm-error-bg);
     }
-    &.warn {
-      background: var(--gm-warning-bg);
+    &.az-warn {
+      background: var(--az-gm-warning-bg);
     }
-    &.info {
-      background: var(--gm-brand-soft);
+    &.az-info {
+      background: var(--az-gm-brand-soft);
     }
     @media (forced-colors: active) {
       border: 1px solid CanvasText;
     }
   }
-  .issue-title {
+  .az-issue-title {
     display: block;
-    margin-block-end: var(--gm-space-1);
-    font-size: var(--gm-label-size);
+    margin-block-end: var(--az-gm-space-1);
+    font-size: var(--az-gm-label-size);
     line-height: 1.25rem;
     font-weight: 700;
   }
-  .issue-message {
+  .az-issue-message {
     display: block;
-    color: var(--gm-muted);
+    color: var(--az-gm-muted);
   }
-  .fix-example {
+  .az-fix-example {
     display: block;
-    margin-block-start: var(--gm-space-2);
-    padding: var(--gm-space-2) var(--gm-space-3);
-    background: var(--gm-brand-soft);
-    font-size: var(--gm-label-size);
+    margin-block-start: var(--az-gm-space-2);
+    padding: var(--az-gm-space-2) var(--az-gm-space-3);
+    background: var(--az-gm-brand-soft);
+    font-size: var(--az-gm-label-size);
     white-space: pre-wrap;
     strong {
-      margin-inline-end: var(--gm-space-2);
-      color: var(--gm-brand);
+      margin-inline-end: var(--az-gm-space-2);
+      color: var(--az-gm-brand);
     }
   }
-  .more-issues {
+  .az-more-issues {
     display: block;
-    margin-block-start: var(--gm-space-3);
+    margin-block-start: var(--az-gm-space-3);
     summary {
-      min-block-size: var(--gm-control-height);
-      color: var(--gm-brand);
-      font-size: var(--gm-label-size);
+      min-block-size: var(--az-gm-control-height);
+      color: var(--az-gm-brand);
+      font-size: var(--az-gm-label-size);
       cursor: pointer;
     }
-    .line-issues {
-      margin-block-start: var(--gm-space-3);
+    .az-line-issues {
+      margin-block-start: var(--az-gm-space-3);
     }
   }
   @media (width <= 35rem) {
-    padding: var(--gm-space-3);
+    padding: var(--az-gm-space-3);
   }
   @media (forced-colors: active) {
     border-color: ButtonText;
@@ -566,338 +566,338 @@ button[aria-disabled=true] {
     break-inside: avoid;
   }
 }
-.empty-state {
+.az-empty-state {
   display: grid;
   place-items: center;
   min-block-size: 16rem;
   block-size: 100%;
-  padding: var(--gm-space-7) var(--gm-space-5);
+  padding: var(--az-gm-space-7) var(--az-gm-space-5);
   text-align: center;
-  .empty-title {
-    font-size: var(--gm-label-size);
+  .az-empty-title {
+    font-size: var(--az-gm-label-size);
     line-height: 1.25rem;
     font-weight: 700;
   }
 }
 </style>
   <style id="arttools-common-ui">:root {
-  --ui-font:
+  --az-font:
     "Noto Sans JP",
     "Hiragino Sans",
     "Hiragino Kaku Gothic ProN",
     Meiryo,
     sans-serif;
-  --ui-mono:
+  --az-mono:
     ui-monospace,
     SFMono-Regular,
     Menlo,
     Consolas,
     monospace;
-  --ui-editor-size: 14px;
-  --ui-title-size: 18px;
-  --ui-body-size: 14px;
-  --ui-action-size: 14px;
-  --ui-meta-size: 12px;
-  --ui-dialog-title-size: 20px;
-  --ui-panel-title-size: 16px;
-  --ui-gutter: 24px;
-  --ui-gap: 16px;
-  --ui-panel-padding: 12px;
-  --ui-panel-radius: 8px;
-  --ui-control-radius: 4px;
-  --ui-inner-radius: 6px;
-  --ui-dialog-radius: 12px;
-  --ui-panel-head-height: calc(max(var(--ui-action-min-height), var(--ui-control-height)) + var(--ui-panel-head-padding) * 2 + 1px);
-  --ui-panel-head-padding: 12px;
-  --ui-panel-head-inline: 16px;
-  --ui-action-min-height: 40px;
-  --ui-action-padding-block: 9px;
-  --ui-action-padding-inline: 16px;
-  --ui-action-icon-gap: 8px;
-  --ui-action-group-gap: 8px;
-  --ui-workspace-bottom: 16px;
-  --ui-control-height: 40px;
-  --ui-select-height: 28px;
-  --ui-select-arrow-size: 16px;
-  --ui-select-arrow-inset: 10px;
-  --ui-select-text-gap: 8px;
-  --ui-select-text-inset: calc(var(--ui-select-arrow-size) + var(--ui-select-arrow-inset) + var(--ui-select-text-gap));
-  --ui-dialog-padding: 24px;
-  --ui-header-height: 48px;
-  --ui-app-icon-size: 24px;
-  --ui-main-top: 16px;
+  --az-editor-size: 14px;
+  --az-title-size: 18px;
+  --az-body-size: 14px;
+  --az-action-size: 14px;
+  --az-meta-size: 12px;
+  --az-dialog-title-size: 20px;
+  --az-panel-title-size: 16px;
+  --az-gutter: 24px;
+  --az-gap: 16px;
+  --az-panel-padding: 12px;
+  --az-panel-radius: 8px;
+  --az-control-radius: 4px;
+  --az-inner-radius: 6px;
+  --az-dialog-radius: 12px;
+  --az-panel-head-height: calc(max(var(--az-action-min-height), var(--az-control-height)) + var(--az-panel-head-padding) * 2 + 1px);
+  --az-panel-head-padding: 12px;
+  --az-panel-head-inline: 16px;
+  --az-action-min-height: 40px;
+  --az-action-padding-block: 9px;
+  --az-action-padding-inline: 16px;
+  --az-action-icon-gap: 8px;
+  --az-action-group-gap: 8px;
+  --az-workspace-bottom: 16px;
+  --az-control-height: 40px;
+  --az-select-height: 28px;
+  --az-select-arrow-size: 16px;
+  --az-select-arrow-inset: 10px;
+  --az-select-text-gap: 8px;
+  --az-select-text-inset: calc(var(--az-select-arrow-size) + var(--az-select-arrow-inset) + var(--az-select-text-gap));
+  --az-dialog-padding: 24px;
+  --az-header-height: 48px;
+  --az-app-icon-size: 24px;
+  --az-main-top: 16px;
 }
 html[data-ui-theme=light],
 html:not([data-ui-theme]) {
-  --ui-bg: #fefffa;
-  --ui-surface: #ffffff;
-  --ui-inset: #f9fafb;
-  --ui-muted-bg: #f3f4f6;
-  --ui-text: #1e2939;
-  --ui-text-secondary: #4a5565;
-  --ui-icon: #6a7282;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #676f7f;
-  --ui-border: #e5e7eb;
-  --ui-control-border: #d1d5dc;
-  --ui-input-border: #6a7282;
-  --ui-accent: #b4432f;
-  --ui-accent-soft: #fdf1ee;
-  --ui-secondary-text: #b4432f;
-  --ui-focus-ring: #ea6c5566;
-  --ui-focus-border: #ee846f;
-  --ui-warning: #a65f00;
-  --ui-warning-bg: #fefce8;
-  --ui-error: #c10007;
-  --ui-error-bg: #fef2f2;
-  --ui-error-border: #ffc9c9;
-  --ui-info: #1447e6;
-  --ui-info-bg: #eff6ff;
-  --ui-shadow: none;
-  --ui-shadow-sm: 0 1px 2px 0 #1018281a;
-  --ui-shadow-lg: 0 16px 40px -8px #10182829;
+  --az-bg: #fefffa;
+  --az-surface: #ffffff;
+  --az-inset: #f9fafb;
+  --az-muted-bg: #f3f4f6;
+  --az-text: #1e2939;
+  --az-text-secondary: #4a5565;
+  --az-icon: #6a7282;
+  --az-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-muted: #676f7f;
+  --az-border: #e5e7eb;
+  --az-control-border: #d1d5dc;
+  --az-input-border: #6a7282;
+  --az-accent: #b4432f;
+  --az-accent-soft: #fdf1ee;
+  --az-secondary-text: #b4432f;
+  --az-focus-ring: #ea6c5566;
+  --az-focus-border: #ee846f;
+  --az-warning: #a65f00;
+  --az-warning-bg: #fefce8;
+  --az-error: #c10007;
+  --az-error-bg: #fef2f2;
+  --az-error-border: #ffc9c9;
+  --az-info: #1447e6;
+  --az-info-bg: #eff6ff;
+  --az-shadow: none;
+  --az-shadow-sm: 0 1px 2px 0 #1018281a;
+  --az-shadow-lg: 0 16px 40px -8px #10182829;
   color-scheme: light;
 }
 html[data-ui-theme=dark] {
-  --ui-bg: #121317;
-  --ui-surface: #1a1b20;
-  --ui-inset: #212329;
-  --ui-muted-bg: #282a31;
-  --ui-text: #f3f4f6;
-  --ui-text-secondary: #d1d5dc;
-  --ui-icon: #99a1af;
-  --ui-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
-  --ui-muted: #99a1af;
-  --ui-border: #353840;
-  --ui-control-border: #464a53;
-  --ui-input-border: #6a7282;
-  --ui-accent: #ee846f;
-  --ui-accent-soft: #33221f;
-  --ui-secondary-text: #f29e8c;
-  --ui-focus-ring: #ea6c5580;
-  --ui-focus-border: #ee846f;
-  --ui-warning: #ffd54d;
-  --ui-warning-bg: #2c2615;
-  --ui-error: #ffa2a2;
-  --ui-error-bg: #301b1f;
-  --ui-error-border: #6a2a2f;
-  --ui-info: #8ec5ff;
-  --ui-info-bg: #18243a;
-  --ui-shadow: none;
-  --ui-shadow-sm: 0 1px 2px 0 #00000066;
-  --ui-shadow-lg: 0 20px 48px -8px #000000a6;
+  --az-bg: #121317;
+  --az-surface: #1a1b20;
+  --az-inset: #212329;
+  --az-muted-bg: #282a31;
+  --az-text: #f3f4f6;
+  --az-text-secondary: #d1d5dc;
+  --az-icon: #99a1af;
+  --az-select-arrow: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2399a1af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-select-arrow-disabled: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236a7282%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E);
+  --az-muted: #99a1af;
+  --az-border: #353840;
+  --az-control-border: #464a53;
+  --az-input-border: #6a7282;
+  --az-accent: #ee846f;
+  --az-accent-soft: #33221f;
+  --az-secondary-text: #f29e8c;
+  --az-focus-ring: #ea6c5580;
+  --az-focus-border: #ee846f;
+  --az-warning: #ffd54d;
+  --az-warning-bg: #2c2615;
+  --az-error: #ffa2a2;
+  --az-error-bg: #301b1f;
+  --az-error-border: #6a2a2f;
+  --az-info: #8ec5ff;
+  --az-info-bg: #18243a;
+  --az-shadow: none;
+  --az-shadow-sm: 0 1px 2px 0 #00000066;
+  --az-shadow-lg: 0 20px 48px -8px #000000a6;
   color-scheme: dark;
 }
-:root .art-app {
-  --ui-editor-bg: var(--ui-inset);
-  --gm-font: var(--ui-font);
-  --gm-code-font: var(--ui-mono);
-  --gm-text: var(--ui-text);
-  --gm-muted: var(--ui-muted);
-  --gm-surface: var(--ui-surface);
-  --gm-background: var(--ui-bg);
-  --gm-border: var(--ui-border);
-  --gm-input-border: var(--ui-input-border);
-  --gm-brand: var(--ui-accent);
-  --gm-brand-soft: var(--ui-accent-soft);
-  --gm-warning: var(--ui-warning);
-  --gm-warning-bg: var(--ui-warning-bg);
-  --gm-error: var(--ui-error);
-  --gm-error-bg: var(--ui-error-bg);
-  --gm-focus: var(--ui-accent);
-  --gm-text-size: var(--ui-body-size);
-  --gm-label-size: var(--ui-body-size);
-  --gm-meta-size: var(--ui-meta-size);
-  --gm-code-line-height: calc(var(--ui-editor-size) * 1.7);
-  --gm-radius: var(--ui-panel-radius);
-  --gm-space-1: 4px;
-  --gm-space-2: 8px;
-  --gm-space-3: 12px;
-  --gm-space-4: 16px;
-  --gm-space-5: 24px;
-  --gm-space-6: 32px;
-  --gm-space-7: 48px;
-  --gm-control-height: var(--ui-control-height);
-  --gm-control-text-size: var(--ui-action-size);
-  --gm-control-line-height: 20px;
-  --gm-control-icon-size: 18px;
-  font-family: var(--ui-font);
-  font-size: var(--ui-body-size);
+:root .az-app {
+  --az-editor-bg: var(--az-inset);
+  --az-gm-font: var(--az-font);
+  --az-gm-code-font: var(--az-mono);
+  --az-gm-text: var(--az-text);
+  --az-gm-muted: var(--az-muted);
+  --az-gm-surface: var(--az-surface);
+  --az-gm-background: var(--az-bg);
+  --az-gm-border: var(--az-border);
+  --az-gm-input-border: var(--az-input-border);
+  --az-gm-brand: var(--az-accent);
+  --az-gm-brand-soft: var(--az-accent-soft);
+  --az-gm-warning: var(--az-warning);
+  --az-gm-warning-bg: var(--az-warning-bg);
+  --az-gm-error: var(--az-error);
+  --az-gm-error-bg: var(--az-error-bg);
+  --az-gm-focus: var(--az-accent);
+  --az-gm-text-size: var(--az-body-size);
+  --az-gm-label-size: var(--az-body-size);
+  --az-gm-meta-size: var(--az-meta-size);
+  --az-gm-code-line-height: calc(var(--az-editor-size) * 1.7);
+  --az-gm-radius: var(--az-panel-radius);
+  --az-gm-space-1: 4px;
+  --az-gm-space-2: 8px;
+  --az-gm-space-3: 12px;
+  --az-gm-space-4: 16px;
+  --az-gm-space-5: 24px;
+  --az-gm-space-6: 32px;
+  --az-gm-space-7: 48px;
+  --az-gm-control-height: var(--az-control-height);
+  --az-gm-control-text-size: var(--az-action-size);
+  --az-gm-control-line-height: 20px;
+  --az-gm-control-icon-size: 18px;
+  font-family: var(--az-font);
+  font-size: var(--az-body-size);
   line-height: 1.55;
-  color: var(--ui-text);
-  background: var(--ui-bg);
+  color: var(--az-text);
+  background: var(--az-bg);
   -webkit-font-smoothing: antialiased;
 }
-.art-app *,
-.art-app *::before,
-.art-app *::after {
+.az-app *,
+.az-app *::before,
+.az-app *::after {
   box-sizing: border-box;
 }
-.art-app :is(button, input, select) {
-  font-family: var(--ui-font);
+.az-app :is(button, input, select) {
+  font-family: var(--az-font);
 }
-.art-app :is(button, input, select, textarea) {
+.az-app :is(button, input, select, textarea) {
   letter-spacing: normal;
 }
-.art-app :is(input, textarea)::placeholder {
-  color: var(--ui-muted);
+.az-app :is(input, textarea)::placeholder {
+  color: var(--az-muted);
   opacity: 1;
 }
-.art-app[data-tool] summary {
-  font: 500 var(--ui-action-size)/20px var(--ui-font);
+.az-app[data-tool] summary {
+  font: 500 var(--az-action-size)/20px var(--az-font);
 }
-.art-app [hidden] {
+.az-app [hidden] {
   display: none !important;
 }
-.art-app :focus-visible {
-  outline: 2px solid var(--ui-focus-border);
+.az-app :focus-visible {
+  outline: 2px solid var(--az-focus-border);
   outline-offset: -2px;
 }
-.art-app :is(button, .gm-btn, .button) {
+.az-app :is(button, .az-btn) {
   cursor: pointer;
-  min-height: var(--ui-control-height);
+  min-height: var(--az-control-height);
   padding: 9px 16px;
-  border: 1px solid var(--ui-button-border, var(--ui-control-border));
-  border-radius: var(--ui-control-radius);
-  background: var(--ui-button-bg, var(--ui-surface));
-  color: var(--ui-button-text, var(--ui-text-secondary));
-  font-size: var(--ui-action-size);
+  border: 1px solid var(--az-button-border, var(--az-control-border));
+  border-radius: var(--az-control-radius);
+  background: var(--az-button-bg, var(--az-surface));
+  color: var(--az-button-text, var(--az-text-secondary));
+  font-size: var(--az-action-size);
   font-weight: 500;
   line-height: 20px;
   transition: none;
 }
-.art-app[data-tool] :is(button, .gm-btn, .button):focus-visible {
+.az-app[data-tool] :is(button, .az-btn):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--ui-focus-ring);
+  box-shadow: 0 0 0 3px var(--az-focus-ring);
 }
-.art-app :is([aria-label=\5217\3092\524a\9664]) {
-  --ui-button-bg: var(--ui-error-bg);
-  --ui-button-text: var(--ui-error);
-  --ui-button-border: var(--ui-error-border);
-  background: var(--ui-button-bg);
-  color: var(--ui-button-text);
-  border-color: var(--ui-button-border);
+.az-app :is(.az-btn-danger, .az-danger, .az-danger-btn, [aria-label=\5217\3092\524a\9664], .az-focus-action-btn.az-abort) {
+  --az-button-bg: var(--az-error-bg);
+  --az-button-text: var(--az-error);
+  --az-button-border: var(--az-error-border);
+  background: var(--az-button-bg);
+  color: var(--az-button-text);
+  border-color: var(--az-button-border);
 }
-.art-app[data-tool] :is(button, .gm-btn, .button):is(:disabled, [aria-disabled=true]) {
-  background: var(--ui-inset);
-  color: var(--ui-muted);
-  border-color: var(--ui-border);
+.az-app[data-tool] :is(button, .az-btn):is(:disabled, [aria-disabled=true]) {
+  background: var(--az-inset);
+  color: var(--az-muted);
+  border-color: var(--az-border);
   opacity: 1;
   cursor: not-allowed;
 }
-.art-app[data-tool] :is([data-row-drag], [data-col-drag]) {
+.az-app[data-tool] :is([data-row-drag], [data-col-drag]) {
   display: inline-grid;
   place-items: center;
   flex-shrink: 0;
   padding: 0;
   line-height: 1;
-  color: var(--ui-muted);
+  color: var(--az-muted);
 }
-.art-app[data-tool] :is([data-row-drag], [data-col-drag]),
-.art-app[data-tool] :is([data-row-drag], [data-col-drag]):is(:focus-visible, :active) {
+.az-app[data-tool] :is([data-row-drag], [data-col-drag]),
+.az-app[data-tool] :is([data-row-drag], [data-col-drag]):is(:focus-visible, :active) {
   background: transparent;
   background-image: none;
   border-color: transparent;
   box-shadow: none;
 }
-.art-app :is(input:not([type=checkbox]), select) {
-  border: 1px solid var(--ui-input-border);
-  border-radius: var(--ui-control-radius);
-  background: var(--ui-surface);
-  color: var(--ui-text);
+.az-app :is(input:not([type=checkbox]), select) {
+  border: 1px solid var(--az-input-border);
+  border-radius: var(--az-control-radius);
+  background: var(--az-surface);
+  color: var(--az-text);
 }
-.art-app :is(textarea, [contenteditable=true]):focus {
-  outline: 2px solid var(--ui-focus-border);
+.az-app :is(textarea, [contenteditable=true]):focus {
+  outline: 2px solid var(--az-focus-border);
   outline-offset: -2px;
-  border-color: var(--ui-focus-border);
+  border-color: var(--az-focus-border);
   box-shadow: none;
 }
-.art-app :is(input:not([type=checkbox], [type=radio]), select):focus {
+.az-app :is(input:not([type=checkbox], [type=radio]), select):focus {
   outline: none;
-  border-color: var(--ui-focus-border);
-  box-shadow: 0 0 0 3px var(--ui-focus-ring);
+  border-color: var(--az-focus-border);
+  box-shadow: 0 0 0 3px var(--az-focus-ring);
 }
-.art-app input[type=checkbox] {
-  accent-color: var(--ui-accent);
+.az-app input[type=checkbox] {
+  accent-color: var(--az-accent);
 }
-.art-app :is(textarea, pre) {
+.az-app :is(textarea, pre) {
   tab-size: 2;
 }
-.art-app :is(.panel) {
-  background: var(--ui-surface);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-panel-radius);
-  box-shadow: var(--ui-shadow);
+.az-app :is(.az-tool-panel) {
+  background: var(--az-surface);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-panel-radius);
+  box-shadow: var(--az-shadow);
 }
-.art-app :is(.panel-head) {
-  min-height: var(--ui-panel-head-height);
-  padding: var(--ui-panel-head-padding) var(--ui-panel-head-inline);
-  gap: var(--ui-action-group-gap) 16px;
-  border-bottom: 1px solid var(--ui-border);
+.az-app :is(.az-panel-head) {
+  min-height: var(--az-panel-head-height);
+  padding: var(--az-panel-head-padding) var(--az-panel-head-inline);
+  gap: var(--az-action-group-gap) 16px;
+  border-bottom: 1px solid var(--az-border);
 }
-.art-app :is(.panel-title) {
+.az-app :is(.az-panel-title) {
   margin: 0;
-  font-size: var(--ui-panel-title-size);
+  font-size: var(--az-panel-title-size);
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: .04em;
-  color: var(--ui-text);
+  color: var(--az-text);
 }
-.art-app :is(.review-status) {
-  color: var(--ui-muted);
-  font-size: var(--ui-meta-size);
+.az-app :is(.az-review-status) {
+  color: var(--az-muted);
+  font-size: var(--az-meta-size);
   line-height: 1.6;
 }
-.art-app :is(.workspace) {
+.az-app :is(.az-main, .az-workspace, main.az-tool-app, .az-tool-app > main) {
   width: 100%;
   inline-size: 100%;
   max-width: 1680px;
   margin-inline: auto;
-  padding: var(--ui-main-top) var(--ui-gutter) var(--ui-workspace-bottom);
-  gap: var(--ui-gap);
+  padding: var(--az-main-top) var(--az-gutter) var(--az-workspace-bottom);
+  gap: var(--az-gap);
 }
-.art-app :is(.clear-recovery) {
-  border-radius: var(--ui-panel-radius);
+.az-app :is(.az-clear-recovery) {
+  border-radius: var(--az-panel-radius);
 }
-.art-app .art-header {
+.az-app .az-header {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
-  min-height: var(--ui-header-height);
-  padding: 4px var(--ui-gutter);
-  background: var(--ui-surface);
-  border-bottom: 1px solid var(--ui-border);
+  min-height: var(--az-header-height);
+  padding: 4px var(--az-gutter);
+  background: var(--az-surface);
+  border-bottom: 1px solid var(--az-border);
 }
-.art-app .art-identity {
+.az-app .az-identity {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
 }
-.art-app .art-identity > div {
+.az-app .az-identity > div {
   min-width: 0;
 }
-.art-app .art-mark {
-  width: var(--ui-app-icon-size);
-  height: var(--ui-app-icon-size);
+.az-app .az-mark {
+  width: var(--az-app-icon-size);
+  height: var(--az-app-icon-size);
   flex: none;
   display: grid;
   place-items: center;
 }
-.art-app .art-mark svg {
+.az-app .az-mark svg {
   display: block;
   width: 100%;
   height: 100%;
 }
-.art-app .art-title {
+.az-app .az-title {
   margin: 0;
   display: block;
-  font-size: var(--ui-title-size);
+  font-size: var(--az-title-size);
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: .02em;
@@ -905,13 +905,13 @@ html[data-ui-theme=dark] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.art-app .art-header-actions {
+.az-app .az-header-actions {
   display: flex;
   flex: none;
   align-items: center;
   gap: 8px;
 }
-.art-app .art-header-button {
+.az-app .az-header-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -920,19 +920,19 @@ html[data-ui-theme=dark] {
   height: 32px;
   min-height: 32px;
   padding: 7px;
-  border: 1px solid var(--ui-control-border);
-  border-radius: var(--ui-control-radius);
-  background: var(--ui-surface);
-  color: var(--ui-icon);
+  border: 1px solid var(--az-control-border);
+  border-radius: var(--az-control-radius);
+  background: var(--az-surface);
+  color: var(--az-icon);
   white-space: nowrap;
   letter-spacing: normal;
 }
-.art-app .art-header-button svg {
+.az-app .az-header-button svg {
   flex: none;
   width: 16px;
   height: 16px;
 }
-.art-app .art-dialog {
+.az-app .az-dialog {
   position: fixed;
   inset: 0;
   width: min(480px, calc(100vw - 32px));
@@ -941,40 +941,40 @@ html[data-ui-theme=dark] {
   margin: auto;
   padding: 0;
   overflow: auto;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-dialog-radius);
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  box-shadow: var(--ui-shadow-lg);
-  font-family: var(--ui-font);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-dialog-radius);
+  background: var(--az-surface);
+  color: var(--az-text);
+  box-shadow: var(--az-shadow-lg);
+  font-family: var(--az-font);
   letter-spacing: normal;
 }
-.art-dialog::backdrop {
+.az-dialog::backdrop {
   background: #1e293966;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
-html[data-ui-theme=dark] .art-dialog::backdrop {
+html[data-ui-theme=dark] .az-dialog::backdrop {
   background: #000000a6;
 }
-.art-app .art-dialog[open] {
+.az-app .az-dialog[open] {
   animation: none;
 }
-.art-app .art-dialog-head {
+.az-app .az-dialog-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: var(--ui-dialog-padding) var(--ui-dialog-padding) 12px;
+  padding: var(--az-dialog-padding) var(--az-dialog-padding) 12px;
 }
-.art-app .art-dialog-title {
+.az-app .az-dialog-title {
   margin: 0;
-  font-size: var(--ui-dialog-title-size);
+  font-size: var(--az-dialog-title-size);
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: .04em;
 }
-.art-app .art-close {
+.az-app .az-close {
   display: grid;
   place-items: center;
   flex: none;
@@ -982,54 +982,54 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   min-height: 32px;
   padding: 6px;
   border: 0;
-  border-radius: var(--ui-control-radius);
+  border-radius: var(--az-control-radius);
   background: transparent;
-  color: var(--ui-icon);
+  color: var(--az-icon);
 }
-.art-app .art-close svg {
+.az-app .az-close svg {
   width: 18px;
   height: 18px;
 }
-.art-app .art-dialog-body {
-  padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
+.az-app .az-dialog-body {
+  padding: 0 var(--az-dialog-padding) var(--az-dialog-padding);
 }
-.art-app .art-settings-group {
+.az-app .az-settings-group {
   overflow: hidden;
   margin: 0 0 12px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-panel-radius);
-  background: var(--ui-surface);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-panel-radius);
+  background: var(--az-surface);
 }
-.art-app .art-settings-row {
+.az-app .az-settings-row {
   display: grid;
   gap: 6px;
   padding: 12px;
 }
-.art-app .art-theme-row {
+.az-app .az-theme-row {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
 }
-.art-app .art-theme-row .art-segments {
+.az-app .az-theme-row .az-segments {
   min-width: 216px;
 }
-.art-app .art-settings-row + .art-settings-row {
-  border-top: 1px solid var(--ui-border);
+.az-app .az-settings-row + .az-settings-row {
+  border-top: 1px solid var(--az-border);
 }
-.art-app .art-setting-label {
+.az-app .az-setting-label {
   margin: 0;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   font-weight: 500;
-  color: var(--ui-text-secondary);
+  color: var(--az-text-secondary);
 }
-.art-app .art-segments {
+.az-app .az-segments {
   display: flex;
   gap: 2px;
   padding: 3px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-muted-bg);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-muted-bg);
 }
-.art-app .art-segments button {
+.az-app .az-segments button {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -1040,41 +1040,41 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   padding: 7px 12px;
   white-space: nowrap;
   border: 0;
-  border-radius: var(--ui-control-radius);
+  border-radius: var(--az-control-radius);
   background: transparent;
-  color: var(--ui-text-secondary);
-  font-size: var(--ui-action-size);
+  color: var(--az-text-secondary);
+  font-size: var(--az-action-size);
   line-height: 20px;
 }
-.art-app .art-segments button[aria-pressed=true] {
-  background: var(--ui-surface);
-  color: var(--ui-text);
+.az-app .az-segments button[aria-pressed=true] {
+  background: var(--az-surface);
+  color: var(--az-text);
   font-weight: 700;
-  box-shadow: var(--ui-shadow-sm);
+  box-shadow: var(--az-shadow-sm);
 }
-.art-app .art-segments svg {
+.az-app .az-segments svg {
   width: 16px;
   height: 16px;
 }
-.art-app .art-preview {
+.az-app .az-preview {
   margin: 0;
   padding: 12px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-editor-bg);
-  font: var(--ui-editor-size)/1.7 var(--ui-mono);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-editor-bg);
+  font: var(--az-editor-size)/1.7 var(--az-mono);
   overflow: auto;
 }
-.art-app .art-save-note {
+.az-app .az-save-note {
   margin: 0 4px;
-  color: var(--ui-muted);
-  font-size: var(--ui-meta-size);
+  color: var(--az-muted);
+  font-size: var(--az-meta-size);
   line-height: 1.7;
 }
-.art-app .art-save-note[data-error=true] {
-  color: var(--ui-error);
+.az-app .az-save-note[data-error=true] {
+  color: var(--az-error);
 }
-.art-app .art-steps {
+.az-app .az-steps {
   list-style: none;
   display: grid;
   gap: 0;
@@ -1082,16 +1082,16 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   padding: 0;
   counter-reset: art-step;
 }
-.art-app .art-steps li {
+.az-app .az-steps li {
   position: relative;
   margin: 0;
   padding: 18px 18px 18px 58px;
   counter-increment: art-step;
 }
-.art-app .art-steps li + li {
-  border-top: 1px solid var(--ui-border);
+.az-app .az-steps li + li {
+  border-top: 1px solid var(--az-border);
 }
-.art-app .art-steps li::before {
+.az-app .az-steps li::before {
   content: counter(art-step);
   position: absolute;
   left: 18px;
@@ -1101,295 +1101,295 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: var(--ui-secondary-text);
-  background: var(--ui-accent-soft);
-  font-size: var(--ui-meta-size);
+  color: var(--az-secondary-text);
+  background: var(--az-accent-soft);
+  font-size: var(--az-meta-size);
   font-weight: 700;
 }
-.art-app .art-steps strong {
+.az-app .az-steps strong {
   display: block;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   font-weight: 700;
-  color: var(--ui-text);
+  color: var(--az-text);
 }
-.art-app .art-steps p {
+.az-app .az-steps p {
   margin: 4px 0 0;
-  color: var(--ui-muted);
-  font-size: var(--ui-body-size);
+  color: var(--az-muted);
+  font-size: var(--az-body-size);
   line-height: 1.55;
 }
-.art-app[data-tool=review] .language-tabs {
+.az-app[data-tool=review] .az-language-tabs {
   display: flex;
   gap: 2px;
   padding: 3px;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-muted-bg);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-muted-bg);
 }
-.art-app[data-tool=review] .lang-btn {
+.az-app[data-tool=review] .az-lang-btn {
   min-block-size: 32px;
   min-height: 32px;
   padding: 5px 14px;
   border: 0;
-  border-radius: var(--ui-control-radius);
+  border-radius: var(--az-control-radius);
   background: transparent;
-  color: var(--ui-text-secondary);
+  color: var(--az-text-secondary);
 }
-.art-app[data-tool=review] .lang-btn[aria-pressed=true] {
-  background: var(--ui-surface);
-  color: var(--ui-text);
+.az-app[data-tool=review] .az-lang-btn[aria-pressed=true] {
+  background: var(--az-surface);
+  color: var(--az-text);
   font-weight: 700;
-  box-shadow: var(--ui-shadow-sm);
+  box-shadow: var(--az-shadow-sm);
 }
-.art-app[data-tool=review] .editor-panel > .panel-head {
+.az-app[data-tool=review] .az-editor-panel > .az-panel-head {
   flex-wrap: wrap;
 }
-.art-app[data-tool=review] .editor-panel > .panel-head > label {
-  font-size: var(--ui-panel-title-size);
+.az-app[data-tool=review] .az-editor-panel > .az-panel-head > label {
+  font-size: var(--az-panel-title-size);
   font-weight: 700;
   letter-spacing: .04em;
 }
-.art-app[data-tool=review] .editor-panel > .panel-head > #clearBtn {
+.az-app[data-tool=review] .az-editor-panel > .az-panel-head > #clearBtn {
   margin-inline-start: auto;
 }
-.art-app[data-tool=review] .editor-wrap {
-  --gm-editor-bg: var(--ui-editor-bg);
-  --gm-editor-text: var(--ui-text);
-  --gm-editor-gutter-bg: var(--ui-editor-bg);
-  --gm-editor-muted: var(--ui-muted);
-  --gm-warning: var(--ui-warning);
-  --gm-error: var(--ui-error);
-  --gm-brand: var(--ui-accent);
-  --gm-focus: var(--ui-accent);
+.az-app[data-tool=review] .az-editor-wrap {
+  --az-gm-editor-bg: var(--az-editor-bg);
+  --az-gm-editor-text: var(--az-text);
+  --az-gm-editor-gutter-bg: var(--az-editor-bg);
+  --az-gm-editor-muted: var(--az-muted);
+  --az-gm-warning: var(--az-warning);
+  --az-gm-error: var(--az-error);
+  --az-gm-brand: var(--az-accent);
+  --az-gm-focus: var(--az-accent);
   color-scheme: inherit;
-  border-top: 1px solid var(--ui-border);
+  border-top: 1px solid var(--az-border);
 }
-.art-app[data-tool=review] .editor-wrap {
-  border-end-start-radius: calc(var(--ui-panel-radius) - 1px);
-  border-end-end-radius: calc(var(--ui-panel-radius) - 1px);
+.az-app[data-tool=review] .az-editor-wrap {
+  border-end-start-radius: calc(var(--az-panel-radius) - 1px);
+  border-end-end-radius: calc(var(--az-panel-radius) - 1px);
 }
-.art-app[data-tool=review] .editor-wrap textarea:focus {
+.az-app[data-tool=review] .az-editor-wrap textarea:focus {
   outline: none;
 }
-.art-app[data-tool=review] .editor-wrap textarea {
-  font-size: var(--ui-editor-size);
-  line-height: var(--gm-code-line-height);
+.az-app[data-tool=review] .az-editor-wrap textarea {
+  font-size: var(--az-editor-size);
+  line-height: var(--az-gm-code-line-height);
 }
-.art-app[data-tool=review] .gutter {
-  font-size: var(--ui-editor-size);
-  line-height: var(--gm-code-line-height);
-  border-right: 1px solid var(--ui-border);
+.az-app[data-tool=review] .az-gutter {
+  font-size: var(--az-editor-size);
+  line-height: var(--az-gm-code-line-height);
+  border-right: 1px solid var(--az-border);
 }
-.art-app[data-tool=review] .review-status {
-  padding: 8px var(--ui-panel-padding);
+.az-app[data-tool=review] .az-review-status {
+  padding: 8px var(--az-panel-padding);
 }
-.art-app[data-tool=review] .result-list {
-  padding: var(--ui-panel-padding);
+.az-app[data-tool=review] .az-result-list {
+  padding: var(--az-panel-padding);
 }
-.art-app[data-tool=review] :is(.line-code, .fix-example) {
-  background: var(--ui-editor-bg);
-  font-family: var(--ui-mono);
-  font-size: var(--ui-editor-size);
+.az-app[data-tool=review] :is(.az-line-code, .az-fix-example) {
+  background: var(--az-editor-bg);
+  font-family: var(--az-mono);
+  font-size: var(--az-editor-size);
   line-height: 1.7;
   tab-size: 2;
 }
-.art-app[data-tool=review] .clear-recovery {
-  background: var(--ui-info-bg);
-  color: var(--ui-info);
+.az-app[data-tool=review] .az-clear-recovery {
+  background: var(--az-info-bg);
+  color: var(--az-info);
 }
-.art-app[data-tool=review] .empty-state {
+.az-app[data-tool=review] .az-empty-state {
   border: 0;
-  border-radius: var(--ui-inner-radius);
-  background: var(--ui-inset);
+  border-radius: var(--az-inner-radius);
+  background: var(--az-inset);
 }
-.art-app[data-tool=review] :is(.issue-details, .line-group) {
-  border-radius: var(--ui-inner-radius);
+.az-app[data-tool=review] :is(.az-issue-details, .az-line-group) {
+  border-radius: var(--az-inner-radius);
 }
 @media screen and (min-width: 1001px) and (min-height: 641px) {
-  .art-app {
+  .az-app {
     height: 100dvh;
     block-size: 100dvh;
     min-height: 0;
     overflow: hidden;
   }
-  .art-app[data-tool=review] .workspace {
+  .az-app[data-tool=review] .az-workspace {
     flex: 1;
   }
 }
 @media screen and (max-width: 1000px), screen and (max-height: 640px) {
-  .art-app {
+  .az-app {
     height: auto;
     block-size: auto;
     min-height: 100dvh;
     overflow: visible;
   }
-  .art-app :is(.workspace) {
+  .az-app :is(.az-main, .az-workspace, main.az-tool-app, .az-tool-app > main) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
     grid-auto-rows: max-content;
     flex: none;
     overflow: visible;
   }
-  .art-app[data-tool=review] .editor-wrap {
+  .az-app[data-tool=review] .az-editor-wrap {
     min-block-size: 320px;
   }
-  .art-app[data-tool=review] .review-panel {
+  .az-app[data-tool=review] .az-review-panel {
     min-height: 280px;
   }
 }
 @media (max-width: 650px) {
   :root {
-    --ui-gutter: 16px;
-    --ui-panel-head-inline: 12px;
-    --ui-control-height: 40px;
-    --ui-select-height: 32px;
-    --ui-dialog-padding: 16px;
+    --az-gutter: 16px;
+    --az-panel-head-inline: 12px;
+    --az-control-height: 40px;
+    --az-select-height: 32px;
+    --az-dialog-padding: 16px;
   }
-  .art-app :is(input:not([type=checkbox]), select) {
+  .az-app :is(input:not([type=checkbox]), select) {
     font-size: 16px;
   }
 }
 @media (any-pointer: coarse) {
   :root {
-    --ui-control-height: 44px;
-    --ui-select-height: 44px;
+    --az-control-height: 44px;
+    --az-select-height: 44px;
   }
-  .art-app .art-header-button {
+  .az-app .az-header-button {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
     padding: 12px;
   }
-  .art-app .art-segments button {
+  .az-app .az-segments button {
     min-height: 44px;
   }
-  .art-app .art-close {
+  .az-app .az-close {
     width: 44px;
     min-height: 44px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .art-app *,
-  .art-app *::before,
-  .art-app *::after {
+  .az-app *,
+  .az-app *::before,
+  .az-app *::after {
     transition: none !important;
     animation: none !important;
     scroll-behavior: auto !important;
   }
 }
 @media (forced-colors: active) {
-  .art-app :focus-visible,
-  .art-app[data-tool] :is(button, .gm-btn, .button):focus-visible {
+  .az-app :focus-visible,
+  .az-app[data-tool] :is(button, .az-btn):focus-visible {
     outline-color: Highlight;
   }
-  .art-app :is(button, .gm-btn, .button, .panel, .art-dialog, .art-settings-group) {
+  .az-app :is(button, .az-btn, .az-tool-panel, .az-dialog, .az-settings-group) {
     border-color: ButtonText;
   }
-  .art-app .art-segments button[aria-pressed=true] {
+  .az-app .az-segments button[aria-pressed=true] {
     outline: 2px solid Highlight;
     outline-offset: -2px;
   }
 }
 @media print {
-  .art-app .art-header,
-  .art-app .art-dialog {
+  .az-app .az-header,
+  .az-app .az-dialog {
     display: none !important;
   }
-  :root .art-app {
-    --ui-bg: #fff;
-    --ui-surface: #fff;
-    --ui-inset: #fff;
-    --ui-text: #000;
-    --ui-muted: #444;
-    --ui-border: #bbb;
+  :root .az-app {
+    --az-bg: #fff;
+    --az-surface: #fff;
+    --az-inset: #fff;
+    --az-text: #000;
+    --az-muted: #444;
+    --az-border: #bbb;
     height: auto;
     overflow: visible;
   }
-  .art-app :is(.workspace) {
+  .az-app :is(.az-main, .az-workspace, main.az-tool-app, .az-tool-app > main) {
     display: block;
     padding: 0;
   }
 }
-.art-app,
-.art-app *,
-.art-app *::before,
-.art-app *::after,
-.art-app dialog::backdrop {
+.az-app,
+.az-app *,
+.az-app *::before,
+.az-app *::after,
+.az-app dialog::backdrop {
   animation: none !important;
   transition: none !important;
   scroll-behavior: auto !important;
 }
-.art-app .art-dialog {
+.az-app .az-dialog {
   scrollbar-gutter: stable;
   scrollbar-width: auto;
 }
-.art-app .art-dialog::-webkit-scrollbar {
+.az-app .az-dialog::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-.art-app .art-dialog::-webkit-scrollbar-track {
+.az-app .az-dialog::-webkit-scrollbar-track {
   background: transparent;
 }
-.art-app .art-dialog::-webkit-scrollbar-thumb {
-  background: var(--ui-input-border);
-  border: 2px solid var(--ui-bg);
+.az-app .az-dialog::-webkit-scrollbar-thumb {
+  background: var(--az-input-border);
+  border: 2px solid var(--az-bg);
   border-radius: 8px;
 }
-.art-app #art-settings {
+.az-app #art-settings {
   scrollbar-width: none;
   scrollbar-gutter: auto;
 }
-.art-app #art-settings::-webkit-scrollbar {
+.az-app #art-settings::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
 }
 @media (max-width: 380px) {
-  .art-app .art-theme-row {
+  .az-app .az-theme-row {
     grid-template-columns: minmax(0, 1fr);
   }
-  .art-app .art-theme-row .art-segments {
+  .az-app .az-theme-row .az-segments {
     min-width: 0;
   }
 }
-.art-app :is(.art-dialog) {
+.az-app :is(.az-dialog, .az-modal[role=dialog], .az-drawer-panel, .az-confirm-panel) {
   max-width: calc(100vw - 32px);
   max-inline-size: calc(100vw - 32px);
   max-height: calc(100dvh - 48px);
   max-block-size: calc(100dvh - 48px);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-dialog-radius);
-  background: var(--ui-surface);
-  color: var(--ui-text);
-  box-shadow: var(--ui-shadow-lg);
-  font: 400 var(--ui-body-size)/1.55 var(--ui-font);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-dialog-radius);
+  background: var(--az-surface);
+  color: var(--az-text);
+  box-shadow: var(--az-shadow-lg);
+  font: 400 var(--az-body-size)/1.55 var(--az-font);
   letter-spacing: normal;
 }
-.art-app :is(.art-dialog-head) {
+.az-app :is(.az-dialog-head, .az-modal[role=dialog] > .az-modal-header, .az-drawer-panel > .az-drawer-header) {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: var(--ui-dialog-padding) var(--ui-dialog-padding) 12px;
+  padding: var(--az-dialog-padding) var(--az-dialog-padding) 12px;
   margin: 0;
   border: 0;
   background: transparent;
   flex: none;
 }
-.art-app :is(.art-dialog-title) {
+.az-app :is(.az-dialog-title) {
   margin: 0;
-  font: 700 var(--ui-dialog-title-size)/1.4 var(--ui-font);
+  font: 700 var(--az-dialog-title-size)/1.4 var(--az-font);
   letter-spacing: .04em;
 }
-.art-app :is(.art-dialog-body) {
-  padding: 0 var(--ui-dialog-padding) var(--ui-dialog-padding);
+.az-app :is(.az-dialog-body, .az-modal[role=dialog] > .az-modal-body, .az-drawer-panel > .az-drawer-body) {
+  padding: 0 var(--az-dialog-padding) var(--az-dialog-padding);
   min-width: 0;
   min-height: 0;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   line-height: 1.55;
 }
-.art-app :is(.art-dialog-head > button) {
+.az-app :is(.az-dialog-head > button, .az-modal-header > .az-modal-close-btn, .az-drawer-header > button, .az-import-wizard-header > button) {
   display: grid;
   place-items: center;
   flex: none;
@@ -1399,66 +1399,66 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   min-height: 32px;
   padding: 6px;
   border: 0;
-  border-radius: var(--ui-control-radius);
+  border-radius: var(--az-control-radius);
   background: transparent;
-  color: var(--ui-icon);
+  color: var(--az-icon);
 }
-.art-app :is(.art-dialog-head > button) :is(svg, [data-icon]) {
+.az-app :is(.az-dialog-head > button) :is(svg, [data-icon]) {
   width: 18px;
   height: 18px;
   font-size: 18px;
   line-height: 1;
 }
-.art-app .art-dialog-body > p:not([class]) {
+.az-app .az-dialog-body > p:not([class]) {
   margin: 0 0 16px;
-  font-size: var(--ui-body-size);
+  font-size: var(--az-body-size);
   line-height: 1.55;
 }
-.art-app .art-dialog-body > p:not([class]):last-child {
+.az-app .az-dialog-body > p:not([class]):last-child {
   margin-bottom: 0;
 }
 @media (any-pointer: coarse) {
-  .art-app :is(.art-dialog-head > button) {
+  .az-app :is(.az-dialog-head > button, .az-modal-header > .az-modal-close-btn, .az-drawer-header > button, .az-import-wizard-header > button) {
     width: 44px;
     min-width: 44px;
     height: 44px;
     min-height: 44px;
   }
 }
-.art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
+.az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
-  height: var(--ui-select-height);
-  min-height: var(--ui-select-height);
+  height: var(--az-select-height);
+  min-height: var(--az-select-height);
   min-width: 0;
   max-width: 100%;
-  padding: 0 var(--ui-select-text-inset) 0 12px;
-  border: 1px solid var(--ui-input-border);
-  border-radius: var(--ui-control-radius);
-  background-color: var(--ui-surface);
-  background-image: var(--ui-select-arrow);
+  padding: 0 var(--az-select-text-inset) 0 12px;
+  border: 1px solid var(--az-input-border);
+  border-radius: var(--az-control-radius);
+  background-color: var(--az-surface);
+  background-image: var(--az-select-arrow);
   background-repeat: no-repeat;
-  background-position: right var(--ui-select-arrow-inset) center;
-  background-size: var(--ui-select-arrow-size) var(--ui-select-arrow-size);
-  color: var(--ui-text);
-  font: 400 var(--ui-body-size)/20px var(--ui-font);
+  background-position: right var(--az-select-arrow-inset) center;
+  background-size: var(--az-select-arrow-size) var(--az-select-arrow-size);
+  color: var(--az-text);
+  font: 400 var(--az-body-size)/20px var(--az-font);
   text-overflow: ellipsis;
   cursor: pointer;
   box-shadow: none;
 }
-.art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]):disabled {
-  background-image: var(--ui-select-arrow-disabled);
-  color: var(--ui-muted);
+.az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]):disabled {
+  background-image: var(--az-select-arrow-disabled);
+  color: var(--az-muted);
   cursor: not-allowed;
 }
 @media (max-width: 650px) {
-  .art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
+  .az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
     font-size: 16px;
   }
 }
 @media (forced-colors: active) {
-  .art-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
+  .az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
     appearance: auto;
     -webkit-appearance: auto;
     background-image: none;
@@ -1468,29 +1468,29 @@ html[data-ui-theme=dark] .art-dialog::backdrop {
   }
 }
 @media (any-pointer: coarse) {
-  .art-app[data-tool=review] .lang-btn {
+  .az-app[data-tool=review] .az-lang-btn {
     min-height: 44px;
   }
 }
-.art-app[data-tool=review] .editor-wrap:not(:focus-within) {
-  border-color: var(--ui-input-border);
+.az-app[data-tool=review] .az-editor-wrap:not(:focus-within) {
+  border-color: var(--az-input-border);
 }
-body.art-app[data-tool=review] :is(button.gm-btn:not(.lang-btn)) {
-  min-height: max(var(--ui-action-min-height), var(--ui-control-height));
+body.az-app[data-tool=review] :is(button.az-btn:not(.az-lang-btn)) {
+  min-height: max(var(--az-action-min-height), var(--az-control-height));
   height: auto;
-  padding: var(--ui-action-padding-block) var(--ui-action-padding-inline);
+  padding: var(--az-action-padding-block) var(--az-action-padding-inline);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--ui-action-icon-gap);
-  font-size: var(--ui-action-size);
+  gap: var(--az-action-icon-gap);
+  font-size: var(--az-action-size);
   font-weight: 500;
   line-height: 20px;
   max-width: 100%;
   white-space: nowrap;
   flex-shrink: 0;
 }
-body.art-app[data-tool=review] :is(button.gm-btn:not(.lang-btn)) > :is(svg, [data-icon]) {
+body.az-app[data-tool=review] :is(button.az-btn:not(.az-lang-btn)) > :is(svg, [data-icon]) {
   width: 16px;
   height: 16px;
   inline-size: 16px;
@@ -1501,11 +1501,11 @@ body.art-app[data-tool=review] :is(button.gm-btn:not(.lang-btn)) > :is(svg, [dat
   line-height: 16px;
   margin: 0;
 }
-body.art-app[data-tool=review] :is(button.gm-btn:not(.lang-btn)) > [data-icon] svg {
+body.az-app[data-tool=review] :is(button.az-btn:not(.az-lang-btn)) > [data-icon] svg {
   width: 16px;
   height: 16px;
 }
-body.art-app[data-tool=review] :is(#clearBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.az-app[data-tool=review] :is(#clearBtn):not(:has(svg, .az-material-symbols-outlined, .az-material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -1516,7 +1516,7 @@ body.art-app[data-tool=review] :is(#clearBtn):not(:has(svg, .material-symbols-ou
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M9%205h11v14H9l-6-7Z%22%2F%3E%3Cpath%20d%3D%22m12%209%205%206m0-6-5%206%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M9%205h11v14H9l-6-7Z%22%2F%3E%3Cpath%20d%3D%22m12%209%205%206m0-6-5%206%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=review] :is(#restoreBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.az-app[data-tool=review] :is(#restoreBtn):not(:has(svg, .az-material-symbols-outlined, .az-material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -1527,7 +1527,7 @@ body.art-app[data-tool=review] :is(#restoreBtn):not(:has(svg, .material-symbols-
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M8%204%203%209l5%205%20M3%209h10a7%207%200%200%201%200%2014%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M8%204%203%209l5%205%20M3%209h10a7%207%200%200%201%200%2014%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=review] :is(#retryBtn):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.az-app[data-tool=review] :is(#retryBtn):not(:has(svg, .az-material-symbols-outlined, .az-material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -1538,7 +1538,7 @@ body.art-app[data-tool=review] :is(#retryBtn):not(:has(svg, .material-symbols-ou
   -webkit-mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M20%208a8%208%200%201%200%200%208%20M20%203v6h-6%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
   mask: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20aria-hidden%3D%22true%22%3E%3Cpath%20d%3D%22M20%208a8%208%200%201%200%200%208%20M20%203v6h-6%22%2F%3E%3C%2Fsvg%3E) center/contain no-repeat;
 }
-body.art-app[data-tool=review] :is(.line-jump):not(:has(svg, .material-symbols-outlined, .material-icons, [data-icon]))::before {
+body.az-app[data-tool=review] :is(.az-line-jump):not(:has(svg, .az-material-symbols-outlined, .az-material-icons, [data-icon]))::before {
   content: "";
   display: block;
   flex: none;
@@ -1551,54 +1551,54 @@ body.art-app[data-tool=review] :is(.line-jump):not(:has(svg, .material-symbols-o
 }
 </style>
   </head>
-  <body class="art-app" data-tool="review">
+  <body class="az-app" data-tool="review">
     
-    <header class="art-header">
-      <div class="art-identity">
-        <span class="art-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="review" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><defs><linearGradient id="art-icon-review-light-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#4f46e5"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-review-light-light)"/><path d="M64 24 98 36v26c0 23-14 37-34 44-20-7-34-21-34-44V36Z" fill="#fff"/><path d="m49 64 11 11 20-23" fill="none" stroke="#4f46e5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><defs><linearGradient id="art-icon-review-dark-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#6366f1"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-review-dark-light)"/><rect x="4.75" y="4.75" width="118.5" height="118.5" rx="27.25" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1.5"/><path d="M64 24 98 36v26c0 23-14 37-34 44-20-7-34-21-34-44V36Z" fill="#fff"/><path d="m49 64 11 11 20-23" fill="none" stroke="#6366f1" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
-        <div><h1 class="art-title" title="Code Review Checker">Code Review Checker</h1></div>
+    <header class="az-header">
+      <div class="az-identity">
+        <span class="az-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" data-app-icon="review" data-icon-theme="light" aria-hidden="true"><g data-icon-appearance="light" display="inline"><defs><linearGradient id="art-icon-review-light-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#4f46e5"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-review-light-light)"/><path d="M64 24 98 36v26c0 23-14 37-34 44-20-7-34-21-34-44V36Z" fill="#fff"/><path d="m49 64 11 11 20-23" fill="none" stroke="#4f46e5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g><g data-icon-appearance="dark" display="none"><defs><linearGradient id="art-icon-review-dark-light" x1="0" y1="4" x2="0" y2="124" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="#6366f1"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#art-icon-review-dark-light)"/><rect x="4.75" y="4.75" width="118.5" height="118.5" rx="27.25" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1.5"/><path d="M64 24 98 36v26c0 23-14 37-34 44-20-7-34-21-34-44V36Z" fill="#fff"/><path d="m49 64 11 11 20-23" fill="none" stroke="#6366f1" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span>
+        <div><h1 class="az-title" title="Code Review Checker">Code Review Checker</h1></div>
       </div>
-      <div class="art-header-actions">
-        <button type="button" class="art-header-button" id="art-help-button" aria-label="使い方" title="使い方" aria-haspopup="dialog" aria-controls="art-help" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 0 1 4.4 1c0 1.5-2.2 1.8-2.2 3.2M12 16.5h.01"/></svg></button>
-        <button type="button" class="art-header-button" id="art-settings-button" aria-label="設定" title="設定" aria-haspopup="dialog" aria-controls="art-settings" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.4 4 .6-2h4l.6 2 1.8 1 2-.4 2 3.5-1.4 1.6v2l1.4 1.6-2 3.5-2-.4-1.8 1-.6 2h-4l-.6-2-1.8-1-2 .4-2-3.5L5 12.7v-2L3.6 9.1l2-3.5 2 .4 1.8-1Z" transform="translate(0 1)"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <div class="az-header-actions">
+        <button type="button" class="az-header-button" id="art-help-button" aria-label="使い方" title="使い方" aria-haspopup="dialog" aria-controls="art-help" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.3 2.3 0 0 1 4.4 1c0 1.5-2.2 1.8-2.2 3.2M12 16.5h.01"/></svg></button>
+        <button type="button" class="az-header-button" id="art-settings-button" aria-label="設定" title="設定" aria-haspopup="dialog" aria-controls="art-settings" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.4 4 .6-2h4l.6 2 1.8 1 2-.4 2 3.5-1.4 1.6v2l1.4 1.6-2 3.5-2-.4-1.8 1-.6 2h-4l-.6-2-1.8-1-2 .4-2-3.5L5 12.7v-2L3.6 9.1l2-3.5 2 .4 1.8-1Z" transform="translate(0 1)"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-      <div class="art-legacy-theme" hidden><button type="button" id="themeToggle"></button></div>
+      <div class="az-legacy-theme" hidden><button type="button" id="themeToggle"></button></div>
     </header>
     
 
-    <main class="workspace">
-      <section class="panel editor-panel" aria-label="コード入力">
-        <div class="panel-head">
+    <main class="az-workspace">
+      <section class="az-tool-panel az-editor-panel" aria-label="コード入力">
+        <div class="az-panel-head">
           <label for="codeInput">コード</label>
-          <div class="language-tabs" role="group" aria-label="言語切替">
-            <button type="button" class="lang-btn gm-btn" data-language="java" aria-pressed="true">Java</button>
-            <button type="button" class="lang-btn gm-btn" data-language="javascript" aria-pressed="false">JavaScript</button>
+          <div class="az-language-tabs" role="group" aria-label="言語切替">
+            <button type="button" class="az-lang-btn az-btn" data-language="java" aria-pressed="true">Java</button>
+            <button type="button" class="az-lang-btn az-btn" data-language="javascript" aria-pressed="false">JavaScript</button>
           </div>
-          <button type="button" id="clearBtn" class="gm-btn">
+          <button type="button" id="clearBtn" class="az-btn">
             クリア
           </button>
         </div>
 
-        <div id="clearRecovery" class="clear-recovery" hidden>
+        <div id="clearRecovery" class="az-clear-recovery" hidden>
           <p id="clearNotice" role="status" aria-live="polite"></p>
-          <button type="button" id="restoreBtn" class="gm-btn" aria-controls="codeInput">元に戻す</button>
+          <button type="button" id="restoreBtn" class="az-btn" aria-controls="codeInput">元に戻す</button>
         </div>
 
-        <div class="editor-wrap">
-          <div class="gutter" aria-hidden="true"><div id="gutterInner" class="gutter-inner"></div></div>
+        <div class="az-editor-wrap">
+          <div class="az-gutter" aria-hidden="true"><div id="gutterInner" class="az-gutter-inner"></div></div>
           <textarea data-art-autofocus id="codeInput" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Javaコードを貼り付け"></textarea>
         </div>
 
       </section>
 
-      <aside class="panel review-panel" aria-labelledby="reviewTitle">
-        <div class="panel-head">
-          <h2 id="reviewTitle" class="panel-title">レビュー結果</h2>
-          <div id="summary" class="review-summary"></div>
-          <button type="button" id="retryBtn" class="gm-btn" aria-controls="resultList" hidden>再解析</button>
+      <aside class="az-tool-panel az-review-panel" aria-labelledby="reviewTitle">
+        <div class="az-panel-head">
+          <h2 id="reviewTitle" class="az-panel-title">レビュー結果</h2>
+          <div id="summary" class="az-review-summary"></div>
+          <button type="button" id="retryBtn" class="az-btn" aria-controls="resultList" hidden>再解析</button>
         </div>
-        <p id="reviewStatus" class="review-status" role="status" aria-live="polite" aria-atomic="true"></p>
-        <div id="resultList" class="result-list" tabindex="-1"></div>
+        <p id="reviewStatus" class="az-review-status" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div id="resultList" class="az-result-list" tabindex="-1"></div>
       </aside>
     </main>
 
@@ -14781,11 +14781,11 @@ const acorn = reviewParsers.acorn;</script>
     const grouped = [];
     for (const comment of comments.toSorted((a, b) => a.startLine - b.startLine)) {
       const last = grouped.at(-1);
-      if (comment.type !== "line") grouped.push(comment); else if (last?.type === "line-group" && last.endLine + 1 === comment.startLine) {
+      if (comment.type !== "line") grouped.push(comment); else if (last?.type === "az-line-group" && last.endLine + 1 === comment.startLine) {
         last.endLine = comment.endLine;
         last.text += `\n${comment.text}`;
       } else grouped.push({
-        type: "line-group",
+        type: "az-line-group",
         startLine: comment.startLine,
         endLine: comment.endLine,
         text: comment.text
@@ -16420,6 +16420,11 @@ const acorn = reviewParsers.acorn;</script>
     warn: "警告",
     info: "情報"
   };
+  const LEVEL_CLASS = {
+    fix: "az-fix",
+    warn: "az-warn",
+    info: "az-info"
+  };
   function escapeHtml(value) {
     return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
   }
@@ -16510,9 +16515,9 @@ const acorn = reviewParsers.acorn;</script>
       const issueHtml = items.map(issue => {
         const example = fixExampleForIssue(issue, snippet, getParsed);
         const key = escapeHtml(JSON.stringify([ issue.level, issue.title, issue.message, example ]));
-        return `\n                <details class="issue-details" data-issue-key="${key}">\n                  <summary>\n                    <span class="level-chip gm-badge ${issue.level}">${LEVEL_LABELS[issue.level]}</span>\n                    <span class="issue-title">${escapeHtml(issue.title)}</span>\n                  </summary>\n                  <div class="issue-body">\n                    <span class="category-chip gm-badge">${categoryForIssue(issue)}</span>\n                    ${issue.message ? `<span class="issue-message">${escapeHtml(issue.message)}</span>` : ""}\n                    ${example ? `<span class="fix-example"><strong>修正例</strong>${escapeHtml(example)}</span>` : ""}\n                  </div>\n                </details>`;
+        return `\n                <details class="az-issue-details" data-issue-key="${key}">\n                  <summary>\n                    <span class="az-level-chip az-badge ${LEVEL_CLASS[issue.level]}">${LEVEL_LABELS[issue.level]}</span>\n                    <span class="az-issue-title">${escapeHtml(issue.title)}</span>\n                  </summary>\n                  <div class="az-issue-body">\n                    <span class="az-category-chip az-badge">${categoryForIssue(issue)}</span>\n                    ${issue.message ? `<span class="az-issue-message">${escapeHtml(issue.message)}</span>` : ""}\n                    ${example ? `<span class="az-fix-example"><strong>修正例</strong>${escapeHtml(example)}</span>` : ""}\n                  </div>\n                </details>`;
       });
-      return `\n              <article class="line-card" data-line="${line}" aria-label="${line}行目の指摘 ${items.length}件">\n                <span class="line-card-head">\n                  <button type="button" class="line-jump gm-btn" data-line="${line}" aria-label="${line}行目のコードへ移動" aria-controls="codeInput">${line}行目へ</button>\n                  <span class="level-chip gm-badge ${items[0].level}">${items.length}件</span>\n                </span>\n                ${snippet ? `<code class="line-code">${escapeHtml(snippet)}</code>` : ""}\n                <div class="line-issues">${issueHtml.slice(0, MAX_ISSUES_PER_LINE).join("")}</div>\n                ${hiddenCount ? `<details class="more-issues"><summary>残りの指摘を表示（${hiddenCount}件）</summary><div class="line-issues">${issueHtml.slice(MAX_ISSUES_PER_LINE).join("")}</div></details>` : ""}\n              </article>`;
+      return `\n              <article class="az-line-card" data-line="${line}" aria-label="${line}行目の指摘 ${items.length}件">\n                <span class="az-line-card-head">\n                  <button type="button" class="az-line-jump az-btn" data-line="${line}" aria-label="${line}行目のコードへ移動" aria-controls="codeInput">${line}行目へ</button>\n                  <span class="az-level-chip az-badge ${LEVEL_CLASS[items[0].level]}">${items.length}件</span>\n                </span>\n                ${snippet ? `<code class="az-line-code">${escapeHtml(snippet)}</code>` : ""}\n                <div class="az-line-issues">${issueHtml.slice(0, MAX_ISSUES_PER_LINE).join("")}</div>\n                ${hiddenCount ? `<details class="az-more-issues"><summary>残りの指摘を表示（${hiddenCount}件）</summary><div class="az-line-issues">${issueHtml.slice(MAX_ISSUES_PER_LINE).join("")}</div></details>` : ""}\n              </article>`;
     });
   }
   const REVIEW_DELAY_MS = 300;
@@ -16547,7 +16552,7 @@ const acorn = reviewParsers.acorn;</script>
     clearNotice: document.getElementById("clearNotice"),
     restoreBtn: document.getElementById("restoreBtn"),
     retryBtn: document.getElementById("retryBtn"),
-    langBtns: document.querySelectorAll(".lang-btn")
+    langBtns: document.querySelectorAll(".az-lang-btn")
   };
   const THEME_STORAGE_KEY = "code-review-checker-theme";
   const LANGUAGE_STORAGE_KEY = "arttools.review.language.v1";
@@ -16610,7 +16615,7 @@ const acorn = reviewParsers.acorn;</script>
     }
     els.resultList.setAttribute("aria-busy", "true");
     els.resultList.dataset.analysisState = "pending";
-    for (const button of els.resultList.querySelectorAll(".line-jump")) button.setAttribute("aria-disabled", "true");
+    for (const button of els.resultList.querySelectorAll(".az-line-jump")) button.setAttribute("aria-disabled", "true");
     setReviewStatus("pending", renderedSource.trim() ? "更新中… 表示は前回のコードの結果です。" : "解析中…");
   }
   function setReviewStatus(state, message) {
@@ -16714,7 +16719,7 @@ const acorn = reviewParsers.acorn;</script>
       info: 0
     };
     for (const issue of issues) counts[issue.level]++;
-    const summary = [ "fix", "warn", "info" ].filter(level => counts[level]).map(level => `<span class="gm-badge ${level}">${LEVEL_LABELS[level]} ${counts[level]}件</span>`).join("");
+    const summary = [ "fix", "warn", "info" ].filter(level => counts[level]).map(level => `<span class="az-badge ${LEVEL_CLASS[level]}">${LEVEL_LABELS[level]} ${counts[level]}件</span>`).join("");
     const label = languageLabel(lang);
     const state = !source.trim() ? "ready" : failed ? "failed" : complete ? "complete" : "partial";
     const message = state === "ready" ? "コードを入力すると自動でレビューします。" : state === "failed" ? "解析処理に失敗しました。再解析してください。" : state === "partial" ? `${label}として解析できませんでした。構文と言語選択を確認してください。${issues.length ? `確認できた範囲の指摘は${issues.length}件です。` : ""}${lang === "javascript" ? " JSX・TypeScriptは未対応です。" : ""}` : issues.length ? `${label}の解析完了：指摘${issues.length}件（要修正${counts.fix}件、警告${counts.warn}件、情報${counts.info}件）。` : `${label}の解析完了：現在のルールでは指摘はありません。`;
@@ -16723,25 +16728,25 @@ const acorn = reviewParsers.acorn;</script>
       const previousLines = renderedSource.split("\n");
       const nextLines = source.split("\n");
       const unchangedLine = line => renderedLanguage === lang && previousLines[line - 1] === nextLines[line - 1];
-      const cardLine = node => node.closest(".line-card").dataset.line;
-      const expandedLines = new Set([ ...els.resultList.querySelectorAll(".line-card") ].filter(card => card.querySelector(".more-issues")?.open && unchangedLine(Number(card.dataset.line))).map(card => card.dataset.line));
-      const expandedIssues = new Set([ ...els.resultList.querySelectorAll(".issue-details") ].filter(detail => detail.open && unchangedLine(Number(cardLine(detail)))).map(detail => JSON.stringify([ cardLine(detail), detail.dataset.issueKey ])));
+      const cardLine = node => node.closest(".az-line-card").dataset.line;
+      const expandedLines = new Set([ ...els.resultList.querySelectorAll(".az-line-card") ].filter(card => card.querySelector(".az-more-issues")?.open && unchangedLine(Number(card.dataset.line))).map(card => card.dataset.line));
+      const expandedIssues = new Set([ ...els.resultList.querySelectorAll(".az-issue-details") ].filter(detail => detail.open && unchangedLine(Number(cardLine(detail)))).map(detail => JSON.stringify([ cardLine(detail), detail.dataset.issueKey ])));
       const active = document.activeElement;
-      const focusedCard = els.resultList.contains(active) ? active.closest(".line-card") : null;
+      const focusedCard = els.resultList.contains(active) ? active.closest(".az-line-card") : null;
       const focusedLine = focusedCard?.dataset.line;
-      const focusedIssueKey = focusedCard ? active.closest(".issue-details")?.dataset.issueKey : null;
-      const focusedControl = focusedCard && (active.matches(".line-jump") ? ".line-jump" : ".more-issues > summary");
+      const focusedIssueKey = focusedCard ? active.closest(".az-issue-details")?.dataset.issueKey : null;
+      const focusedControl = focusedCard && (active.matches(".az-line-jump") ? ".az-line-jump" : ".az-more-issues > summary");
       if (typeof content === "string") els.resultList.innerHTML = content; else els.resultList.replaceChildren(content);
-      for (const card of els.resultList.querySelectorAll(".line-card")) {
-        const disclosure = card.querySelector(".more-issues");
+      for (const card of els.resultList.querySelectorAll(".az-line-card")) {
+        const disclosure = card.querySelector(".az-more-issues");
         if (disclosure && expandedLines.has(card.dataset.line)) disclosure.open = true;
-        for (const detail of card.querySelectorAll(".issue-details")) {
+        for (const detail of card.querySelectorAll(".az-issue-details")) {
           if (expandedIssues.has(JSON.stringify([ card.dataset.line, detail.dataset.issueKey ]))) detail.open = true;
         }
       }
       if (focusedCard) {
-        const card = unchangedLine(Number(focusedLine)) ? els.resultList.querySelector(`.line-card[data-line="${focusedLine}"]`) : null;
-        const replacement = focusedIssueKey ? [ ...card?.querySelectorAll(".issue-details") ?? [] ].find(detail => detail.dataset.issueKey === focusedIssueKey)?.querySelector("summary") : card?.querySelector(focusedControl);
+        const card = unchangedLine(Number(focusedLine)) ? els.resultList.querySelector(`.az-line-card[data-line="${focusedLine}"]`) : null;
+        const replacement = focusedIssueKey ? [ ...card?.querySelectorAll(".az-issue-details") ?? [] ].find(detail => detail.dataset.issueKey === focusedIssueKey)?.querySelector("summary") : card?.querySelector(focusedControl);
         (replacement ?? els.resultList).focus({
           preventScroll: true
         });
@@ -16758,7 +16763,7 @@ const acorn = reviewParsers.acorn;</script>
     if (!issues.length) {
       const title = state === "ready" ? "コードを貼り付けてレビューを開始" : state === "complete" ? "指摘はありません" : "結果を表示できません";
       const description = state === "ready" ? "指摘がここに表示されます。" : state === "complete" ? `${label}のチェックが完了しました。` : "";
-      commit(`<div class="empty-state"><div><div class="empty-title">${title}</div>${description ? `<p>${description}</p>` : ""}</div></div>`);
+      commit(`<div class="az-empty-state"><div><div class="az-empty-title">${title}</div>${description ? `<p>${description}</p>` : ""}</div></div>`);
       return;
     }
     if (cards.length <= RENDER_BATCH_SIZE * 2) {
@@ -16825,7 +16830,7 @@ const acorn = reviewParsers.acorn;</script>
       let html = "";
       for (let line = first; line <= last; line++) {
         const level = levelNames[gutterState.levels[line]];
-        html += `<div class="${level ? `gutter-line has-issue has-${level}` : "gutter-line"}">${line}</div>`;
+        html += `<div class="${level ? `az-gutter-line az-has-issue az-has-${level}` : "az-gutter-line"}">${line}</div>`;
       }
       els.gutter.innerHTML = html;
       gutterState.first = first;
@@ -16900,7 +16905,7 @@ const acorn = reviewParsers.acorn;</script>
     passive: true
   });
   els.resultList.addEventListener("click", event => {
-    const button = event.target.closest(".line-jump");
+    const button = event.target.closest(".az-line-jump");
     if (!button || !els.resultList.contains(button)) return;
     if (els.resultList.dataset.analysisState === "pending" || renderedSource !== els.code.value || renderedLanguage !== language) return;
     jumpToLine(Number(button.dataset.line));
@@ -16990,18 +16995,18 @@ const acorn = reviewParsers.acorn;</script>
   runReview();
 })();</script>
   
-    <dialog class="art-dialog" id="art-settings" aria-labelledby="art-settings-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-settings-title">設定</h2><button type="button" class="art-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body">
-        <div class="art-settings-group">
-          <div class="art-settings-row art-theme-row">
-            <p class="art-setting-label" id="art-theme-label">外観</p>
-            <div class="art-segments" role="group" aria-labelledby="art-theme-label"><button type="button" data-art-theme="light" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>ライト</button><button type="button" data-art-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13a8.7 8.7 0 0 1-9.5-9.5A8.7 8.7 0 1 0 20.5 13Z"/></svg>ダーク</button></div>
+    <dialog class="az-dialog" id="art-settings" aria-labelledby="art-settings-title">
+      <div class="az-dialog-head"><h2 class="az-dialog-title" id="art-settings-title">設定</h2><button type="button" class="az-close" data-art-close aria-label="設定を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <div class="az-dialog-body">
+        <div class="az-settings-group">
+          <div class="az-settings-row az-theme-row">
+            <p class="az-setting-label" id="art-theme-label">外観</p>
+            <div class="az-segments" role="group" aria-labelledby="art-theme-label"><button type="button" data-art-theme="light" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>ライト</button><button type="button" data-art-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13a8.7 8.7 0 0 1-9.5-9.5A8.7 8.7 0 1 0 20.5 13Z"/></svg>ダーク</button></div>
           </div>
-          <div class="art-settings-row">
-            <p class="art-setting-label" id="art-size-label">エディターの文字サイズ</p>
-            <div class="art-segments" role="group" aria-labelledby="art-size-label"><button type="button" data-art-size="10" title="10px" aria-pressed="false">小さめ</button><button type="button" data-art-size="14" title="14px" aria-pressed="true">標準</button><button type="button" data-art-size="18" title="18px" aria-pressed="false">大きめ</button></div>
-            <pre class="art-preview" aria-label="文字サイズのプレビュー" data-preview-java="String name = &quot;sample&quot;;
+          <div class="az-settings-row">
+            <p class="az-setting-label" id="art-size-label">エディターの文字サイズ</p>
+            <div class="az-segments" role="group" aria-labelledby="art-size-label"><button type="button" data-art-size="10" title="10px" aria-pressed="false">小さめ</button><button type="button" data-art-size="14" title="14px" aria-pressed="true">標準</button><button type="button" data-art-size="18" title="18px" aria-pressed="false">大きめ</button></div>
+            <pre class="az-preview" aria-label="文字サイズのプレビュー" data-preview-java="String name = &quot;sample&quot;;
 int count = 3;
 boolean active = true;" data-preview-javascript="const name = 'sample';
 const count = 3;
@@ -17010,13 +17015,13 @@ int count = 3;
 boolean active = true;</pre>
           </div>
         </div>
-        <p class="art-save-note" id="art-save-note" role="status" hidden></p>
+        <p class="az-save-note" id="az-save-note" role="status" hidden></p>
         
       </div>
     </dialog>
-    <dialog class="art-dialog" id="art-help" aria-labelledby="art-help-title">
-      <div class="art-dialog-head"><h2 class="art-dialog-title" id="art-help-title">使い方</h2><button type="button" class="art-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="art-dialog-body"><div class="art-settings-group"><ol class="art-steps"><li><strong>言語を選ぶ</strong><p>入力欄の上でJavaまたはJavaScriptを選択します。選択した言語と違うコードは一部しか解析できないため、指摘が少ない・解析できない場合は言語の選択を確認してください。</p></li><li><strong>コードを貼り付ける</strong><p>入力すると自動で解析し、右側にレビュー結果を表示します。行番号から該当箇所を確認できます。</p></li><li><strong>指摘を確認する</strong><p>各指摘を開いて説明を確認します。「要修正」は不具合につながりやすく直すべき箇所、「警告」は直すことを勧める箇所、「情報」は確認しておくとよい箇所です。「クリア」で消した入力は、次に入力するまで「元に戻す」で復元できます。</p></li></ol></div><p class="art-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+    <dialog class="az-dialog" id="art-help" aria-labelledby="art-help-title">
+      <div class="az-dialog-head"><h2 class="az-dialog-title" id="art-help-title">使い方</h2><button type="button" class="az-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+      <div class="az-dialog-body"><div class="az-settings-group"><ol class="az-steps"><li><strong>言語を選ぶ</strong><p>入力欄の上でJavaまたはJavaScriptを選択します。選択した言語と違うコードは一部しか解析できないため、指摘が少ない・解析できない場合は言語の選択を確認してください。</p></li><li><strong>コードを貼り付ける</strong><p>入力すると自動で解析し、右側にレビュー結果を表示します。行番号から該当箇所を確認できます。</p></li><li><strong>指摘を確認する</strong><p>各指摘を開いて説明を確認します。「要修正」は不具合につながりやすく直すべき箇所、「警告」は直すことを勧める箇所、「情報」は確認しておくとよい箇所です。「クリア」で消した入力は、次に入力するまで「元に戻す」で復元できます。</p></li></ol></div><p class="az-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
   <script id="arttools-common-ui-script">(() => {
@@ -17027,7 +17032,7 @@ boolean active = true;</pre>
   const legacySharedKey = "arttools.shared-ui.v1";
   const settingsDialog = document.getElementById("art-settings");
   const helpDialog = document.getElementById("art-help");
-  const saveNote = document.getElementById("art-save-note");
+  const saveNote = document.getElementById("az-save-note");
   let preferences = {};
   let faviconTheme = "";
   const validTheme = value => value === "light" || value === "dark";
@@ -17063,7 +17068,7 @@ boolean active = true;</pre>
     syncFavicon();
   }
   function syncFavicon() {
-    const original = document.querySelector(".art-mark svg");
+    const original = document.querySelector(".az-mark svg");
     const theme = root.dataset.uiTheme === "dark" ? "dark" : "light";
     if (faviconTheme === theme) return;
     original.querySelectorAll("[data-icon-appearance]").forEach(layer => {
@@ -17076,12 +17081,12 @@ boolean active = true;</pre>
     favicon.href = "data:image/svg+xml," + encodeURIComponent((new XMLSerializer).serializeToString(icon));
     faviconTheme = theme;
   }
-  const preview = document.querySelector(".art-preview");
+  const preview = document.querySelector(".az-preview");
   const syncReviewPreview = () => {
-    const language = document.querySelector('.lang-btn[aria-pressed="true"]').dataset.language;
+    const language = document.querySelector('.az-lang-btn[aria-pressed="true"]').dataset.language;
     preview.textContent = language === "javascript" ? preview.dataset.previewJavascript : preview.dataset.previewJava;
   };
-  document.querySelectorAll(".lang-btn").forEach(button => button.addEventListener("click", syncReviewPreview));
+  document.querySelectorAll(".az-lang-btn").forEach(button => button.addEventListener("click", syncReviewPreview));
   syncReviewPreview();
   function applyTheme(theme) {
     if (validTheme(theme) && originalTheme() !== theme) document.querySelector("#themeToggle").click();
@@ -17089,7 +17094,7 @@ boolean active = true;</pre>
   }
   function applySize(size) {
     const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--ui-editor-size", nextSize + "px");
+    root.style.setProperty("--az-editor-size", nextSize + "px");
     document.querySelectorAll("[data-art-size]").forEach(button => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
     });
@@ -17124,7 +17129,7 @@ boolean active = true;</pre>
     dialog.querySelector("[data-art-close]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("close", () => {
       button.setAttribute("aria-expanded", "false");
-      const activeLegacy = document.querySelector(".modal-overlay.show, .confirm-modal:not([hidden]), .drawer.is-open");
+      const activeLegacy = document.querySelector(".az-modal-overlay.az-show, .az-confirm-modal:not([hidden]), .az-drawer.az-is-open");
       const destination = activeLegacy?.querySelector("button:not(:disabled), input:not(:disabled), textarea:not(:disabled)") || button;
       destination.focus({
         preventScroll: true
@@ -17144,7 +17149,7 @@ boolean active = true;</pre>
     });
   }
   body.addEventListener("keydown", event => {
-    const dialog = event.target instanceof Element ? event.target.closest("dialog.art-dialog[open]") : null;
+    const dialog = event.target instanceof Element ? event.target.closest("dialog.az-dialog[open]") : null;
     if (!dialog) {
       return;
     }
