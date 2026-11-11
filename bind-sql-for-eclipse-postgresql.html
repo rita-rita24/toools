@@ -552,8 +552,8 @@ summary {
     monospace;
   --az-editor-size: 14px;
   --az-title-size: 15px;
-  --az-body-size: 14px;
-  --az-action-size: 14px;
+  --az-body-size: 13px;
+  --az-action-size: 13px;
   --az-meta-size: 12px;
   --az-dialog-title-size: 20px;
   --az-panel-title-size: 16px;
@@ -1583,7 +1583,7 @@ body.az-app[data-tool=bind] :is([data-action=recheck]):not(:has(svg, .az-materia
 
         <div class="az-panel__body az-input-editor">
           <pre class="az-tool-editor" data-role="raw-highlight" aria-hidden="true" tabindex="-1"></pre>
-          <textarea data-art-autofocus data-art-persist aria-labelledby="input-title" aria-errormessage="validation-issues" class="az-tool-editor" data-role="raw-input" wrap="off" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="SQLとバインド変数、またはSQLログを貼り付け"></textarea>
+          <textarea data-art-persist aria-labelledby="input-title" aria-errormessage="validation-issues" class="az-tool-editor" data-role="raw-input" wrap="off" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="SQLとバインド変数、またはSQLログを貼り付け"></textarea>
         </div>
         <div class="az-log-tools" data-role="az-log-tools" hidden>
           <label for="log-select" data-role="log-summary"></label>
@@ -7057,33 +7057,6 @@ WHERE id = ?;
   observer.observe(root, {
     attributes: true,
     attributeFilter: [ "data-mode" ]
-  });
-  const focusPrimaryInput = () => {
-    const target = document.querySelector("[data-art-autofocus]");
-    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3;
-    const userEvents = [ "pointerdown", "keydown" ];
-    let finished = false;
-    const finish = () => {
-      finished = true;
-      for (const type of userEvents) window.removeEventListener(type, finish, true);
-    };
-    for (const type of userEvents) window.addEventListener(type, finish, true);
-    const attempt = () => {
-      if (finished) return;
-      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
-      if (target.getClientRects().length) {
-        target.focus({
-          preventScroll: true
-        });
-        if (document.activeElement === target) return finish();
-      }
-      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
-    };
-    attempt();
-  };
-  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
-    once: true
   });
   const field = document.querySelector("[data-art-persist]");
   const inputKey = `arttools.input.bind.v1`;

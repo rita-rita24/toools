@@ -946,8 +946,8 @@ kbd {
     monospace;
   --az-editor-size: 14px;
   --az-title-size: 15px;
-  --az-body-size: 14px;
-  --az-action-size: 14px;
+  --az-body-size: 13px;
+  --az-action-size: 13px;
   --az-meta-size: 12px;
   --az-dialog-title-size: 20px;
   --az-panel-title-size: 16px;
@@ -2103,6 +2103,21 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 }
 .az-app[data-tool=ibatis] .az-sqlno-item.az-expanded .az-sqlno-content {
   border-top: 0;
+}
+.az-app[data-tool=ibatis] .az-sqlno-header .az-btn-copy-slim {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+.az-app[data-tool=ibatis] .az-sqlno-item:not(.az-expanded) .az-btn-copy-slim {
+  display: none;
+}
+.az-app[data-tool=ibatis] .az-sqlno-toolbar {
+  margin-bottom: 4px;
+  min-height: 0;
+}
+.az-app[data-tool=ibatis] .az-sqlno-content .az-sqlno-file {
+  font-size: 11px;
+  line-height: 1.4;
 }
 .az-app[data-tool=ibatis] #screenIdField .az-suggest-box .az-muted,
 .az-app[data-tool=ibatis] #sqlNoField .az-suggest-box .az-muted {
@@ -4538,7 +4553,7 @@ function sqlNoContentHtml(screenId, sqlNo, id, entry, copySource) {
     return `\n          <div class="az-sqlno-empty">\n            この SQL番号は iBATIS ID がマッピングされていません。\n            ${raw ? `<div class="az-sqlno-tip"><strong><code>${enc(raw)}</code></strong></div>` : ""}\n          </div>`;
   }
   if (!entry) return `<div class="az-sqlno-empty">ID「${enc(id)}」に対応するSQLが見つかりませんでした。</div>`;
-  return `\n        <div class="az-sqlno-toolbar">\n          <span class="az-sqlno-file" title="${enc(entry.file)}">${enc(entry.file)}</span>\n          <span class="az-highlight-warning az-warn-slim" style="display:none;">\n            <span class="az-material-symbols-outlined" style="font-size:1rem;">warning</span>\n            確認が必要な語句（NVL・ROWNUM・型名など）をハイライトしています。\n          </span>\n          <button class="az-tool-btn az-btn-copy-slim" title="このSQLをコピー">\n            <span class="az-material-symbols-outlined" style="font-size:1rem;">content_copy</span> コピー\n          </button>\n        </div>\n        <div class="az-xml-viewer az-slim">${buildCollapsibleFromRaw(entry.raw, entry.file || "", new Set([ normalizeLookupValue(id) ]))}</div>\n        <pre class="az-sql-raw-slim" style="display:none;">${enc(copySource)}</pre>`;
+  return `\n        <div class="az-sqlno-toolbar">\n          <span class="az-sqlno-file" title="${enc(entry.file)}">${enc(entry.file)}</span>\n          <span class="az-highlight-warning az-warn-slim" style="display:none;">\n            <span class="az-material-symbols-outlined" style="font-size:1rem;">warning</span>\n            確認が必要な語句（NVL・ROWNUM・型名など）をハイライトしています。\n          </span>\n        </div>\n        <div class="az-xml-viewer az-slim">${buildCollapsibleFromRaw(entry.raw, entry.file || "", new Set([ normalizeLookupValue(id) ]))}</div>\n        <pre class="az-sql-raw-slim" style="display:none;">${enc(copySource)}</pre>`;
 }
 
 function toggleSqlNoItem(header) {
@@ -4562,6 +4577,7 @@ function toggleSqlNoItem(header) {
   if (firstOpen) {
     content.innerHTML = sqlNoContentHtml(screenId, sqlNo, id, entry, copySource);
     content.dataset.loaded = "1";
+    if (entry) header.insertAdjacentHTML("beforeend", `\n          <button type="button" class="az-tool-btn az-btn-copy-slim" title="このSQLをコピー">\n            <span class="az-material-symbols-outlined" style="font-size:1rem;">content_copy</span> コピー\n          </button>`);
   }
   if (unmapped || !entry && firstOpen) {
     showPlaceholderPanelEmpty();
@@ -4705,7 +4721,7 @@ function wireSearchUI() {
   $sqlNoList.addEventListener("click", event => {
     const copyButton = event.target.closest(".az-btn-copy-slim");
     if (copyButton) {
-      copyText(copyButton.closest(".az-sqlno-content").querySelector(".az-sql-raw-slim").textContent, copyButton, "SQLをコピーしました");
+      copyText(copyButton.closest(".az-sqlno-item").querySelector(".az-sql-raw-slim").textContent, copyButton, "SQLをコピーしました");
       return;
     }
     const header = event.target.closest(".az-sqlno-header");
@@ -4783,7 +4799,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateDirectoryUI();
   await initSearchMode();
   updateSearchModeUI();
-  focusActiveSearchInput();
   initIDB();
 });</script>
 
@@ -5025,33 +5040,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     attributes: true,
     attributeFilter: [ "data-theme" ]
   });
-  const focusPrimaryInput = () => {
-    const target = document.querySelector("[data-art-autofocus]");
-    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3;
-    const userEvents = [ "pointerdown", "keydown" ];
-    let finished = false;
-    const finish = () => {
-      finished = true;
-      for (const type of userEvents) window.removeEventListener(type, finish, true);
-    };
-    for (const type of userEvents) window.addEventListener(type, finish, true);
-    const attempt = () => {
-      if (finished) return;
-      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
-      if (target.getClientRects().length) {
-        target.focus({
-          preventScroll: true
-        });
-        if (document.activeElement === target) return finish();
-      }
-      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
-    };
-    attempt();
-  };
-  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
-    once: true
-  });
   window.addEventListener("storage", event => {
     if (event.key !== storageKey && event.key !== null) return;
     preferences = readPreferences(event.newValue);
@@ -5139,7 +5127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.addEventListener("keydown", event => {
     if (event.key !== "Enter" && event.key !== " ") return;
     const target = event.target instanceof Element ? event.target.closest(".az-xml-fold-btn, .az-ph-chip, .az-sqlno-header") : null;
-    if (!target || event.isComposing) return;
+    if (!target || event.isComposing || event.target !== target && event.target.closest("button")) return;
     event.preventDefault();
     target.click();
   });

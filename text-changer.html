@@ -429,8 +429,8 @@
     monospace;
   --az-editor-size: 14px;
   --az-title-size: 15px;
-  --az-body-size: 14px;
-  --az-action-size: 14px;
+  --az-body-size: 13px;
+  --az-action-size: 13px;
   --az-meta-size: 12px;
   --az-dialog-title-size: 20px;
   --az-panel-title-size: 16px;
@@ -1493,7 +1493,7 @@ body.az-app[data-tool=text] :is(.az-copy-btn):not(:has(svg, .az-material-symbols
           </button>
         </div>
 
-        <textarea class="az-textarea" data-art-autofocus id="input-area" aria-describedby="input-help" placeholder="apple&#10;banana&#10;cherry"></textarea>
+        <textarea class="az-textarea" id="input-area" aria-describedby="input-help" placeholder="apple&#10;banana&#10;cherry"></textarea>
         <p class="az-help-text az-save-status" id="az-save-status" role="status" aria-atomic="true"></p>
       </section>
       <section class="az-tool-panel az-panel-output" aria-label="変換結果一覧">
@@ -2383,33 +2383,6 @@ cherry</pre>
   observer.observe(body, {
     attributes: true,
     attributeFilter: [ "data-mode" ]
-  });
-  const focusPrimaryInput = () => {
-    const target = document.querySelector("[data-art-autofocus]");
-    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3;
-    const userEvents = [ "pointerdown", "keydown" ];
-    let finished = false;
-    const finish = () => {
-      finished = true;
-      for (const type of userEvents) window.removeEventListener(type, finish, true);
-    };
-    for (const type of userEvents) window.addEventListener(type, finish, true);
-    const attempt = () => {
-      if (finished) return;
-      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
-      if (target.getClientRects().length) {
-        target.focus({
-          preventScroll: true
-        });
-        if (document.activeElement === target) return finish();
-      }
-      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
-    };
-    attempt();
-  };
-  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
-    once: true
   });
   window.addEventListener("storage", event => {
     if (event.key !== storageKey && event.key !== null) return;

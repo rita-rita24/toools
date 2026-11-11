@@ -635,8 +635,8 @@
     monospace;
   --az-editor-size: 14px;
   --az-title-size: 15px;
-  --az-body-size: 14px;
-  --az-action-size: 14px;
+  --az-body-size: 13px;
+  --az-action-size: 13px;
   --az-meta-size: 12px;
   --az-dialog-title-size: 20px;
   --az-panel-title-size: 16px;
@@ -1567,7 +1567,7 @@ body.az-app[data-tool=sbquery] :is(#az-copy-button):not(:has(svg, .az-material-s
             <span>元に戻す</span>
           </button>
         </div>
-        <textarea data-art-autofocus data-art-persist id="gm-plain-text" class="az-textarea" name="plainText" aria-describedby="gm-converter-help" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off"></textarea>
+        <textarea data-art-persist id="gm-plain-text" class="az-textarea" name="plainText" aria-describedby="gm-converter-help" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off"></textarea>
       </section>
 
       <section class="az-editor" aria-labelledby="gm-query-heading">
@@ -1812,33 +1812,6 @@ sb.addQuery(&quot; WHERE id = 42 &quot;);</pre>
   observer.observe(root, {
     attributes: true,
     attributeFilter: [ "data-mode" ]
-  });
-  const focusPrimaryInput = () => {
-    const target = document.querySelector("[data-art-autofocus]");
-    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3;
-    const userEvents = [ "pointerdown", "keydown" ];
-    let finished = false;
-    const finish = () => {
-      finished = true;
-      for (const type of userEvents) window.removeEventListener(type, finish, true);
-    };
-    for (const type of userEvents) window.addEventListener(type, finish, true);
-    const attempt = () => {
-      if (finished) return;
-      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
-      if (target.getClientRects().length) {
-        target.focus({
-          preventScroll: true
-        });
-        if (document.activeElement === target) return finish();
-      }
-      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
-    };
-    attempt();
-  };
-  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
-    once: true
   });
   const field = document.querySelector("[data-art-persist]");
   const inputKey = `arttools.input.sbquery.v1`;

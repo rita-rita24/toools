@@ -689,8 +689,8 @@ main {
     monospace;
   --az-editor-size: 14px;
   --az-title-size: 15px;
-  --az-body-size: 14px;
-  --az-action-size: 14px;
+  --az-body-size: 13px;
+  --az-action-size: 13px;
   --az-meta-size: 12px;
   --az-dialog-title-size: 20px;
   --az-panel-title-size: 16px;
@@ -1722,7 +1722,7 @@ body.az-app[data-tool=sql] :is(#copyPostgresButton):not(:has(svg, .az-material-s
           </div>
           <div class="az-editor-shell az-input-shell">
             <pre class="az-sql-highlight" id="oracleHighlight" aria-hidden="true" tabindex="-1"></pre>
-            <textarea data-art-autofocus data-art-persist id="oracleSql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Oracle SQL"></textarea>
+            <textarea data-art-persist id="oracleSql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Oracle SQL"></textarea>
             <div class="az-empty-state" id="inputEmptyState">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="m7 7-5 5 5 5m10-10 5 5-5 5M14 4l-4 16" />
@@ -4786,33 +4786,6 @@ WHERE id = 42;</pre>
   observer.observe(root, {
     attributes: true,
     attributeFilter: [ "data-mode" ]
-  });
-  const focusPrimaryInput = () => {
-    const target = document.querySelector("[data-art-autofocus]");
-    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3;
-    const userEvents = [ "pointerdown", "keydown" ];
-    let finished = false;
-    const finish = () => {
-      finished = true;
-      for (const type of userEvents) window.removeEventListener(type, finish, true);
-    };
-    for (const type of userEvents) window.addEventListener(type, finish, true);
-    const attempt = () => {
-      if (finished) return;
-      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
-      if (target.getClientRects().length) {
-        target.focus({
-          preventScroll: true
-        });
-        if (document.activeElement === target) return finish();
-      }
-      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
-    };
-    attempt();
-  };
-  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
-    once: true
   });
   const field = document.querySelector("[data-art-persist]");
   const inputKey = `arttools.input.sql.v1`;

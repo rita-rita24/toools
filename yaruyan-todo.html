@@ -2073,8 +2073,8 @@
     monospace;
   --az-editor-size: 14px;
   --az-title-size: 15px;
-  --az-body-size: 14px;
-  --az-action-size: 14px;
+  --az-body-size: 13px;
+  --az-action-size: 13px;
   --az-meta-size: 12px;
   --az-dialog-title-size: 20px;
   --az-panel-title-size: 16px;
@@ -4403,7 +4403,7 @@ body.az-app[data-tool=todo] :is(.az-toast-action-btn):not(:has(svg, .az-material
             <div class="az-card az-task-composer">
               <label class="az-field-label az-label" for="taskInput">タスクを追加</label>
               <div class="az-row">
-                <input data-art-autofocus id="taskInput" class="az-text-input az-input" type="text" autocomplete="off" aria-describedby="taskInputHint">
+                <input id="taskInput" class="az-text-input az-input" type="text" autocomplete="off" aria-describedby="taskInputHint">
                 <button type="button" id="addBtn" class="az-tool-icon-btn az-add-btn az-show-label az-btn az-btn-primary" aria-label="親タスク追加">
                   <span aria-hidden="true" class="az-material-symbols-outlined">add_task</span>
                   <span>追加</span>
@@ -9284,33 +9284,6 @@ body.az-app[data-tool=todo] :is(.az-toast-action-btn):not(:has(svg, .az-material
     subtree: true,
     attributes: true,
     attributeFilter: [ "class", "hidden" ]
-  });
-  const focusPrimaryInput = () => {
-    const target = document.querySelector("[data-art-autofocus]");
-    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3;
-    const userEvents = [ "pointerdown", "keydown" ];
-    let finished = false;
-    const finish = () => {
-      finished = true;
-      for (const type of userEvents) window.removeEventListener(type, finish, true);
-    };
-    for (const type of userEvents) window.addEventListener(type, finish, true);
-    const attempt = () => {
-      if (finished) return;
-      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
-      if (target.getClientRects().length) {
-        target.focus({
-          preventScroll: true
-        });
-        if (document.activeElement === target) return finish();
-      }
-      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
-    };
-    attempt();
-  };
-  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
-    once: true
   });
   window.addEventListener("storage", event => {
     if (event.key !== storageKey && event.key !== null) return;

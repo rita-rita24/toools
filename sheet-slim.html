@@ -311,8 +311,8 @@ button.az-sp-mask-badge {
     monospace;
   --az-editor-size: 14px;
   --az-title-size: 15px;
-  --az-body-size: 14px;
-  --az-action-size: 14px;
+  --az-body-size: 13px;
+  --az-action-size: 13px;
   --az-meta-size: 12px;
   --az-dialog-title-size: 20px;
   --az-panel-title-size: 16px;
@@ -1090,7 +1090,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
  <div id="sp-workspace" class="az-sp-workspace" data-view="input">
   <section class="az-sp-panel" id="sp-input-panel" aria-labelledby="sp-input-title">
    <div class="az-sp-panel-head"><h2 id="sp-input-title">Excelから貼り付け</h2><div class="az-sp-actions"><button id="sp-import-open" type="button" class="az-action-roomy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6Z M14 3v5h4 M9 12h6 M9 16h6"/></svg>Excelを開く</button><button id="sp-clear" type="button" class="az-action-roomy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h11v14H9l-6-7Z"/><path d="m12 9 5 6m0-6-5 6"/></svg>クリア</button><button id="sp-undo-clear" type="button" class="az-action-roomy" aria-label="クリアした入力と辞書を元に戻す" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4 3 9l5 5 M3 9h10a7 7 0 0 1 0 14"/></svg>元に戻す</button></div></div>
-   <textarea data-art-autofocus id="sp-input" aria-label="Excelからコピーした内容" spellcheck="false" autocomplete="off" placeholder="Excelのシートや範囲をコピーして、ここに貼り付けてください。"></textarea>
+   <textarea id="sp-input" aria-label="Excelからコピーした内容" spellcheck="false" autocomplete="off" placeholder="Excelのシートや範囲をコピーして、ここに貼り付けてください。"></textarea>
    <div class="az-sp-panel-foot"><span id="sp-input-count">0文字</span><span id="sp-summary" role="status" aria-live="polite">未入力</span><span id="sp-source" class="az-sp-ellipsis">入力内容は保存しません</span></div>
   </section>
   <section class="az-sp-panel" id="sp-output-panel" aria-labelledby="sp-output-title">
@@ -1806,33 +1806,6 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   }
   applyTheme(preferences.theme);
   applySize(preferences.editorSize);
-  const focusPrimaryInput = () => {
-    const target = document.querySelector("[data-art-autofocus]");
-    if (!target || target.disabled || !matchMedia("(pointer: fine)").matches) return;
-    const deadline = performance.now() + 3e3;
-    const userEvents = [ "pointerdown", "keydown" ];
-    let finished = false;
-    const finish = () => {
-      finished = true;
-      for (const type of userEvents) window.removeEventListener(type, finish, true);
-    };
-    for (const type of userEvents) window.addEventListener(type, finish, true);
-    const attempt = () => {
-      if (finished) return;
-      if (document.activeElement && document.activeElement !== body || document.querySelector("dialog[open]")) return finish();
-      if (target.getClientRects().length) {
-        target.focus({
-          preventScroll: true
-        });
-        if (document.activeElement === target) return finish();
-      }
-      if (performance.now() < deadline) requestAnimationFrame(attempt); else finish();
-    };
-    attempt();
-  };
-  if (document.readyState === "complete") focusPrimaryInput(); else window.addEventListener("load", focusPrimaryInput, {
-    once: true
-  });
   window.addEventListener("storage", event => {
     if (event.key !== storageKey && event.key !== null) return;
     preferences = readPreferences(event.newValue);
