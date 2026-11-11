@@ -1630,6 +1630,8 @@ const copyControls = new Map([ ...document.querySelectorAll(".az-copy-btn") ].ma
 
 let clearedInput = null;
 
+let clearUndoTimer = 0;
+
 let lastSaved = {};
 
 let lastConversion = {};
@@ -2145,6 +2147,14 @@ main.addEventListener("click", event => {
   } else if (event.target.closest("#input-clear") && !clearButton.disabled) {
     clearedInput = inputArea.value;
     replaceInput("");
+    const snapshot = clearedInput;
+    clearTimeout(clearUndoTimer);
+    clearUndoTimer = setTimeout(() => {
+      if (clearedInput !== snapshot) return;
+      clearedInput = null;
+      undoClearButton.hidden = true;
+      clearButton.hidden = false;
+    }, 1e4);
   } else {
     const button = event.target.closest(".az-copy-btn");
     if (button) copyResult(button);
@@ -2188,7 +2198,7 @@ cherry</pre>
     </dialog>
     <dialog class="az-dialog" id="art-help" aria-labelledby="art-help-title">
       <div class="az-dialog-head"><h2 class="az-dialog-title" id="art-help-title">使い方</h2><button type="button" class="az-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
-      <div class="az-dialog-body"><div class="az-settings-group"><ol class="az-steps"><li><strong>テキストを貼り付ける</strong><p>左側の入力欄にテキストや表データを貼り付けると、自動で変換します。</p></li><li><strong>必要な形式を選ぶ</strong><p>A5M2 Caption、タブ区切り、SQL IN句、PostgreSQL、連番調整の結果を表示します。テーブル名や増減値は各結果の上で指定できます。PostgreSQLは先頭行をカラム名として扱い、テーブル名が空欄の場合は「???」で生成します。連番調整は数字の連続部分だけを増減し、符号や小数点は文字として残し、ゼロ埋めの桁数は保持します（001 → 002）。結果が負になる場合はゼロ埋めしません。</p></li><li><strong>空欄のセルを確認する</strong><p>PostgreSQLの結果では、空欄のセルをSELECT・DELETEの条件から外し、INSERTでは空白1文字として出力します。DELETEを実行する前に条件を確認してください。</p></li><li><strong>結果をコピーする</strong><p>使いたい結果の右上にある「コピー」を押します。入力・テーブル名・増減値は、このブラウザーに自動保存されます。「クリア」で消した入力は、次に入力するまで「元に戻す」で復元できます。</p></li></ol></div><p class="az-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
+      <div class="az-dialog-body"><div class="az-settings-group"><ol class="az-steps"><li><strong>テキストを貼り付ける</strong><p>左側の入力欄にテキストや表データを貼り付けると、自動で変換します。</p></li><li><strong>必要な形式を選ぶ</strong><p>A5M2 Caption、タブ区切り、SQL IN句、PostgreSQL、連番調整の結果を表示します。テーブル名や増減値は各結果の上で指定できます。PostgreSQLは先頭行をカラム名として扱い、テーブル名が空欄の場合は「???」で生成します。連番調整は数字の連続部分だけを増減し、符号や小数点は文字として残し、ゼロ埋めの桁数は保持します（001 → 002）。結果が負になる場合はゼロ埋めしません。</p></li><li><strong>空欄のセルを確認する</strong><p>PostgreSQLの結果では、空欄のセルをSELECT・DELETEの条件から外し、INSERTでは空白1文字として出力します。DELETEを実行する前に条件を確認してください。</p></li><li><strong>結果をコピーする</strong><p>使いたい結果の右上にある「コピー」を押します。入力・テーブル名・増減値は、このブラウザーに自動保存されます。「クリア」で消した入力は、10秒以内なら「元に戻す」で復元できます。</p></li></ol></div><p class="az-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p></div>
     </dialog>
     
   <script id="arttools-common-ui-script">(() => {

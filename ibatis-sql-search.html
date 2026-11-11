@@ -4622,10 +4622,6 @@ function toggleSqlNoItem(header) {
   if (firstOpen) markPlaceholdersIn(slimViewer);
   content.querySelector(".az-warn-slim").style.display = applyHighlightsIn(slimViewer) ? "inline-flex" : "none";
   renderPlaceholderChips(copySource);
-  content.closest(".az-sqlno-item").scrollIntoView({
-    behavior: "auto",
-    block: "start"
-  });
 }
 
 $btnCopy.addEventListener("click", () => {

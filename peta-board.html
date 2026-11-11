@@ -3855,7 +3855,7 @@ body.az-app[data-tool=kanban] :is(#date-clear-btn, #date-close-btn, #confirm-can
         <p class="az-help-shortcuts"><span><kbd>/</kbd> 検索</span><span><kbd>Esc</kbd> 閉じる・検索解除</span><span><kbd>Tab</kbd> 次の操作</span><span><kbd>Enter</kbd> 付箋を編集</span></p>
         <p>列内の並べ替えは編集画面の「上へ」「下へ」、または付箋にフォーカスして<kbd>Alt</kbd>＋<kbd>↑</kbd>／<kbd>↓</kbd>。チェック項目で<kbd>Enter</kbd>を押すと次の項目を追加できます。</p>
         <p>カレンダーでは矢印キーで日付、<kbd>PageUp</kbd>／<kbd>PageDown</kbd>で月を移動します。<kbd>Shift</kbd>を併用すると年を移動します。</p>
-        <p>削除した列・付箋・項目、別の列への付箋の移動、バックアップからの復元は、30秒以内なら「元に戻す」で元に戻せます。空の新規付箋は閉じると残りません。付箋を追加すると検索は解除されます。</p>
+        <p>削除した列・付箋・項目、別の列への付箋の移動、バックアップからの復元は、10秒以内なら「元に戻す」で元に戻せます。空の新規付箋は閉じると残りません。付箋を追加すると検索は解除されます。</p>
         <p>タグはカンマ・読点で区切り、8個まで、1個32文字以内です。期限はYYYY-MM-DDまたは8桁のYYYYMMDDで直接入力できます。</p>
       </details>
     </div></details></div>
@@ -3866,7 +3866,7 @@ body.az-app[data-tool=kanban] :is(#date-clear-btn, #date-close-btn, #confirm-can
   const STORAGE_KEY = "petaborad.state.v1";
   const CORRUPT_BACKUP_KEY = `${STORAGE_KEY}.corrupt`;
   const SAVE_DELAY = 160;
-  const DELETE_UNDO_WINDOW = 3e4;
+  const DELETE_UNDO_WINDOW = 1e4;
   const DRAG_THRESHOLD = 8;
   const SAFE_ID_RE = /^[A-Za-z0-9_-]{1,96}$/;
   const LIMITS = Object.freeze({
@@ -6253,7 +6253,7 @@ body.az-app[data-tool=kanban] :is(#date-clear-btn, #date-close-btn, #confirm-can
       const ok = await showConfirmDialog({
         title: "バックアップを復元",
         returnFocus: els.importBoardBtn,
-        message: "現在のボードをバックアップの内容で置き換えます。\n復元後30秒間は「元に戻す」で現在の内容に戻せます。長く残したい場合は、先にバックアップしてください。",
+        message: "現在のボードをバックアップの内容で置き換えます。\n復元後10秒間は「元に戻す」で現在の内容に戻せます。長く残したい場合は、先にバックアップしてください。",
         confirmText: "置き換えて復元"
       });
       if (!ok || generation !== importGeneration) return;

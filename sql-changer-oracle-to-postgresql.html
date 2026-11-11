@@ -3999,6 +3999,8 @@ let toastTimer;
 
 let clearedInput = null;
 
+let clearUndoTimer = 0;
+
 let lastConvertedSource = null;
 
 let activeConversionWorker = null;
@@ -4391,7 +4393,7 @@ function clearOracle() {
   if (!oracleSql.value) return;
   composingInput = false;
   const {value, selectionStart: start, selectionEnd: end, selectionDirection: direction, scrollTop, scrollLeft} = oracleSql;
-  clearedInput = {
+  const snapshot = {
     value,
     start,
     end,
@@ -4399,6 +4401,14 @@ function clearOracle() {
     scrollTop,
     scrollLeft
   };
+  clearedInput = snapshot;
+  clearTimeout(clearUndoTimer);
+  clearUndoTimer = setTimeout(() => {
+    if (clearedInput !== snapshot) return;
+    clearedInput = null;
+    undoClearButton.hidden = true;
+    inputEmptyTitle.textContent = "Oracle SQLをここに貼り付け";
+  }, 1e4);
   oracleSql.value = "";
   convert();
   oracleSql.focus();

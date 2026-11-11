@@ -4751,7 +4751,7 @@ body.az-app[data-tool=todo] :is(.az-toast-action-btn):not(:has(svg, .az-material
         </section>
         <section class="az-help-step">
           <span class="az-help-step-number">3</span>
-          <div><h3>元に戻す</h3><p>削除したタスク・子タスク、一括削除は、30秒以内なら通知の「元に戻す」で復元できます。バックアップの読み込みも、直後の通知から読み込み前の状態へ戻せます。</p></div>
+          <div><h3>元に戻す</h3><p>削除したタスク・子タスク、一括削除は、10秒以内なら通知の「元に戻す」で復元できます。バックアップの読み込みも、直後の通知から読み込み前の状態へ戻せます。</p></div>
         </section>
       </div>
       <div class="az-help-storage"><strong>保存とバックアップ</strong><br>保存先はこのブラウザー内です。クラウド同期はありません。右上の「設定」からバックアップのJSONを保存・読み込みできます。</div>
@@ -4803,7 +4803,7 @@ body.az-app[data-tool=todo] :is(.az-toast-action-btn):not(:has(svg, .az-material
   const TOOLTIP_OFFSET_PX = 5;
   const TOOLTIP_VIEWPORT_PADDING_PX = 8;
   const IMPORT_UNDO_WINDOW_MS = 5e3;
-  const DELETE_UNDO_HOLD_MS = 3e4;
+  const DELETE_UNDO_HOLD_MS = 1e4;
   const MODAL_FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
   const disableIndexedDb = () => {
     try {

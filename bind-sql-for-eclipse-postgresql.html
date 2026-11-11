@@ -6756,7 +6756,7 @@ if (typeof exports === "object" && typeof module === "object") {
   clearButton.addEventListener("click", () => {
     if (!rawInput.value) return;
     const {value: text, selectionStart: start, selectionEnd: end, scrollTop, scrollLeft} = rawInput;
-    state.clearHistory = {
+    const snapshot = {
       text,
       start,
       end,
@@ -6764,6 +6764,12 @@ if (typeof exports === "object" && typeof module === "object") {
       scrollLeft,
       logIndex: state.logIndex
     };
+    state.clearHistory = snapshot;
+    window.setTimeout(() => {
+      if (state.clearHistory !== snapshot) return;
+      state.clearHistory = null;
+      syncActionAvailability();
+    }, 1e4);
     rawInput.value = "";
     state.logIndex = null;
     state.isComposing = false;
