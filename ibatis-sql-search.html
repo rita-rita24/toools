@@ -980,7 +980,6 @@ kbd {
   --az-select-text-inset: calc(var(--az-select-arrow-size) + var(--az-select-arrow-inset) + var(--az-select-text-gap));
   --az-dialog-padding: calc(24px * var(--az-scale, 1));
   --az-header-height: calc(40px * var(--az-scale, 1));
-  --az-workspace-height: calc(100dvh - var(--az-header-height));
   --az-app-icon-size: calc(20px * var(--az-scale, 1));
   --az-main-top: calc(16px * var(--az-scale, 1));
   --az-toolbar-gap: calc(12px * var(--az-scale, 1));
@@ -1019,10 +1018,6 @@ html:not([data-ui-theme]) {
   --az-info: #1447e6;
   --az-info-bg: #eff6ff;
   --az-info-border: #bedbff;
-  --az-keyword: #1447e6;
-  --az-function: #8200db;
-  --az-string: #016630;
-  --az-number: #973c00;
   --az-shadow: none;
   --az-shadow-sm: 0 1px 2px 0 #1018281a;
   --az-shadow-md: 0 4px 12px -2px #10182814;
@@ -1062,10 +1057,6 @@ html[data-ui-theme=dark] {
   --az-info: #8ec5ff;
   --az-info-bg: #18243a;
   --az-info-border: #26467a;
-  --az-keyword: #8ec5ff;
-  --az-function: #dab2ff;
-  --az-string: #7bf1a8;
-  --az-number: #ffd230;
   --az-shadow: none;
   --az-shadow-sm: 0 1px 2px 0 #00000066;
   --az-shadow-md: 0 6px 16px -2px #00000080;
@@ -1545,10 +1536,6 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
     --az-text: #000;
     --az-muted: #444;
     --az-border: #bbb;
-    --az-keyword: #000;
-    --az-string: #000;
-    --az-function: #000;
-    --az-number: #000;
     height: auto;
     overflow: visible;
   }
@@ -2021,27 +2008,66 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 .az-app[data-tool=ibatis] .az-xml-viewer {
   padding: calc(16px * var(--az-scale, 1));
   font: var(--az-editor-size)/1.7 var(--az-mono);
-  border-color: var(--az-border);
-  background: var(--az-inset);
+  border-color: var(--az-code-border);
+  background: var(--az-code-bg);
+  color: var(--az-code-text);
   border-radius: var(--az-inner-radius);
 }
+.az-app[data-tool=ibatis] {
+  --az-code-bg: #ffffff;
+  --az-code-border: #c9ced6;
+  --az-code-text: #111827;
+  --az-code-tag: #0b3fd1;
+  --az-code-attr: #9b1fb8;
+  --az-code-value: #0a7a2f;
+  --az-code-comment: #5f6b7a;
+  --az-code-cdata: #a14b00;
+  --az-code-warn-bg: #ffd9d9;
+  --az-code-warn: #b00012;
+  --az-code-hash-bg: #dbe8ff;
+  --az-code-hash: #0b3a9e;
+  --az-code-hash-border: #5b8def;
+  --az-code-dollar-bg: #ffeeba;
+  --az-code-dollar: #7a3d00;
+  --az-code-dollar-border: #e0a100;
+}
+html[data-ui-theme=dark] .az-app[data-tool=ibatis] {
+  --az-code-bg: #0d1117;
+  --az-code-border: #3d444d;
+  --az-code-text: #f0f3f6;
+  --az-code-tag: #79c0ff;
+  --az-code-attr: #e2a9ff;
+  --az-code-value: #7ee787;
+  --az-code-comment: #9aa4b0;
+  --az-code-cdata: #ffb86b;
+  --az-code-warn-bg: #6b1a22;
+  --az-code-warn: #ffc2c2;
+  --az-code-hash-bg: #12305f;
+  --az-code-hash: #b8dcff;
+  --az-code-hash-border: #4c8dff;
+  --az-code-dollar-bg: #4a3300;
+  --az-code-dollar: #ffe08a;
+  --az-code-dollar-border: #d9a400;
+}
 .az-app[data-tool=ibatis] .az-xml-fold-btn {
-  color: var(--az-icon);
+  color: var(--az-code-comment);
 }
 .az-app[data-tool=ibatis] .az-xml-tag {
-  color: var(--az-keyword);
+  color: var(--az-code-tag);
+  font-weight: 700;
 }
 .az-app[data-tool=ibatis] .az-xml-attr {
-  color: var(--az-function);
+  color: var(--az-code-attr);
 }
 .az-app[data-tool=ibatis] .az-xml-attr-val {
-  color: var(--az-string);
+  color: var(--az-code-value);
 }
 .az-app[data-tool=ibatis] .az-xml-cdata {
-  color: var(--az-number);
+  color: var(--az-code-cdata);
 }
 .az-app[data-tool=ibatis] .az-xml-comment {
-  color: var(--az-muted);
+  color: var(--az-code-comment);
+  font-style: italic;
 }
 .az-app[data-tool=ibatis] .az-placeholder {
   gap: calc(8px * var(--az-scale, 1));
@@ -2098,7 +2124,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 }
 .az-app[data-tool=ibatis] .az-sqlno-header {
   position: sticky;
-  top: calc(-1 * var(--az-panel-padding));
+  top: 0;
   z-index: 3;
   background: var(--az-surface);
 }
@@ -2874,9 +2900,17 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   --az-button-border: var(--az-error-border);
 }
 .az-app[data-tool=ibatis] .az-ph-soft {
-  border: 1px solid var(--az-secondary-border);
+  border: 1px solid var(--az-code-hash-border);
   border-radius: 3px;
+  background: var(--az-code-hash-bg) !important;
+  color: var(--az-code-hash);
+  font-weight: 700;
   box-shadow: none;
+}
+.az-app[data-tool=ibatis] .az-ph-dollar-soft {
+  border-color: var(--az-code-dollar-border);
+  background: var(--az-code-dollar-bg) !important;
+  color: var(--az-code-dollar);
 }
 .az-app[data-tool=ibatis] .az-ph-soft-active {
   border-color: var(--az-accent) !important;
@@ -2947,41 +2981,36 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   }
 }
 @media screen and (min-width: 1001px) and (min-height: 641px) {
-  :root .az-app[data-tool=ibatis] {
-    height: 100dvh;
-    block-size: 100dvh;
-    min-height: 0;
-    overflow: hidden;
-  }
-  .az-app[data-tool=ibatis] > .az-container {
-    height: var(--az-workspace-height);
-    block-size: var(--az-workspace-height);
-    min-height: 0;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    overflow: hidden;
-  }
   .az-app[data-tool=ibatis] .az-columns {
-    min-height: 0;
+    align-items: start;
   }
-  .az-app[data-tool=ibatis] .az-panel-body {
-    overflow: auto;
-    overscroll-behavior-y: contain;
+  .az-app[data-tool=ibatis] .az-columns > .az-tool-panel {
+    height: auto;
+    min-height: calc(100dvh - var(--az-header-height) - 180px);
+    overflow: clip;
+  }
+  .az-app[data-tool=ibatis] .az-columns > .az-tool-panel > .az-panel-body {
+    overflow: visible;
   }
   .az-app[data-tool=ibatis] .az-sticky-panel {
-    position: static;
-    height: 100%;
-    min-height: 0;
-  }
-  .az-app[data-tool=ibatis] .az-sticky-panel {
+    position: sticky;
+    top: 0;
+    z-index: 4;
     display: flex;
     flex-direction: column;
     gap: var(--az-gap);
+    height: auto;
+    max-height: 100dvh;
+    min-height: 0;
   }
   .az-app[data-tool=ibatis] .az-sticky-panel > * {
     flex: 0 1 auto;
     min-height: 0;
+    max-height: none;
+  }
+  .az-app[data-tool=ibatis] .az-sticky-panel > .az-tool-panel > .az-panel-body {
+    overflow: auto;
+    overscroll-behavior-y: contain;
   }
   .az-app[data-tool=ibatis] .az-sticky-panel > .az-include-parent-panel {
     flex-shrink: 0;
@@ -3930,7 +3959,7 @@ function applyHighlightsIn(rootEl) {
         return;
       }
       const span = document.createElement("span");
-      span.style.cssText = "background-color: var(--az-error-bg); color: var(--az-error); border-radius: 2px; padding: 0 2px;";
+      span.style.cssText = "background-color: var(--az-code-warn-bg); color: var(--az-code-warn); font-weight: 700; border-radius: 2px; padding: 0 2px;";
       span.textContent = part;
       fragment.append(span);
     });
