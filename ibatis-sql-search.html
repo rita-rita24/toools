@@ -6,6 +6,47 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>iBATIS SQL 検索ツール</title>
 
+  <script>const SCREEN_SQL_ID_MAP = 
+/* ===== iBATIS マッピング・手動編集ここから =====
+  SCREEN_SQL_ID_MAP: 画面ID → 設計書のSQL番号 → XMLのiBATIS ID
+  追加例: '画面ID': { 'SQL1': 'findExample', 'SQL2': 'findOther' },
+  既存の分類コメントを残し、項目間のカンマを忘れずに追加してください。
+  再生成する場合は 別ツール一覧/src/ibatis-sql-search.html の同じ定義を編集してください。
+  この定義のすぐ下の HIGHLIGHT_TERMS は、SQL表示でハイライトする語句の一覧です。
+================================================ */
+{
+		/** ==========
+		 マッピング
+		========== **/
+
+
+
+		// ↓に追加していく！！※閉じかっこ後のカンマ「,」に注意すること！！！
+		/** ==========
+		 ？？？？？
+		========== **/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+/* ===== iBATIS マッピング・手動編集ここまで ===== */
+;
+
+const HIGHLIGHT_TERMS = [ "TO_NUMBER", "TO_NUMBER(", "NVL", "NVL2", "FROM DUAL", "ROWNUM", "SUBSTR", "SUBSTRB", "TO_CHAR", "TO_DATE", "NEXTVAL", "DECODE", "LPAD", "||", "SYSDATE", "SYSTIMESTAMP", "TRIM(", "IS NULL", "IS NOT NULL", "null", "LEFT OUTER JOIN", "= ' '", " VARCHAR2", " DATE", " TIMESTAMP", " NUMBER", " BLOB", " LONG", "TO_MULTI_BYTE(", "ADD_MONTHS(", "INSTR(", "REGEXP_SUBSTR(", "REGEXP_LIKE(", "LAST_DAY(", "ROUND(", "TRUNC(" ];</script>
+
   <script>try {
   document.documentElement.dataset.theme = localStorage.getItem("iBATIS_tool_theme") === "dark" ? "dark" : "light";
 } catch {
@@ -3394,47 +3435,7 @@ body.az-app[data-tool=ibatis] :is(#btnClearInput):not(:has(svg, .az-material-sym
 
   <div class="az-toast-container" id="toastContainer" role="status" aria-live="polite" aria-atomic="false"></div>
 
-  <script>const SCREEN_SQL_ID_MAP = 
-/* ===== iBATIS マッピング・手動編集ここから =====
-  SCREEN_SQL_ID_MAP: 画面ID → 設計書のSQL番号 → XMLのiBATIS ID
-  追加例: '画面ID': { 'SQL1': 'findExample', 'SQL2': 'findOther' },
-  既存の分類コメントを残し、項目間のカンマを忘れずに追加してください。
-  再生成する場合は 別ツール一覧/src/ibatis-sql-search.html の同じ定義を編集してください。
-================================================ */
-{
-		/** ==========
-		 マッピング
-		========== **/
-
-
-
-		// ↓に追加していく！！※閉じかっこ後のカンマ「,」に注意すること！！！
-		/** ==========
-		 ？？？？？
-		========== **/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
-/* ===== iBATIS マッピング・手動編集ここまで ===== */
-;
-
-const HIGHLIGHT_TERMS = [ "TO_NUMBER", "TO_NUMBER(", "NVL", "NVL2", "FROM DUAL", "ROWNUM", "SUBSTR", "SUBSTRB", "TO_CHAR", "TO_DATE", "NEXTVAL", "DECODE", "LPAD", "||", "SYSDATE", "SYSTIMESTAMP", "TRIM(", "IS NULL", "IS NOT NULL", "null", "LEFT OUTER JOIN", "= ' '", " VARCHAR2", " DATE", " TIMESTAMP", " NUMBER", " BLOB", " LONG", "TO_MULTI_BYTE(", "ADD_MONTHS(", "INSTR(", "REGEXP_SUBSTR(", "REGEXP_LIKE(", "LAST_DAY(", "ROUND(", "TRUNC(" ];
-
-const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  <script>const escapeRegExp = text => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const HIGHLIGHT_RE = new RegExp(`(${HIGHLIGHT_TERMS.toSorted((a, b) => b.length - a.length).map(escapeRegExp).join("|")})`, "g");
 
