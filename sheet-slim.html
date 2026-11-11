@@ -91,7 +91,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: calc(12px * var(--az-scale, 1));
   padding: 6px var(--az-panel-padding);
   border-top: 1px solid var(--az-border);
   color: var(--az-muted);
@@ -122,35 +122,35 @@
 .az-sp-error {
   color: var(--az-error);
   background: var(--az-error-bg);
-  padding: 10px 12px;
+  padding: calc(10px * var(--az-scale, 1)) calc(12px * var(--az-scale, 1));
   border-radius: 8px;
   overflow-wrap: anywhere;
   margin: 0;
 }
 .az-sp-notice .az-sp-error {
-  margin-top: 8px;
+  margin-top: calc(8px * var(--az-scale, 1));
 }
 .az-sp-check {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: calc(8px * var(--az-scale, 1));
   min-width: 0;
   font: 400 var(--az-body-size)/1.55 var(--az-font);
 }
 .az-sp-check input {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: calc(16px * var(--az-scale, 1));
+  height: calc(16px * var(--az-scale, 1));
   margin: 0;
   accent-color: var(--az-accent);
 }
 .az-sp-options-body {
   display: grid;
-  gap: 10px;
+  gap: calc(10px * var(--az-scale, 1));
 }
 .az-sp-field {
   display: grid;
-  gap: 6px;
+  gap: calc(6px * var(--az-scale, 1));
   font: 500 var(--az-body-size)/1.5 var(--az-font);
 }
 .az-sp-dialog-actions {
@@ -182,40 +182,40 @@
 }
 @media (max-width: 650px) {
   .az-sp-panel-foot {
-    padding: 6px 12px;
+    padding: calc(6px * var(--az-scale, 1)) calc(12px * var(--az-scale, 1));
   }
   .az-sp-field select {
-    font-size: 16px;
+    font-size: calc(16px * var(--az-scale, 1));
   }
 }
 @media (max-height: 640px) {
   .az-sp-workspace {
-    min-height: 360px;
+    min-height: calc(360px * var(--az-scale, 1));
   }
   .az-sp-panel > textarea {
-    min-height: 260px;
+    min-height: calc(260px * var(--az-scale, 1));
   }
 }
 @media (any-pointer: coarse) {
   .az-sp-check {
-    min-height: 44px;
+    min-height: calc(44px * var(--az-scale, 1));
   }
 }
 .az-sp-mask-section {
-  margin-top: 12px;
+  margin-top: calc(12px * var(--az-scale, 1));
 }
 .az-sp-mask-section > summary {
   cursor: pointer;
 }
 .az-sp-mask-body {
-  padding-top: 10px;
+  padding-top: calc(10px * var(--az-scale, 1));
 }
 .az-sp-mask-body textarea {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--az-input-border);
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: calc(8px * var(--az-scale, 1)) calc(12px * var(--az-scale, 1));
   resize: vertical;
   background: var(--az-inset);
   color: var(--az-text);
@@ -223,20 +223,20 @@
 }
 .az-sp-mask-list {
   display: grid;
-  gap: 10px;
+  gap: calc(10px * var(--az-scale, 1));
 }
 .az-sp-mask-row {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(120px, .8fr);
   align-items: center;
-  gap: 8px 12px;
-  padding-top: 8px;
+  gap: calc(8px * var(--az-scale, 1)) calc(12px * var(--az-scale, 1));
+  padding-top: calc(8px * var(--az-scale, 1));
 }
 .az-sp-mask-row .az-sp-check {
   align-items: flex-start;
 }
 .az-sp-mask-row .az-sp-check input {
-  margin-top: 3px;
+  margin-top: calc(3px * var(--az-scale, 1));
 }
 .az-sp-mask-row .az-sp-check > span {
   min-width: 0;
@@ -250,14 +250,14 @@
 .az-sp-mask-row input[type=text] {
   min-width: 0;
   width: 100%;
-  padding: 8px;
+  padding: calc(8px * var(--az-scale, 1));
   font: var(--az-editor-size)/1.7 var(--az-mono);
 }
 .az-sp-mask-pages {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: calc(10px * var(--az-scale, 1));
 }
 @media (max-width: 650px) {
   .az-sp-mask-row {
@@ -272,11 +272,11 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: calc(10px * var(--az-scale, 1));
 }
 .az-sp-mask-badge {
   margin-right: auto;
-  padding: 2px 10px;
+  padding: calc(2px * var(--az-scale, 1)) calc(10px * var(--az-scale, 1));
   border-radius: 999px;
   background: var(--az-warning-bg);
   color: var(--az-warning);
@@ -296,7 +296,11 @@ button.az-sp-mask-badge {
 }
 </style>
 <link id="art-favicon" rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20128%20128%22%20data-app-icon%3D%22spec2prompt%22%20data-icon-theme%3D%22light%22%20aria-hidden%3D%22true%22%3E%3Cg%20data-icon-appearance%3D%22light%22%20display%3D%22inline%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-spec2prompt-light-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%230d9488%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-spec2prompt-light-light)%22%2F%3E%3Crect%20x%3D%2257%22%20y%3D%2228%22%20width%3D%2214%22%20height%3D%2272%22%20rx%3D%227%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M22%2064h24M36%2052l12%2012-12%2012M106%2064H82M92%2052%2080%2064l12%2012%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3Cg%20data-icon-appearance%3D%22dark%22%20display%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22art-icon-spec2prompt-dark-light%22%20x1%3D%220%22%20y1%3D%224%22%20x2%3D%220%22%20y2%3D%22124%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22%2F%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22%2314b8a6%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2228%22%20fill%3D%22url(%23art-icon-spec2prompt-dark-light)%22%2F%3E%3Crect%20x%3D%224.75%22%20y%3D%224.75%22%20width%3D%22118.5%22%20height%3D%22118.5%22%20rx%3D%2227.25%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.2%22%20stroke-width%3D%221.5%22%2F%3E%3Crect%20x%3D%2257%22%20y%3D%2228%22%20width%3D%2214%22%20height%3D%2272%22%20rx%3D%227%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M22%2064h24M36%2052l12%2012-12%2012M106%2064H82M92%2052%2080%2064l12%2012%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2211%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
-  <style id="arttools-common-ui">:root {
+  <style id="arttools-common-ui">:where(html) {
+  font-size: calc(16px * var(--az-scale, 1));
+}
+:root {
+  --az-scale: 1;
   --az-font:
     "Noto Sans JP",
     "Hiragino Sans",
@@ -309,42 +313,42 @@ button.az-sp-mask-badge {
     Menlo,
     Consolas,
     monospace;
-  --az-editor-size: 14px;
-  --az-title-size: 15px;
-  --az-body-size: 13px;
-  --az-action-size: 13px;
-  --az-meta-size: 12px;
-  --az-dialog-title-size: 20px;
-  --az-panel-title-size: 16px;
-  --az-gutter: 24px;
-  --az-gap: 16px;
-  --az-panel-padding: 12px;
-  --az-panel-radius: 8px;
-  --az-control-radius: 4px;
-  --az-inner-radius: 6px;
-  --az-dialog-radius: 12px;
+  --az-editor-size: calc(13px * var(--az-scale, 1));
+  --az-title-size: calc(15px * var(--az-scale, 1));
+  --az-body-size: calc(13px * var(--az-scale, 1));
+  --az-action-size: calc(13px * var(--az-scale, 1));
+  --az-meta-size: calc(12px * var(--az-scale, 1));
+  --az-dialog-title-size: calc(13px * var(--az-scale, 1));
+  --az-panel-title-size: calc(13px * var(--az-scale, 1));
+  --az-gutter: calc(24px * var(--az-scale, 1));
+  --az-gap: calc(16px * var(--az-scale, 1));
+  --az-panel-padding: calc(12px * var(--az-scale, 1));
+  --az-panel-radius: calc(8px * var(--az-scale, 1));
+  --az-control-radius: calc(4px * var(--az-scale, 1));
+  --az-inner-radius: calc(6px * var(--az-scale, 1));
+  --az-dialog-radius: calc(12px * var(--az-scale, 1));
   --az-panel-head-height: calc(max(var(--az-action-min-height), var(--az-control-height)) + var(--az-panel-head-padding) * 2 + 1px);
-  --az-panel-head-padding: 12px;
-  --az-panel-head-inline: 16px;
-  --az-action-min-height: 40px;
-  --az-action-padding-block: 9px;
-  --az-action-padding-inline: 16px;
-  --az-action-icon-gap: 8px;
-  --az-action-group-gap: 8px;
-  --az-workspace-bottom: 16px;
-  --az-editor-padding: 12px;
-  --az-control-height: 40px;
-  --az-select-height: 28px;
-  --az-select-arrow-size: 16px;
-  --az-select-arrow-inset: 10px;
-  --az-select-text-gap: 8px;
+  --az-panel-head-padding: calc(12px * var(--az-scale, 1));
+  --az-panel-head-inline: calc(16px * var(--az-scale, 1));
+  --az-action-min-height: calc(40px * var(--az-scale, 1));
+  --az-action-padding-block: calc(9px * var(--az-scale, 1));
+  --az-action-padding-inline: calc(16px * var(--az-scale, 1));
+  --az-action-icon-gap: calc(8px * var(--az-scale, 1));
+  --az-action-group-gap: calc(8px * var(--az-scale, 1));
+  --az-workspace-bottom: calc(16px * var(--az-scale, 1));
+  --az-editor-padding: calc(12px * var(--az-scale, 1));
+  --az-control-height: calc(40px * var(--az-scale, 1));
+  --az-select-height: calc(28px * var(--az-scale, 1));
+  --az-select-arrow-size: calc(16px * var(--az-scale, 1));
+  --az-select-arrow-inset: calc(10px * var(--az-scale, 1));
+  --az-select-text-gap: calc(8px * var(--az-scale, 1));
   --az-select-text-inset: calc(var(--az-select-arrow-size) + var(--az-select-arrow-inset) + var(--az-select-text-gap));
-  --az-dialog-padding: 24px;
-  --az-header-height: 40px;
+  --az-dialog-padding: calc(24px * var(--az-scale, 1));
+  --az-header-height: calc(40px * var(--az-scale, 1));
   --az-workspace-height: calc(100dvh - var(--az-header-height));
-  --az-app-icon-size: 20px;
-  --az-main-top: 16px;
-  --az-toolbar-gap: 12px;
+  --az-app-icon-size: calc(20px * var(--az-scale, 1));
+  --az-main-top: calc(16px * var(--az-scale, 1));
+  --az-toolbar-gap: calc(12px * var(--az-scale, 1));
 }
 html[data-ui-theme=light],
 html:not([data-ui-theme]) {
@@ -436,7 +440,7 @@ html[data-ui-theme=dark] {
   opacity: 1;
 }
 .az-app[data-tool] summary {
-  font: 500 var(--az-action-size)/20px var(--az-font);
+  font: 500 var(--az-action-size)/calc(20px * var(--az-scale, 1)) var(--az-font);
 }
 .az-app [hidden] {
   display: none !important;
@@ -448,14 +452,14 @@ html[data-ui-theme=dark] {
 .az-app :is(button, .az-btn, .az-button) {
   cursor: pointer;
   min-height: var(--az-control-height);
-  padding: 9px 16px;
+  padding: calc(9px * var(--az-scale, 1)) calc(16px * var(--az-scale, 1));
   border: 1px solid var(--az-button-border, var(--az-control-border));
   border-radius: var(--az-control-radius);
   background: var(--az-button-bg, var(--az-surface));
   color: var(--az-button-text, var(--az-text-secondary));
   font-size: var(--az-action-size);
   font-weight: 500;
-  line-height: 20px;
+  line-height: calc(20px * var(--az-scale, 1));
   transition: none;
 }
 .az-app[data-tool] :is(button, .az-btn, .az-button):focus-visible {
@@ -472,8 +476,8 @@ html[data-ui-theme=dark] {
   white-space: nowrap;
 }
 .az-app .az-action-roomy > svg {
-  width: 16px;
-  height: 16px;
+  width: calc(16px * var(--az-scale, 1));
+  height: calc(16px * var(--az-scale, 1));
   flex: none;
 }
 .az-app :is(.az-btn-primary, .az-tool-copy-button, .az-tool-btn-primary, .az-btn-search, .az-primary-btn, .az-tool-btn.az-primary, .az-focus-btn.az-playable, .az-focus-action-btn.az-is-resume, .az-save-message-edit-btn) {
@@ -549,7 +553,7 @@ html[data-ui-theme=dark] {
   flex: none;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: calc(12px * var(--az-scale, 1));
   min-width: 0;
   min-height: var(--az-header-height);
   padding: 2px var(--az-gutter);
@@ -559,7 +563,7 @@ html[data-ui-theme=dark] {
 .az-app .az-identity {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: calc(8px * var(--az-scale, 1));
   min-width: 0;
 }
 .az-app .az-identity > div {
@@ -592,17 +596,17 @@ html[data-ui-theme=dark] {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 8px;
+  gap: calc(8px * var(--az-scale, 1));
 }
 .az-app .az-header-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 7px;
+  width: calc(32px * var(--az-scale, 1));
+  min-width: calc(32px * var(--az-scale, 1));
+  height: calc(32px * var(--az-scale, 1));
+  min-height: calc(32px * var(--az-scale, 1));
+  padding: calc(7px * var(--az-scale, 1));
   border: 1px solid var(--az-control-border);
   border-radius: var(--az-control-radius);
   background: var(--az-surface);
@@ -612,8 +616,8 @@ html[data-ui-theme=dark] {
 }
 .az-app .az-header-button svg {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: calc(16px * var(--az-scale, 1));
+  height: calc(16px * var(--az-scale, 1));
 }
 .az-app .az-dialog {
   position: fixed;
@@ -647,7 +651,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: calc(16px * var(--az-scale, 1));
   padding: var(--az-dialog-padding) var(--az-dialog-padding) 12px;
 }
 .az-app .az-dialog-title {
@@ -661,39 +665,39 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   display: grid;
   place-items: center;
   flex: none;
-  width: 32px;
-  min-height: 32px;
-  padding: 6px;
+  width: calc(32px * var(--az-scale, 1));
+  min-height: calc(32px * var(--az-scale, 1));
+  padding: calc(6px * var(--az-scale, 1));
   border: 0;
   border-radius: var(--az-control-radius);
   background: transparent;
   color: var(--az-icon);
 }
 .az-app .az-close svg {
-  width: 18px;
-  height: 18px;
+  width: calc(18px * var(--az-scale, 1));
+  height: calc(18px * var(--az-scale, 1));
 }
 .az-app .az-dialog-body {
   padding: 0 var(--az-dialog-padding) var(--az-dialog-padding);
 }
 .az-app .az-settings-group {
   overflow: hidden;
-  margin: 0 0 12px;
+  margin: 0 0 calc(12px * var(--az-scale, 1));
   border: 1px solid var(--az-border);
   border-radius: var(--az-panel-radius);
   background: var(--az-surface);
 }
 .az-app .az-settings-row {
   display: grid;
-  gap: 6px;
-  padding: 12px;
+  gap: calc(6px * var(--az-scale, 1));
+  padding: calc(12px * var(--az-scale, 1));
 }
 .az-app .az-theme-row {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
 }
 .az-app .az-theme-row .az-segments {
-  min-width: 216px;
+  min-width: calc(216px * var(--az-scale, 1));
 }
 .az-app .az-settings-row + .az-settings-row {
   border-top: 1px solid var(--az-border);
@@ -706,8 +710,8 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 }
 .az-app .az-segments {
   display: flex;
-  gap: 2px;
-  padding: 3px;
+  gap: calc(2px * var(--az-scale, 1));
+  padding: calc(3px * var(--az-scale, 1));
   border: 1px solid var(--az-border);
   border-radius: var(--az-inner-radius);
   background: var(--az-muted-bg);
@@ -716,18 +720,18 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: calc(8px * var(--az-scale, 1));
   flex: 1;
   min-width: 0;
-  min-height: 34px;
-  padding: 7px 12px;
+  min-height: calc(34px * var(--az-scale, 1));
+  padding: calc(7px * var(--az-scale, 1)) calc(12px * var(--az-scale, 1));
   white-space: nowrap;
   border: 0;
   border-radius: var(--az-control-radius);
   background: transparent;
   color: var(--az-text-secondary);
   font-size: var(--az-action-size);
-  line-height: 20px;
+  line-height: calc(20px * var(--az-scale, 1));
 }
 .az-app .az-segments button[aria-pressed=true] {
   background: var(--az-surface);
@@ -736,12 +740,12 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   box-shadow: var(--az-shadow-sm);
 }
 .az-app .az-segments svg {
-  width: 16px;
-  height: 16px;
+  width: calc(16px * var(--az-scale, 1));
+  height: calc(16px * var(--az-scale, 1));
 }
 .az-app .az-preview {
   margin: 0;
-  padding: 12px;
+  padding: calc(12px * var(--az-scale, 1));
   border: 1px solid var(--az-border);
   border-radius: var(--az-inner-radius);
   background: var(--az-editor-bg);
@@ -749,7 +753,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   overflow: auto;
 }
 .az-app .az-save-note {
-  margin: 0 4px;
+  margin: 0 calc(4px * var(--az-scale, 1));
   color: var(--az-muted);
   font-size: var(--az-meta-size);
   line-height: 1.7;
@@ -768,7 +772,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 .az-app .az-steps li {
   position: relative;
   margin: 0;
-  padding: 18px 18px 18px 58px;
+  padding: calc(18px * var(--az-scale, 1)) calc(18px * var(--az-scale, 1)) calc(18px * var(--az-scale, 1)) calc(58px * var(--az-scale, 1));
   counter-increment: art-step;
 }
 .az-app .az-steps li + li {
@@ -781,8 +785,8 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   top: 20px;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: calc(26px * var(--az-scale, 1));
+  height: calc(26px * var(--az-scale, 1));
   border-radius: 50%;
   color: var(--az-secondary-text);
   background: var(--az-accent-soft);
@@ -796,7 +800,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   color: var(--az-text);
 }
 .az-app .az-steps p {
-  margin: 4px 0 0;
+  margin: calc(4px * var(--az-scale, 1)) 0 0;
   color: var(--az-muted);
   font-size: var(--az-body-size);
   line-height: 1.55;
@@ -804,7 +808,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 .az-app[data-tool=spec2prompt] .az-sp-mask-section > summary {
   display: flex;
   align-items: center;
-  min-height: 32px;
+  min-height: calc(32px * var(--az-scale, 1));
 }
 .az-app[data-tool=spec2prompt] .az-sp-panel-head h2 {
   font: 700 var(--az-panel-title-size)/1.4 var(--az-font);
@@ -828,34 +832,34 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 }
 @media (max-width: 650px) {
   :root {
-    --az-gutter: 16px;
-    --az-panel-head-inline: 12px;
-    --az-control-height: 40px;
-    --az-select-height: 32px;
-    --az-dialog-padding: 16px;
+    --az-gutter: calc(16px * var(--az-scale, 1));
+    --az-panel-head-inline: calc(12px * var(--az-scale, 1));
+    --az-control-height: calc(40px * var(--az-scale, 1));
+    --az-select-height: calc(32px * var(--az-scale, 1));
+    --az-dialog-padding: calc(16px * var(--az-scale, 1));
   }
   .az-app :is(input:not([type=checkbox]), select) {
-    font-size: 16px;
+    font-size: calc(16px * var(--az-scale, 1));
   }
 }
 @media (any-pointer: coarse) {
   :root {
-    --az-control-height: 44px;
-    --az-select-height: 44px;
+    --az-control-height: calc(44px * var(--az-scale, 1));
+    --az-select-height: calc(44px * var(--az-scale, 1));
   }
   .az-app .az-header-button {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-    min-height: 44px;
-    padding: 12px;
+    width: calc(44px * var(--az-scale, 1));
+    min-width: calc(44px * var(--az-scale, 1));
+    height: calc(44px * var(--az-scale, 1));
+    min-height: calc(44px * var(--az-scale, 1));
+    padding: calc(12px * var(--az-scale, 1));
   }
   .az-app .az-segments button {
-    min-height: 44px;
+    min-height: calc(44px * var(--az-scale, 1));
   }
   .az-app .az-close {
-    width: 44px;
-    min-height: 44px;
+    width: calc(44px * var(--az-scale, 1));
+    min-height: calc(44px * var(--az-scale, 1));
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -910,8 +914,8 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   scrollbar-width: auto;
 }
 .az-app .az-dialog::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: calc(8px * var(--az-scale, 1));
+  height: calc(8px * var(--az-scale, 1));
 }
 .az-app .az-dialog::-webkit-scrollbar-track {
   background: transparent;
@@ -955,7 +959,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: calc(16px * var(--az-scale, 1));
   padding: var(--az-dialog-padding) var(--az-dialog-padding) 12px;
   margin: 0;
   border: 0;
@@ -978,24 +982,24 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   display: grid;
   place-items: center;
   flex: none;
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 6px;
+  width: calc(32px * var(--az-scale, 1));
+  min-width: calc(32px * var(--az-scale, 1));
+  height: calc(32px * var(--az-scale, 1));
+  min-height: calc(32px * var(--az-scale, 1));
+  padding: calc(6px * var(--az-scale, 1));
   border: 0;
   border-radius: var(--az-control-radius);
   background: transparent;
   color: var(--az-icon);
 }
 .az-app :is(.az-dialog-head > button) :is(svg, [data-icon]) {
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
+  width: calc(18px * var(--az-scale, 1));
+  height: calc(18px * var(--az-scale, 1));
+  font-size: calc(18px * var(--az-scale, 1));
   line-height: 1;
 }
 .az-app .az-dialog-body > p:not([class]) {
-  margin: 0 0 16px;
+  margin: 0 0 calc(16px * var(--az-scale, 1));
   font-size: var(--az-body-size);
   line-height: 1.55;
 }
@@ -1004,10 +1008,10 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 }
 @media (any-pointer: coarse) {
   .az-app :is(.az-dialog-head > button, .az-modal-header > .az-modal-close-btn, .az-drawer-header > button, .az-import-wizard-header > button) {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-    min-height: 44px;
+    width: calc(44px * var(--az-scale, 1));
+    min-width: calc(44px * var(--az-scale, 1));
+    height: calc(44px * var(--az-scale, 1));
+    min-height: calc(44px * var(--az-scale, 1));
   }
 }
 @media screen and (min-height: 641px) {
@@ -1041,7 +1045,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   background-position: right var(--az-select-arrow-inset) center;
   background-size: var(--az-select-arrow-size) var(--az-select-arrow-size);
   color: var(--az-text);
-  font: 400 var(--az-body-size)/20px var(--az-font);
+  font: 400 var(--az-body-size)/calc(20px * var(--az-scale, 1)) var(--az-font);
   text-overflow: ellipsis;
   cursor: pointer;
   box-shadow: none;
@@ -1053,7 +1057,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
 }
 @media (max-width: 650px) {
   .az-app[data-tool] :is(select:not([size]), select[size="1"]):not([multiple]) {
-    font-size: 16px;
+    font-size: calc(16px * var(--az-scale, 1));
   }
 }
 @media (forced-colors: active) {
@@ -1061,7 +1065,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
     appearance: auto;
     -webkit-appearance: auto;
     background-image: none;
-    padding-inline-end: 12px;
+    padding-inline-end: calc(12px * var(--az-scale, 1));
     border-color: ButtonText;
     color: ButtonText;
   }
@@ -1119,9 +1123,9 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
             <div class="az-segments" role="group" aria-labelledby="art-theme-label"><button type="button" data-art-theme="light" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>ライト</button><button type="button" data-art-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13a8.7 8.7 0 0 1-9.5-9.5A8.7 8.7 0 1 0 20.5 13Z"/></svg>ダーク</button></div>
           </div>
           <div class="az-settings-row">
-            <p class="az-setting-label" id="art-size-label">エディターの文字サイズ</p>
-            <div class="az-segments" role="group" aria-labelledby="art-size-label"><button type="button" data-art-size="10" title="10px" aria-pressed="false">小さめ</button><button type="button" data-art-size="14" title="14px" aria-pressed="true">標準</button><button type="button" data-art-size="18" title="18px" aria-pressed="false">大きめ</button></div>
-            <pre class="az-preview" aria-label="文字サイズのプレビュー">文字サイズを確認</pre>
+            <p class="az-setting-label" id="art-size-label">大きさ</p>
+            <div class="az-segments" role="group" aria-labelledby="art-size-label"><button type="button" data-art-size="small" aria-pressed="false">小</button><button type="button" data-art-size="medium" aria-pressed="true">中</button><button type="button" data-art-size="large" aria-pressed="false">大</button></div>
+            <pre class="az-preview" aria-label="大きさのプレビュー">文字サイズを確認</pre>
           </div>
         </div>
         <p class="az-save-note" id="az-save-note" role="status" hidden></p>
@@ -1141,7 +1145,7 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
       <div class="az-dialog-head"><h2 class="az-dialog-title" id="art-help-title">使い方</h2><button type="button" class="az-close" data-art-close aria-label="使い方を閉じる" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
       <div class="az-dialog-body"><div class="az-settings-group"><ol class="az-steps"><li><strong>Excelから貼り付ける</strong><p>Excelのシートや範囲をコピーして入力欄へ貼り付けます。ファイルから読み込む場合は「Excelを開く」で.xlsx／.xlsとシートを選びます。</p></li><li><strong>短いMarkdownへ整える</strong><p>空行・空列を整理してMarkdownへ変換します。作成者・更新者・氏名などの人名マスキングは初期オンで、右上の「設定」からオフ・候補除外・辞書等を調整できます。文字数の実測値と結果を確認してください。</p></li><li><strong>結果をコピーする</strong><p>「コピー」でAIへ渡すためのMarkdownを取得します。入力内容は保存せず、外部AIへの送信も行いません。</p></li></ol></div><p class="az-save-note">外観や文字サイズは、右上の「設定」から変更できます。</p><details><summary>整形のルール</summary><div class="az-help-prose"><p>Excelでシートまたは範囲をコピーし、入力欄へ貼り付けます。表の形や列数を揃える必要はありません。空セルは省き、同じ行の値を元の順序で「|」でつないだ箇条書きにします。空行の連続は1つの区切りにまとめます。</p><p>出力はMarkdown専用です。セル座標・仮の列名・表の区切り行は付けません。先頭行もデータとして残します。先頭0や数値らしい文字列を変換せず、Markdownとして崩れないよう、セル内の改行は&lt;br&gt;に、&lt; &gt; &amp; は &amp;lt; &amp;gt; &amp;amp; に置き換え、\ | ` の前には \ を付けます。空セルの位置や元の表の配置は再現しません。</p><p>Excelの引用符で囲まれた複数行セルにも対応します。引用符が途中で切れたり文章の先頭にある場合も、入力全体を拒否せず、その範囲の引用符を文字として残します。セルの前後の空白は常に取り除きます。文章の要約・値の省略・文章内の連続空白の変更はしません。</p><p>文字数はUnicode文字の数で、入力と出力の実文字数を比較します。AIごとに異なるトークン数や料金の削減率を示すものではありません。Markdownの記号により文字数が増える場合も、そのまま表示します。</p></div></details>
 <details><summary>Excelファイルからの読み込み</summary><div class="az-help-prose"><p>「Excelを開く」から.xlsx／.xlsを指定し、シートを選んで「入力へ読み込む」を押すと入力欄を置き換えます。表示文字列だけを読み込み、元Excelへは書き込みません。非表示シートは自分で選べます。非表示の行・列は専用のチェックで含められます。</p><p>画像・図形・色・罫線・結合セルのレイアウト、コメントやリンク先URLは出力しません。数式は再計算せず、保存済みの結果がない場合は未取得の表示を残します。読み込みの表示文字列を入力として文字数を比較し、元ファイルのbytesから削減率を計算しません。</p><p>ファイル25MiB・非空セル150,000件まで。貼り付けは2,000万文字・値のあるセル150,000件まで。展開後の容量・処理時間にも上限があります。空の行・列は取り込む前に整理するため、離れたセルがあっても、その間の巨大な空領域は作りません。文字量の上限を超える場合は範囲を分けてください。</p></div></details>
-<details><summary>任意マスキングの範囲</summary><div class="az-help-prose"><p>作成者・更新者・最終更新者・氏名・担当者・承認者等の欄（空セルを挟む配置、縦の氏名列、ラベル付き文章）と、メール・電話番号・秘密値らしい文字列を候補化し、[PERSON_001]等へ置換します。同じ値には同じ置換値を使い、重なる語は長い一致を優先します。既存のプレースホルダーと自動生成の番号は重複させません。候補の検出だけでは出力を変えず、「出力にマスキングを適用する」がオンのときだけ適用します。</p><p>辞書は1行に元の値、タブ区切りでPERSON・COMPANY・PROJECT・SECRET・CUSTOM等の種別、または[CLIENT_001]等の置換値を指定します。省略時はCUSTOM。追加パターンは1行1正規表現で、空文字へ一致する規則は使えません。辞書300行、追加規則30行、候補2,000種類・候補文字数20万まで。処理時間の上限も適用します。</p><p>候補と辞書は自動保存しません。「クリア」で入力・結果・辞書・候補を破棄し、適用をオンへ戻します。次に入力するまでは「元に戻す」で入力・辞書・追加パターンを復元できます（候補ごとの除外や置換値の編集は戻りません）。Markdown見出し横の「マスキング N件」を押すと、設定内の候補一覧を開けます。最終確認の3段階は必須にせず、通常の整形・コピーの流れで使えます。</p></div></details><details><summary>ローカル動作</summary><div class="az-help-prose"><p>入力と出力はメモリ内だけに保持し、再読み込みや「クリア」で消去します。外観と文字サイズ以外は自動保存しません。すべてHTML内で処理し、外部AIへの送信は行いません。マスキングは初期オンです。作成者・更新者・氏名・担当者・承認者などの欄を手がかりに、出力へ適用します。右上の「設定」でオフにしたり、候補・辞書・置換値を調整したりできます。入力の原文は変えず、出力だけを置換します。誤検知を除外でき、辞書・追加パターン・置換値も指定できます。作成日・更新日・データ型や項目名は人名扱いしません。ラベルのない人名、表記が異なる人名は辞書へ追加できます。検出漏れや誤検知があるため、適用後の内容も確認してください。</p><p>「コピー」でMarkdownを取得します。</p></div></details>
+<details><summary>任意マスキングの範囲</summary><div class="az-help-prose"><p>作成者・更新者・最終更新者・氏名・担当者・承認者等の欄（空セルを挟む配置、縦の氏名列、ラベル付き文章）と、メール・電話番号・秘密値らしい文字列を候補化し、[PERSON_001]等へ置換します。同じ値には同じ置換値を使い、重なる語は長い一致を優先します。既存のプレースホルダーと自動生成の番号は重複させません。候補の検出だけでは出力を変えず、「出力にマスキングを適用する」がオンのときだけ適用します。</p><p>辞書は1行に元の値、タブ区切りでPERSON・COMPANY・PROJECT・SECRET・CUSTOM等の種別、または[CLIENT_001]等の置換値を指定します。省略時はCUSTOM。追加パターンは1行1正規表現で、空文字へ一致する規則は使えません。辞書300行、追加規則30行、候補2,000種類・候補文字数20万まで。処理時間の上限も適用します。</p><p>候補と辞書は自動保存しません。「クリア」で入力・結果・辞書・候補を破棄し、適用をオンへ戻します。次に入力するまでは「元に戻す」で入力・辞書・追加パターンを復元できます（候補ごとの除外や置換値の編集は戻りません）。Markdown見出し横の「マスキング N件」を押すと、設定内の候補一覧を開けます。最終確認の3段階は必須にせず、通常の整形・コピーの流れで使えます。</p></div></details><details><summary>ローカル動作</summary><div class="az-help-prose"><p>入力と出力はメモリ内だけに保持し、再読み込みや「クリア」で消去します。外観と大きさ以外は自動保存しません。すべてHTML内で処理し、外部AIへの送信は行いません。マスキングは初期オンです。作成者・更新者・氏名・担当者・承認者などの欄を手がかりに、出力へ適用します。右上の「設定」でオフにしたり、候補・辞書・置換値を調整したりできます。入力の原文は変えず、出力だけを置換します。誤検知を除外でき、辞書・追加パターン・置換値も指定できます。作成日・更新日・データ型や項目名は人名扱いしません。ラベルのない人名、表記が異なる人名は辞書へ追加できます。検出漏れや誤検知があるため、適用後の内容も確認してください。</p><p>「コピー」でMarkdownを取得します。</p></div></details>
 <details><summary>ライセンス文書</summary><div class="az-help-prose"><p>使用ライブラリのライセンスは同梱の <a href="licenses/sheet-slim.txt" target="_blank" rel="noopener">licenses/sheet-slim.txt</a> に記載しています。配布HTMLと一緒に保管してください。</p></div></details>
 </div>
     </dialog>
@@ -1626,20 +1630,30 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   let preferences = {};
   let faviconTheme = "";
   const validTheme = value => value === "light" || value === "dark";
-  const editorSizes = [ 10, 14, 18 ];
-  const validSize = value => editorSizes.includes(value);
-  const migrateSize = value => value === 12 || value === 13 ? 10 : value === 16 ? 18 : value;
+  const sizeScales = {
+    small: .85,
+    medium: 1,
+    large: 1.2
+  };
+  const validSize = value => Object.hasOwn(sizeScales, value);
+  const legacySize = value => {
+    const editor = Number(value.editorSize), scale = Number(value.scale);
+    if (Number.isFinite(scale) && scale > 0 && scale !== 100) return scale < 100 ? "small" : "large";
+    if (editor === 10 || editor === 12) return "small";
+    if (editor === 16 || editor === 18) return "large";
+    return undefined;
+  };
   function readPreferences(raw) {
     try {
       const value = JSON.parse(raw);
       if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-      const editorSize = migrateSize(typeof value.editorSize === "string" && value.editorSize.trim() ? Number(value.editorSize) : value.editorSize);
+      const size = validSize(value.size) ? value.size : legacySize(value);
       return {
         ...validTheme(value.theme) ? {
           theme: value.theme
         } : {},
-        ...validSize(editorSize) ? {
-          editorSize
+        ...size ? {
+          size
         } : {}
       };
     } catch {
@@ -1677,10 +1691,10 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
     syncTheme();
   }
   function applySize(size) {
-    const nextSize = validSize(size) ? size : 14;
-    root.style.setProperty("--az-editor-size", nextSize + "px");
+    const nextSize = validSize(size) ? size : "medium";
+    root.style.setProperty("--az-scale", String(sizeScales[nextSize]));
     document.querySelectorAll("[data-art-size]").forEach(button => {
-      button.setAttribute("aria-pressed", String(Number(button.dataset.artSize) === nextSize));
+      button.setAttribute("aria-pressed", String(button.dataset.artSize === nextSize));
     });
     document.dispatchEvent(new CustomEvent("arttools:editor-size-change", {
       detail: {
@@ -1775,8 +1789,8 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
   });
   document.querySelectorAll("[data-art-size]").forEach(button => {
     button.addEventListener("click", () => {
-      preferences.editorSize = Number(button.dataset.artSize);
-      applySize(preferences.editorSize);
+      preferences.size = button.dataset.artSize;
+      applySize(preferences.size);
       save();
     });
   });
@@ -1790,12 +1804,15 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
       }
     }
     preferences = readPreferences(raw);
-    if (validSize(preferences.editorSize)) {
+    if (raw !== null) {
       const stored = JSON.parse(raw);
-      if (stored.editorSize !== preferences.editorSize) {
+      if (stored && typeof stored === "object" && ("editorSize" in stored || "scale" in stored)) {
+        const {editorSize, scale, ...rest} = stored;
         localStorage.setItem(storageKey, JSON.stringify({
-          ...stored,
-          editorSize: preferences.editorSize
+          ...rest,
+          ...preferences.size ? {
+            size: preferences.size
+          } : {}
         }));
       }
     }
@@ -1805,12 +1822,12 @@ html[data-ui-theme=dark] .az-dialog::backdrop {
     saveNote.dataset.error = "true";
   }
   applyTheme(preferences.theme);
-  applySize(preferences.editorSize);
+  applySize(preferences.size);
   window.addEventListener("storage", event => {
     if (event.key !== storageKey && event.key !== null) return;
     preferences = readPreferences(event.newValue);
     applyTheme(preferences.theme);
-    applySize(preferences.editorSize);
+    applySize(preferences.size);
   });
 })();</script>
   </body></html>
